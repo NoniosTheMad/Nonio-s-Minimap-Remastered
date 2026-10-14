@@ -1,0 +1,12 @@
+You are an attacker (survival) with swords + pickaxe. Accept the resource pack (the shell needs it).
+1. Look at the obsidian: it sits in a shimmering forcefield cube (worldborder-style stripes, pale blue = white team).
+2. Try mining the obsidian: the shell flashes and the actionbar says "The Barrier protects the Nexus - break it first" (no HP numbers; defenders hitting their own see "Your team's Barrier").
+3. Hit it with the sword: white flash + bulge, glass chips fly off, sparks, shield-block sound.
+4. Damage stages - step back 10-20 blocks and check you can tell them apart:
+   cracks are now vanilla block-breaking cracks (like mining a block): 75% light cracks, tint greyish |
+   50% more cracks, pink-red, smaller, flickers now and then | 25% heavy cracks, red, smallest, flickers often.
+5. The bossbar is now only for the barrier's own team: as attacker you see none; join defenders (G menu) to see it.
+6. Break it to 0: the shell bursts and shatters; then mine the obsidian = NEXUS DESTROYED.
+7. G > "Demo: Nexus Barrier" > Reset Nexus: the shell re-forms. Regen x20 + stop hitting: cracks mend stage by stage, full HP = pulse + chime.
+8. Clicking "Join attackers" twice now says "Already on team black" instead of repeating the join line.
+Feedback: do the vanilla-style cracks look right on the shell and read from a distance? tint/size steps, flicker rate.
