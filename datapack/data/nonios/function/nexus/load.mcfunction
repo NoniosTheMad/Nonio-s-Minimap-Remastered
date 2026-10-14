@@ -5,13 +5,16 @@ scoreboard objectives add nx.hp_max dummy
 scoreboard objectives add nx.cd dummy
 scoreboard objectives add nx.alert dummy
 scoreboard objectives add nx.regen dummy
-# shell visuals: nx.col team tint, nx.stage 0 ok/1 cracked/2 critical, nx.fx ticks until rest pose
+# shell visuals: nx.col current tint, nx.stage 0 >75% / 1 <=75% / 2 <=50% / 3 <=25%, nx.fx ticks until rest pose
 scoreboard objectives add nx.col dummy
 scoreboard objectives add nx.stage dummy
 scoreboard objectives add nx.fx dummy
 # per player: gametime of the next allowed explain message
 scoreboard objectives add nx.msg_t dummy
-data modify storage nonios:nexus col set value {white:11069695,black:12086271}
+# per-team visuals: shard = glass particles on hits/shatter; col = shell tint per damage stage 0..3 (shifts to red)
+data remove storage nonios:nexus col
+data modify storage nonios:nexus team.white set value {shard:"minecraft:light_blue_stained_glass",col:[11069695,12760769,14451587,15882575]}
+data modify storage nonios:nexus team.black set value {shard:"minecraft:purple_stained_glass",col:[12086271,13459137,14897539,16008783]}
 team add white
 team modify white color white
 team add black
@@ -28,3 +31,5 @@ execute unless score #regen_mult nx.const matches 1.. run scoreboard players set
 execute unless score #regen_delay nx.const matches 0.. run scoreboard players set #regen_delay nx.const 200
 scoreboard players set #regen_unit nx.const 24000
 scoreboard players set #100 nx.const 100
+scoreboard players set #5 nx.const 5
+scoreboard players set #-1 nx.const -1

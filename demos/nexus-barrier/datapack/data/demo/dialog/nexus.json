@@ -9,7 +9,7 @@
    "type": "minecraft:plain_message",
    "width": 310,
    "contents": {
-    "text": "The obsidian is the Nexus. Its Barrier (bossbar) is the shimmering forcefield cube around it: hit it to damage it (it flashes; the actionbar explains). Damage = your weapon's attack damage. It cracks at 50% and flickers at 25%. After 10 s without hits it regenerates 5% of max per minute. At 0 it shatters for good and the obsidian can be mined. Defenders always see the bar and get an alert; anyone within 24 blocks sees it too.",
+    "text": "The obsidian is the Nexus. Its Barrier is the shimmering forcefield cube around it: hit it to damage it (it flashes; the actionbar explains and shows HP). Damage = your weapon's attack damage. At 75/50/25% it cracks more, turns redder, shrinks and flickers. After 10 s without hits it regenerates 5% of max per minute. At 0 it shatters for good and the obsidian can be mined. Only the barrier's own team sees the bossbar (plus an alert when attacked).",
     "color": "gray"
    }
   }

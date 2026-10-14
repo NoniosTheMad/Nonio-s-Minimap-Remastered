@@ -1,9 +1,11 @@
 You are an attacker (survival) with swords + pickaxe. Accept the resource pack (the shell needs it).
 1. Look at the obsidian: it sits in a shimmering forcefield cube (worldborder-style stripes, pale blue = white team).
-2. Try mining the obsidian with the pickaxe: the shell flashes and the actionbar says "The Barrier protects the Nexus - break it first (HP x/y)".
-3. Hit it with the sword: each hit = white flash + bulge, sparks, shield-block sound; bossbar drops (~70 of 1000).
-4. Below 50% HP the shell shows cracks (glass-crack sound); below 25% it is heavily cracked and flickers.
-5. Break it to 0: the shell bursts outward and shatters (glass + sparks); then mine the obsidian = NEXUS DESTROYED.
-6. G > "Demo: Nexus Barrier" > Reset Nexus: the shell re-forms (grows in with portal particles + beacon sound).
-7. Regen x20 + stop hitting: cracks mend as HP climbs; at full HP a bright pulse + chime. Join defenders and hit your own shell: different message, no damage.
-Feedback: is it obvious it's a shield? shell look/tint/size, flash feel, crack stages, message wording, shatter/re-form.
+2. Try mining the obsidian: the shell flashes and the actionbar says "The Barrier protects the Nexus - break it first (HP x/y)".
+3. Hit it with the sword: white flash + bulge, glass chips fly off, sparks, shield-block sound.
+4. Damage stages - step back 10-20 blocks and check you can tell them apart:
+   75% first crack star, tint turns greyish | 50% many cracks, pink-red, smaller, flickers now and then | 25% shattered look, red, smallest, flickers often.
+5. The bossbar is now only for the barrier's own team: as attacker you see none; join defenders (G menu) to see it.
+6. Break it to 0: the shell bursts and shatters; then mine the obsidian = NEXUS DESTROYED.
+7. G > "Demo: Nexus Barrier" > Reset Nexus: the shell re-forms. Regen x20 + stop hitting: cracks mend stage by stage, full HP = pulse + chime.
+8. Clicking "Join attackers" twice now says "Already on team black" instead of repeating the join line.
+Feedback: are the damage stages readable from a distance? tint/size steps, crack look, flicker rate.
