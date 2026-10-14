@@ -1,7 +1,7 @@
 #version 330
 #extension GL_ARB_separate_shader_objects : require
 
-// nonios:thermal, pass 1 - find "heat signatures".
+// nonios:hp_sig - find HP "heat signatures" (used by Alien and Angel).
 // Post effects can't read health, so the datapack encodes it: entities glow
 // (vanilla Glowing) and their team colour = HP bracket. The vanilla outline is
 // composited into the main image before /posteffect shaders run, so this pass

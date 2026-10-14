@@ -29,6 +29,7 @@ layout(location = 1) out float cylindricalVertexDistance;
 layout(location = 2) out vec4 vertexColor;
 layout(location = 3) out vec2 texCoord0;
 layout(location = 4) out float chunkVisibility;
+layout(location = 5) out float blockLight; // nonios: block light 0..1 for the heat marker
 
 void main() {
     vec3 pos = Position + (ChunkPosition - CameraBlockPos) + CameraOffset;
@@ -46,6 +47,7 @@ void main() {
     vertexColor = Color;
     #endif
     texCoord0 = UV0;
+    blockLight = clamp(float(UV2.x) / 240.0, 0.0, 1.0);
 
     const float chunkFullyVisibleRange = 16.0;
     float dist = length(pos);

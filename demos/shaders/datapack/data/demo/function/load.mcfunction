@@ -16,8 +16,13 @@ scoreboard objectives add demo.pct dummy
 scoreboard objectives add demo.mad dummy
 scoreboard objectives add demo.madp dummy
 scoreboard objectives add demo.mpct dummy
+scoreboard objectives add demo.mtg dummy
+scoreboard objectives add demo.mtk dummy
+scoreboard objectives add demo.dcd dummy
+scoreboard objectives add demo.dmg minecraft.custom:minecraft.damage_taken
 scoreboard players set #100 demo.st 100
 scoreboard players set #20 demo.st 20
+scoreboard players set #6 demo.st 6
 team add demo.hp1
 team modify demo.hp1 color red
 team add demo.hp2

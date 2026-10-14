@@ -6,6 +6,7 @@ execute if score @s demo.look matches 4 run data modify storage demo:ui fx appen
 execute if score @s demo.look matches 5 run data modify storage demo:ui fx append value "Monster"
 execute if score @s demo.look matches 6 run data modify storage demo:ui fx append value "Angel"
 execute if score @s demo.look matches 7 run data modify storage demo:ui fx append value "Neon"
+execute if score @s demo.look matches 8 run data modify storage demo:ui fx append value "Alien"
 execute if score @s demo.col matches 11 run data modify storage demo:ui fx append value "Rainbow"
 execute if score @s demo.col matches 12 run data modify storage demo:ui fx append value "Comic"
 execute if score @s demo.line matches 21 run data modify storage demo:ui fx append value "Ink"

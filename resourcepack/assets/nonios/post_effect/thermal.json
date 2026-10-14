@@ -1,31 +1,43 @@
 {
     "targets": {
         "swap": {},
-        "sig": {},
-        "blur": {}
+        "heat": {},
+        "tmp": {},
+        "glow": {},
+        "wide": {}
     },
     "passes": [
         {
             "vertex_shader": "minecraft:core/screenquad",
-            "fragment_shader": "nonios:post/thermal_sig",
+            "fragment_shader": "nonios:post/thermal_heat",
             "inputs": [
                 {
                     "sampler_name": "In",
                     "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
                 }
             ],
-            "output": "sig",
+            "output": "heat",
             "uniforms": {
-                "SignatureConfig": [
+                "HeatConfig": [
                     {
-                        "name": "MinBright",
+                        "name": "EntityHeat",
                         "type": "float",
-                        "value": 0.2
+                        "value": 0.62
                     },
                     {
-                        "name": "Tolerance",
+                        "name": "ColdLuma",
                         "type": "float",
-                        "value": 0.16
+                        "value": 0.12
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
                     }
                 ]
             }
@@ -36,11 +48,11 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "sig",
+                    "target": "heat",
                     "bilinear": true
                 }
             ],
-            "output": "blur",
+            "output": "tmp",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -54,7 +66,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 6.0
+                        "value": 5.0
                     }
                 ]
             }
@@ -65,11 +77,11 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "blur",
+                    "target": "tmp",
                     "bilinear": true
                 }
             ],
-            "output": "sig",
+            "output": "glow",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -83,7 +95,65 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 6.0
+                        "value": 5.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "glow",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 16.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "wide",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 16.0
                     }
                 ]
             }
@@ -97,8 +167,17 @@
                     "target": "minecraft:main"
                 },
                 {
+                    "sampler_name": "Heat",
+                    "target": "heat"
+                },
+                {
                     "sampler_name": "Glow",
-                    "target": "sig",
+                    "target": "glow",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Wide",
+                    "target": "wide",
                     "bilinear": true
                 },
                 {
@@ -111,44 +190,64 @@
             "uniforms": {
                 "ThermalConfig": [
                     {
-                        "name": "WorldHeat",
-                        "type": "float",
-                        "value": 0.36
+                        "name": "ColdDark",
+                        "type": "vec4",
+                        "value": [
+                            0.012,
+                            0.01,
+                            0.05,
+                            1.0
+                        ]
                     },
                     {
-                        "name": "EmissiveHeat",
-                        "type": "float",
-                        "value": 0.45
+                        "name": "ColdLight",
+                        "type": "vec4",
+                        "value": [
+                            0.2,
+                            0.1,
+                            0.46,
+                            1.0
+                        ]
                     },
                     {
-                        "name": "SkyCold",
-                        "type": "float",
-                        "value": 0.25
+                        "name": "EdgeColor",
+                        "type": "vec4",
+                        "value": [
+                            0.18,
+                            0.22,
+                            0.6,
+                            1.0
+                        ]
                     },
                     {
-                        "name": "EdgeHeat",
+                        "name": "ColdGamma",
+                        "type": "float",
+                        "value": 0.75
+                    },
+                    {
+                        "name": "HeatStart",
                         "type": "float",
                         "value": 0.12
                     },
                     {
                         "name": "GlowStrength",
                         "type": "float",
-                        "value": 2.2
+                        "value": 0.9
                     },
                     {
-                        "name": "CoreWhite",
+                        "name": "WideStrength",
                         "type": "float",
-                        "value": 0.45
+                        "value": 0.55
                     },
                     {
-                        "name": "MinBright",
+                        "name": "EdgeStrength",
                         "type": "float",
-                        "value": 0.2
+                        "value": 0.6
                     },
                     {
-                        "name": "Tolerance",
+                        "name": "Grain",
                         "type": "float",
-                        "value": 0.16
+                        "value": 0.035
                     },
                     {
                         "name": "DepthReversed",

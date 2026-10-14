@@ -18,6 +18,7 @@ layout(location = 0) out float sphericalVertexDistance;
 layout(location = 1) out float cylindricalVertexDistance;
 layout(location = 2) out vec2 texCoord0;
 layout(location = 3) out vec4 vertexColor;
+layout(location = 4) out float blockLight; // nonios: heat marker
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(nonios_acid_warp(Position, nonios_acid_amount(Sampler2)), 1.0);
@@ -26,4 +27,5 @@ void main() {
     cylindricalVertexDistance = fog_cylindrical_distance(Position);
     texCoord0 = UV0;
     vertexColor = Color * sample_lightmap(Sampler2, UV2);
+    blockLight = clamp(float(UV2.x) / 240.0, 0.0, 1.0);
 }

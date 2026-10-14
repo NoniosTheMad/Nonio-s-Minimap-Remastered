@@ -12,12 +12,16 @@
 // sharp lights sparkle with four-point glints. In the sky the large scale becomes nebula
 // gloom (the v2 moon-behind-leaves aura is the same mechanism, now on purpose).
 // Shadows get a cool lift and the sky a deep-space grade at night, so it stays playable.
+// v4 (#55): + the v2 aura (moon behind leaves: violet -> teal glow around the tree, on the sky and on
+// the leaves themselves), + a real night sky: a nebula and a star field fixed to the sky (decoded from
+// the code the demo overlay sky.fsh hides in the sky colour), + a stronger moon with a corona.
 
 uniform sampler2D InSampler;
 uniform sampler2D LightSampler;
 uniform sampler2D SmallSampler;
 uniform sampler2D MidSampler;
 uniform sampler2D LargeSampler;
+uniform sampler2D AuraSampler;
 uniform sampler2D DepthSampler;
 
 layout(location = 0) in vec2 texCoord;
@@ -30,6 +34,11 @@ layout(std140) uniform SamplerInfo {
 layout(std140) uniform CosmicConfig {
     vec4 SpaceColor;       // deep-space sky tint at night
     vec4 ShadowColor;      // cool lift in dark terrain
+    vec4 AuraA;            // v2 aura: sparse colour
+    vec4 AuraB;            // v2 aura: dense colour
+    vec4 NebColA;          // sky nebula field A
+    vec4 NebColB;          // sky nebula field B
+    vec4 StarColor;
     float SmallStrength;
     float MidStrength;
     float LargeStrength;
@@ -43,6 +52,13 @@ layout(std140) uniform CosmicConfig {
     float Spill;           // how much large halo lights terrain
     float ShadowLift;
     float SpaceStrength;
+    float AuraGain;        // v2 NebulaGain (40)
+    float AuraStrength;    // on the sky
+    float AuraSpill;       // on terrain / leaves
+    float NebStrength;
+    float StarStrength;
+    float StarSpike;       // pixels
+    float MoonCorona;
     float DepthReversed;
 };
 
@@ -73,6 +89,15 @@ float noise(vec2 p) {
     f = f * f * (3.0 - 2.0 * f);
     return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
                mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+// star level 0..3 from the sky code (blue channel, two lowest bits)
+float starAt(ivec2 p) {
+    ivec2 sz = ivec2(InSize) - 1;
+    p = clamp(p, ivec2(0), sz);
+    float d = texelFetch(DepthSampler, p, 0).r;
+    if (mix(1.0 - d, d, DepthReversed) >= 1e-6) return 0.0;   // geometry carries other codes
+    return float(int(floor(texelFetch(InSampler, p, 0).b * 255.0 + 0.5)) & 3);
 }
 
 void main() {
@@ -130,6 +155,38 @@ void main() {
     // --- terrain: light spill + cool shadow lift
     vec3 ground = c * (1.0 + large * Spill) + halo + glint;
     ground += ShadowColor.rgb * ShadowLift * (1.0 - smoothstep(0.0, 0.4, l));
+
+    // --- v2 aura: density of leaf gaps / stars around the moon, coloured violet -> teal
+    vec4 aura = texture(AuraSampler, texCoord);
+    float n = aura.r * AuraGain;
+    vec3 auraCol = mix(AuraA.rgb, AuraB.rgb, smoothstep(0.3, 2.0, n)) * smoothstep(0.0, 1.0, n);
+    auraCol *= shimmer;
+    skyCol += auraCol * AuraStrength;
+    ground += auraCol * AuraSpill;
+
+    // --- night sky: nebula + star field (sky code, fixed to world directions)
+    float night = dark * sky;
+    vec3 neb = NebColA.rgb * aura.g + NebColB.rgb * aura.b;
+    neb *= 0.75 + 0.5 * n1;
+    skyCol += neb * NebStrength * night;
+    ivec2 ip = ivec2(gl_FragCoord.xy);
+    float s0 = starAt(ip) / 3.0;
+    float soft = 0.0;
+    float spike = 0.0;
+    for (int i = 1; i <= 7; i++) {
+        float k = float(i) / 8.0;
+        int o = max(1, int(float(i) * StarSpike / 7.0));
+        float m = max(max(starAt(ip + ivec2(o, 0)), starAt(ip - ivec2(o, 0))), max(starAt(ip + ivec2(0, o)), starAt(ip - ivec2(0, o))));
+        spike += step(2.5, m) * (1.0 - k) * (1.0 - k);       // only the brightest stars (level 3) get spikes
+        if (i <= 2) soft += m / 3.0 * (i == 1 ? 0.5 : 0.25); // small soft glow on every star
+    }
+    float tw = 0.65 + 0.35 * sin(t * 1300.0 + hash(floor(gl_FragCoord.xy / 3.0)) * TAU);
+    skyCol += StarColor.rgb * ((s0 * s0 + soft * 0.5) * StarStrength * tw + spike * 0.3) * night;
+
+    // --- moon: brighter disc + cool corona (mid/large halos of the bright sky light)
+    float moon = smoothstep(0.55, 0.9, l) * sky;
+    skyCol += skyCol * moon * vec3(0.25, 0.3, 0.4);
+    skyCol += (mid * 0.6 + large) * MoonCorona * vec3(0.75, 0.88, 1.15) * night;
 
     vec3 col = mix(ground, skyCol, sky);
     // soft shoulder instead of a hard clip, keeps halo colours

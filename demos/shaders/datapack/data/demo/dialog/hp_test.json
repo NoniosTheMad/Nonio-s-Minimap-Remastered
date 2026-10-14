@@ -9,7 +9,7 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "With Thermal or Angel on, every player and the patients glow in their HP colour: red <= 30%, gold <= 65%, green above; purple > 20 hearts, aqua > 40 hearts (tiers double, log scale). Press F5 to see yourself. Monster: madness grows below 60%, 35% and 15% HP.",
+                "text": "With Alien or Angel on, every player and the patients glow in their HP colour: red <= 30%, gold <= 65%, green above; purple > 20 hearts, aqua > 40 hearts (tiers double, log scale). Press F5 to see yourself. Monster: madness closes in below 70% HP, slowly.",
                 "color": "gray"
             }
         },
@@ -25,16 +25,16 @@
     "actions": [
         {
             "label": {
-                "text": "Thermal on",
-                "color": "aqua"
+                "text": "Alien on",
+                "color": "green"
             },
             "width": 100,
             "action": {
                 "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 3"
+                "command": "trigger demo.fx set 8"
             },
             "tooltip": {
-                "text": "Set the Thermal look"
+                "text": "Set the Alien look"
             }
         },
         {

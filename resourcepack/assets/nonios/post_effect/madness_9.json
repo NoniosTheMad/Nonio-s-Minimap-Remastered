@@ -1,0 +1,98 @@
+{
+    "targets": {
+        "swap": {}
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/madness",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main",
+                    "bilinear": true
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "MadnessConfig": [
+                    {
+                        "name": "InkColor",
+                        "type": "vec4",
+                        "value": [
+                            0.03,
+                            0.0,
+                            0.01,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "FaceColor",
+                        "type": "vec4",
+                        "value": [
+                            0.78,
+                            0.72,
+                            0.66,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Intensity",
+                        "type": "float",
+                        "value": 0.9
+                    },
+                    {
+                        "name": "Tendrils",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Watchers",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Bleed",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Breath",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Drift",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "output": "minecraft:main",
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

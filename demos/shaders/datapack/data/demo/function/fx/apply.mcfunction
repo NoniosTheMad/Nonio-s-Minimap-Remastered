@@ -7,10 +7,18 @@ execute if score @s demo.look matches 4 run posteffect add @s nonios:cosmic
 execute if score @s demo.look matches 5 run posteffect add @s nonios:monster
 execute if score @s demo.look matches 6 run posteffect add @s nonios:angel
 execute if score @s demo.look matches 7 run posteffect add @s nonios:neon
-# Monster madness (HP tier 1..3) sits right on top of the look
+execute if score @s demo.look matches 8 run posteffect add @s nonios:alien
+# Monster madness (level 1..10, eased toward the HP target) sits right on top of the look
 execute if score @s demo.look matches 5 if score @s demo.mad matches 1 run posteffect add @s nonios:madness_1
 execute if score @s demo.look matches 5 if score @s demo.mad matches 2 run posteffect add @s nonios:madness_2
 execute if score @s demo.look matches 5 if score @s demo.mad matches 3 run posteffect add @s nonios:madness_3
+execute if score @s demo.look matches 5 if score @s demo.mad matches 4 run posteffect add @s nonios:madness_4
+execute if score @s demo.look matches 5 if score @s demo.mad matches 5 run posteffect add @s nonios:madness_5
+execute if score @s demo.look matches 5 if score @s demo.mad matches 6 run posteffect add @s nonios:madness_6
+execute if score @s demo.look matches 5 if score @s demo.mad matches 7 run posteffect add @s nonios:madness_7
+execute if score @s demo.look matches 5 if score @s demo.mad matches 8 run posteffect add @s nonios:madness_8
+execute if score @s demo.look matches 5 if score @s demo.mad matches 9 run posteffect add @s nonios:madness_9
+execute if score @s demo.look matches 5 if score @s demo.mad matches 10 run posteffect add @s nonios:madness_10
 execute if score @s demo.col matches 11 run posteffect add @s nonios:rainbow
 execute if score @s demo.col matches 12 run posteffect add @s nonios:comic
 execute if score @s demo.line matches 21 run posteffect add @s nonios:ink

@@ -37,6 +37,11 @@
                         "value": 224.0
                     },
                     {
+                        "name": "FadeStart",
+                        "type": "float",
+                        "value": 0.55
+                    },
+                    {
                         "name": "Near",
                         "type": "float",
                         "value": 0.05

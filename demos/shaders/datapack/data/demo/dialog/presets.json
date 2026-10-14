@@ -54,7 +54,7 @@
                 "command": "trigger demo.fx set 43"
             },
             "tooltip": {
-                "text": "Angel look: luminous world, thermal sight only on living things (see HP test)"
+                "text": "Angel look: gold bloom, god rays, rising motes; living things glow by HP"
             }
         },
         {

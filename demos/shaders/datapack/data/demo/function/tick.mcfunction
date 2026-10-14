@@ -11,7 +11,7 @@ execute if entity @a[scores={demo.fx=65}] run function demo:cycle {on:"false",ms
 # gallery
 execute as @a[scores={demo.fx=70}] run tp @s 0.5 64 4.5 0 15
 execute if entity @a[scores={demo.fx=71}] run function demo:rebuild
-# HP test (Thermal / Angel)
+# HP test (Alien / Angel)
 execute as @a[scores={demo.fx=80}] run function demo:hp/hurt
 execute as @a[scores={demo.fx=81}] run effect give @s instant_health 1 4 true
 execute as @a[scores={demo.fx=82}] run effect give @s absorption 600 9 true
@@ -24,6 +24,9 @@ function demo:hp/update
 # Monster look: heartbeat sound + madness tiers
 execute if entity @a[scores={demo.look=5}] store result score #r demo.st run random value 1..1000
 execute as @a[scores={demo.look=5}] at @s run function demo:monster/tick
+scoreboard players reset @a[scores={demo.dmg=1..}] demo.dmg
+# Angel look: motes rise from the ground around the player
+execute as @a[scores={demo.look=6}] at @s run function demo:angel/tick
 scoreboard players add #hud demo.st 1
 execute if score #hud demo.st matches 40.. as @a run function demo:fx/hud
 execute if score #hud demo.st matches 40.. run scoreboard players set #hud demo.st 0

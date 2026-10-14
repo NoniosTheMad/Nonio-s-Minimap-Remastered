@@ -3,17 +3,21 @@
 
 #include <minecraft:globals.glsl>
 
-// nonios:angel - majestic, ethereal world; thermal sight only on living things.
-// World: lifted soft whites and golds, gentle bloom, luminous depth haze, drifting light motes.
-// Living entities with HP (they glow while Angel/Thermal is on, team colour = HP bracket):
-//  - body pixels are recognised by a marker the shaders demo entity.fsh writes into the colour's
-//    lowest bits (R odd, G even, B odd), kept only near a glowing outline,
+// nonios:angel v3 (#57) - ethereal light; thermal sight only on living things.
+// World: no white veil any more. Light itself does the work: a soft warm bloom from bright surfaces,
+// god rays from the bright sky streaming through leaves and gaps, a light warm haze only in the
+// distance, gently rich colours. The motes are real particles now (the datapack makes them rise from
+// the ground, flowers and leaves around you), so they belong to the world instead of the screen.
+// Living entities with HP (they glow while Angel/Alien is on, team colour = HP bracket):
+//  - body pixels are recognised by the entity marker of the demo overlay entity.fsh (lowest bits
+//    R odd, G even, B odd), kept only near a glowing outline and never on the sky,
 //  - those pixels get the thermal ironbow palette tinted by the HP colour,
-//  - plus the thermal halo, white-hot outline core and the bracket pulse.
+//  - plus the halo, white-hot outline core and the bracket pulse.
 // Without the marker (other packs) the halo still shows, only the body tint is missing.
 
 uniform sampler2D InSampler;
 uniform sampler2D BloomSampler;
+uniform sampler2D RaysSampler;
 uniform sampler2D GlowSampler;
 uniform sampler2D FillSampler;
 uniform sampler2D DepthSampler;
@@ -26,15 +30,16 @@ layout(std140) uniform SamplerInfo {
 };
 
 layout(std140) uniform AngelConfig {
-    vec4 Gold;           // highlight / bloom tint
-    vec4 HazeColor;      // luminous haze
-    vec4 ShadowTint;     // lifted shadow colour
+    vec4 Gold;           // bloom tint
+    vec4 RayColor;       // god ray tint
+    vec4 HazeColor;      // distant haze
     float BloomStrength;
+    float RayStrength;
     float HazeDensity;
     float HazeMax;
-    float Lift;          // shadow lift
     float Saturation;
-    float Motes;         // drifting light motes (0 = off)
+    float Exposure;
+    float Vignette;
     float GlowStrength;  // HP halo
     float BodyHeat;      // thermal colouring of entity bodies
     float CoreWhite;
@@ -89,21 +94,6 @@ float closeness(vec3 n, vec3 team) {
     return 1.0 - smoothstep(0.1, 0.35, distance(n, team));
 }
 
-// one layer of drifting motes: cells of 1/scale, some hold one soft dot rising and swaying
-float motes(vec2 p, float scale, float speed, float seed) {
-    vec2 g = p * scale;
-    g.y -= GameTime * speed;
-    vec2 cell = floor(g);
-    vec2 f = fract(g);
-    float h = hash(cell + seed);
-    if (h > 0.35) return 0.0;
-    vec2 pos = vec2(hash(cell + seed + 3.1), hash(cell + seed + 7.7)) * 0.7 + 0.15;
-    pos.x += 0.12 * sin(GameTime * TAU * (60.0 + h * 80.0) + h * 20.0);
-    float d = length(f - pos);
-    float tw = 0.5 + 0.5 * sin(GameTime * TAU * (300.0 + h * 400.0) + h * 40.0);
-    return exp(-d * d * 900.0) * (0.4 + 0.6 * tw);
-}
-
 void main() {
     vec2 px = 1.0 / InSize;
     vec3 c = texture(InSampler, texCoord).rgb;
@@ -114,22 +104,19 @@ void main() {
     float isSky = 1.0 - step(1e-6, z);
     float dist = Near / max(z, 1e-6);
 
-    // --- ethereal world
-    vec3 col = mix(vec3(l), c, Saturation);
-    col = mix(col, ShadowTint.rgb, Lift * (1.0 - smoothstep(0.0, 0.5, l)));
-    col *= mix(vec3(1.0), Gold.rgb, smoothstep(0.4, 1.0, l));
+    // --- ethereal light (no veil: bloom + rays + distant haze)
+    vec3 col = c * Exposure;
+    col = max(mix(vec3(dot(col, Luma)), col, Saturation), 0.0);
     vec3 bloom = texture(BloomSampler, texCoord).rgb * Gold.rgb;
-    col = 1.0 - (1.0 - col) * (1.0 - clamp(bloom * BloomStrength, 0.0, 1.0));
+    col += bloom * BloomStrength * (1.0 - 0.6 * isSky);
+    float rays = texture(RaysSampler, texCoord).r;
+    col += RayColor.rgb * rays * RayStrength * (1.0 - 0.5 * smoothstep(0.5, 1.0, l));
     float haze = min(1.0 - exp(-dist * HazeDensity), HazeMax) * (1.0 - isSky);
-    haze = max(haze, isSky * HazeMax * 0.5);
-    col = mix(col, HazeColor.rgb, haze);
-
-    if (Motes > 0.0) {
-        vec2 aspect = vec2(InSize.x / InSize.y, 1.0);
-        vec2 p = texCoord * aspect;
-        float m = motes(p, 7.0, 60.0, 1.0) + motes(p, 13.0, 110.0, 5.0) * 0.6 + motes(p, 23.0, 180.0, 9.0) * 0.35;
-        col += Gold.rgb * m * Motes;
-    }
+    col = mix(col, HazeColor.rgb * max(l, 0.35) * 1.4, haze);
+    vec2 vc = texCoord - 0.5;
+    col *= 1.0 - Vignette * dot(vc, vc) * 1.6;
+    // soft shoulder: highlights glow instead of clipping to flat white
+    col = col / (1.0 + max(col - 0.9, 0.0) * 0.5);
 
     // --- living entities: thermal body + HP halo
     vec4 g = texture(GlowSampler, texCoord);
@@ -140,7 +127,7 @@ void main() {
             vote += marker(texCoord + vec2(float(x), float(y)) * px);
         }
     }
-    float body = smoothstep(5.0, 7.0, vote) * smoothstep(0.01, 0.06, f.a);
+    float body = smoothstep(5.0, 7.0, vote) * smoothstep(0.01, 0.06, f.a) * (1.0 - isSky);
 
     vec3 tn = f.rgb / max(max(f.r, max(f.g, f.b)), 1e-4);
     vec3 thermal = ironbow(0.35 + l * 0.65) * mix(vec3(1.0), tn, 0.35);

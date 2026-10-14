@@ -1,9 +1,9 @@
-1. Press G, pick "Demo: custom shaders". Each row starts with its name (LOOK, MIX IN, WORLD, REMOVE). Click to combine; Esc closes.
-2. Row 1 = Look (one at a time). Try Cinematic at Noon and Dusk ("Time, gallery" button).
-3. Cosmic: set Midnight, stand among torches / lava, then look at the moon through trees.
-4. Monster: sound on. Then "HP test" (survival): Hurt me a few times; madness grows below 60%, 35%, 15% HP.
-5. Angel: walk to the patients. Only living things glow with heat. Thermal is still its own look.
-6. Neon: new look (grey world, coloured tube edges). The old Neon lines are now "Fluorescent".
-7. Acid (WORLD row): watch it for a few minutes; it should never jump. Planet: walk to open land and look at the horizon.
-8. Mix layers: Rainbow or Comic + Ink or Fluorescent + Wobble + Acid / Planet. Ready-made: "Presets..." button.
-Feedback: which look you like, what is too strong / too weak.
+1. Press G, pick "Demo: custom shaders". Rows: LOOK, MIX IN, WORLD, REMOVE. Click again to turn off.
+2. Thermal (new): Midnight, near torches, lava, mobs. Hot = white/yellow, the rest dark blue.
+3. Alien = the old Thermal (HP-coloured heat signatures).
+4. Cosmic: Midnight, look at the moon through trees (halo), then at open sky (nebula, stars).
+5. Planet: open land, look at the horizon and the clouds. Turn around; no tearing.
+6. Angel: daylight on a meadow. Motes rise from the ground and flowers; god rays from the sky.
+7. Monster (sound on, survival): HP test, Hurt me 3-4 times fast. The tunnel closes over ~2 s, opens slowly as you heal. Each hit = a heartbeat.
+8. Monster at low HP: watch the edges for figures; faces in dark corners.
+Feedback: what is too strong / too weak.

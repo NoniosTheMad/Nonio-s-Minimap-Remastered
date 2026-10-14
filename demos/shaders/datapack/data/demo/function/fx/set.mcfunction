@@ -10,8 +10,8 @@ execute if score @s demo.pre matches 1.. if score @s demo.fx matches 37 run func
 execute if score @s demo.fx matches 1..39 run scoreboard players set @s demo.pre 0
 # demo.look: clicking the active effect again turns it off
 scoreboard players set #tog demo.st 0
-execute if score @s demo.fx matches 1..7 if score @s demo.look = @s demo.fx store success score #tog demo.st run scoreboard players set @s demo.look 0
-execute if score #tog demo.st matches 0 if score @s demo.fx matches 1..7 run scoreboard players operation @s demo.look = @s demo.fx
+execute if score @s demo.fx matches 1..8 if score @s demo.look = @s demo.fx store success score #tog demo.st run scoreboard players set @s demo.look 0
+execute if score #tog demo.st matches 0 if score @s demo.fx matches 1..8 run scoreboard players operation @s demo.look = @s demo.fx
 execute if score @s demo.fx matches 10 run scoreboard players set @s demo.look 0
 # demo.col: clicking the active effect again turns it off
 scoreboard players set #tog demo.st 0
@@ -39,4 +39,7 @@ execute if score @s demo.fx matches 36..36 if score @s demo.planet = @s demo.fx 
 execute if score #tog demo.st matches 0 if score @s demo.fx matches 36..36 run scoreboard players operation @s demo.planet = @s demo.fx
 execute if score @s demo.fx matches 37 run scoreboard players set @s demo.planet 0
 execute if score @s demo.fx matches 41..49 run function demo:fx/preset
+# madness restarts from zero whenever the Monster look is (re)entered
+execute unless score @s demo.look matches 5 run scoreboard players set @s demo.mad 0
+execute unless score @s demo.look matches 5 run scoreboard players set @s demo.madp 0
 function demo:fx/apply

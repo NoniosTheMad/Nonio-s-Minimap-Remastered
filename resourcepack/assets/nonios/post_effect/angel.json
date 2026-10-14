@@ -5,7 +5,8 @@
         "blur": {},
         "sig": {},
         "glow": {},
-        "fill": {}
+        "fill": {},
+        "rays": {}
     },
     "passes": [
         {
@@ -28,17 +29,17 @@
                     {
                         "name": "Threshold",
                         "type": "float",
-                        "value": 0.6
+                        "value": 0.62
                     },
                     {
                         "name": "Knee",
                         "type": "float",
-                        "value": 0.25
+                        "value": 0.3
                     },
                     {
                         "name": "SkyThreshold",
                         "type": "float",
-                        "value": 0.4
+                        "value": 0.3
                     },
                     {
                         "name": "DepthReversed",
@@ -50,6 +51,40 @@
         },
         {
             "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cine_rays",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "bright",
+                    "bilinear": true
+                }
+            ],
+            "output": "rays",
+            "uniforms": {
+                "RayConfig": [
+                    {
+                        "name": "RayOrigin",
+                        "type": "vec2",
+                        "value": [
+                            0.5,
+                            1.3
+                        ]
+                    },
+                    {
+                        "name": "RayLength",
+                        "type": "float",
+                        "value": 0.9
+                    },
+                    {
+                        "name": "RayDecay",
+                        "type": "float",
+                        "value": 0.965
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
             "fragment_shader": "minecraft:post/box_blur",
             "inputs": [
                 {
@@ -166,7 +201,7 @@
         },
         {
             "vertex_shader": "minecraft:core/screenquad",
-            "fragment_shader": "nonios:post/thermal_sig",
+            "fragment_shader": "nonios:post/hp_sig",
             "inputs": [
                 {
                     "sampler_name": "In",
@@ -377,6 +412,11 @@
                     "bilinear": true
                 },
                 {
+                    "sampler_name": "Rays",
+                    "target": "rays",
+                    "bilinear": true
+                },
+                {
                     "sampler_name": "Glow",
                     "target": "glow",
                     "bilinear": true
@@ -400,6 +440,16 @@
                         "type": "vec4",
                         "value": [
                             1.0,
+                            0.86,
+                            0.62,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "RayColor",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
                             0.9,
                             0.7,
                             1.0
@@ -410,50 +460,45 @@
                         "type": "vec4",
                         "value": [
                             1.0,
-                            0.97,
-                            0.9,
-                            1.0
-                        ]
-                    },
-                    {
-                        "name": "ShadowTint",
-                        "type": "vec4",
-                        "value": [
-                            0.45,
-                            0.42,
-                            0.5,
+                            0.88,
+                            0.72,
                             1.0
                         ]
                     },
                     {
                         "name": "BloomStrength",
                         "type": "float",
-                        "value": 1.1
+                        "value": 0.85
                     },
                     {
-                        "name": "HazeDensity",
-                        "type": "float",
-                        "value": 0.012
-                    },
-                    {
-                        "name": "HazeMax",
+                        "name": "RayStrength",
                         "type": "float",
                         "value": 0.55
                     },
                     {
-                        "name": "Lift",
+                        "name": "HazeDensity",
                         "type": "float",
-                        "value": 0.35
+                        "value": 0.008
+                    },
+                    {
+                        "name": "HazeMax",
+                        "type": "float",
+                        "value": 0.3
                     },
                     {
                         "name": "Saturation",
                         "type": "float",
-                        "value": 0.75
+                        "value": 1.08
                     },
                     {
-                        "name": "Motes",
+                        "name": "Exposure",
                         "type": "float",
-                        "value": 0.8
+                        "value": 1.04
+                    },
+                    {
+                        "name": "Vignette",
+                        "type": "float",
+                        "value": 0.25
                     },
                     {
                         "name": "GlowStrength",

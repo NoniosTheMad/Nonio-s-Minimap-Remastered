@@ -5,7 +5,8 @@
         "tmp": {},
         "small": {},
         "mid": {},
-        "large": {}
+        "large": {},
+        "aura": {}
     },
     "passes": [
         {
@@ -292,6 +293,220 @@
         },
         {
             "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cosmic_aura",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "aura",
+            "uniforms": {
+                "AuraConfig": [
+                    {
+                        "name": "StarGain",
+                        "type": "float",
+                        "value": 4.0
+                    },
+                    {
+                        "name": "DarkSky",
+                        "type": "float",
+                        "value": 0.3
+                    },
+                    {
+                        "name": "BrightStart",
+                        "type": "float",
+                        "value": 0.75
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "aura",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 4.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "aura",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 4.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "aura",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "aura",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "aura",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "aura",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
             "fragment_shader": "nonios:post/cosmic",
             "inputs": [
                 {
@@ -316,6 +531,11 @@
                 {
                     "sampler_name": "Large",
                     "target": "large",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Aura",
+                    "target": "aura",
                     "bilinear": true
                 },
                 {
@@ -344,6 +564,56 @@
                             0.3,
                             0.4,
                             0.9,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "AuraA",
+                        "type": "vec4",
+                        "value": [
+                            0.45,
+                            0.15,
+                            0.75,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "AuraB",
+                        "type": "vec4",
+                        "value": [
+                            0.1,
+                            0.75,
+                            0.85,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "NebColA",
+                        "type": "vec4",
+                        "value": [
+                            0.55,
+                            0.12,
+                            0.7,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "NebColB",
+                        "type": "vec4",
+                        "value": [
+                            0.08,
+                            0.45,
+                            0.8,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "StarColor",
+                        "type": "vec4",
+                        "value": [
+                            0.85,
+                            0.92,
+                            1.0,
                             1.0
                         ]
                     },
@@ -409,6 +679,41 @@
                     },
                     {
                         "name": "SpaceStrength",
+                        "type": "float",
+                        "value": 0.6
+                    },
+                    {
+                        "name": "AuraGain",
+                        "type": "float",
+                        "value": 40.0
+                    },
+                    {
+                        "name": "AuraStrength",
+                        "type": "float",
+                        "value": 0.5
+                    },
+                    {
+                        "name": "AuraSpill",
+                        "type": "float",
+                        "value": 0.35
+                    },
+                    {
+                        "name": "NebStrength",
+                        "type": "float",
+                        "value": 0.55
+                    },
+                    {
+                        "name": "StarStrength",
+                        "type": "float",
+                        "value": 1.1
+                    },
+                    {
+                        "name": "StarSpike",
+                        "type": "float",
+                        "value": 9.0
+                    },
+                    {
+                        "name": "MoonCorona",
                         "type": "float",
                         "value": 0.6
                     },

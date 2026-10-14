@@ -27,19 +27,19 @@
                         ]
                     },
                     {
-                        "name": "EyeColor",
+                        "name": "FaceColor",
                         "type": "vec4",
                         "value": [
-                            1.0,
-                            0.85,
-                            0.6,
+                            0.78,
+                            0.72,
+                            0.66,
                             1.0
                         ]
                     },
                     {
                         "name": "Intensity",
                         "type": "float",
-                        "value": 0.35
+                        "value": 0.1
                     },
                     {
                         "name": "Tendrils",
@@ -58,6 +58,11 @@
                     },
                     {
                         "name": "Breath",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Drift",
                         "type": "float",
                         "value": 1.0
                     }

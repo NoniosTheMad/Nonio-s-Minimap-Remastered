@@ -9,16 +9,8 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "Build your own mix: one Look + any of the Mix-ins + Acid / Planet. Click an effect again to turn it off. Your current mix is shown on the action bar. Ready-made combos are under Presets.",
+                "text": "One Look + any Mix-ins + Acid / Planet. Click again to turn off.",
                 "color": "gray"
-            }
-        },
-        {
-            "type": "minecraft:plain_message",
-            "width": 420,
-            "contents": {
-                "text": "Mix-ins: pick one colour (Rainbow / Comic), one line style (Ink / Fluorescent), and Wobble.",
-                "color": "dark_gray"
             }
         }
     ],
@@ -73,7 +65,7 @@
                 "command": "trigger demo.fx set 3"
             },
             "tooltip": {
-                "text": "Infrared vision. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
+                "text": "Heat vision. Creatures, lava, fire and lights glow white-hot; the cold world sinks into dark blue"
             }
         },
         {
@@ -101,7 +93,7 @@
                 "command": "trigger demo.fx set 5"
             },
             "tooltip": {
-                "text": "Hunger vision. Blood-red, short sight, hot rims, a heartbeat you can hear. Madness creeps in as your HP drops (HP test)"
+                "text": "Hunger vision. Blood-red, short sight, hot rims, a heartbeat you can hear. Madness closes in as your HP drops (HP test)"
             }
         },
         {
@@ -115,7 +107,7 @@
                 "command": "trigger demo.fx set 6"
             },
             "tooltip": {
-                "text": "Majestic light: soft whites and golds, bloom, haze, drifting motes. Living things show as heat (turns HP tags on)"
+                "text": "Majestic light: gold bloom, god rays, soft haze, motes rising from the ground. Living things glow by HP (turns HP tags on)"
             }
         },
         {
@@ -130,6 +122,20 @@
             },
             "tooltip": {
                 "text": "Grey world; the edges of every object glow as neon tubes in its own colour"
+            }
+        },
+        {
+            "label": {
+                "text": "Alien",
+                "color": "green"
+            },
+            "width": 66,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 8"
+            },
+            "tooltip": {
+                "text": "The old Thermal. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
             }
         },
         {
@@ -227,6 +233,12 @@
         },
         {
             "label": {
+                "text": ""
+            },
+            "width": 66
+        },
+        {
+            "label": {
                 "text": "WORLD",
                 "color": "dark_gray",
                 "bold": true
@@ -303,7 +315,7 @@
                 "dialog": "demo:hp_test"
             },
             "tooltip": {
-                "text": "Hurt / heal / overheal yourself to test Thermal, Angel and Monster"
+                "text": "Hurt / heal / overheal yourself to test Alien, Angel and Monster"
             }
         },
         {
@@ -319,6 +331,12 @@
             "tooltip": {
                 "text": "Turn every effect off"
             }
+        },
+        {
+            "label": {
+                "text": ""
+            },
+            "width": 66
         },
         {
             "label": {
@@ -426,9 +444,15 @@
                 "text": ""
             },
             "width": 66
+        },
+        {
+            "label": {
+                "text": ""
+            },
+            "width": 66
         }
     ],
-    "columns": 8,
+    "columns": 9,
     "after_action": "none",
     "pause": false
 }

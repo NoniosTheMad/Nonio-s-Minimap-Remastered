@@ -7,6 +7,7 @@
 #include <minecraft:fog.glsl>
 #include <minecraft:dynamictransforms.glsl>
 #include <minecraft:oit.glsl>
+#include <minecraft:nonios_mark.glsl>
 
 uniform sampler2D Sampler0;
 
@@ -107,12 +108,14 @@ void main() {
     #else
     fragColor = calculateFinalColor(color);
     #if !defined(OIT_ACCUMULATE) && !defined(GLINT)
-    // nonios Angel marker: opaque entity pixels get LSB parity R odd, G even, B odd (invisible, +-1/255).
-    // The angel post effect votes on it to tell entity bodies from blocks.
+    // nonios entity marker (see nonios_mark.glsl): opaque entity pixels = tag 1,0,1 (R odd, G even, B odd),
+    // data 0,0,0 or 1,1,1 for emissive layers (eyes). Angel and Thermal vote on it to find entity bodies.
     if (fragColor.a >= 0.99) {
-        vec3 q = floor(fragColor.rgb * 255.0 + 0.5);
-        q = q - mod(q, 2.0) + vec3(1.0, 0.0, 1.0);
-        fragColor.rgb = clamp(q, 0.0, 255.0) / 255.0;
+        #ifdef EMISSIVE
+        fragColor.rgb = nonios_mark(fragColor.rgb, vec3(1.0, 0.0, 1.0), vec3(1.0));
+        #else
+        fragColor.rgb = nonios_mark(fragColor.rgb, vec3(1.0, 0.0, 1.0), vec3(0.0));
+        #endif
     }
     #endif
     #endif

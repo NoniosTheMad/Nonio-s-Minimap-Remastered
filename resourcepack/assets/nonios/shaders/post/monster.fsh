@@ -49,11 +49,16 @@ void main() {
     float beat = exp(-pow((t - 0.10) * 22.0, 2.0)) + 0.6 * exp(-pow((t - 0.32) * 22.0, 2.0));
     float throb = 1.0 + Pulse * beat;
 
-    // barrel warp, scaled so the corners stay on screen
+    // barrel warp, scaled so the corners stay on screen; its centre and strength drift slowly
+    // (periods of ~25-50 s) so the lens never feels fixed
+    float s = GameTime * TAU;
+    vec2 wander = vec2(sin(s * 31.0) + 0.5 * sin(s * 53.0 + 1.3), cos(s * 41.0) + 0.5 * sin(s * 23.0 + 4.1)) * 0.025;
     vec2 p = texCoord - 0.5;
-    float r2 = dot(p, p);
-    float k = Barrel * throb;
-    vec2 uv = 0.5 + p * (1.0 + k * r2) / (1.0 + k * 0.5);
+    vec2 pc = p - wander;
+    float r2 = dot(pc, pc);
+    float k = Barrel * throb * (0.85 + 0.3 * (0.5 + 0.5 * sin(s * 29.0)));
+    vec2 uv = 0.5 + wander + pc * (1.0 + k * r2) / (1.0 + k * 0.5);
+    uv = clamp(uv, vec2(0.001), vec2(0.999));
 
     // radial colour split
     vec2 split = p * Aberration * throb;
