@@ -15,7 +15,7 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M4 integration: merge generators + Emerald Dream + arena into main (features built, loot table fix done). Testing M2 + M3 + arena. Classes end-to-end in parallel.
+M4 integration: merge generators + Emerald Dream + arena into main (features built, loot table fix done). Testing M2 + M3 + arena. Classes done (pending M4 integration). Server archive started (nexus/shop/purse/fx).
 
 ## Waiting on user
 1. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
@@ -38,10 +38,10 @@ M4 integration: merge generators + Emerald Dream + arena into main (features bui
 - M2 playable core (feat/m2-core, merged to main 051fbcc): barrier + shop + purse + teams (white/black) + phases (lobby/prep/battle/end) + admin panel + keep_inventory ON + respawn + last life→spectator + win check + stats + placeholder map with reset. Server m2 ★. Awaiting user test.
 - Arena spike (f765a48, feat/arena, server arena ★): capture nodes (10 s alone, 3+ team-mates faster; contested frozen), payouts via hook (every 30 s), weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour, first at 3 min), Lightning Rabbit toggle (V2 return). Awaiting user test.
 - M3 economy (feat/economy, merged to main f584840): bank dialog at vault on team pad (deposit/withdraw sliders + all buttons), interest 2%/60 s capped 50 (overflow carried as V2), kill rewards (+10 base, +10×streak from 3+ max 150, +20/+90/+190 tier bonus), admin economy page. Server econ ★. Awaiting user test.
+- Classes (6d87e5a, feat/classes, server classes ★): Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, invisibility 4 s after kill, HP −10 armour +6) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain word-for-word, frog vision permanent). Shop kits lost on death, basic at team level. Not merged yet; wired into match after M4 integration.
 
 ## In flight
-- Classes (feat/classes): Class framework + Reaper + Cracy Frog end-to-end implementation.
-- M4 integration (feat/m4-integration): Merge generators + Emerald Dream + arena into main. Loot table format fix done (08e04dd), generator loot updated to 26.3 compatible format.
+- M4 integration (feat/m4-integration): Merge generators + Emerald Dream + arena into main. Loot table format fix done (08e04dd), generator loot updated to 26.3 compatible format. Generators, Emerald Dream, arena to be integrated after M4.
 
 ## Decisions
 | Date | Decision |
@@ -79,6 +79,14 @@ M4 integration: merge generators + Emerald Dream + arena into main (features bui
 5. **Quantity picker:** support buying multiple items per dialog (2x Diamond Sword) or single-item only?
 
 ## Questions for when user returns
+**Classes** (built 6d87e5a; from coordinator notes, with suggested defaults):
+1. **Reaper invisibility:** [suggested: 4 s after each kill; V2 was permanent]. Duration of post-kill invisibility buff.
+2. **Keep the "Scyce" typo:** [suggested: keep]. Archaic spelling in lore, keep for authenticity?
+3. **Reaper HP + armour:** [suggested: HP −10, armour +6; V2 was −14/+15]. Trade glass cannon for tankier?
+4. **Frog vision permanent:** [suggested: yes]. While in frog form, keep vision effect always on?
+5. **Cracy Frog free:** [suggested: yes, behind 3 questions]. Free class after passing the lore confirmation chain?
+6. **Custom textures:** [suggested: later]. Custom skins for Reaper + Frog to be added post-launch?
+
 **M3 Economy** (merged f584840; from coordinator notes, with suggested defaults):
 1. **Interest rate:** [suggested: 2%/60 s; V2 was 0.5%]. How fast should vault interest accrue?
 2. **Any teammate can withdraw all:** [suggested: yes, announced]. Teammates can access and fully withdraw from shared vault?
@@ -147,6 +155,9 @@ M4 integration: merge generators + Emerald Dream + arena into main (features bui
 | 10-14 | **Emerald Dream spike done** (6729ef0, feat/emerald-dream, server dream ★): custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point. V2 lore recovered (Shop Keeper, Emerald Talisman, Crazy Frog chain). Seven design questions for user (shared/void/jump/regrow/value/range/mobs). |
 | 10-14 | **Classes started** (feat/classes): class framework + Reaper + Cracy Frog end-to-end. M5 milestone now in progress; spikes ongoing (M2 core, Arena). |
 | 10-14 | **Generators spike done** (855e046, feat/generators, server gens ★): V2 level structure reuse via `/place template`, emerald outcomes → coin pot (right-click collect), rolls scale team size, data-driven via src/generators.json, loot from V2's 81-outcome dispenser. Six design questions for user (coins/drops/raids/costs/fortune/protection). |
+| 10-14 | **Classes framework done** (6d87e5a, feat/classes, server classes ★): Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, 4 s invisibility after kill, −10 HP +6 armour) + Cracy Frog (free, V2 lore/kit recovered word-for-word, confirmation chain, frog vision permanent). Shop kits lost on death, basic at team level. Six design questions for user (Reaper invisibility/HP/custom texture, Scyce typo, Frog vision, Cracy Frog free). Not merged yet; wired into match after M4 integration. |
+| 10-14 | **User feedback #15** (attacker barrier message): Attacker barrier text now just "⛨ Nexus Barrier" (no tutorial lines). User loved the cracks. Rule added to CLAUDE.md: "In-game text stays terse and diegetic: no instructions/tutorial lines in the game pack; those go in try.txt / demo dialogs." |
+| 10-14 | **Server archive started** (mcdev archive): G → Servers → Archive; archiving nexus/shop/purse/fx. User requested server archive functionality. |
 | 10-14 | **Coin objective + teams decided:** `nx.coins` scoreboard, teams `white`/`black` universal across branches. |
 | 10-14 | **M2 core started** (feat/m2-core): merging M1 spikes into main; teams/phases/respawn/win logic; placeholder map. Parallel: Generators (feat/generators, resource structures) and Emerald Dream (feat/emerald-dream, dimension spike). |
 | 10-14 | **All M1 shop + purse design questions approved** (user via coordinator): Shop stays open, NPC at base, refuses when full. Coins: blocks earn nothing, first 20 weightless, mob deaths drop purse. Bank: team-wide. Actionbar: barrier > coin counter. Added to Decisions table. |

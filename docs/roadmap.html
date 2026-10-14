@@ -138,7 +138,7 @@ a{color:var(--accent)}
     <dl>
       <dt>M3 · Economy</dt><dd>Coins and their weight, the bank, kill rewards and the full shop.</dd>
       <dt>M4 · Progression &amp; Arena</dt><dd>Field upgrades, generators, arena events, and the Emerald Dream dimension.</dd>
-      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders. Reaper and Cracy Frog end-to-end (in progress).</dd>
+      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders. Reaper (200 coins, 4 s post-kill invisibility, −10 HP +6 armour) and Cracy Frog (free after 3-question chain, permanent frog vision) built and awaiting M4 integration.</dd>
       <dt>M6 · Map &amp; polish</dt><dd>The new map build, sounds, textures, balance and playtests.</dd>
     </dl>
   </section>
@@ -191,6 +191,12 @@ a{color:var(--accent)}
         <dt>Arena: Events schedule</dt><dd>Suggested: first at 3 min, then every 5 min. When do weighted events start, then repeat?</dd>
         <dt>Arena: Node forceloading</dt><dd>Suggested: yes. Should nodes stay loaded even when no players are near?</dd>
         <dt>Arena: Portals + central block</dt><dd>Suggested: yes, later. Bring back V2 random-entry arena portals + regrowing central block. When?</dd>
+        <dt><b>Classes:</b> Reaper invisibility</dt><dd>Suggested: 4 s after each kill (V2 was permanent). Duration of post-kill invisibility buff?</dd>
+        <dt>Classes: Keep the "Scyce" typo</dt><dd>Suggested: yes. Archaic spelling in lore; keep for authenticity?</dd>
+        <dt>Classes: Reaper HP + armour</dt><dd>Suggested: −10 HP, +6 armour (V2 was −14/+15). Trade glass cannon for tankier?</dd>
+        <dt>Classes: Frog vision permanent</dt><dd>Suggested: yes. While in frog form, keep vision effect always on?</dd>
+        <dt>Classes: Cracy Frog free</dt><dd>Suggested: yes, free after passing the 3-question confirmation chain. Free tier after lore check?</dd>
+        <dt>Classes: Custom textures</dt><dd>Suggested: later. Custom skins for Reaper + Frog to be added post-launch?</dd>
         <dt>Respawn gear vs keepInventory</dt><dd>Reconcile with class kits in M2: keep inventory but bank + reward to killer?</dd>
         <dt>Main world</dt><dd>Start from a fresh flat world or import V2 terrain. Decide before the M6 build.</dd>
         <dt>Shop: full catalog?</dt><dd>Real catalog (per team/phase?) or test data for now?</dd>
@@ -216,6 +222,9 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
+      <li><time>10-14</time><b>Classes framework done:</b> 6d87e5a (feat/classes, server classes ★). Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, 4 s invisibility after kill, −10 HP +6 armour) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain, frog vision permanent). Not merged yet; wired into match after M4 integration. Six design questions queued.</li>
+      <li><time>10-14</time><b>User feedback #15:</b> Attacker barrier text now just "⛨ Nexus Barrier" (no tutorial lines). User loved the cracks. Rule added: "In-game text stays terse and diegetic."</li>
+      <li><time>10-14</time><b>Server archive started:</b> G → Servers → Archive; archiving nexus/shop/purse/fx servers.</li>
       <li><time>10-14</time><b>M4 integration in progress:</b> feat/m4-integration. Merging generators + Emerald Dream + arena into main. Loot table format fix done (08e04dd, 26.3 modifiers). Portal unlock 1000 coins, nodes in match mode. User testing M2 + M3 now.</li>
       <li><time>10-14</time><b>M3 economy merged:</b> f584840 (feat/economy → main). Bank at vault (deposit/withdraw sliders + all), own vault only. Interest 2%/60 s capped 50 (overflow V2-style). Kill rewards: +10 base, +10×streak (3+, max 150), +20/+90/+190 tier. Admin page. Seven questions queued. Server econ ★.</li>
       <li><time>10-14</time><b>M4 integration started:</b> feat/m4-integration. Merge generators + Emerald Dream + arena into main. Loot table format fix in progress (26.3 incompatible functions→modifiers). Eight Arena design questions.</li>
