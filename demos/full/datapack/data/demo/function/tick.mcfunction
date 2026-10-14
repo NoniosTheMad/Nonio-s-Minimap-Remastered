@@ -51,5 +51,17 @@ execute as @a[scores={demo.full=49}] run function nonios:arena/gate/status
 execute as @a[scores={demo.full=50}] run function demo:tp_core
 execute as @a[scores={demo.full=51}] run function demo:break_core
 execute as @a[scores={demo.full=52}] run function nonios:arena/core/status
+execute as @a[scores={demo.full=53}] run function demo:say {m:"+10000 coins",cmd:"scoreboard players add @s nx.coins 10000"}
+execute as @a[scores={demo.full=54}] at @s run function demo:shop_open
+execute as @a[scores={demo.full=55}] run function demo:say {m:"Inventory cleared",cmd:"clear @s"}
+execute as @a[scores={demo.full=56}] run function demo:offering
+execute as @a[scores={demo.full=57}] run function demo:say {m:"8 iron, 8 gold, 2 diamond blocks",cmd:"function demo:offering_some"}
+execute as @a[scores={demo.full=58}] run function demo:tp_altar
+execute as @a[scores={demo.full=59}] run function demo:tp_enemy_spawn
+execute as @a[scores={demo.full=60}] run function demo:say {m:"Emerald Talisman: right-click it to wear it",cmd:"function nonios:talisman/give"}
+execute as @a[scores={demo.full=61}] run function nonios:special/dragon_skull
+execute as @a[scores={demo.full=62}] run function demo:team_status
+execute as @a[scores={demo.full=63}] run function demo:guard_toggle
+execute as @a[scores={demo.full=64}] run function demo:say {m:"+3,200,000 coins",cmd:"scoreboard players add @s nx.coins 3200000"}
 scoreboard players reset @a[scores={demo.full=1..}] demo.full
 scoreboard players enable @a demo.full

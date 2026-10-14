@@ -8,7 +8,7 @@
   "type": "minecraft:plain_message",
   "width": 320,
   "contents": {
-   "text": "Solo test buttons for main: the whole match (M2 core, economy, generators, Emerald Dream, arena nodes/events, arena gates + core) and every class. Class buttons are free; the shop sells them too.",
+   "text": "Solo test buttons for main: the whole match (M2 core, economy, generators, Emerald Dream, arena nodes/events, arena gates + core), every class, the V2 shop (53-55) and the team altar / spawn defense / talisman (56-64). Class buttons are free; the shop sells them too.",
    "color": "gray"
   }
  },
@@ -629,6 +629,152 @@
    "action": {
     "type": "minecraft:run_command",
     "command": "trigger demo.full set 52"
+   }
+  },
+  {
+   "label": {
+    "text": "+10000 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 53"
+   }
+  },
+  {
+   "label": {
+    "text": "Open shop (anywhere)",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 54"
+   },
+   "tooltip": {
+    "text": "The shop opens away from the shopkeeper for you from now on"
+   }
+  },
+  {
+   "label": {
+    "text": "Clear inventory",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 55"
+   },
+   "tooltip": {
+    "text": "Empties inventory, armour and off-hand"
+   }
+  },
+  {
+   "label": {
+    "text": "Offering blocks (next step)",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 56"
+   },
+   "tooltip": {
+    "text": "Exactly what your altar's next step needs"
+   }
+  },
+  {
+   "label": {
+    "text": "8 iron/gold + 2 diamond blocks"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 57"
+   },
+   "tooltip": {
+    "text": "A partial offering (V2's Kit I amounts)"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: my altar",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 58"
+   },
+   "tooltip": {
+    "text": "Right-click the respawn anchor during prep or battle"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: enemy spawn",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 59"
+   },
+   "tooltip": {
+    "text": "Spawn defense: Instant Damage II every 0.5 s within 4 blocks"
+   }
+  },
+  {
+   "label": {
+    "text": "Emerald Talisman",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 60"
+   },
+   "tooltip": {
+    "text": "Wear it (right-click): luck, +1 coin / 3 s in prep + battle. Binding curse"
+   }
+  },
+  {
+   "label": {
+    "text": "Buy: Dragon Skull"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 61"
+   },
+   "tooltip": {
+    "text": "V2 joke: needs 3,200,000 coins, then it only says 'dragon'"
+   }
+  },
+  {
+   "label": {
+    "text": "Team status"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 62"
+   },
+   "tooltip": {
+    "text": "Team levels, altar payments, talisman settings"
+   }
+  },
+  {
+   "label": {
+    "text": "Spawn defense on/off"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 63"
+   }
+  },
+  {
+   "label": {
+    "text": "+3,200,000 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 64"
+   },
+   "tooltip": {
+    "text": "For the Dragon Skull"
    }
   }
  ],

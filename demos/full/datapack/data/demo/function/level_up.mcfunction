@@ -6,4 +6,6 @@ execute unless entity @s[team=black] if score #white nx.cls_lvl matches 4.. run 
 scoreboard players operation #solo nx.cls_lvl = #white nx.cls_lvl
 function nonios:class/level
 tellraw @s [{"text":"[demo] Team class level ","color":"yellow"},{"score":{"name":"#lvl","objective":"nx.cls_tmp"},"color":"white"}]
+function nonios:altar/refresh {team:"white"}
+function nonios:altar/refresh {team:"black"}
 execute if score @s nx.cls_basic matches 1.. if score @s nx.class = @s nx.cls_basic run function demo:reapply_basic
