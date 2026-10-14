@@ -8,10 +8,10 @@
 - [x] Portable JRE 25 + server 26.3 jar in `.tools/`
 - [x] git repo (`main`), .gitignore
 - [x] mcdev: up/down/ls/reload/cmd/logs/feedback/restart/reset, daemon (pack HTTP + repack), devnav menu
-- [x] hub runs on :25565
+- [x] hub :25565 and main :25566 running; client servers.dat has "Nonios Dev Hub" (localhost)
 - [ ] User validation in client: join hub, G menu, travel, refresh pack, feedback
-- [ ] First demo `posteffect-probe` (vanilla post effects via /posteffect)
-- [ ] Push to GitHub remote
+- [x] First demo `posteffect-probe` running as server `fx` (:25570, branch demo/posteffect-probe)
+- [x] Pushed to GitHub (origin/main)
 - [ ] main server world: decide fresh flat vs. imported terrain
 
 ## Next (after M0)
