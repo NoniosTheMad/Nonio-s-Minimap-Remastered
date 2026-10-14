@@ -9,6 +9,8 @@ scoreboard objectives add nx.regen dummy
 scoreboard objectives add nx.col dummy
 scoreboard objectives add nx.stage dummy
 scoreboard objectives add nx.fx dummy
+# per arrow near a Barrier: last speed in flight x100 (nexus/arrow_speed)
+scoreboard objectives add nx.arsp dummy
 # per player: gametime of the next allowed explain message
 scoreboard objectives add nx.msg_t dummy
 # per-team visuals: shard = glass particles on hits/shatter; col = shell tint per damage stage 0..3 (shifts to red)
@@ -33,3 +35,5 @@ scoreboard players set #regen_unit nx.const 6000
 scoreboard players set #100 nx.const 100
 scoreboard players set #5 nx.const 5
 scoreboard players set #-1 nx.const -1
+scoreboard players set #2 nx.const 2
+scoreboard players set #500 nx.const 500

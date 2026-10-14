@@ -1,5 +1,9 @@
 # as/at the shield interaction. Hits: interaction stores the last attack.
 $execute if data entity @s attack run function nonios:nexus/hit {team:"$(team)",enemy:"$(enemy)"}
+# arrows (#37): an enemy player's arrow that reaches the core deals 20% of its damage (nexus/arrow, nexus/hit_arrow)
+scoreboard players set #adm nx.tmp 0
+$execute as @e[type=#minecraft:arrows,distance=..6,tag=!nx.arrow_done] run function nonios:nexus/arrow {team:"$(team)"}
+$execute if score #adm nx.tmp matches 1.. run function nonios:nexus/hit_arrow {team:"$(team)"}
 scoreboard players remove @s[scores={nx.cd=1..}] nx.cd 1
 scoreboard players remove @s[scores={nx.alert=1..}] nx.alert 1
 execute if score @s nx.cd matches 0 if score @s nx.hp < @s nx.hp_max run function nonios:nexus/regen

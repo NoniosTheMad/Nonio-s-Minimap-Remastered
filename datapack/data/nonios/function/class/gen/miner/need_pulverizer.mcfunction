@@ -5,5 +5,6 @@ execute if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"mine
 execute if items entity @s player.cursor *[minecraft:custom_data~{nx_item:"miner_pulverizer"}] run return 0
 execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"miner_pulverizer"}] run return 0
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"miner_pulverizer"}}}}]
+# used up (consumable): back into the hand that used it
 execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot nonios:class/miner/pulverizer
-loot give @s loot nonios:class/miner/pulverizer
+function nonios:gear/loot {table:"nonios:class/miner/pulverizer"}

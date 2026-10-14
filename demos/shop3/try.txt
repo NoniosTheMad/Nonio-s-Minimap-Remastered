@@ -1,0 +1,12 @@
+Shop v3, gear slots, bow vs Nexus. Buttons: G > "Demo: Shop v3".
+1. "Start match", "+100000 coins", "Open shop (anywhere)" (or talk to your Shop Keeper).
+2. Shop: categories, then items. Top row: Prev / Back / Next / Again. Second row: x1 / x8 / x64 / Stack.
+   Pick a mode and click an item: it buys that many lots. "Again" repeats your last purchase.
+   Items you can't afford are grey; hover them to see how much you're short.
+3. "Fill bag (1 slot free)", then buy a bulk item: you get what fits and pay only for that.
+4. "Stress catalog": 452 items in nested categories (Colours, Wood). "Real catalog" restores the game's.
+5. "Gear: scrambled give": sword in slot 1, bow 2, pickaxe 3, bucket 4, axe 5, whatever the order.
+   Same with "Starting kit", class gear and shop purchases.
+6. "Skip phase" (battle), "Power V bow + arrows", "TP: enemy Nexus", shoot the obsidian.
+   "Barrier HP" shows it going down (a full shot does about 1/5 of a sword hit).
+Feedback: button layout at GUI scale 2, quantities, anything that lands in the wrong slot.

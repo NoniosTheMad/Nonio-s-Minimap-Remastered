@@ -5,5 +5,4 @@ execute if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"tank
 execute if items entity @s player.cursor *[minecraft:custom_data~{nx_item:"tank_sword"}] run return 0
 execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"tank_sword"}] run return 0
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"tank_sword"}}}}]
-execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot nonios:class/tank/sword
-loot give @s loot nonios:class/tank/sword
+function nonios:gear/loot {table:"nonios:class/tank/sword"}

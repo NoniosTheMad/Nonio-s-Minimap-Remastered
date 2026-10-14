@@ -1,3 +1,3 @@
-give @s minecraft:iron_block 8
-give @s minecraft:gold_block 8
-give @s minecraft:diamond_block 2
+function nonios:gear/give {item:'minecraft:iron_block',count:8}
+function nonios:gear/give {item:'minecraft:gold_block',count:8}
+function nonios:gear/give {item:'minecraft:diamond_block',count:2}

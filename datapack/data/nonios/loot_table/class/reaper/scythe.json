@@ -74,7 +74,8 @@
         "minecraft:custom_data": {
          "nx_cls": "reaper",
          "nx_item": "reaper_scythe",
-         "nx_cls_item": true
+         "nx_cls_item": true,
+         "nx_gear": "weapon"
         },
         "minecraft:unbreakable": {},
         "minecraft:custom_name": {

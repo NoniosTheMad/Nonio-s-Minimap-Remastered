@@ -8,5 +8,5 @@ function nonios:class/stash {slot:"armor.legs"}
 loot replace entity @s armor.legs loot nonios:class/archer/legs
 function nonios:class/stash {slot:"armor.feet"}
 loot replace entity @s armor.feet loot nonios:class/archer/feet
-loot give @s loot nonios:class/archer/bow
-loot give @s loot nonios:class/archer/sword
+function nonios:gear/loot {table:"nonios:class/archer/bow"}
+function nonios:gear/loot {table:"nonios:class/archer/sword"}
