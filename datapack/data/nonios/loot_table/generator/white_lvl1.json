@@ -1,0 +1,40 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:cobblestone",
+     "weight": 36
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:oak_log",
+     "weight": 18
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:hay_block",
+     "weight": 9
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:coal",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:raw_iron",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_block",
+     "weight": 2
+    }
+   ]
+  }
+ ]
+}

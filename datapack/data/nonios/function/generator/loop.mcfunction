@@ -1,0 +1,20 @@
+# Every second: advance all generator timers, drop what is due, refresh visuals.
+schedule function nonios:generator/loop 20t replace
+scoreboard players operation #step nx.gen = #speed nx.gen
+scoreboard players operation #step nx.gen *= #20 nx.gen
+# rolls per drop scale with team size: 1 + (players - 1) / #per_roll  (20 players, 4 per roll -> 5 rolls)
+execute store result score #n_white nx.gen if entity @a[team=white]
+execute store result score #n_black nx.gen if entity @a[team=black]
+execute if score #sim nx.gen matches 1.. run scoreboard players operation #n_white nx.gen = #sim nx.gen
+execute if score #sim nx.gen matches 1.. run scoreboard players operation #n_black nx.gen = #sim nx.gen
+scoreboard players operation #r_white nx.gen = #n_white nx.gen
+scoreboard players operation #r_black nx.gen = #n_black nx.gen
+scoreboard players remove #r_white nx.gen 1
+scoreboard players remove #r_black nx.gen 1
+scoreboard players operation #r_white nx.gen /= #per_roll nx.gen
+scoreboard players operation #r_black nx.gen /= #per_roll nx.gen
+scoreboard players add #r_white nx.gen 1
+scoreboard players add #r_black nx.gen 1
+execute if score #r_white nx.gen matches ..0 run scoreboard players set #r_white nx.gen 1
+execute if score #r_black nx.gen matches ..0 run scoreboard players set #r_black nx.gen 1
+execute as @e[type=marker,tag=nx.gen] at @s run function nonios:generator/second

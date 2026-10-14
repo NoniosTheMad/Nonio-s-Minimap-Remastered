@@ -29,6 +29,14 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [ ] Coin purse: mined-stat → coins, weight slowdown, purse-to-killer
 - [x] Nexus barrier: `feat/nexus-barrier` (4fe02ed). Visuals: forcefield (team-tinted), hit flash/pulse, crack stages, shatter, rate-limited actionbar. Awaiting user test (texture render, size, feel, sounds).
 
+## M4 early: Generators (`feat/generators`, server `gens` :25576)
+- [x] Game code `nonios:generator/*`: marker + spinning item_display + hologram + interaction; 1 s schedule loop, no tick cost.
+- [x] V2 odds recovered (1-of-81 dispenser rolls, per level/team) -> `src/generators.json` -> `tools/build_generators.py` (loot tables, roll functions, config).
+- [x] V2 structures imported (`structure/generator/<team>_lvlN.nbt`, 1.12 data upgraded by DataFixer on `/place template`: verified).
+- [x] Coins: emerald outcomes fill a per-generator pot (cap 50/150/500); right-click collects into `nx.coins` and pulls drops to you.
+- [x] Scaling: rolls per drop = 1 + (team players - 1)/4; item cap 16 stacks per generator.
+- [ ] Client test: right-click collect, buy upgrade, spin smoothness, hologram look. Coin values / intervals need the user's call.
+
 ## Inbox (done, f6fdfb8)
 - [x] Chat notifications + G → Inbox
 - [x] `mcdev notify` and `feedback --resolve`
