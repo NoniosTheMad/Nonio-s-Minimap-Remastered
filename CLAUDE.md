@@ -42,3 +42,6 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - `/dialog show @s {inline SNBT}` parses; `/posteffect add <player> <id>` exists. Vanilla post effects: blur, creeper, entity_outline, invert, spider.
 - Gamerules are snake_case (`advance_time`, `spawn_mobs`, …). `/transfer` needs op 3; servers need `accepts-transfers=true`.
 - Server needs a resource-pack sha1, else client caches by URL.
+- Dialog `run_command` buttons whose command needs op show a "run this command?" confirmation. **Always use `/trigger <obj> set N`**
+  in dialogs (permission 0, no prompt) and do the privileged work in a tick function. (Only the feedback text box still prompts.)
+- Harmless server noise on transfer: netty `IoRegistration` NPE and `ServerboundResourcePackPacket ... prepare_spawn` error.
