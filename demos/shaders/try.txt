@@ -1,0 +1,6 @@
+1. Press G, pick "Demo: custom shaders" (not Nonios Dev).
+2. Click Reaper: black world, white outlines. Walk around, look at blocks and mobs.
+3. Click Acid: wavy, colour-cycling screen.
+4. Reaper + Acid stacks both. Clear all removes them.
+5. If Reaper is empty/white, try "Reaper (no depth)" and tell me.
+Feedback: thickness, contrast, speed, too much / too little.
