@@ -15,5 +15,8 @@ kill @e[type=husk,tag=nx.dummy]
 kill @e[type=item,tag=nx.coinbag]
 tag @a remove nx.spectator
 execute as @a run function nonios:game/lobby_player
+# team kit levels back to 1 before the rebuild, so the lobby altars do not show the last match's level
+scoreboard players set #white nx.cls_lvl 1
+scoreboard players set #black nx.cls_lvl 1
 function nonios:map/build
 tellraw @a [{"text":"Back in the lobby. Teams are kept; ","color":"gray"},{"text":"[Choose team]","color":"green","click_event":{"action":"run_command","command":"/trigger nx.team set 1"}}]
