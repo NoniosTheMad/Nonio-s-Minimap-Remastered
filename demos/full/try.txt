@@ -1,0 +1,7 @@
+Everything on main in one match. Buttons: G > "Demo: Full match".
+1. Start: "Prep time 20 s", then "Start match". Prep: walls up, generators running, shop + bank at your base.
+2. Battle: walls drop, arena nodes/events, gates ("TP: my arena gate") and the core ("Break the core": it regrows).
+3. Classes: shop (G > Demo: "+1000 coins", "TP: my shop") or the free class buttons; "Mob wave" / "Target dummies" to fight.
+4. Dream: "Open my Dream portal (free)", "TP: my Dream pad", step on the frame.
+5. End: "Destroy ENEMY Nexus" + "Clear mobs" = victory; back in the lobby after the end timer.
+Feedback: anything that breaks when the systems run together.
