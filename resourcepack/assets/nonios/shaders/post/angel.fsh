@@ -3,20 +3,24 @@
 
 #include <minecraft:globals.glsl>
 
-// nonios:angel v3 (#57) - ethereal light; thermal sight only on living things.
-// World: no white veil any more. Light itself does the work: a soft warm bloom from bright surfaces,
-// god rays from the bright sky streaming through leaves and gaps, a light warm haze only in the
-// distance, gently rich colours. The motes are real particles now (the datapack makes them rise from
-// the ground, flowers and leaves around you), so they belong to the world instead of the screen.
-// Living entities with HP (they glow while Angel/Alien is on, team colour = HP bracket):
-//  - body pixels are recognised by the entity marker of the demo overlay entity.fsh (lowest bits
-//    R odd, G even, B odd), kept only near a glowing outline and never on the sky,
-//  - those pixels get the thermal ironbow palette tinted by the HP colour,
-//  - plus the halo, white-hot outline core and the bracket pulse.
-// Without the marker (other packs) the halo still shows, only the body tint is missing.
+// nonios:angel v4 (#63) - ethereal light, built in tools/shaderlab first (reference: demos/shaders/reference/angel.gif).
+// v3 was "a bit of bloom + rays": correct but not ethereal. v4 layers the classic dreamy-photo recipe:
+//  - Orton glow: the whole image blurred (Soft) is screen-blended back over itself, so every surface
+//    gets a soft luminous diffusion, not only highlights,
+//  - three-scale gold/white bloom (Bloom 6 px, BloomMid 18 px, BloomLarge 48 px) on bright things,
+//  - volumetric light shafts from the brightest sky region (angel_rays: found, not fixed) + a soft
+//    sun halo, tinted warm,
+//  - luminous haze: distance lifts toward a warm white instead of grey (heaven is bright),
+//  - pastel grade: gentle desaturation, warm highlights, lifted milky blacks, a bright soft
+//    vignette (the edges glow instead of darkening),
+//  - a few slow light motes (soft bokeh discs drifting up, twinkling; screen space, sparse).
+// Living entities with HP: unchanged from v3 (entity-marker body in HP-tinted ironbow, HP halo, white-hot core).
 
 uniform sampler2D InSampler;
 uniform sampler2D BloomSampler;
+uniform sampler2D BloomMidSampler;
+uniform sampler2D BloomLargeSampler;
+uniform sampler2D SoftSampler;
 uniform sampler2D RaysSampler;
 uniform sampler2D GlowSampler;
 uniform sampler2D FillSampler;
@@ -31,15 +35,19 @@ layout(std140) uniform SamplerInfo {
 
 layout(std140) uniform AngelConfig {
     vec4 Gold;           // bloom tint
-    vec4 RayColor;       // god ray tint
-    vec4 HazeColor;      // distant haze
+    vec4 RayColor;       // light shaft tint
+    vec4 HazeColor;      // luminous distance haze
+    vec4 LiftColor;      // milky black lift
     float BloomStrength;
     float RayStrength;
     float HazeDensity;
     float HazeMax;
     float Saturation;
     float Exposure;
-    float Vignette;
+    float Vignette;      // bright edge glow
+    float Orton;         // screen blend of the soft copy
+    float BlackLift;
+    float Motes;
     float GlowStrength;  // HP halo
     float BodyHeat;      // thermal colouring of entity bodies
     float CoreWhite;
@@ -104,19 +112,67 @@ void main() {
     float isSky = 1.0 - step(1e-6, z);
     float dist = Near / max(z, 1e-6);
 
-    // --- ethereal light (no veil: bloom + rays + distant haze)
+    // --- ethereal light
     vec3 col = c * Exposure;
-    col = max(mix(vec3(dot(col, Luma)), col, Saturation), 0.0);
-    vec3 bloom = texture(BloomSampler, texCoord).rgb * Gold.rgb;
-    col += bloom * BloomStrength * (1.0 - 0.6 * isSky);
-    float rays = texture(RaysSampler, texCoord).r;
-    col += RayColor.rgb * rays * RayStrength * (1.0 - 0.5 * smoothstep(0.5, 1.0, l));
+    // pastel: gentle desaturation, a bit more in the highlights
+    float cl = dot(col, Luma);
+    col = max(mix(vec3(cl), col, mix(Saturation - 0.15 * smoothstep(0.5, 1.0, cl), 1.0, isSky)), 0.0);
+    // warm highlights, soft cool-free shadows
+    col *= mix(vec3(1.0), vec3(1.04, 1.0, 0.93), smoothstep(0.35, 1.0, cl));
+
+    // Orton diffusion: soft copy, brightened, screen-blended
+    vec3 soft = texture(SoftSampler, texCoord).rgb;
+    // scene key: how bright this part of the world is (haze and edge glow follow it, so nights stay dark)
+    float key = clamp(dot(soft, Luma) * 1.7 + 0.04, 0.0, 1.0);
+    soft = soft * soft * 1.6;
+    col = 1.0 - (1.0 - col) * (1.0 - soft * Orton * (1.0 - 0.7 * isSky));
+    // restore a little contrast after the diffusion (gentle S around mid grey)
+    col = mix(col, col * col * (3.0 - 2.0 * col), 0.35 * (1.0 - isSky));
+
+    // luminous haze with distance (bright warm white, not grey)
     float haze = min(1.0 - exp(-dist * HazeDensity), HazeMax) * (1.0 - isSky);
-    col = mix(col, HazeColor.rgb * max(l, 0.35) * 1.4, haze);
-    vec2 vc = texCoord - 0.5;
-    col *= 1.0 - Vignette * dot(vc, vc) * 1.6;
-    // soft shoulder: highlights glow instead of clipping to flat white
-    col = col / (1.0 + max(col - 0.9, 0.0) * 0.5);
+    col = mix(col, HazeColor.rgb * key * (0.85 + 0.15 * cl), haze);
+
+    // three-scale bloom, gold to white
+    vec3 b1 = texture(BloomSampler, texCoord).rgb;
+    vec3 b2 = texture(BloomMidSampler, texCoord).rgb;
+    vec3 b3 = texture(BloomLargeSampler, texCoord).rgb;
+    vec3 bloom = b1 * 0.5 + b2 * 0.8 * Gold.rgb + b3 * 1.1 * Gold.rgb * Gold.rgb;
+    col = 1.0 - (1.0 - col) * (1.0 - clamp(bloom * BloomStrength * (1.0 - 0.5 * isSky), 0.0, 1.0));
+
+    // light shafts + soft sun halo
+    vec4 ray = texture(RaysSampler, texCoord);
+    float shafts = ray.r * (1.0 - 0.6 * isSky);
+    col = mix(col, col * vec3(1.06, 1.02, 0.92) + RayColor.rgb * 0.12, isSky * clamp(ray.g * 1.5, 0.0, 1.0));
+    col += RayColor.rgb * (shafts * RayStrength + ray.g * 0.3 * RayStrength) * (1.0 - 0.5 * smoothstep(0.6, 1.0, cl));
+
+    // light motes: a few soft bokeh discs drifting upward
+    float secs = GameTime * 1200.0;
+    vec2 aspect = vec2(InSize.x / InSize.y, 1.0);
+    vec3 motes = vec3(0.0);
+    for (int i = 0; i < 9; i++) {
+        float fi = float(i);
+        float sp = 0.012 + 0.018 * hash(vec2(fi, 1.3));
+        float life = fract(secs * sp * 0.6 + hash(vec2(fi, 7.7)));
+        vec2 p = vec2(hash(vec2(fi, 3.1)), 0.0);
+        p.y = -0.1 + life * 1.2;
+        p.x += 0.03 * sin(secs * 0.4 + fi * 2.1) + 0.02 * sin(secs * 0.23 + fi);
+        float rad = 0.014 + 0.03 * hash(vec2(fi, 5.9));
+        float dd = length((texCoord - p) * aspect) / rad;
+        float disc = smoothstep(1.0, 0.7, dd) * (0.35 + 0.25 * smoothstep(0.6, 0.95, dd)) + exp(-dd * dd * 0.5) * 0.3;
+        float fade = sin(life * 3.14159) * (0.6 + 0.4 * sin(secs * 1.7 + fi * 4.0));
+        motes += mix(vec3(1.0, 0.86, 0.55), vec3(1.0, 0.97, 0.9), hash(vec2(fi, 9.1))) * disc * fade;
+    }
+    col += motes * Motes * (0.35 + 0.65 * key) * (1.0 - 0.75 * smoothstep(0.4, 0.9, dot(col, Luma)));
+
+    // milky lifted blacks
+    col = LiftColor.rgb * BlackLift + col * (1.0 - BlackLift);
+    // bright soft vignette: edges glow toward warm white
+    vec2 vc = (texCoord - 0.5) * vec2(1.0, 1.15);
+    float edge = smoothstep(0.12, 0.42, dot(vc, vc));
+    col = mix(col, HazeColor.rgb * key, edge * Vignette);
+    // soft shoulder: highlights glow instead of clipping
+    col = col / (1.0 + max(col - 0.9, 0.0) * 0.6);
 
     // --- living entities: thermal body + HP halo
     vec4 g = texture(GlowSampler, texCoord);
