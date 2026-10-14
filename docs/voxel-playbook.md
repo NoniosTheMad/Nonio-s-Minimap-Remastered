@@ -74,14 +74,14 @@ Do not praise. Max 10 items. Then say which single change will improve it most.
 - **Layout**: 3 lanes from each base to the centre, 1 chokepoint per lane; no single position sees all chokes; teams reach the
   centre at the same time (± 1 s; equal path lengths measured in the script).
 - **Symmetry**: 180° rotation of one half (point symmetry). Landmark on the axis (centre generator); each half has its own
-  secondary landmark in team colour.
+  secondary landmark in team colour (teams are `white` and `black`).
 - **Sightlines**: mix of short (≤ 12 blocks, melee) and long (30+, bows) with cover breaking every long line; long lines cost
   exposure to use. Bows dominate open ground, so the centre needs full cover pieces 2-3 high.
 - **Cover**: err on too little; full cover (≥ 2 high) to advance, half cover (1 high / slab walls) at fight spots. Players can place
   blocks, so designed cover must be protected (arena restore) or it becomes a pillar-up meta.
 - **Verticality**: 2-3 height levels; high ground costs time or an exposed route. Climb with stairs/slabs/ladders/scaffolding,
   1-block step-ups max, 2 blocks headroom, sprint-jump gaps ≤ 3 (4 is max, too punishing). Falls > 3 hurt; void edges need intent.
-- **Readability**: team colours on the team's half (red/blue concrete, terracotta, wool, banners, stained glass) in accents,
+- **Readability**: team colours on the team's half (white/black concrete, terracotta, wool, banners, stained glass) in accents,
   not whole surfaces; neutral palette in the centre; the landmark visible from every spawn; distinct material themes per lane
   so call-outs are possible ("copper lane", "moss lane").
 - **Mobs/light**: light every walkable surface above 0 or keep `spawn_mobs` off.
@@ -107,8 +107,13 @@ clay 166 · sand 206 · snow 253
 dark_prismarine 82 · polished_basalt 88 · copper 123 → exposed 131 → weathered 140 → oxidized 143 (orange → teal) · purpur 138 ·
 prismarine_bricks 155 · end_stone_bricks 218 · quartz 230
 
-**Team red**: red_nether_bricks 20 · crimson_nylium 52 · red_concrete 56 · red_wool 64 · red_terracotta 77 · red_glazed_terracotta 85
-**Team blue**: blue_concrete 53 · blue_wool 63 · blue_terracotta 65 · cyan_terracotta 90 · warped_wart_block 99 · light_blue_concrete 119
+**Teams are `white` and `black`** (shared names across branches; see CLAUDE.md).
+**Team white**: white_terracotta 183 · white_glazed_terracotta 206 · white_concrete 211 · pale_oak_planks 219 · calcite 223 · bone_block 225 · quartz_bricks 229 · white_wool 235
+**Team black**: black_concrete 10 · obsidian 12 · coal_block 15 · black_wool 21 · black_terracotta 25 · polished_blackstone 50 · gray_concrete 57
+Caveats: the Nexus is obsidian (L 12), so black-team accents must not sit next to it or it stops reading as the target;
+frame it with a light or coloured trim instead. Avoid calcite/snow/quartz-heavy and blackstone-heavy *neutral* palettes,
+or the neutral centre reads as one team's territory. A mid-value neutral (tuff, stone, copper, moss: L 90-140) keeps both
+team accents visible.
 
 **Ready-made gradients** (bottom → top, or shadow → light):
 - Ruined fortress: blackstone → cobbled_deepslate → tuff → stone_bricks / mossy_stone_bricks (cluster) → andesite → smooth_stone trim

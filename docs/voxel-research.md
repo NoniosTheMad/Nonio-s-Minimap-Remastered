@@ -210,7 +210,7 @@ players place and break blocks (cover is dynamic, so designed cover should be pr
 | **moderngl** 5.13 + numpy + Pillow | Build our own renderer | All installed here. Client jar at `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar` has 1405 block textures, 2884 block models, 1289 blockstates **[verified]**. |
 
 **Average texture colours from the 26.3 jar** **[verified]** (luminance L 0-255; useful for value-ordered gradients and a
-fast flat-colour renderer). See the playbook palette tables; computed by averaging each texture's opaque pixels.
+fast flat-colour renderer). See the playbook palette tables (teams are `white`/`black`; the Nexus is obsidian, L 12); computed by averaging each texture's opaque pixels.
 
 ## 8. Recommendations for this project
 
