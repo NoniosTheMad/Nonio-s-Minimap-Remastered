@@ -15,7 +15,7 @@
     "left": {
      "type": "minecraft:sub",
      "left": "minecraft:overworld/ore_vein/toggle",
-     "right": 0.25
+     "right": 0.1
     },
     "right": {
      "type": "minecraft:add",

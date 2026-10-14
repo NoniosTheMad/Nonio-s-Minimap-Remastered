@@ -4,15 +4,59 @@
    "argument": {
     "spawn_costs": {},
     "spawns_by_category": {
-     "ambient": [],
+     "ambient": [
+      {
+       "type": "minecraft:bat",
+       "count": {
+        "type": "minecraft:uniform",
+        "max_inclusive": 2,
+        "min_inclusive": 1
+       },
+       "weight": 2
+      }
+     ],
      "axolotls": [],
      "creature": [
-      {"type": "minecraft:allay", "count": {"type": "minecraft:uniform", "max_inclusive": 2, "min_inclusive": 1}, "weight": 4},
-      {"type": "minecraft:rabbit", "count": 2, "weight": 6}
+      {
+       "type": "minecraft:allay",
+       "count": {
+        "type": "minecraft:uniform",
+        "max_inclusive": 2,
+        "min_inclusive": 1
+       },
+       "weight": 4
+      },
+      {
+       "type": "minecraft:rabbit",
+       "count": 2,
+       "weight": 6
+      },
+      {
+       "type": "minecraft:parrot",
+       "count": {
+        "type": "minecraft:uniform",
+        "max_inclusive": 2,
+        "min_inclusive": 1
+       },
+       "weight": 4
+      },
+      {
+       "type": "minecraft:frog",
+       "count": {
+        "type": "minecraft:uniform",
+        "max_inclusive": 3,
+        "min_inclusive": 2
+       },
+       "weight": 3
+      }
      ],
      "misc": [],
      "monster": [
-      {"type": "minecraft:enderman", "count": 1, "weight": 10}
+      {
+       "type": "minecraft:enderman",
+       "count": 1,
+       "weight": 10
+      }
      ],
      "underground_water_creature": [],
      "water_ambient": [],
@@ -23,8 +67,30 @@
   },
   "minecraft:visual/ambient_particles": {
    "argument": [
-    {"particle": {"type": "minecraft:happy_villager"}, "probability": 0.004},
-    {"particle": {"type": "minecraft:spore_blossom_air"}, "probability": 0.006}
+    {
+     "particle": {
+      "type": "minecraft:happy_villager"
+     },
+     "probability": 0.006
+    },
+    {
+     "particle": {
+      "type": "minecraft:spore_blossom_air"
+     },
+     "probability": 0.008
+    },
+    {
+     "particle": {
+      "type": "minecraft:firefly"
+     },
+     "probability": 0.002
+    },
+    {
+     "particle": {
+      "type": "minecraft:glow"
+     },
+     "probability": 0.0015
+    }
    ],
    "modifier": "append"
   },
@@ -42,19 +108,38 @@
  "features": [
   [],
   [],
-  ["nonios:dream_geode"],
+  [
+   "nonios:dream_geode"
+  ],
   [],
-  [],
-  [],
-  ["nonios:dream_emerald_ore", "nonios:dream_gold_ore"],
   [],
   [],
   [
+   "nonios:dream_calcite",
+   "nonios:dream_emerald_ore",
+   "nonios:dream_emerald_cluster",
+   "nonios:dream_gold_ore",
+   "nonios:dream_lapis_ore",
+   "nonios:dream_diamond_ore",
+   "minecraft:glow_lichen"
+  ],
+  [],
+  [],
+  [
+   "minecraft:lush_caves_ceiling_vegetation",
    "minecraft:cave_vines",
    "minecraft:spore_blossom",
+   "minecraft:rooted_azalea_tree",
    "minecraft:trees_plains",
+   "nonios:dream_crystal_spire",
+   "nonios:dream_lamp",
+   "nonios:dream_amethyst",
    "minecraft:flower_flower_forest",
-   "minecraft:patch_grass_forest"
+   "minecraft:flower_meadow",
+   "nonios:dream_wildflowers",
+   "nonios:dream_firefly_bush",
+   "minecraft:patch_grass_forest",
+   "minecraft:patch_tall_grass"
   ],
   []
  ],

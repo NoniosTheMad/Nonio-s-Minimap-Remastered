@@ -12,6 +12,7 @@ particle minecraft:happy_villager ~ ~1 ~ 1.5 1 1.5 0 60
 particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.05 25
 tag @s add nx.dream_lander
 function nonios:dream/vein/site
+function nonios:dream/ruin/site
 tag @s remove nx.dream_lander
 data modify storage nonios:dream reason set value "arrived"
 function #nonios:dream/on_enter
