@@ -81,12 +81,11 @@ a{color:var(--accent)}
   <section class="you" aria-labelledby="you-h">
     <h2 id="you-h">Waiting on you</h2>
     <ol>
+      <li><b>M2 playable core (★):</b> server <b>m2</b> (solo test w/ dummies). <kbd>G</kbd> → <b>Demo: M2 playable core</b> (first-time chooser). <b>Test steps:</b> pick your team → start the match → kill the dummies → destroy enemy Nexus → return to lobby. Check: all phases (prep/battle/end), respawn, last-life spectator, stats, map reset.</li>
       <li><b>Nexus barrier (★):</b> server <b>nexus</b>. Read cracks from 10–20 blocks (vanilla textures). Check hit actionbar text.</li>
       <li><b>Shop dialog (★):</b> server <b>shop</b>. Try buying items. Check NPC, catalog, trigger buttons, and insufficient coins message.</li>
       <li><b>Coin purse (★):</b> server <b>purse</b>. Mine blocks. Check coins earned, weight slowdown, and purse dropping to killer on death.</li>
       <li><b>Shaders v2 (★):</b> server <b>shaders</b>. Refresh pack (<kbd>G</kbd> → <b>Refresh resource pack</b>), then <kbd>G</kbd> → <b>Demo: custom shaders</b>. Check god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.</li>
-      <li><b>Generators (★):</b> server <b>gens</b>. Watch drops, right-click a generator to collect its coins, try the upgrade buttons (<kbd>G</kbd> → demo).</li>
-      <li><b>Emerald Dream (★):</b> server <b>dream</b>. <kbd>G</kbd> → demo → Enter, mine emeralds, then hold sneak 5 s to wake up. Judge the sky, fog and islands.</li>
     </ol>
   </section>
 
@@ -95,8 +94,8 @@ a{color:var(--accent)}
     <ol class="track">
       <li class="done"><span class="id">M0</span><span class="nm">Dev framework</span><span class="bar"></span></li>
       <li class="done"><span class="id">M1</span><span class="nm">Spikes</span><span class="bar"></span></li>
-      <li class="now"><span class="id">M2 · now</span><span class="nm">Playable core</span><span class="bar"></span></li>
-      <li><span class="id">M3</span><span class="nm">Economy</span><span class="bar"></span></li>
+      <li class="wait"><span class="id">M2 · test</span><span class="nm">Playable core</span><span class="bar"></span></li>
+      <li class="now"><span class="id">M3 · now</span><span class="nm">Economy</span><span class="bar"></span></li>
       <li><span class="id">M4</span><span class="nm">Progression &amp; Arena</span><span class="bar"></span></li>
       <li><span class="id">M5</span><span class="nm">Classes</span><span class="bar"></span></li>
       <li><span class="id">M6</span><span class="nm">Map &amp; polish</span><span class="bar"></span></li>
@@ -116,16 +115,20 @@ a{color:var(--accent)}
   </section>
 
   <section aria-labelledby="m2-h">
-    <h2 id="m2-h">M2 · Playable core (starting now)</h2>
-    <p style="color:var(--muted)">Merging M1 spikes into main; adding teams, phases, respawn, win logic, and a placeholder map.</p>
+    <h2 id="m2-h">M2 · Playable core (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">All systems merged to main: barrier + shop + purse, teams, phases, respawn, win logic, and placeholder map. Solo test w/ dummies on server <b>m2</b> (★).</p>
     <ul class="items">
-      <li><span class="pill p-now">In progress</span><span class="what">Merge M1 spikes into main</span><span class="why">Barrier, shop, purse, and text-box feedback integrated. Resolve tick.json/load.json conflicts.</span></li>
-      <li><span class="pill p-now">In progress</span><span class="what">Teams &amp; match phases</span><span class="why">Team assignment, Pre-match, Arena, Post-match (win screen). Spectator mode.</span></li>
-      <li><span class="pill p-todo">Queued</span><span class="what">Respawn &amp; keepInventory</span><span class="why">Reconcile with class kits and bank + kill reward.</span></li>
-      <li><span class="pill p-todo">Queued</span><span class="what">Placeholder map</span><span class="why">Two team bases, Nexus rooms, contested arena. Flat or imported V2? Decide before M6.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Emerald Dream demo</span><span class="why">Custom dimension with floating islands, random arrivals, 10 regrowing veins, 5 s sneak-exit. Lore from V2.</span></li>
-      <li><span class="pill p-done">Done</span><span class="what">Resource generators spike demo</span><span class="why">V2.0 structures via /place template, emerald outcomes → coin pot, data-driven, loot from V2 dispenser odds.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Merge M1 spikes (barrier, shop, purse)</span><span class="why">All conflicts resolved; text-box feedback integrated. Deployed to main (051fbcc).</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Teams white/black &amp; match phases</span><span class="why">Lobby → prep (1 min, barrier lockdown) → battle → end (win screen). Spectator on last life.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Respawn with keepInventory ON</span><span class="why">Keep_inventory enabled. Respawn kit hook wired for classes. Admin panel via /function nonios:admin.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Win check &amp; stats</span><span class="why">Nexus destroyed = team wins. Kill counts, damage dealt, coins earned tracked and shown.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Placeholder map &amp; reset</span><span class="why">Two team bases, Nexus rooms, contested arena. Fresh copy on each return to lobby.</span></li>
     </ul>
+  </section>
+
+  <section aria-labelledby="m3-h">
+    <h2 id="m3-h">M3 · Economy (in progress)</h2>
+    <p style="color:var(--muted)">Bank dialog, interest accrual, kill rewards. Generators and Emerald Dream integrating as part of M4 progression.</p>
   </section>
 
   <section aria-labelledby="ahead-h">
@@ -161,6 +164,17 @@ a{color:var(--accent)}
     <section aria-labelledby="open-h">
       <h2 id="open-h">Still open</h2>
       <dl>
+        <dt><b>M2/M3:</b> Bank withdrawal</dt><dd>How do players withdraw coins from the team bank? (M3 in progress.)</dd>
+        <dt>M2/M3: Class respawn kits</dt><dd>Keep_inventory ON. Classes will add custom kits. Hook wired? Collision with bank + kill reward?</dd>
+        <dt>M2/M3: Skip phase = draw</dt><dd>If a team skips a phase during battle, does the match end as a draw? (Suggested: yes.)</dd>
+        <dt>M2/M3: Admin access</dt><dd>Op runs <code>/function nonios:admin</code> once. Wires the admin UI. Correct? (Built.)</dd>
+        <dt>M2/M3: Late joiners</dt><dd>Players joining mid-match spectate until picking a team. Correct? (Suggested: yes.)</dd>
+        <dt>M2/M3: Black team colour</dt><dd>Team colour in UI/cosmetics: dark_purple or light_purple? (Pick one.)</dd>
+        <dt>M2/M3: Shop catalog</dt><dd>What items and pricing for the placeholder shop? (Test data built.)</dd>
+        <dt>M2/M3: Full inventory strictness</dt><dd>Refuses purchases even when a matching stack has room? (Suggested: yes, strict.)</dd>
+        <dt>M2/M3: Map reset cycle</dt><dd>Fresh copy pulled at each return to lobby. Correct? (Suggested: yes.)</dd>
+        <dt>M2/M3: Prep lockdown</dt><dd>Barrier plane + 1 Hz pushback keeps teams confined during prep. Physics OK? (Built.)</dd>
+        <dt>M2/M3: Emerald block cost</dt><dd>Placing one costs 100 coins to prevent infinite farms. Correct? (Suggested: yes.)</dd>
         <dt>Respawn gear vs keepInventory</dt><dd>Reconcile with class kits in M2: keep inventory but bank + reward to killer?</dd>
         <dt>Main world</dt><dd>Start from a fresh flat world or import V2 terrain. Decide before the M6 build.</dd>
         <dt>Shop: full catalog?</dt><dd>Real catalog (per team/phase?) or test data for now?</dd>
@@ -186,6 +200,8 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
+      <li><time>10-14</time><b>M3 economy started:</b> feat/economy. Bank dialog, interest, kill rewards. M2 merged to main, built, awaiting your test (server m2 ★). 11 design questions on this page.</li>
+      <li><time>10-14</time><b>M2 playable core merged:</b> 051fbcc (feat/m2-core → main). Barrier + shop + purse merged. Teams (white/black), phases (lobby/prep/battle/end), admin panel (/function nonios:admin), keep_inventory ON, respawn, last-life spectator, win check, stats, placeholder map with reset. Solo test w/ dummies.</li>
       <li><time>10-14</time><b>Arena started:</b> feat/arena. Contested nodes, timed events, lightning toggle.</li>
       <li><time>10-14</time><b>Emerald Dream spike done:</b> custom dimension with floating islands, random arrivals (±3000), 10 regrowing veins, 5 s sneak-exit, saved return point. Lore from V2 recovered. Seven design questions queued.</li>
       <li><time>10-14</time><b>Generators spike done:</b> V2 level structures via /place, coin pot (right-click), team-scaled rolls, data-driven. Six design questions queued.</li>

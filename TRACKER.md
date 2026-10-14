@@ -8,19 +8,19 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 |-------|--------|---------|
 | M0 | ✓ Done | Dev framework (mcdev.py, persistent servers, feedback, packing) |
 | M1 | ✓ Done | Spikes: `/posteffect` shaders, Nexus barrier, shop dialog, coin purse (awaiting user tests) |
-| M2 | → Now | Playable core: teams, phases, respawn, win screen, reset |
-| M3 | — | Economy: coins, bank, kill rewards, full shop |
+| M2 | ★ Your test | Playable core: teams, phases, respawn, win screen, reset (built, merged to main) |
+| M3 | → Now | Economy: bank dialog, interest, kill rewards (in progress) |
 | M4 | — | Progression: altar upgrades, generators, arena events, Emerald Dream |
 | M5 | — | Classes: Reaper and Cracy Frog end-to-end, then roster |
 | M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logic, placeholder map. Parallel: Generators and Emerald Dream research spikes.
+M3 economy: bank dialog, interest, kill rewards. Testing M2 playable core. Parallel: Classes (Reaper/Cracy Frog), Arena (contested nodes).
 
 ## Waiting on user
-1. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
-2. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
-3. **Text-box feedback:** any server. G → Feedback, type topic + text with quotes/accents, Send. Expect "✔ noted (#N)".
+1. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
+2. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
+3. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
 4. **Shop dialog (★):** server `shop`. Try buying. Check NPC, catalog, trigger buttons, not-enough-coins message.
 5. **Coin purse (★):** server `purse`. Mine blocks. Check coins earned, weight slowdown, drop on death, killer gets purse.
 
@@ -35,9 +35,10 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 - Quiet session (only checkpoints) — established
 - Generators spike (V2.0 level structure reuse via `/place template`, coin pot, data-driven via src/generators.json, loot table from V2's 81-outcome dispenser odds) — done (855e046)
 - Emerald Dream spike (custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point, V2 lore recovered) — done (6729ef0)
+- M2 playable core (feat/m2-core, merged to main 051fbcc): barrier + shop + purse + teams (white/black) + phases (lobby/prep/battle/end) + admin panel + keep_inventory ON + respawn + last life→spectator + win check + stats + placeholder map with reset. Server m2 ★. Awaiting user test.
 
 ## In flight
-- M2 core (feat/m2-core): Merge M1 spikes (barrier, shop, purse) into main; teams/phases/respawn/win logic; placeholder map.
+- M3 economy (feat/economy): Bank dialog, interest, kill rewards. In progress.
 - Classes (feat/classes): Class framework + Reaper + Cracy Frog end-to-end implementation.
 - Arena (feat/arena): Contested nodes, timed events, lightning toggle.
 
@@ -77,6 +78,19 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 5. **Quantity picker:** support buying multiple items per dialog (2x Diamond Sword) or single-item only?
 
 ## Questions for when user returns
+**M2/M3 core** (from M2 merge, with built/suggested defaults):
+1. **Bank withdrawal mechanic:** How do players withdraw coins? [built: M3 now; dialog pending].
+2. **Keep inventory + respawn kit hook:** keep_inventory ON; classes may add custom kits. Hook wired? [to do].
+3. **Battle skip = draw:** If a team skips a phase during battle, match ends as draw. Accept? [suggested: yes].
+4. **Admin panel access:** Op runs `/function nonios:admin` once. Wires the admin UI. [built].
+5. **Late joiners:** Players joining mid-match spectate until they pick a team. Accept? [suggested: yes].
+6. **Black team colour:** dark_purple or light_purple for black team? [pick one].
+7. **Placeholder shop catalog:** What items + pricing for now? [test data built].
+8. **Full inventory edge case:** Refuses purchases even when a matching stack has room? [suggested: yes, strict].
+9. **Map regeneration:** Fresh copy pulled at each return to lobby. Accept? [suggested: yes].
+10. **Prep phase lockdown:** Barrier plane + 1 Hz pushback keeps teams in base during prep. Physics OK? [built].
+11. **Emerald block farm cost:** Placing one costs 100 coins to prevent infinite farms. Accept? [suggested: yes].
+
 **Generators** (spike done 855e046; from coordinator notes, with suggested defaults):
 1. **Coins per emerald outcome:** [suggested: 5; block-level 45; Lv3 ≈72 coins/min]. Scales with team size; rolls from V2's 81-outcome dispenser odds.
 2. **Drop intervals:** [suggested: 10/8/6 s per level; pot caps 50/150/500]. How often rolls occur; pot size limit per team.
@@ -104,6 +118,8 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | **M3 economy started** (feat/economy): bank dialog, interest, kill rewards. M2 merged to main, built, awaiting user test. Parallel: Classes, Arena, M3 core. |
+| 10-14 | **M2 playable core merged** (051fbcc, feat/m2-core → main): barrier + shop + purse + teams (white/black) + phases (lobby/prep/battle/end) + admin panel (/function nonios:admin) + keep_inventory ON + respawn + last life→spectator + win check + stats + placeholder map with reset. Server m2 ★. Awaiting user test. 11 design questions. |
 | 10-14 | **Arena started** (feat/arena): contested nodes, timed events, lightning toggle. Parallel: M2 core, Classes, both spikes (Generators, Emerald Dream) done. |
 | 10-14 | **Emerald Dream spike done** (6729ef0, feat/emerald-dream, server dream ★): custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point. V2 lore recovered (Shop Keeper, Emerald Talisman, Crazy Frog chain). Seven design questions for user (shared/void/jump/regrow/value/range/mobs). |
 | 10-14 | **Classes started** (feat/classes): class framework + Reaper + Cracy Frog end-to-end. M5 milestone now in progress; spikes ongoing (M2 core, Arena). |
