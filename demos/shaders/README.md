@@ -46,16 +46,19 @@ pointless (e.g. reaper + comic). Post effects are client state, so the stack is 
   entities and read as warm; magma blocks and redstone torches emit too little light to count.
 - `alien` (#54, the old Thermal, renamed): cold ironbow world, heat edges, glowing HP-coloured signatures that pulse
   faster when the target is weaker (HP tags, see below).
-- `cosmic` (v4, #55): every light glows (v3: local-contrast light finder, three bloom scales with drifting hues,
+- `cosmic` (v5, #55/#64): every light glows (local-contrast light finder, three bloom scales with drifting hues,
   shimmer, glints on small lights), plus:
-  - **the v2 halo is back on purpose**: `cosmic_aura.fsh` runs the old v2 star test (a sky pixel brighter than its
-    neighbours). Next to a bright moon every gap between dark leaves passes it, and three blurs (4, 24, 24 px) spread the
-    cluster into a violet/teal aura around the tree, which also spills a little onto the ground (`AuraSpill`).
-  - **flower glitter** unchanged.
+  - **the treetop gloom of the first Cosmic (v2, c65d643) is restored term for term**: `cosmic_gloom.fsh` is the v2 star
+    pass verbatim (a sky pixel brighter than its ring of neighbours while the sky around is dark; next to a bright moon
+    every gap between dark leaves passes); its 4 px glow (x3, slow twinkle), 14 px cross spikes and the 24 px nebula
+    blur (x40 gain, violet -> teal) go on the sky, and spill on the ground, at the v2 strengths. v4 had only re-created
+    the nebula term.
   - **sky**: the overlay's `core/sky.fsh` draws a nebula (two fbm colour fields along a galactic band) and stars into
-    the sky disc, but only as a 2-bit code in the pixel's low bits (invisible without Cosmic). `cosmic.fsh` decodes it:
-    violet/blue nebula clouds, stars with soft glow, 4-point spikes on the brightest, twinkle; the moon disc is boosted
-    and gets a two-scale corona. Night only (fades in at dusk).
+    the sky disc as a low-bit code with a **check bit** (`nonios_sky_code` in `nonios_mark.glsl`: parity of the code
+    XOR a per-pixel key; nebula A 0..3 and nebula B 0/1 are ordered-dithered). `cosmic_code.fsh` keeps a pixel only if
+    it and its 12 nearest neighbours pass the check. v4 trusted every sky pixel (#64): the uncoded clear colour below
+    the horizon decoded as a wall of stars (the shifting white static) and the moon, blended on top of the coded sky,
+    as a striped symbol. Random or constant low bits now pass with odds ~1/8000. Night only (fades in at dusk).
 - `monster` ("Hunger" vision, my pick for the monster class): blood-red monochrome, sight fades to murk past
   ~28 blocks (`Range`), near silhouettes get hot rims (prey stand out), barrel warp + colour split, and a
   double-thump heartbeat that pulses the vignette. Meant to feel predatory, not to give information.
@@ -65,23 +68,22 @@ pointless (e.g. reaper + comic). Post effects are client state, so the stack is 
     network latency). Both run on game time, so they stay locked, also with the day cycle frozen (game time always runs).
   - **Taking damage** plays an extra hard heartbeat at once (`demo.dmg` = `damage_taken`, at most once per 10 ticks).
   - **Barrel warp drifts**: its centre and strength wander slowly (periods of ~25-50 s), so the lens never sits still.
-  - **Madness** (`madness.fsh` v2, #58/#59): HP% sets a target level 0..10 (starts below 70 %, full at 15 %:
+  - **Madness** (`madness.fsh` v3, #58/#59/#66): HP% sets a target level 0..10 (starts below 70 %, full at 15 %:
     `(75 - HP%) / 6`). The level **eases** toward it: one step every 4 ticks closing in, every 8 ticks letting go, so a
     burst of damage closes the tunnel over ~2 s and healing opens it slowly. Each level is its own JSON
     (`madness_1..10`, Intensity 0.1..1.0; a post shader keeps no state, so the datapack does the easing and a level change
-    re-applies the stack, `demo:monster/changed`). Effects (no new ones, refined): the ink tunnel and up to 6 writhing
-    tendrils reach in from the edges; the eyes are gone: **silhouettes** (tall thin figures with long arms, swaying,
-    edges smoking away) stand at the edge of sight, and **faces** (pale, hollow eyes, a slowly opening mouth) surface
-    only where the image is dark; a new set every 6 s, more at higher levels. Reds drip, the channel smear turns slowly,
-    and the whole view drifts in a slow flow field (`Drift`) on top of the breathing swirl. Whispers every ~16 / 8 / 4 s
+    re-applies the stack, `demo:monster/changed`). **v3 (#66)**, prototyped offline in `tools/shaderlab` first (reference: `reference/monster.gif` ramps levels 1 -> 10 -> 1, `reference/monster_sheet.png` levels 3/6/10, noon and night). The silhouettes and faces are gone. The tunnel is an **ellipse** fitted to the screen (`Ellipse` 0 = circle, 1 = screen shape; 0.7 chosen: on wide monitors a circle blacks out the sides, a full screen-shaped ellipse reads as a frame, not a tunnel). Its edge is **creeping ink**: a domain-warped fbm field (ink spreading in water) with a wispy outer band and a dark blood-red seam that pulses with the heartbeat (in the dark it glows faintly, so the tunnel still reads at night). **Tendrils** are ridged noise in log-polar space (thin, branching, tapering toward their tips, crawling inward), **veins** are voronoi cracks under the ink's edge that flush red on each beat, plus a radial chromatic smear and an edge desaturation / red grade, the slow drift warp and the heartbeat breathing. Level 1-3 only darkens the corners; 10 leaves a small ellipse. Whispers every ~16 / 8 / 4 s
     at levels 2-4 / 5-7 / 8-10, cave drone at 8+.
-- `angel` (v3, #57): majestic light. The white veil and the screen-space motes are gone. Now: a little exposure and
-  saturation, a gold soft-knee bloom (less on the sky), **god rays** from bright sky (`cine_rays`, same as Cinematic),
-  a warm distance **haze**, a light vignette and a soft highlight shoulder. **Motes** are real particles: `demo:angel/tick`
-  (2 tries per tick per Angel player) picks a random column within 12 blocks, walks down to the first open block standing
-  on something solid (`#demo:mote_air`), and spawns a rising `end_rod` mote and a little gold dust there; flowers also
-  sparkle (`wax_off`). They are sent only to that player (`force @s`). HP behaviour unchanged: living things get the HP
-  glow and the HP-tinted heat body (entity marker, see below), bodies never on the sky.
+- `angel` (v4, #63): ethereal light, prototyped offline first (`tools/shaderlab`, reference
+  `reference/angel.gif`, before/after `reference/angel_sheet.png`). Layers, in order: a pastel grade (sky keeps its blue,
+  highlights warm), an **Orton glow** (the whole image blurred and screen-blended back, so every surface gets a soft
+  luminous diffusion), a luminous warm **haze** with distance whose brightness follows the local scene (bright by day, dark
+  at night, no grey fog), a three-scale gold/white **bloom** (6/16/28+28 px, luma-based so the blue sky does not bloom),
+  **light shafts** from the light it finds (`angel_rays`: the brightness^4-weighted centroid of a 16x9 grid of the bright
+  sky, so the shafts radiate from the sun when it is on screen and fall from above the screen otherwise; they breathe
+  slowly) plus a soft halo around that centre, a few slow **light motes** (soft bokeh discs drifting up, dimmer at night),
+  milky blacks and a faint bright edge glow. The real `end_rod` motes (`demo:angel/tick`) are unchanged. HP behaviour
+  unchanged: living things get the HP glow and the HP-tinted heat body (entity marker, see below), bodies never on the sky.
 - `neon` (#23, look): the whole image goes grey and dim (like Reaper), and the edges of every object glow as neon tubes
   in that object's **own** colour, fully saturated: depth creases/silhouettes (Laplacian of depth, zero on flat planes)
   plus colour edges (Sobel). Tube colour = the most colourful pixel next to the edge, pushed to full saturation (grey
@@ -89,14 +91,22 @@ pointless (e.g. reaper + comic). Post effects are client state, so the stack is 
 - `rainbow`: hue cycling with an outward ripple (colour only, no distortion).
 - `comic`: posterised colours, halftone dots in the shadows, paper highlights.
 - `ink` / `fluorescent` (the old "Neon"): the same line shader (`ink.fsh`): dark comic lines, or glowing additive cyan lines.
-- `planet` (v2, #56): a tiny spherical planet. A point at distance d drops by d^2 / 2R (R = `Radius`, 256 blocks).
-  Screen-space reprojection with the depth buffer: v1 iterated a fixed point per pixel, which jumped between solutions
-  and tore clouds and edges. v2 marches each pixel's column upward (40 steps + 6 bisection steps) and takes the
-  **first** crossing, so neighbouring pixels pick the same surface; gaps that open behind a bent edge are filled from
-  the far side; the bend fades out toward the top of the screen (`FadeStart`), where the sky and clouds are, so they
-  stay calm. Limits: it can only show what is on screen; `TanHalfFov` (0.70 = FOV 70) should match your FOV setting;
-  looking straight down shows little bend. Combines with Acid (Acid bends geometry, Planet then bends the image).
+- `planet` (v3, #56/#63): a tiny spherical planet. A point at distance d drops by d^2 / 2R (R = `Radius`, 256 blocks).
+  Screen-space reprojection with the depth buffer. v2 shifted every pixel by its own depth, so each block step, tree
+  edge and the terrain/sky seam made a small fold in the mapping and the column march jumped between folds: the
+  landscape moved in steps (#63). v3 bends by a **smoothed distance field** (`planet_dist.fsh`, two Gaussian passes,
+  sigma = `Spread` x screen height, stored as 16 bits in two channels and read unfiltered), then marches each column
+  (32 steps + 5 bisection + secant) on that smooth function and samples the image bilinearly. The image bends as one
+  continuous sheet; only the real fold near the far horizon remains (what lies behind the curve is hidden, as on a
+  real small planet). The bend fades out toward the top of the screen (`FadeStart`). Limits: it can only show what is
+  on screen; `TanHalfFov` (0.70 = FOV 70) should match your FOV setting. Reference: `reference/planet.gif`.
 - `wobble`: wavy screen + pulsing chromatic split (screen-space; was "Acid" in v2, the colour cycling moved to `rainbow`).
+
+## Reference animations and the harness
+`reference/*.gif` / `*_sheet.png` are rendered offline by `tools/shaderlab/lab.py` (real pack JSON + GLSL on a
+ray-marched voxel test scene with real-format depth and markers), e.g.
+`python tools/shaderlab/lab.py --fx monster --fx madness_6 --time night --shot walk --frames 16 --out out/m`.
+See `docs/shader-playbook.md`.
 
 ## Acid (world warp)
 The classic "acid" (GLSL shaders mod formula): with distance from you the world waves up and down and rotates around

@@ -237,6 +237,8 @@ def main():
     sheet = Image.new("RGB", (w * cols, h * rows))
     for i, f in enumerate(pick):
         sheet.paste(f, ((i % cols) * w, (i // cols) * h))
+    if sheet.width > 1440:  # keep committed references small
+        sheet = sheet.resize((1440, int(sheet.height * 1440 / sheet.width)), Image.LANCZOS)
     sheet.save(f"{out}_sheet.png")
     print("wrote", f"{out}.gif", f"{out}_sheet.png")
 

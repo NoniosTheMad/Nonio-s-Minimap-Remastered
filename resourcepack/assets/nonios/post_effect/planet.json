@@ -1,8 +1,100 @@
 {
     "targets": {
-        "swap": {}
+        "swap": {},
+        "tmp": {},
+        "dist": {}
     },
     "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/planet_dist",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "DistConfig": [
+                    {
+                        "name": "Mode",
+                        "type": "float",
+                        "value": 0.0
+                    },
+                    {
+                        "name": "Spread",
+                        "type": "float",
+                        "value": 0.03
+                    },
+                    {
+                        "name": "MaxDist",
+                        "type": "float",
+                        "value": 224.0
+                    },
+                    {
+                        "name": "Near",
+                        "type": "float",
+                        "value": 0.05
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/planet_dist",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "dist",
+            "uniforms": {
+                "DistConfig": [
+                    {
+                        "name": "Mode",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Spread",
+                        "type": "float",
+                        "value": 0.03
+                    },
+                    {
+                        "name": "MaxDist",
+                        "type": "float",
+                        "value": 224.0
+                    },
+                    {
+                        "name": "Near",
+                        "type": "float",
+                        "value": 0.05
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
         {
             "vertex_shader": "minecraft:core/screenquad",
             "fragment_shader": "nonios:post/planet",
@@ -13,9 +105,8 @@
                     "bilinear": true
                 },
                 {
-                    "sampler_name": "Depth",
-                    "target": "minecraft:main",
-                    "use_depth_buffer": true
+                    "sampler_name": "Dist",
+                    "target": "dist"
                 }
             ],
             "output": "swap",
@@ -40,16 +131,6 @@
                         "name": "FadeStart",
                         "type": "float",
                         "value": 0.55
-                    },
-                    {
-                        "name": "Near",
-                        "type": "float",
-                        "value": 0.05
-                    },
-                    {
-                        "name": "DepthReversed",
-                        "type": "float",
-                        "value": 1.0
                     }
                 ]
             }
