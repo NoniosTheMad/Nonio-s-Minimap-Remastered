@@ -1,0 +1,93 @@
+{
+    "type": "minecraft:multi_action",
+    "title": {
+        "text": "Demo: custom shaders",
+        "color": "gold"
+    },
+    "body": [
+        {
+            "type": "minecraft:plain_message",
+            "width": 300,
+            "contents": {
+                "text": "Custom /posteffect shaders from the game resource pack (nonios namespace). Each button clears your effects first, then adds one.",
+                "color": "gray"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "label": {
+                "text": "Reaper",
+                "color": "white"
+            },
+            "tooltip": {
+                "text": "nonios:reaper - black world, white outlines (depth + luma edges)"
+            },
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 1"
+            }
+        },
+        {
+            "label": {
+                "text": "Acid",
+                "color": "light_purple"
+            },
+            "tooltip": {
+                "text": "nonios:acid - hue cycling, wavy UVs, chromatic aberration (animated)"
+            },
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 2"
+            }
+        },
+        {
+            "label": {
+                "text": "Reaper (no depth)",
+                "color": "gray"
+            },
+            "tooltip": {
+                "text": "nonios:reaper_luma - fallback without the depth buffer (diagnostic)"
+            },
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 3"
+            }
+        },
+        {
+            "label": {
+                "text": "Reaper + Acid",
+                "color": "dark_purple"
+            },
+            "tooltip": {
+                "text": "Stack both effects"
+            },
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 4"
+            }
+        },
+        {
+            "label": {
+                "text": "list mine",
+                "color": "aqua"
+            },
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 6"
+            }
+        },
+        {
+            "label": {
+                "text": "clear all",
+                "color": "red"
+            },
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 7"
+            }
+        }
+    ],
+    "columns": 2,
+    "pause": false
+}
