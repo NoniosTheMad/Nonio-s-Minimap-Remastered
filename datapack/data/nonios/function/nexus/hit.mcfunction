@@ -1,7 +1,8 @@
-# damage = attacker's attack_damage x10 (sword ~70, fist 10). Teammates do nothing.
+# damage = attacker's attack_damage x10 (sword ~70, fist 10) x attack charge (nexus/charge, #49). Teammates do nothing.
 execute on attacker run tag @s add nx.attacker
 $execute if entity @a[tag=nx.attacker,team=$(team)] run return run function nonios:nexus/hit_own
 execute on attacker store result score #dmg nx.const run attribute @s minecraft:attack_damage get 10
+execute on attacker if entity @s[type=player] run function nonios:nexus/charge
 scoreboard players operation @s nx.hp -= #dmg nx.const
 # stats: barrier damage dealt this match (end-of-match summary)
 execute on attacker run scoreboard players operation @s[type=player] nx.nxdmg += #dmg nx.const

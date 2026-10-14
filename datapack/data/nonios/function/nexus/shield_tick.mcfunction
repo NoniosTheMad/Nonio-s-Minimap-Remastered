@@ -11,7 +11,7 @@ $execute as @e[type=#nonios:nexus_projectiles,distance=..10,tag=!nx.arrow_done] 
 $execute if score #adm nx.tmp matches 1.. run function nonios:nexus/hit_arrow {team:"$(team)"}
 scoreboard players remove @s[scores={nx.cd=1..}] nx.cd 1
 scoreboard players remove @s[scores={nx.alert=1..}] nx.alert 1
-execute if score @s nx.cd matches 0 if score @s nx.hp < @s nx.hp_max run function nonios:nexus/regen
+execute if score @s nx.cd matches 0 if score @s nx.hp < @s nx.hp_cap run function nonios:nexus/regen
 $function nonios:nexus/fx/tick {team:"$(team)"}
 $execute store result bossbar nonios:barrier_$(team) value run scoreboard players get @s nx.hp
 $execute store result bossbar nonios:barrier_$(team) max run scoreboard players get @s nx.hp_max

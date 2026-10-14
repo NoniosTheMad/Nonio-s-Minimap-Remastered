@@ -11,6 +11,11 @@ execute store result score #pz nx.tmp run data get entity @s Pos[2] 100
 execute store result score #mx nx.tmp run data get entity @s Motion[0] 100
 execute store result score #my nx.tmp run data get entity @s Motion[1] 100
 execute store result score #mz nx.tmp run data get entity @s Motion[2] 100
+# rockets / wind charges / fireballs explode on the block in their own move, before the next check sees them:
+# look two moves ahead for those (they fly straight, so the second move is where they'd blow up)
+execute unless entity @s[type=#minecraft:arrows] unless entity @s[type=minecraft:trident] run scoreboard players operation #mx nx.tmp *= #2 nx.const
+execute unless entity @s[type=#minecraft:arrows] unless entity @s[type=minecraft:trident] run scoreboard players operation #my nx.tmp *= #2 nx.const
+execute unless entity @s[type=#minecraft:arrows] unless entity @s[type=minecraft:trident] run scoreboard players operation #mz nx.tmp *= #2 nx.const
 execute if data entity @s {inGround:1b} run scoreboard players set #mx nx.tmp 0
 execute if data entity @s {inGround:1b} run scoreboard players set #my nx.tmp 0
 execute if data entity @s {inGround:1b} run scoreboard players set #mz nx.tmp 0

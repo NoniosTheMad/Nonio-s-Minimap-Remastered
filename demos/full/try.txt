@@ -6,5 +6,7 @@ Everything on main in one match. Buttons: G > "Demo: Full match".
 5. Shop: "+10000 coins", "Open shop (anywhere)": 10 pages, the last is Special (Talisman, Monster Skull, Dragon Skull).
 6. Team: "TP: my altar" + "Offering blocks" (right-click the altar), "Emerald Talisman", "TP: enemy spawn" after the walls drop.
 7. Bank: "TP: my bank", step on a gold plate (whole purse banked; the enemy hears a bell + sees "<Team> banked N"), right-click the vault for 10/50/100/200/500/1000/Half/All. Interest every second on the sidebar; "Match clock +10 min" ramps it (1% -> 10% at minute 30, max 20/s).
-8. End: "Destroy ENEMY Nexus" + "Clear mobs" = victory; back in the lobby after the end timer.
+8. Generators + Barrier (67-71): "Single-block generators" toggles the mode; "Ranged kit" to shoot the enemy Barrier;
+   "Centre hold sim" + "Hold +4 min" = centre pressure on the enemy Barrier; "Minute-20 decay" starts the 10%/min decay.
+9. End: "Destroy ENEMY Nexus" + "Clear mobs" = victory; back in the lobby after the end timer.
 Feedback: anything that breaks when the systems run together.

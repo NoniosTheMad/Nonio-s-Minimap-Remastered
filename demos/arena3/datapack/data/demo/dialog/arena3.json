@@ -128,14 +128,14 @@
     },
     {
       "label": {
-        "text": "Lucky block"
+        "text": "Single-block generators"
       },
       "action": {
         "type": "minecraft:run_command",
         "command": "trigger demo.ar3 set 11"
       },
       "tooltip": {
-        "text": "Proposal on/off: 1 in 15 regrowths"
+        "text": "On/off: one block type (gilded blackstone) with the V2 odds in its drops, vs the V2 blocks"
       }
     },
     {
@@ -247,6 +247,66 @@
       "action": {
         "type": "minecraft:run_command",
         "command": "trigger demo.ar3 set 22"
+      }
+    },
+    {
+      "label": {
+        "text": "Ranged kit"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 23"
+      },
+      "tooltip": {
+        "text": "Power V bow, crossbow, trident, rockets, wind charges: shoot the enemy Barrier"
+      }
+    },
+    {
+      "label": {
+        "text": "Tp: enemy Nexus"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 24"
+      },
+      "tooltip": {
+        "text": "6 blocks in front of it"
+      }
+    },
+    {
+      "label": {
+        "text": "Centre hold: off/W/B"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 25"
+      },
+      "tooltip": {
+        "text": "Simulate a team holding the centre node: the enemy Barrier drains, ramping up"
+      }
+    },
+    {
+      "label": {
+        "text": "Centre hold +4 min"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 26"
+      },
+      "tooltip": {
+        "text": "Skip the ramp (full rate after 5 min held)"
+      }
+    },
+    {
+      "label": {
+        "text": "Barrier minute 20"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 27"
+      },
+      "tooltip": {
+        "text": "Both Barriers start to decay: 10% of max per minute, down at minute 30"
       }
     }
   ],
