@@ -1,4 +1,5 @@
 scoreboard players set #state nx.state 3
+function nonios:arena/stop
 execute store result score #timer nx.state run data get storage nonios:config end_time 20
 execute store result bossbar nonios:phase max run data get storage nonios:config end_time
 bossbar set nonios:phase color yellow

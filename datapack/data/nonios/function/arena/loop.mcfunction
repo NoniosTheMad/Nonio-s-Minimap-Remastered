@@ -1,5 +1,7 @@
 # Every 10 ticks while the arena runs. #dt = game ticks elapsed x #speed (timers only; capture runs in real time).
 execute unless score #on nx.arena matches 1 run return 0
+# in the match the arena only runs during battle (game/battle/start starts it; anything else stops it)
+execute if score #map nx.state matches 1 unless score #state nx.state matches 2 run return run function nonios:arena/stop
 schedule function nonios:arena/loop 10t replace
 scoreboard players operation #dt nx.arena = #speed nx.arena
 scoreboard players operation #dt nx.arena *= #10 nx.arena

@@ -14,5 +14,9 @@ function nonios:map/gen/arena with storage nonios:map arena
 function nonios:map/gen/props {t:"white"}
 function nonios:map/gen/props {t:"black"}
 scoreboard players set #map nx.state 1
+# arena nodes from map/config (needs #map = 1 for the config hook), portal labels for the current unlocks
+function nonios:map/arena_config
+function nonios:arena/setup
+function nonios:portal/labels
 scoreboard players set #dirty nx.state 0
 tellraw @a[tag=nx.admin] {"text":"[map] Placeholder map rebuilt.","color":"gray"}

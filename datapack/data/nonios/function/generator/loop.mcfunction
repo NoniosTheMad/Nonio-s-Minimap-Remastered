@@ -1,5 +1,7 @@
 # Every second: advance all generator timers, drop what is due, refresh visuals.
 schedule function nonios:generator/loop 20t replace
+# in the match, generators only run during prep and battle (demo worlds without the match map: always)
+execute if score #map nx.state matches 1 unless score #state nx.state matches 1..2 run return 0
 scoreboard players operation #step nx.gen = #speed nx.gen
 scoreboard players operation #step nx.gen *= #20 nx.gen
 # rolls per drop scale with team size: 1 + (players - 1) / #per_roll  (20 players, 4 per roll -> 5 rolls)
