@@ -1,0 +1,143 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Castle",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 260,
+    "contents": {
+      "text": "Built from scenes/castle.py",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "Gate"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 1"
+      },
+      "tooltip": {
+        "text": "Drawbridge over the ditch"
+      }
+    },
+    {
+      "label": {
+        "text": "Great hall"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 2"
+      },
+      "tooltip": {
+        "text": "Keep, ground floor"
+      }
+    },
+    {
+      "label": {
+        "text": "Library"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 3"
+      },
+      "tooltip": {
+        "text": "Keep, 2nd floor (west); lord's chamber east"
+      }
+    },
+    {
+      "label": {
+        "text": "Chapel"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 4"
+      },
+      "tooltip": {
+        "text": "Keep, 3rd floor"
+      }
+    },
+    {
+      "label": {
+        "text": "Cellar"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 5"
+      },
+      "tooltip": {
+        "text": "Under the keep; spiral stair in the copper turret"
+      }
+    },
+    {
+      "label": {
+        "text": "Wall-walk"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 6"
+      },
+      "tooltip": {
+        "text": "East curtain"
+      }
+    },
+    {
+      "label": {
+        "text": "Keep top"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 7"
+      },
+      "tooltip": {
+        "text": "Roof walk"
+      }
+    },
+    {
+      "label": {
+        "text": "Creative"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 8"
+      },
+      "tooltip": {
+        "text": "Edit blocks; the agent can pull + diff your edits"
+      }
+    },
+    {
+      "label": {
+        "text": "Survival"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 9"
+      },
+      "tooltip": {
+        "text": "Back to survival"
+      }
+    },
+    {
+      "label": {
+        "text": "Spectator"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.cs set 10"
+      },
+      "tooltip": {
+        "text": "Fly through walls"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "text": "Close"
+    }
+  }
+}
