@@ -1,0 +1,19 @@
+{
+ "criteria": {
+  "use": {
+   "trigger": "minecraft:consume_item",
+   "conditions": {
+    "item": {
+     "predicates": {
+      "minecraft:custom_data": {
+       "nx_item": "tank_ironskin"
+      }
+     }
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/gen/tank/used_ironskin"
+ }
+}

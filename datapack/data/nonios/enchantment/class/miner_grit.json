@@ -1,0 +1,31 @@
+{
+ "description": {
+  "text": "Minecrafter Dream",
+  "color": "gold"
+ },
+ "supported_items": "minecraft:leather_chestplate",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "chest"
+ ],
+ "effects": {
+  "minecraft:attributes": [
+   {
+    "id": "nonios:miner_haste",
+    "attribute": "minecraft:block_break_speed",
+    "amount": 0.2,
+    "operation": "add_multiplied_base"
+   }
+  ]
+ }
+}

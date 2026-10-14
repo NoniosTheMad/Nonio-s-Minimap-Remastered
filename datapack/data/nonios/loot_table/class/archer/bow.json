@@ -1,0 +1,67 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:bow",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:enchantments": {
+         "nonios:class/archer_mark": 1,
+         "minecraft:power": 1,
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "archer",
+         "nx_item": "archer_bow",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Hunter's Bow",
+         "color": "green",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Whatever it hits, everyone sees.",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Arrow hit: target glows 6s",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Quiver: an arrow back every 3s (up to 16)",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Archer \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

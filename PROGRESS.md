@@ -66,6 +66,14 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [x] RCON-verified on test husks: shop dialog entries, broke/buy/already/frog-confirm paths, tier 2 -> +90 bonus, death strips + basic back on respawn,
   reset, debt maths, loot overrides. Not verified in the client: dialogs, frog chain, emerald pickup advancement, Reaper souls on match dummies.
 
+## V2 shop classes (`feat/classes-v2`, server `classes2`, demo `classes2`)
+- [x] Archer 50, Miner 80, Tank 100, Ninja 100, Berserker 120, Monster 1800, Balrog 10000 in `src/classes.json` (sold by the shop; Warrior untouched).
+- [x] Framework: item slot `supply` (plain kit items given once), hook `second` (`class/gen/second`), "a/an" in the apply message,
+  `class/fill_hp` (heal to the new max after +HP heads), objectives `nx.cls_quiv`, `nx.cls_ttl`; Balrog trail markers ticked from `class/tick`.
+- [x] RCON-verified: clean load (no function/loot/enchantment errors), class loot tables + components, shop catalog lists all 9, Balrog trail curse (Wither II).
+  Not verified in the client: everything player-side (apply, flasks, Ninja unarmour, Berserker rage, Monster devour, Balrog climb, Archer mark/quiver).
+- Design defaults to confirm: TRACKER "V2 shop classes".
+
 ## Inbox (done, f6fdfb8)
 - [x] Chat notifications + G → Inbox
 - [x] `mcdev notify` and `feedback --resolve`

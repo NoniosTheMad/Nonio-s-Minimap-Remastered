@@ -17,6 +17,9 @@ scoreboard objectives add nx.cls_heal dummy
 scoreboard objectives add nx.cls_fuel dummy
 scoreboard objectives add nx.cls_fly dummy
 scoreboard objectives add nx.cls_kick dummy
+# Archer quiver timer (seconds), Balrog trail marker life (ticks)
+scoreboard objectives add nx.cls_quiv dummy
+scoreboard objectives add nx.cls_ttl dummy
 # a consumable class item was used up (survival): give it back next tick
 scoreboard objectives add nx.cls_restock dummy
 # 1 = class items are given with the alternate cooldown group (demo "reset cooldowns")

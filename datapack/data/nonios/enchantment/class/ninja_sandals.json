@@ -1,0 +1,43 @@
+{
+ "description": {
+  "text": "Naruto-Run",
+  "color": "aqua"
+ },
+ "supported_items": "minecraft:leather_boots",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "feet"
+ ],
+ "effects": {
+  "minecraft:attributes": [
+   {
+    "id": "nonios:ninja_speed",
+    "attribute": "minecraft:movement_speed",
+    "amount": 0.4,
+    "operation": "add_multiplied_base"
+   },
+   {
+    "id": "nonios:ninja_step",
+    "attribute": "minecraft:step_height",
+    "amount": 0.5,
+    "operation": "add_value"
+   },
+   {
+    "id": "nonios:ninja_fall",
+    "attribute": "minecraft:safe_fall_distance",
+    "amount": 4,
+    "operation": "add_value"
+   }
+  ]
+ }
+}

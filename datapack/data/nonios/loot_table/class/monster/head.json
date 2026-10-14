@@ -1,0 +1,80 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:player_head",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:profile": {
+         "name": "EnzziGaming"
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:max_health",
+          "id": "nonios:monster_hp",
+          "amount": 20,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:movement_speed",
+          "id": "nonios:monster_speed",
+          "amount": 0.3,
+          "operation": "add_multiplied_base",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:scale",
+          "id": "nonios:monster_size",
+          "amount": 0.15,
+          "operation": "add_value",
+          "slot": "head"
+         }
+        ],
+        "minecraft:enchantments": {
+         "nonios:class/monster_hunger": 1,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "monster",
+         "nx_item": "monster_head",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Monster",
+         "color": "dark_red",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Devour and conquer",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Monster \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

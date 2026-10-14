@@ -8,6 +8,7 @@ code lives in function/class/<class>/ and is never touched):
   loot_table/class/<class>/[l<N>/]<item>.json    one item each (components set by set_components)
   advancement/class/use/<class>_<item>.json      right-click detection for items with a consumable component
   function/class/gen/<class>/*.mcfunction        apply, equip, strip, vision, vision_off, check (+ need_<item>, used_<item>)
+  loot_table/class/<class>/<item>.json           also "supply" items: plain kit consumables (no class tags), given once on apply
   function/class/gen/*.mcfunction               dispatchers on the nx.class score + catalog (storage nonios:class)
                                                  + shop_items (classes sold by the shop) + confirm (pre-purchase dialogs)
 """
@@ -59,9 +60,19 @@ def item_components(cid, c, key, it):
     return comp
 
 
+def supply_components(it):
+    """Supply items are ordinary items (blocks, food, tools): no class tags, they drop and stack like any other."""
+    comp = dict(it.get("components", {}))
+    if "name" in it:
+        comp["minecraft:custom_name"] = dict(it["name"], italic=False)
+    if it.get("lore"):
+        comp["minecraft:lore"] = list(it["lore"])
+    return comp
+
+
 def loot_table(it, comp):
     # 26.3 loot format: "modifier" (was "functions"), each with "type" (was "function"), single "condition" object
-    mods = [{"type": "minecraft:set_components", "components": comp}]
+    mods = [{"type": "minecraft:set_components", "components": comp}] if comp else []
     if it.get("count", 1) != 1:
         mods.append({"type": "minecraft:set_count", "count": it["count"]})
     cd = comp.get("minecraft:use_cooldown")
@@ -87,7 +98,7 @@ def build():
     nums = [c["num"] for c in classes.values()]
     assert len(nums) == len(set(nums)) and min(nums) >= 1, "class nums must be unique and >= 1"
 
-    disp = {k: [] for k in ("apply", "strip", "vision", "vision_off", "check", "tick", "purge", "confirm")}
+    disp = {k: [] for k in ("apply", "strip", "vision", "vision_off", "check", "tick", "second", "purge", "confirm")}
     catalog, shop_items = [], []
     for cid, c in classes.items():
         n, g = c["num"], f"class/gen/{cid}"
@@ -99,11 +110,16 @@ def build():
             write(OUT / "enchantment" / "class" / f"{key}.json", json.dumps(e, indent=1) + "\n")
 
         # ---- items: loot tables + equip function per level
-        equip_fns = {}
+        equip_fns, supply = {}, []
         for lvl, items in levels.items():
             sub = f"l{lvl}/" if lvl else ""
             lines = []
             for key, it in items.items():
+                if it["slot"] == "supply":
+                    assert not basic, f"{cid}.{key}: supply items are for shop classes (given once)"
+                    write(OUT / "loot_table" / "class" / cid / f"{key}.json", json.dumps(loot_table(it, supply_components(it)), indent=1) + "\n")
+                    supply.append(f"loot give @s loot nonios:class/{cid}/{key}")
+                    continue
                 comp = item_components(cid, c, key, it)
                 write(OUT / "loot_table" / "class" / cid / f"{sub}{key}.json", json.dumps(loot_table(it, comp), indent=1) + "\n")
                 table = f"nonios:class/{cid}/{sub}{key}"
@@ -137,11 +153,15 @@ def build():
             lines.append("scoreboard players remove @s nx.tier 1")
         else:
             lines.append(f"function nonios:{equip_fns['']}")
+            if supply:
+                lines.append("# kit supplies (plain items, given once)")
+                lines += supply
             lines.append(f"scoreboard players set @s nx.tier {c.get('kill_tier', 0)}")
         lines.append(f"function nonios:{g}/vision")
         if "on_apply" in hooks:
             lines.append(f"function nonios:class/{cid}/on_apply")
-        lines.append(f"tellraw @s [{{\"text\":\"✦ You are now a \",\"color\":\"gray\"}},{jtext(c['name'])}"
+        art = "an" if c["name"]["text"][:1].lower() in "aeiou" else "a"
+        lines.append(f"tellraw @s [{{\"text\":\"✦ You are now {art} \",\"color\":\"gray\"}},{jtext(c['name'])}"
                      + (',{"text":" (lost on death)","color":"dark_gray"}' if not basic else
                         ',{"text":" (level ","color":"dark_gray"},{"score":{"name":"#lvl","objective":"nx.cls_tmp"},"color":"dark_gray"},{"text":", back on every respawn)","color":"dark_gray"}')
                      + "]")
@@ -158,6 +178,8 @@ def build():
         if not basic:
             lines = ["# as/at the player, every second and right after a consumable class item was used"]
             for key, it in c["items"].items():
+                if it["slot"] == "supply":
+                    continue
                 tag, table = f"{cid}_{key}", f"nonios:class/{cid}/{key}"
                 if it["slot"] in EQUIP:
                     lines.append(f"execute unless items entity @s {it['slot']} {slot_match(tag)} run function nonios:{g}/need_{key}")
@@ -186,6 +208,8 @@ def build():
         disp["purge"].append(f'execute unless score @s nx.class matches {n} run clear @s *[minecraft:custom_data~{{nx_cls:"{cid}"}}]')
         if "tick" in hooks:
             disp["tick"].append(f"execute as @e[type=player,scores={{nx.class={n}}}] at @s run function nonios:class/{cid}/tick")
+        if "second" in hooks:
+            disp["second"].append(f"execute as @e[type=player,scores={{nx.class={n}}}] at @s run function nonios:class/{cid}/second")
         catalog.append({"id": cid, "num": n, "tier": c["tier"], "price": c.get("price", 0), "kill_tier": c.get("kill_tier", 0),
                         "name": c["name"], "blurb": c.get("blurb", "")})
         if "shop" in c:
@@ -206,6 +230,7 @@ def build():
     fn("class/gen/check", ["# as/at a player with a shop class: kit integrity"] + disp["check"])
     fn("class/gen/purge", ["# as the player: delete class items of classes it does not have (stale copies, items picked up from others)"] + disp["purge"])
     fn("class/gen/tick", ["# per-tick class hooks (only players of that class)"] + disp["tick"])
+    fn("class/gen/second", ["# once-a-second class hooks (only players of that class), from class/second"] + (disp["second"] or ["# none"]))
     lost = [f'execute if score @s nx.class matches {c["num"]} run return run tellraw @s [{{"text":"☠ ","color":"dark_red"}},{jtext(c["name"])},{{"text":" is gone: {c.get("lost_msg", "shop classes die with you.")}","color":"gray"}}]'
             for c in classes.values() if c["tier"] == "shop"]
     fn("class/gen/lost", ["# as a player who just lost its shop class to death"] + lost)

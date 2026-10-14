@@ -1,0 +1,56 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:leather_leggings",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:dyed_color": 1908001,
+        "minecraft:attribute_modifiers": [],
+        "minecraft:enchantments": {
+         "minecraft:blast_protection": 5,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "monster",
+         "nx_item": "monster_legs",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Monster Skin",
+         "color": "dark_red",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Hard as Steel",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Monster \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

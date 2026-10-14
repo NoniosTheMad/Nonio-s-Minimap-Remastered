@@ -1,0 +1,88 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:blaze_rod",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:max_stack_size": 1,
+        "minecraft:weapon": {
+         "item_damage_per_attack": 0
+        },
+        "minecraft:enchantments": {
+         "minecraft:fire_aspect": 3,
+         "minecraft:knockback": 3,
+         "minecraft:sweeping_edge": 3,
+         "minecraft:looting": 3,
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:attack_damage",
+          "id": "minecraft:base_attack_damage",
+          "amount": 14,
+          "operation": "add_value",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:attack_speed",
+          "id": "minecraft:base_attack_speed",
+          "amount": -2.8,
+          "operation": "add_value",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:entity_interaction_range",
+          "id": "nonios:balrog_lash",
+          "amount": 2.0,
+          "operation": "add_value",
+          "slot": "mainhand"
+         }
+        ],
+        "minecraft:custom_data": {
+         "nx_cls": "balrog",
+         "nx_item": "balrog_whip",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Balrog's Whip",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "From the blazing abyss of Hell, this Mythical artifact",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "was created to bring desperation upon mortals",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Balrog \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

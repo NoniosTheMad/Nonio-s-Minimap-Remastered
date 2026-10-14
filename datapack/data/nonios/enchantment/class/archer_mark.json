@@ -1,0 +1,52 @@
+{
+ "description": {
+  "text": "Hunter's Mark",
+  "color": "green"
+ },
+ "supported_items": "minecraft:bow",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "hand"
+ ],
+ "effects": {
+  "minecraft:post_attack": [
+   {
+    "enchanted": "attacker",
+    "affected": "victim",
+    "effect": {
+     "type": "minecraft:all_of",
+     "effects": [
+      {
+       "type": "minecraft:apply_mob_effect",
+       "to_apply": "minecraft:glowing",
+       "min_duration": 6,
+       "max_duration": 6,
+       "min_amplifier": 0,
+       "max_amplifier": 0
+      },
+      {
+       "type": "minecraft:run_function",
+       "function": "nonios:class/archer/mark"
+      }
+     ]
+    },
+    "requirements": {
+     "type": "minecraft:damage_source_properties",
+     "predicate": {
+      "is_direct": false
+     }
+    }
+   }
+  ]
+ }
+}
