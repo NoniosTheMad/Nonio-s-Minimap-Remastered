@@ -19,6 +19,9 @@ scoreboard players set @s nx.kills 0
 scoreboard players set @s nx.streak 0
 scoreboard players set @s nx.deaths 0
 scoreboard players set @s nx.mined 0
+scoreboard players set @s nx.earned 0
+scoreboard players set @s nx.pfrac 0
+scoreboard players set @s nx.pscale 100
 scoreboard players set @s nx.nxdmg 0
 scoreboard players set @s nx.nxkill 0
 scoreboard players set @s nx.mn.obsidian 0
