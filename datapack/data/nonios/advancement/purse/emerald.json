@@ -1,0 +1,9 @@
+{
+  "criteria": {
+    "picked": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {"items": [{"items": ["minecraft:emerald", "minecraft:emerald_block"]}]}
+    }
+  },
+  "rewards": {"function": "nonios:purse/emerald"}
+}

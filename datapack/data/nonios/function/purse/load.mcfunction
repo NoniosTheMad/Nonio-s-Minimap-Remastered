@@ -11,6 +11,8 @@ scoreboard objectives add nx.plast dummy
 scoreboard objectives add nx.mined dummy
 # per player: gametime until which the coin actionbar stays quiet (a barrier message is showing)
 scoreboard objectives add nx.ab_hold dummy
+# coins owed for coin blocks placed while broke (purse/mine/placed), repaid from mining income first
+scoreboard objectives add nx.pdebt dummy
 
 # --- config (only set when missing, so /scoreboard tweaks survive /reload) ---
 # weight: speed penalty in permille = (coins - w_free) * w_num / w_den, capped at w_cap  (default 0.1%/coin, max 40%)
@@ -80,5 +82,8 @@ execute unless score #deepslate_emerald_ore nx.coinval = #deepslate_emerald_ore 
 scoreboard objectives add nx.mn.emerald_block minecraft.mined:minecraft.emerald_block
 scoreboard objectives add nx.pl.emerald_block minecraft.used:minecraft.emerald_block
 execute unless score #emerald_block nx.coinval = #emerald_block nx.coinval run scoreboard players set #emerald_block nx.coinval 100
+# --- emerald items: coins on pickup (purse/emerald), same as a generator's emerald / emerald block outcome (#e1 / #e9 nx.gen) ---
+execute unless score #emerald_item nx.coinval = #emerald_item nx.coinval run scoreboard players set #emerald_item nx.coinval 5
+execute unless score #emerald_block_item nx.coinval = #emerald_block_item nx.coinval run scoreboard players set #emerald_block_item nx.coinval 45
 
 scoreboard players set #10 nx.purse 10

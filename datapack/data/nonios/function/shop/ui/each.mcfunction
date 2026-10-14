@@ -10,5 +10,6 @@ data modify storage nonios:shop ui.c.col set value "green"
 data modify storage nonios:shop ui.c.tip set value "Click to buy"
 execute if score #p nx.tmp > #bal nx.tmp run data modify storage nonios:shop ui.c.col set value "red"
 execute if score #p nx.tmp > #bal nx.tmp run data modify storage nonios:shop ui.c.tip set value "Not enough coins"
-function nonios:shop/ui/action with storage nonios:shop ui.c
+execute if data storage nonios:shop ui.c.class run function nonios:shop/ui/action_class with storage nonios:shop ui.c
+execute unless data storage nonios:shop ui.c.class run function nonios:shop/ui/action with storage nonios:shop ui.c
 function nonios:shop/ui/each

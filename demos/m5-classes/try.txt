@@ -1,0 +1,14 @@
+Classes inside the real match. Buttons: G > "Demo: M5 classes" (all the M4 buttons + class buttons at the bottom). Game menu: G > "Nonios's Map".
+1. "Start match". At your base, right-click the Shop villager ("TP: my shop" if lost). Two new buttons at the end: Reaper (200c) and Cracy Frog (free).
+   Reaper with < 200 coins: refused, nothing taken. "+1000 coins", buy it: 200 leave the purse, the kit goes on, the shop stays open.
+   Buy it again: "you already are". Cracy Frog: the Shop Keeper's three questions (No at any step = nothing happens).
+2. "Enemy dummy (still)", kill it as the Reaper: soul + 4 s invisible (dummies count as souls). Kill reward still works.
+3. "Kill me" as the Reaper: the class is gone after respawn (message), the vision goes, your gear is kept (keep_inventory).
+4. "Class: Warrior (basic)", "Team class level +1", then "Kill me": the Warrior kit comes back on respawn at the team level.
+5. "Class status": class, kill tier (Reaper 2, Frog 0, Warrior = team level - 1), purse, debt.
+   An enemy killing a Reaper gets the tier bonus (+90) on top of the kill reward (no real enemy player solo: watch it with 2 accounts).
+6. Emeralds are coins now: "TP: arena", "Skip phase" to battle, "Random arena event" until Emerald Surge or Frog rain: picking up emeralds /
+   emerald blocks puts them straight in the purse (5 / 45 each). Mining emerald ore / emerald blocks pays as before but drops nothing.
+7. "Stop match" (or "Start match" again): everyone loses their class; team class levels back to 1.
+"Class: Reaper/Cracy Frog (free)" skip the shop. "Shop anywhere" opens the shop wherever you stand.
+Feedback: class prices, which classes the shop should list, the purchase flow (shop dialog + frog questions), emeralds as coins.

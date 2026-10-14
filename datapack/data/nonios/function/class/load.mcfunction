@@ -7,6 +7,8 @@ scoreboard objectives add nx.cls_basic dummy
 scoreboard objectives add nx.cls_req dummy
 # basic-class upgrade level per team (1-3): #white #black #solo (players without a team)
 scoreboard objectives add nx.cls_lvl dummy
+# victim tier for the kill bonus (economy kill_bonus/tier reads it): owned by classes, set on apply, 0 without a class
+scoreboard objectives add nx.tier dummy
 scoreboard objectives add nx.cls_tmp dummy
 # Reaper souls / lifesteal gate (gametime of the last heal)
 scoreboard objectives add nx.cls_souls dummy

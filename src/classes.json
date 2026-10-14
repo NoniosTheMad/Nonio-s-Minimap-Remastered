@@ -9,14 +9,27 @@
     "       components = raw 26.3 item components (JSON form). name/lore are text components; custom_data and the",
     "       class tags are added by the generator. Vanilla look via item_model until we have textures.",
     "lost_msg: shop classes only, shown on death. vision: post effects (resource pack) in stacking order; added on apply, removed on death / class change, re-added on rejoin.",
-    "enchantments: raw enchantment definitions written to data/nonios/enchantment/class/<key>.json (dynamic registry: restart)."
+    "enchantments: raw enchantment definitions written to data/nonios/enchantment/class/<key>.json (dynamic registry: restart).",
+    "kill_tier: victim tier for the kill bonus (nx.tier -> economy kill_bonus/tier, V2 tier 1/2/3 = +20/+90/+190). Shop classes: fixed;",
+    "      basic classes: team level - 1 (V2: respawn kit II = tier 1, kit III = tier 2). Back to 0 when the class goes (death, reset).",
+    "shop: present = sold by the team shopkeeper for price coins from the purse (sprite = button icon, items atlas).",
+    "      confirm = function run instead of the purchase (it applies the class itself; free classes only)."
   ],
+  "_v2_roster": {
+    "_doc": "V2 shop kits (WhiteShop 73-80, 666): price and kill tier. Not implemented = not in the shop. Basic Warrior here is the placeholder, not the V2 kit.",
+    "archer": {"price": 50, "kill_tier": 0}, "warrior": {"price": 60, "kill_tier": 0}, "miner": {"price": 80, "kill_tier": 0},
+    "tank": {"price": 100, "kill_tier": 1}, "ninja": {"price": 100, "kill_tier": 1}, "berserker": {"price": 120, "kill_tier": 1},
+    "reaper": {"price": 200, "kill_tier": 2}, "monster": {"price": 1800, "kill_tier": 2}, "balrog": {"price": 10000, "kill_tier": 3},
+    "cracy_frog": {"price": 0, "kill_tier": 0}
+  },
   "classes": {
     "reaper": {
       "num": 1,
       "tier": "shop",
       "name": {"text": "Reaper", "color": "dark_gray"},
       "price": 200,
+      "kill_tier": 2,
+      "shop": {"sprite": "minecraft:item/netherite_hoe"},
       "lost_msg": "Death came for the Reaper. Ironic.",
       "blurb": "Glass cannon. Scythe heals you on hit, kills give souls and a few seconds of invisibility, right-click releases the souls as a burst. 5 hearts, armour locked.",
       "vision": ["nonios:reaper"],
@@ -123,6 +136,8 @@
       "tier": "shop",
       "name": {"text": "Cracy Frog", "color": "dark_purple"},
       "price": 0,
+      "kill_tier": 0,
+      "shop": {"sprite": "minecraft:item/slime_ball", "confirm": "nonios:class/cracy_frog/ask_step {step:1}"},
       "lost_msg": "The frog croaked. #Useful",
       "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that sends things anywhere. Leather armour locked on, and the world never stops melting.",
       "vision": ["nonios:rainbow", "nonios:acid"],

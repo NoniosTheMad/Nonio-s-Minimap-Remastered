@@ -7,6 +7,8 @@ function nonios:class/level
 execute if score #lvl nx.cls_tmp matches 1 run function nonios:class/gen/warrior/equip_l1
 execute if score #lvl nx.cls_tmp matches 2 run function nonios:class/gen/warrior/equip_l2
 execute if score #lvl nx.cls_tmp matches 3 run function nonios:class/gen/warrior/equip_l3
+scoreboard players operation @s nx.tier = #lvl nx.cls_tmp
+scoreboard players remove @s nx.tier 1
 function nonios:class/gen/warrior/vision
 tellraw @s [{"text":"✦ You are now a ","color":"gray"},{"text":"Warrior","color":"gray"},{"text":" (level ","color":"dark_gray"},{"score":{"name":"#lvl","objective":"nx.cls_tmp"},"color":"dark_gray"},{"text":", back on every respawn)","color":"dark_gray"}]
 playsound minecraft:block.beacon.power_select player @s ~ ~ ~ 0.6 1.4

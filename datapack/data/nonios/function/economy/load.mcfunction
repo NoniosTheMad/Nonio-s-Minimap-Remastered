@@ -7,7 +7,7 @@ scoreboard objectives add nx.bank dummy
 scoreboard objectives add nx.bankt trigger
 scoreboard objectives add nx.bankd trigger
 scoreboard objectives add nx.bankw trigger
-# kills in a row without dying (bounty on your head), tier hook (classes set nx.tier later)
+# kills in a row without dying (bounty on your head); nx.tier = victim tier, owned by classes (class/gen/<id>/apply, class/strip)
 scoreboard objectives add nx.streak dummy {"text":"Streak","color":"red"}
 scoreboard objectives add nx.tier dummy
 # kill reward waiting for the actionbar (shown the tick after the kill, once the purse transfer is known too)

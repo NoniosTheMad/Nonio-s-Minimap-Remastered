@@ -9,6 +9,7 @@ code lives in function/class/<class>/ and is never touched):
   advancement/class/use/<class>_<item>.json      right-click detection for items with a consumable component
   function/class/gen/<class>/*.mcfunction        apply, equip, strip, vision, vision_off, check (+ need_<item>, used_<item>)
   function/class/gen/*.mcfunction               dispatchers on the nx.class score + catalog (storage nonios:class)
+                                                 + shop_items (classes sold by the shop) + confirm (pre-purchase dialogs)
 """
 import json
 import shutil
@@ -86,8 +87,8 @@ def build():
     nums = [c["num"] for c in classes.values()]
     assert len(nums) == len(set(nums)) and min(nums) >= 1, "class nums must be unique and >= 1"
 
-    disp = {k: [] for k in ("apply", "strip", "vision", "vision_off", "check", "tick", "purge")}
-    catalog = []
+    disp = {k: [] for k in ("apply", "strip", "vision", "vision_off", "check", "tick", "purge", "confirm")}
+    catalog, shop_items = [], []
     for cid, c in classes.items():
         n, g = c["num"], f"class/gen/{cid}"
         hooks = set(c.get("hooks", []))
@@ -131,8 +132,12 @@ def build():
             lines.append("function nonios:class/level")
             for lvl, name in equip_fns.items():
                 lines.append(f"execute if score #lvl nx.cls_tmp matches {lvl} run function nonios:{name}")
+            # kill-bonus tier (economy kill_bonus/tier): team level - 1, as V2's respawn kits II/III
+            lines.append("scoreboard players operation @s nx.tier = #lvl nx.cls_tmp")
+            lines.append("scoreboard players remove @s nx.tier 1")
         else:
             lines.append(f"function nonios:{equip_fns['']}")
+            lines.append(f"scoreboard players set @s nx.tier {c.get('kill_tier', 0)}")
         lines.append(f"function nonios:{g}/vision")
         if "on_apply" in hooks:
             lines.append(f"function nonios:class/{cid}/on_apply")
@@ -181,7 +186,18 @@ def build():
         disp["purge"].append(f'execute unless score @s nx.class matches {n} run clear @s *[minecraft:custom_data~{{nx_cls:"{cid}"}}]')
         if "tick" in hooks:
             disp["tick"].append(f"execute as @e[type=player,scores={{nx.class={n}}}] at @s run function nonios:class/{cid}/tick")
-        catalog.append({"id": cid, "num": n, "tier": c["tier"], "price": c.get("price", 0), "name": c["name"], "blurb": c.get("blurb", "")})
+        catalog.append({"id": cid, "num": n, "tier": c["tier"], "price": c.get("price", 0), "kill_tier": c.get("kill_tier", 0),
+                        "name": c["name"], "blurb": c.get("blurb", "")})
+        if "shop" in c:
+            sh, price = c["shop"], c.get("price", 0)
+            for txt in (c["name"]["text"], c.get("blurb", "")):
+                assert '"' not in txt and "\\" not in txt, f"{cid}: no double quotes/backslashes in name/blurb (shop dialog macro)"
+            assert not (sh.get("confirm") and price), f"{cid}: confirm is for free classes (the confirm chain applies the class)"
+            shop_items.append({"name": c["name"]["text"], "ncol": c["name"].get("color", "white"), "class": cid, "num": n, "count": 1,
+                               "price": price, "ptxt": f"{price}c" if price else "free", "atlas": sh.get("atlas", "minecraft:items"),
+                               "sprite": sh["sprite"], "blurb": c.get("blurb", ""), "confirm": 1 if sh.get("confirm") else 0})
+            if sh.get("confirm"):
+                disp["confirm"].append(f"execute if score @s nx.cls_req matches {n} run return run function {sh['confirm']}")
 
     fn("class/gen/apply", ["# as/at the player: apply class number nx.cls_req"] + disp["apply"])
     fn("class/gen/strip", ["# as the player: undo the class-specific state of its current class"] + disp["strip"])
@@ -196,6 +212,11 @@ def build():
     tier_lines = [f"execute if score @s nx.class matches {c['num']} run return {1 if c['tier'] == 'shop' else 0}"
                   for c in classes.values()]
     fn("class/gen/is_shop", ["# as the player: returns 1 if its current class is a shop class"] + tier_lines + ["return 0"])
+    fn("class/gen/confirm", ["# as the buyer (shop/buy_class): nx.cls_req = class with a confirmation step instead of a straight purchase"]
+       + (disp["confirm"] or ["# none"]))
+    fn("class/gen/shop_items", ["# from shop/catalog: classes sold by the shop (src/classes.json \"shop\"), appended to storage nonios:shop items",
+                                "# (class = id for class/set_id, price from the purse, confirm 1 = class/gen/confirm instead of buying)"]
+       + [f"data modify storage nonios:shop items append value {json.dumps(e, ensure_ascii=False)}" for e in shop_items])
     snbt = json.dumps(catalog, ensure_ascii=False)
     fn("class/gen/catalog", ["# class catalog for menus/shop: storage nonios:class catalog[] {id,num,tier,price,name,blurb}",
                              f"data modify storage nonios:class catalog set value {snbt}"])
