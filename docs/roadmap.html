@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Nonios's Map Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -92,8 +93,8 @@ a{color:var(--accent)}
     <span class="label" id="ms-h">Milestones</span>
     <ol class="track">
       <li class="done"><span class="id">M0</span><span class="nm">Dev framework</span><span class="bar"></span></li>
-      <li class="now"><span class="id">M1 · now</span><span class="nm">Spikes</span><span class="bar"></span></li>
-      <li><span class="id">M2</span><span class="nm">Playable core</span><span class="bar"></span></li>
+      <li class="done"><span class="id">M1</span><span class="nm">Spikes</span><span class="bar"></span></li>
+      <li class="now"><span class="id">M2 · now</span><span class="nm">Playable core</span><span class="bar"></span></li>
       <li><span class="id">M3</span><span class="nm">Economy</span><span class="bar"></span></li>
       <li><span class="id">M4</span><span class="nm">Progression &amp; Arena</span><span class="bar"></span></li>
       <li><span class="id">M5</span><span class="nm">Classes</span><span class="bar"></span></li>
@@ -102,21 +103,33 @@ a{color:var(--accent)}
   </section>
 
   <section aria-labelledby="m1-h">
-    <h2 id="m1-h">M1 · Spikes</h2>
-    <p style="color:var(--muted)">Small proofs that the risky parts work in vanilla 26.3 before we build the game on them.</p>
+    <h2 id="m1-h">M1 · Spikes (done, pending tests)</h2>
+    <p style="color:var(--muted)">All five proofs are built; awaiting your tests before M2 integration.</p>
     <ul class="items">
       <li><span class="pill p-done">Done</span><span class="what">Vanilla post effects (/posteffect)</span><span class="why">Server fx. Effects apply per player and stack.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Custom shaders v2</span><span class="why">Four looks: Cinematic (RTX-like), Thermal (angel HP via glow), Cosmic, Monster. Combinable layers (Look/Colour/Lines/Distortion), presets, time-of-day buttons, materials gallery.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Nexus barrier with visuals</span><span class="why">Built and live on server nexus (★). Vanilla destroy_stage textures, 20% regen/min, 4 crack stages, hit flash.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Shop dialog</span><span class="why">Built and live on server shop (★). Data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Coin purse</span><span class="why">Built and live on server purse (★). Mining earns coins, weight slowdown, killer takes purse, coin-bag on mob death.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Custom shaders v2</span><span class="why">Four looks: Cinematic (RTX-like), Thermal (angel HP via glow), Cosmic, Monster. Combinable layers (Look/Colour/Lines/Distortion), presets, time-of-day buttons, materials gallery.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Nexus barrier with visuals</span><span class="why">Built and live on server nexus (★). Vanilla destroy_stage textures, 20% regen/min, 4 crack stages, hit flash.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Shop dialog</span><span class="why">Built and live on server shop (★). Data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Coin purse</span><span class="why">Built and live on server purse (★). Mining earns coins, weight slowdown, killer takes purse, coin-bag on mob death.</span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="m2-h">
+    <h2 id="m2-h">M2 · Playable core (starting now)</h2>
+    <p style="color:var(--muted)">Merging M1 spikes into main; adding teams, phases, respawn, win logic, and a placeholder map.</p>
+    <ul class="items">
+      <li><span class="pill p-now">In progress</span><span class="what">Merge M1 spikes into main</span><span class="why">Barrier, shop, purse, and text-box feedback integrated. Resolve tick.json/load.json conflicts.</span></li>
+      <li><span class="pill p-now">In progress</span><span class="what">Teams &amp; match phases</span><span class="why">Team assignment, Pre-match, Arena, Post-match (win screen). Spectator mode.</span></li>
+      <li><span class="pill p-todo">Queued</span><span class="what">Respawn &amp; keepInventory</span><span class="why">Reconcile with class kits and bank + kill reward.</span></li>
+      <li><span class="pill p-todo">Queued</span><span class="what">Placeholder map</span><span class="why">Two team bases, Nexus rooms, contested arena. Flat or imported V2? Decide before M6.</span></li>
+      <li><span class="pill p-todo">Queued</span><span class="what">Emerald Dream spike demo</span><span class="why">Custom dimension; lore from V1.0; risky channel exit (sneak for X seconds).</span></li>
+      <li><span class="pill p-todo">Queued</span><span class="what">Resource generators spike demo</span><span class="why">Proof-of-concept: ore/resource generators in contested areas. Reference V2.0 structures.</span></li>
     </ul>
   </section>
 
   <section aria-labelledby="ahead-h">
     <h2 id="ahead-h">What each milestone delivers</h2>
     <dl>
-      <dt>M2 · Playable core</dt><dd>Teams, match phases, the Nexus with its barrier, respawn, a win screen and a map reset. The first real match.</dd>
       <dt>M3 · Economy</dt><dd>Coins and their weight, the bank, kill rewards and the full shop.</dd>
       <dt>M4 · Progression &amp; Arena</dt><dd>Field upgrades, generators, arena events, and the Emerald Dream dimension.</dd>
       <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders.</dd>
@@ -131,6 +144,14 @@ a{color:var(--accent)}
         <dt>Nexus</dt><dd>A barrier with a health bar protects the obsidian. It regenerates <b>20% per minute</b> unless fully destroyed.</dd>
         <dt>Scale</dt><dd>Typical matches run 2v2 to 5v5, and it holds up to 20 per team.</dd>
         <dt>Coins</dt><dd>Carrying coins slows you; dying gives your purse to the killer; the bank is safe.</dd>
+        <dt>Coin mining</dt><dd>Only ore counts (building blocks earn nothing). Anti-silk-touch applied.</dd>
+        <dt>Coin weight</dt><dd>First 20 coins are weightless. After that: 0.1% slowness per coin (capped at 40%).</dd>
+        <dt>Coin drops</dt><dd>Killed by a mob or environment? A coin-bag drops for anyone to pick up. Killer gets the kill reward separately.</dd>
+        <dt>Bank scope</dt><dd>Team-wide vault (not per-player). All team members share the same bank.</dd>
+        <dt>Shop stays open</dt><dd>After buying an item, the dialog remains open (you can buy more without reopening).</dd>
+        <dt>Shop location</dt><dd>NPC shopkeeper at team base/spawn only (not in safe zones or anywhere else).</dd>
+        <dt>Shop: full inventory</dt><dd>Refuses purchases when your inventory is full. No drop or split.</dd>
+        <dt>Actionbar priority</dt><dd>When you hit the Nexus, its HP message takes the actionbar. Coin counter resumes after.</dd>
         <dt>Emerald Dream</dt><dd>Its own dimension; you leave by sneaking for a few seconds.</dd>
         <dt>Map &amp; tone</dt><dd>A new map, keeping the legacy humour and lore.</dd>
         <dt>Shaders</dt><dd>A side track. After round 2 + your feedback, new shader ideas wait until after M2 is done. M5 classes may pull specific shaders earlier.</dd>
@@ -139,16 +160,11 @@ a{color:var(--accent)}
     <section aria-labelledby="open-h">
       <h2 id="open-h">Still open</h2>
       <dl>
-        <dt>Respawn gear vs keepInventory</dt><dd>Your idea: keep the inventory, but the bank and the reward go to the killer. Needs to be reconciled with class kits in M2.</dd>
-        <dt>Main world</dt><dd>Start from a fresh flat world or import terrain. Decide before the M6 build.</dd>
-        <dt>Shop: stay or close?</dt><dd>Keep the dialog open after buying, or close it? <i>Suggested: stay open.</i></dd>
-        <dt>Shop: location?</dt><dd>NPC at base only, in a safe zone, or anywhere? <i>Suggested: base NPC only.</i></dd>
-        <dt>Shop: full inventory?</dt><dd>Refuse purchases when your inventory is full, or drop/split items? <i>Suggested: refuse when full.</i></dd>
-        <dt>Coin: values &amp; building blocks?</dt><dd>Per-block mining rates, and do building blocks (dirt, stone, etc.) count? <i>Current: anti-silk-touch, per-block values.</i></dd>
-        <dt>Coin: weight &amp; allowance?</dt><dd>Current weight is 0.1% per coin (capped at 40%). Free coins allowed? Non-linear curve?</dd>
-        <dt>Coin: mob death?</dt><dd>Drop coins to the ground when killed by a mob, or are they lost? <i>Current: coin-bag drop for non-player deaths.</i></dd>
-        <dt>Bank: scope &amp; withdraw?</dt><dd>Per-player or shared by team? How does withdrawal work?</dd>
-        <dt>Actionbar priority</dt><dd>The coin counter and the barrier hit message share the actionbar. Which wins? <i>Suggested: the hit message, briefly.</i></dd>
+        <dt>Respawn gear vs keepInventory</dt><dd>Reconcile with class kits in M2: keep inventory but bank + reward to killer?</dd>
+        <dt>Main world</dt><dd>Start from a fresh flat world or import V2 terrain. Decide before the M6 build.</dd>
+        <dt>Shop: full catalog?</dt><dd>Real catalog (per team/phase?) or test data for now?</dd>
+        <dt>&sol;posteffect persistence</dt><dd>Do shader effects survive death, relog, or transfer? Critical for classes and shop effects in M3+.</dd>
+        <dt>Shop: quantity picker?</dt><dd>Support buying multiple items in one dialog (e.g., 2× Diamond Sword), or single-item only?</dd>
       </dl>
     </section>
   </div>
@@ -156,6 +172,8 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
+      <li><time>10-14</time><b>M2 core started:</b> merging M1 spikes, teams/phases/respawn/win. Parallel research: Generators and Emerald Dream.</li>
+      <li><time>10-14</time><b>All M1 design questions approved:</b> shop stays open, NPC at base, refuses when full. Coins: no building blocks, first 20 weightless, mob deaths drop purse. Bank: team-wide. Actionbar: barrier > coin.</li>
       <li><time>10-14</time><b>M1 complete:</b> all five spikes built. Shaders v2, nexus, shop, and purse await your tests.</li>
       <li><time>10-14</time>Shaders v2: combinable layers, four looks (Cinematic/Thermal/Cosmic/Monster), presets, time-of-day buttons, materials gallery, real landscape (seed 2).</li>
       <li><time>10-14</time>Coin purse spike: per-block mining, anti-silk-touch, weight 0.1%/coin (capped 40%), killer gets purse, coin-bag on mob death.</li>
@@ -164,3 +182,5 @@ a{color:var(--accent)}
     </ul>
   </section>
 </div>
+
+</body></html>

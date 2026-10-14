@@ -7,15 +7,15 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | Stage | Status | Meaning |
 |-------|--------|---------|
 | M0 | ✓ Done | Dev framework (mcdev.py, persistent servers, feedback, packing) |
-| M1 | → Now | Spikes: `/posteffect` shaders, Nexus barrier, shop dialog, coin purse |
-| M2 | — | Playable core: teams, phases, respawn, win screen, reset |
+| M1 | ✓ Done | Spikes: `/posteffect` shaders, Nexus barrier, shop dialog, coin purse (awaiting user tests) |
+| M2 | → Now | Playable core: teams, phases, respawn, win screen, reset |
 | M3 | — | Economy: coins, bank, kill rewards, full shop |
 | M4 | — | Progression: altar upgrades, generators, arena events, Emerald Dream |
 | M5 | — | Classes: Reaper and Cracy Frog end-to-end, then roster |
 | M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge spikes into main).
+M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logic, placeholder map. Parallel: Generators and Emerald Dream research spikes.
 
 ## Waiting on user
 1. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
@@ -35,7 +35,9 @@ M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge s
 - Quiet session (only checkpoints) — established
 
 ## In flight
-(All M1 spikes complete; awaiting user tests.)
+- M2 core (feat/m2-core): Merge M1 spikes (barrier, shop, purse) into main; teams/phases/respawn/win logic; placeholder map.
+- Generators (feat/generators): Resource generator structures; V2.0 reference; spike demo.
+- Emerald Dream (feat/emerald-dream): Custom dimension spike; lore extraction from V1.0; risky channel mechanic.
 
 ## Decisions
 | Date | Decision |
@@ -55,21 +57,24 @@ M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge s
 | 2026-10-14 | **User pronouns:** they/them in all docs. |
 | 2026-10-14 | **Nexus bossbar:** defenders-only (attackers get no bossbar). Actionbar HP on hit stays (all players). |
 | 2026-10-14 | **Shaders: side track.** After v2 + feedback #14, further shader ideas deferred after M2. Classes (M5) may pull specific shaders earlier. Critical path: M1 shop + purse → M2 playable core. |
+| 2026-10-14 | **Shop: stays open after buy.** Dialog remains open (user can buy multiple items, close manually). |
+| 2026-10-14 | **Shop: NPC at team base only.** Shopkeeper at team spawn/base; safe zone NPC trigger. |
+| 2026-10-14 | **Shop: refuses when inventory full.** No drop/split; player gets "inventory full" message; purchase blocked. |
+| 2026-10-14 | **Coins: building blocks earn nothing.** Only ore + custom blocks count toward mining rewards. Anti-silk-touch applied. |
+| 2026-10-14 | **Coins: first 20 weightless.** Carrying 1–20 coins = no slowness. 21+ applies 0.1%/coin (capped 40%). |
+| 2026-10-14 | **Coins: mob/environment deaths drop purse.** Killed by mob/fall/environment = coin-bag on ground for anyone to pick up. Killer gets kill reward separately. |
+| 2026-10-14 | **Bank: team-wide.** Single vault per team (not per-player); all team members deposit/withdraw from same pool. Recoverable on death (coins to killer, bank intact). |
+| 2026-10-14 | **Actionbar: barrier hit beats coin counter.** On nexus hit, barrier HP text shows on actionbar (coin counter yields). Coin counter resumes when not hitting. |
 
 ## Open questions
 1. **Main world:** fresh flat or import V2 terrain? Decide before M6 build.
-2. **Respawn gear vs keepInventory:** draft idea (user 2026-10-14): keep inventory, but bank + reward to killer. Reconcile with class kits in M2.
-3. **`/posteffect` persistence:** does it survive death, relog, transfer?
-4. **Shop catalog:** real catalog (per team/phase?) vs. test data?
-5. **Shop stay/close:** keep open after buy or close dialog? (Suggested: stay open)
-6. **Shop location:** base NPC only / safe zone / anywhere? (Suggested: base NPC only)
-7. **Quantity picker:** support buying multiple items per dialog?
-8. **Full inventory:** refuse purchases or drop/split items? (Suggested: refuse when full)
-9. **Coin values:** per-block mining rates and whether building blocks count? (Suggested: anti-silk-touch, per-block values set)
-10. **Weight curve & allowance:** current 0.1%/coin capped at 40%. Free allowance? Non-linear curve?
-11. **Drop vs lost on mob death:** coins on ground when killed by mob, or lost? (Suggested: coin-bag drop for non-player deaths)
-12. **Bank:** per-player or per-team? How does withdraw work?
-13. **Actionbar priority:** coin counter vs barrier HP display. Which shows on hit/updates?
+2. **Respawn gear vs keepInventory:** draft idea (user 2026-10-14): keep inventory, but bank + reward to killer. Reconcile with class kits in M2 playable core.
+3. **`/posteffect` persistence:** does shader effect survive death, relog, transfer? Critical for class/shop effects in M3+.
+4. **Shop catalog:** real catalog (per team/phase?) vs. test data? Decide before M3 economy build.
+5. **Quantity picker:** support buying multiple items per dialog (2x Diamond Sword) or single-item only?
+
+## Questions for when user returns
+(Accumulated design choices that need user approval; discovered during M2 core, Generators, and Emerald Dream research. Will add to this section as agents report findings.)
 
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
@@ -79,6 +84,8 @@ M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge s
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | **M2 core started** (feat/m2-core): merging M1 spikes into main; teams/phases/respawn/win logic; placeholder map. Parallel: Generators (feat/generators, resource structures) and Emerald Dream (feat/emerald-dream, dimension spike). |
+| 10-14 | **All M1 shop + purse design questions approved** (user via coordinator): Shop stays open, NPC at base, refuses when full. Coins: blocks earn nothing, first 20 weightless, mob deaths drop purse. Bank: team-wide. Actionbar: barrier > coin counter. Added to Decisions table. |
 | 10-14 | **M1 spikes complete.** All built and awaiting user tests (shaders, nexus, shop, purse, text-box feedback). **MERGE NOTE:** shop, nexus-barrier, and purse all modify tick.json/load.json (conflicts on merge to main). Proposed next: user tests, then plan M2 playable core. |
 | 10-14 | Coin purse spike done (3f09c2c, feat/coin-purse, server purse ★): per-block mining values (anti-silk-touch), weight 0.1%/coin (capped 40%), killer takes purse, coin-bag drop for non-player deaths, bank stub. User tests. |
 | 10-14 | Shop dialog spike done (f8fa3f8, feat/shop-dialog, server shop ★): data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message, G → Shop. User tests. |
