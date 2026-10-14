@@ -241,6 +241,25 @@ def write_devnav(reg):
     (d / "pack.mcmeta").write_text(json.dumps({"pack": {"description": "mcdev navigation", "min_format": DATA_FORMAT, "max_format": DATA_FORMAT}}))
     (fn / "list.mcfunction").write_text(f"dialog show @s {snbt(nav_dialog(reg))}\n")
     (fn / "fb.mcfunction").write_text('$say [FEEDBACK] $(t)\n')
+    # Dialog buttons only use /trigger (permission 0 -> no "run this command?" prompt);
+    # the privileged part (transfer, reload, ...) runs here at function permission level.
+    (fn / "nav_load.mcfunction").write_text(
+        "scoreboard objectives add devnav.go trigger\nscoreboard objectives add devnav.act trigger\n")
+    (fn / "nav_tick.mcfunction").write_text(
+        "scoreboard players enable @a devnav.go\nscoreboard players enable @a devnav.act\n"
+        "execute as @a[scores={devnav.go=1..}] run function devnav:go\n"
+        "execute as @a[scores={devnav.act=1}] run function devnav:list\n"
+        "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
+        "execute if entity @a[scores={devnav.act=3}] run reload\n"
+        "scoreboard players reset @a[scores={devnav.act=1..}] devnav.act\n")
+    (fn / "go.mcfunction").write_text(
+        "execute store result storage devnav:tmp port int 1 run scoreboard players get @s devnav.go\n"
+        "scoreboard players reset @s devnav.go\nfunction devnav:go_port with storage devnav:tmp\n")
+    (fn / "go_port.mcfunction").write_text(f"$transfer {HOST} $(port) @s\n")
+    ftags = d / "data" / "minecraft" / "tags" / "function"
+    ftags.mkdir(parents=True, exist_ok=True)
+    (ftags / "load.json").write_text(json.dumps({"values": ["devnav:nav_load"]}))
+    (ftags / "tick.json").write_text(json.dumps({"values": ["devnav:nav_tick"]}))
     tags = d / "data" / "minecraft" / "tags" / "dialog"
     tags.mkdir(parents=True, exist_ok=True)
     for t in ("quick_actions", "pause_screen_additions"):

@@ -53,4 +53,5 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Server needs a resource-pack sha1, else client caches by URL.
 - Dialog `run_command` buttons whose command needs op show a "run this command?" confirmation. **Always use `/trigger <obj> set N`**
   in dialogs (permission 0, no prompt) and do the privileged work in a tick function. (Only the feedback text box still prompts.)
+- Empty servers pause (pause-when-empty-seconds=120): `/reload` applies but load functions run only on unpause.
 - Harmless server noise on transfer: netty `IoRegistration` NPE and `ServerboundResourcePackPacket ... prepare_spawn` error.
