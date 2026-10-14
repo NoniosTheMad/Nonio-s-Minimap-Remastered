@@ -1,0 +1,1 @@
+function nonios:shop/tick

@@ -1,0 +1,71 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Shop",
+  "color": "gold"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 310,
+   "contents": {
+    "text": "The shop itself is the \"Shop\" entry in this G list, or right-click the Shop villager. Coins (sidebar) are a placeholder until the coin purse exists. Prices and items are placeholders (storage nonios:shop items, function nonios:shop/catalog).",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "+10 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "+100 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Set coins to 0",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Clear inventory",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Respawn shopkeeper",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop set 5"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}
