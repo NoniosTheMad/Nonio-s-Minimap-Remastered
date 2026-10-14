@@ -196,7 +196,7 @@ def wait_ready(name, s, timeout=180):
     while time.time() - t0 < timeout:
         if not pid_alive(s["pid"]):
             sys.exit(f"{name} died during startup - see `mcdev logs {name}`")
-        if log.exists() and log.stat().st_mtime >= s["started"] - 2 and "Done (" in log.read_text(errors="replace"):
+        if log.exists() and "Done (" in log.read_text(errors="replace"):
             return time.time() - t0
         time.sleep(0.5)
     sys.exit(f"{name} not ready after {timeout}s")
@@ -216,7 +216,7 @@ def nav_dialog(reg):
     for n, s in live:
         label = [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['branch']}" + (f" / {s['demo']}" if s.get("demo") else ""), "gray")]
         actions.append({"label": label, "tooltip": text(s["desc"] or n), "width": 300,
-                        "action": {"type": "minecraft:run_command", "command": f"transfer {HOST} {s['port']}"}})
+                        "action": {"type": "minecraft:run_command", "command": f"trigger devnav.go set {s['port']}"}})
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
             "body": [{"type": "minecraft:plain_message", "contents": text(f"{len(live)} running. Gold = persistent, aqua = branch/demo.", "gray"), "width": 300}],
             "actions": actions or [{"label": "(none)", "action": {"type": "minecraft:run_command", "command": "help"}}],
@@ -279,17 +279,20 @@ def write_self_pack(name, s, d):
     if name == "hub":
         welcome += ["fill -8 63 -8 8 63 8 minecraft:polished_blackstone keep", "tp @s 0.5 64 0.5", "function devnav:rules"]
     elif void:
-        welcome += ["execute at @s run fill ~-6 63 ~-6 ~6 63 ~6 minecraft:smooth_stone keep"]
+        # first login on a fresh void world spawns at y=-63, before setworldspawn applies
+        welcome += ["fill -6 63 -6 6 63 6 minecraft:smooth_stone keep",
+                    "execute if entity @s[y=-70,dy=60] run tp @s 0.5 64 0.5"]
     (fn / "welcome.mcfunction").write_text("\n".join(welcome) + "\n")
     tags = d / "data" / "minecraft" / "tags" / "function"
     tags.mkdir(parents=True)
     (tags / "load.json").write_text(json.dumps({"values": ["devnav:load"]}))
     (tags / "tick.json").write_text(json.dumps({"values": ["devnav:tick"]}))
-    feedback = {"type": "minecraft:notice", "title": text("Feedback", "gold"),
+    feedback = {"type": "minecraft:confirmation", "title": text("Feedback", "gold"),
+                "no": {"label": "Back", "action": {"type": "minecraft:show_dialog", "dialog": "devnav:menu"}},
                 "body": [{"type": "minecraft:plain_message", "contents": text(f"Goes to Claude, tagged with '{name}'.", "gray")}],
                 "inputs": [{"type": "minecraft:text", "key": "t", "label": "Comment", "width": 300, "max_length": 2000,
                             "multiline": {"max_lines": 12, "height": 120}}],
-                "action": {"label": "Send", "action": {"type": "minecraft:dynamic/run_command",
+                "yes": {"label": "Send", "action": {"type": "minecraft:dynamic/run_command",
                                                        "template": f"function devnav:fb {{t:'[{name}] $(t)'}}"}}}
     menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"),
             "external_title": text("Nonios Dev"),
@@ -297,10 +300,10 @@ def write_self_pack(name, s, d):
                 text("You are on ", "gray"), text(name, "yellow", bold=True), text(f"  ({where})\n", "gray"),
                 text(s["desc"] or "", "white")]}],
             "actions": [
-                {"label": text("Servers...", "aqua"), "action": {"type": "minecraft:run_command", "command": "function devnav:list"}},
+                {"label": text("Servers...", "aqua"), "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 1"}},
                 {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"),
-                 "action": {"type": "minecraft:run_command", "command": "function devnav:refresh"}},
-                {"label": "Reload datapacks", "action": {"type": "minecraft:run_command", "command": "reload"}},
+                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 2"}},
+                {"label": "Reload datapacks", "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 3"}},
                 {"label": text("Feedback...", "green"), "action": {"type": "minecraft:show_dialog", "dialog": feedback}}],
             "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
@@ -440,6 +443,9 @@ def start(name, s, _reg=None):
     reg[name] = s
     write_devnav(reg)
     write_server(name, s)
+    harvest_feedback(name)  # then drop the old log so wait_ready can't see a stale "Done ("
+    for f in (SERVERS / name / "logs" / "latest.log", SERVERS / name / ".feedback_seen"):
+        f.unlink(missing_ok=True)
     s.update(pid=launch(name, s), started=time.time(), status="up")
     reg = load_reg()
     reg[name] = s
