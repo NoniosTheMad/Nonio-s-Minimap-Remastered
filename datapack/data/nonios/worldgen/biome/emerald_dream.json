@@ -1,0 +1,63 @@
+{
+ "attributes": {
+  "minecraft:gameplay/natural_mob_spawns": {
+   "argument": {
+    "spawn_costs": {},
+    "spawns_by_category": {
+     "ambient": [],
+     "axolotls": [],
+     "creature": [
+      {"type": "minecraft:allay", "count": {"type": "minecraft:uniform", "max_inclusive": 2, "min_inclusive": 1}, "weight": 4},
+      {"type": "minecraft:rabbit", "count": 2, "weight": 6}
+     ],
+     "misc": [],
+     "monster": [
+      {"type": "minecraft:enderman", "count": 1, "weight": 10}
+     ],
+     "underground_water_creature": [],
+     "water_ambient": [],
+     "water_creature": []
+    }
+   },
+   "modifier": "overlay"
+  },
+  "minecraft:visual/ambient_particles": {
+   "argument": [
+    {"particle": {"type": "minecraft:happy_villager"}, "probability": 0.004},
+    {"particle": {"type": "minecraft:spore_blossom_air"}, "probability": 0.006}
+   ],
+   "modifier": "append"
+  },
+  "minecraft:visual/sky_color": "#1f9e6e",
+  "minecraft:visual/fog_color": "#7dffc8",
+  "minecraft:visual/water_fog_color": "#1fbf86"
+ },
+ "carvers": [],
+ "downfall": 0.6,
+ "effects": {
+  "foliage_color": "#29ff9a",
+  "grass_color": "#3ff0a0",
+  "water_color": "#2fe0b0"
+ },
+ "features": [
+  [],
+  [],
+  ["nonios:dream_geode"],
+  [],
+  [],
+  [],
+  ["nonios:dream_emerald_ore", "nonios:dream_gold_ore"],
+  [],
+  [],
+  [
+   "minecraft:cave_vines",
+   "minecraft:spore_blossom",
+   "minecraft:trees_plains",
+   "minecraft:flower_flower_forest",
+   "minecraft:patch_grass_forest"
+  ],
+  []
+ ],
+ "has_precipitation": false,
+ "temperature": 0.8
+}

@@ -1,0 +1,8 @@
+Survival, diamond pickaxe. Sidebar = coins (demo stub: emerald ore 25, diamond 20, gold 8, lapis 6, emerald block 100).
+1. Step on the end portal frame east of spawn (or G > "Demo: Emerald Dream" > Enter). Blindness, then you land on a floating island somewhere random.
+   Look: green sky/fog, green grass and leaves, glow-berry vines under islands, sparkles. Does it feel like a dream? Too bright/dark?
+2. Around you ~10 ore blocks sparkle (mostly emerald). Mine one: coins go up; a green seed hovers; it regrows after 30 s (menu: 10 s to test fast).
+3. Hold sneak: actionbar bar fills ("Waking up ||||| 3s") with rising chimes. Let go = cancelled. Full bar = you wake up on the portal pad.
+4. Cancel by damage: start sneaking, menu > "Hurt me" (or have a mob hit you): "The dream holds you!" - release sneak and retry.
+5. Enter again: different island each time. Try channel 2 s / 10 s / 15 s and say which feels right.
+Feedback: the look (sky/fog colours, particles), channel length, regrow time, vein count, jump boost in the dream (on now), anything magical missing.
