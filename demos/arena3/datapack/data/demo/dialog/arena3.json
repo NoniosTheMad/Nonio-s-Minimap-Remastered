@@ -1,0 +1,254 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Demo: Arena v3",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 300,
+    "contents": {
+      "text": "Mineable generators, centre generator, node bonuses, protected arena. Most of it runs only in the battle.",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "Start + battle now",
+        "color": "green"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 1"
+      },
+      "tooltip": {
+        "text": "Joins a team if needed, skips the preparation"
+      }
+    },
+    {
+      "label": {
+        "text": "Start match"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 2"
+      },
+      "tooltip": {
+        "text": "Normal start (preparation first)"
+      }
+    },
+    {
+      "label": {
+        "text": "Skip phase"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 3"
+      }
+    },
+    {
+      "label": {
+        "text": "Stop match"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 4"
+      }
+    },
+    {
+      "label": {
+        "text": "Switch team"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 5"
+      }
+    },
+    {
+      "label": {
+        "text": "Pickaxe + axe"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 6"
+      },
+      "tooltip": {
+        "text": "Efficiency V tools, cobblestone, food"
+      }
+    },
+    {
+      "label": {
+        "text": "Time x10"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 7"
+      },
+      "tooltip": {
+        "text": "Arena + generator timers x10 (toggle)"
+      }
+    },
+    {
+      "label": {
+        "text": "Tp: my generator"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 8"
+      },
+      "tooltip": {
+        "text": "Your team's field generator"
+      }
+    },
+    {
+      "label": {
+        "text": "Grow now"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 9"
+      },
+      "tooltip": {
+        "text": "Nearest generator rolls a new block"
+      }
+    },
+    {
+      "label": {
+        "text": "Generator Lv+1"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 10"
+      },
+      "tooltip": {
+        "text": "Free upgrade of the nearest one (Lv 3 -> 1)"
+      }
+    },
+    {
+      "label": {
+        "text": "Lucky block"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 11"
+      },
+      "tooltip": {
+        "text": "Proposal on/off: 1 in 15 regrowths"
+      }
+    },
+    {
+      "label": {
+        "text": "Tp: centre generator"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 12"
+      }
+    },
+    {
+      "label": {
+        "text": "Banks +1000"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 13"
+      },
+      "tooltip": {
+        "text": "+500 to each team bank"
+      }
+    },
+    {
+      "label": {
+        "text": "Banks 0"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 14"
+      },
+      "tooltip": {
+        "text": "Empty both banks"
+      }
+    },
+    {
+      "label": {
+        "text": "Centre gen: drop now"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 15"
+      }
+    },
+    {
+      "label": {
+        "text": "Tp: arena"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 16"
+      }
+    },
+    {
+      "label": {
+        "text": "Own all nodes"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 17"
+      },
+      "tooltip": {
+        "text": "Every node to your team"
+      }
+    },
+    {
+      "label": {
+        "text": "Protection on/off"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 18"
+      }
+    },
+    {
+      "label": {
+        "text": "Random event"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 19"
+      },
+      "tooltip": {
+        "text": "Announced with a countdown first"
+      }
+    },
+    {
+      "label": {
+        "text": "Status"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 20"
+      }
+    },
+    {
+      "label": {
+        "text": "Rebuild map"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 21"
+      }
+    },
+    {
+      "label": {
+        "text": "Admin panel"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar3 set 22"
+      }
+    }
+  ],
+  "pause": false
+}

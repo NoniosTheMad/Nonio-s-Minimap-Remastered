@@ -17,11 +17,16 @@ data modify storage nonios:map arena set value {x1:-15,x2:15,z1:86,z2:114,y:63,c
 # slots = random-entry gate slots (V2 arena portals): land = where a gate drops you (facing the centre), exit = the block
 # that takes you back to your team's gate (<team>.agate). One slot is active at a time, re-rolled every few seconds.
 # core = the regrowing centre block (V2), on top of the Centre Node's ore pile.
+# bonus = what holding the node gives its team (arena/load: haste | interest | regrow).
+# cgen = the shared centre generator (spot on top of its sea lantern; on the mirror plane z = 100, between two nodes).
+# protect = the arena's own blocks (y 60-67, every non-air block at setup) come back within a tick when broken; the
+# backup copy lives at y -40..-33 (by). protect_types = the coin blocks among them (mining them pays nothing).
+# fields = each team's field box (the haste bonus applies inside it).
 data modify storage nonios:map arena_cfg set value {\
   nodes:[\
-    {id:"west",name:"West Node",x:-9,y:64,z:100,r:2,h:3},\
-    {id:"centre",name:"Centre Node",x:0,y:64,z:100,r:2,h:4,ind:2},\
-    {id:"east",name:"East Node",x:9,y:64,z:100,r:2,h:3}\
+    {id:"west",name:"West Node",x:-9,y:64,z:100,r:2,h:3,bonus:"haste"},\
+    {id:"centre",name:"Centre Node",x:0,y:64,z:100,r:2,h:4,ind:2,bonus:"interest"},\
+    {id:"east",name:"East Node",x:9,y:64,z:100,r:2,h:3,bonus:"regrow"}\
   ],\
   bounds:{x:-15,y:56,z:86,dx:30,dy:30,dz:28},\
   center:{x:0,y:68,z:100},\
@@ -31,7 +36,14 @@ data modify storage nonios:map arena_cfg set value {\
     {land:{x:12.5d,y:64,z:111.5d,yaw:135},exit:{x:0,y:64,z:109}},\
     {land:{x:-11.5d,y:64,z:111.5d,yaw:-135},exit:{x:-12,y:64,z:104}}\
   ],\
-  core:{x:0,y:65,z:100}\
+  core:{x:0,y:65,z:100},\
+  cgen:{x:5,y:64,z:100},\
+  protect:{x1:-15,y1:60,z1:86,x2:15,y2:67,z2:114,by:-40},\
+  protect_types:["deepslate_diamond_ore","iron_ore","gold_ore"],\
+  fields:{\
+    white:{team:"white",x:-15,y:40,z:55,dx:30,dy:60,dz:30},\
+    black:{team:"black",x:-15,y:40,z:115,dx:30,dy:60,dz:30}\
+  }\
 }
 # area cleared on every rebuild (blocks y1..y2 + all non-player entities). Keep dx*dz*2 <= 32768 (one fill per 2 layers).
 data modify storage nonios:map area set value {x1:-48,x2:48,z1:44,z2:156,y1:40,y2:135,dx:96,dz:112}

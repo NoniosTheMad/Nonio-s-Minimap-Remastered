@@ -3,6 +3,7 @@
 function nonios:game/tick
 function nonios:nexus/tick
 function nonios:shop/tick
+function nonios:arena/protect/tick
 function nonios:purse/tick
 function nonios:economy/tick
 function nonios:dream/tick
