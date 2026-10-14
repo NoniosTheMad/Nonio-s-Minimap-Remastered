@@ -41,10 +41,10 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - `ls`, `reload [name]`, `cmd <name> <cmd>` (RCON, port+10000), `logs <name>`, `feedback`, `restart`, `reset test`.
 - Datapacks are **junctions** into the checkout → edit + `mcdev reload <name>`. Dynamic registries (dialogs, enchantments, …) need `restart`.
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
-  In-game "Refresh resource pack": `say [MCDEV] repack <name>` → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
-- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": server list (`/transfer`), refresh pack, reload, feedback.
+  In-game "Refresh resource pack": queues {verb:"repack",uuid} in storage devnav:req → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
+- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": server list (`/transfer`), refresh pack, reload, feedback, Reset this server (ephemeral + test only: wipe world, restart, send back).
   Feedback = Book & Quill (menu → Feedback): signing it fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox
-  → `say [MCDEV] feedback` → daemon drains storage via RCON into `.mcdev/feedback.log` with context (branch@commit, pos, server log, client chat).
+  → request queued in storage devnav:req (no chat; daemon polls it over persistent RCON) → daemon drains storage via RCON into `.mcdev/feedback.log` with context (branch@commit, pos, server log, client chat).
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.
   Client jar (vanilla assets/shaders reference): `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar`.

@@ -83,23 +83,54 @@ def port_open(port):
 
 
 # ---------------------------------------------------------------- rcon
+_rcon_conns, _rcon_locks = {}, {}
+
 def rcon(port, command, timeout=5):
-    def pkt(rid, typ, body):
-        b = struct.pack("<ii", rid, typ) + body.encode("utf-8") + b"\0\0"
-        return struct.pack("<i", len(b)) + b
-    def recv(s):
-        n = struct.unpack("<i", s.recv(4))[0]
-        data = b""
-        while len(data) < n:
-            data += s.recv(n - len(data))
-        rid, _ = struct.unpack("<ii", data[:8])
-        return rid, data[8:-2].decode("utf-8", "replace")
-    with socket.create_connection(("127.0.0.1", port), timeout=timeout) as s:
-        s.sendall(pkt(1, 3, secret()))
-        if recv(s)[0] == -1:
-            raise RuntimeError("rcon auth failed")
-        s.sendall(pkt(2, 2, command))
-        return recv(s)[1]
+    """RCON command; connections are kept open and reused (servers log every new connection)."""
+    import threading
+    lock = _rcon_locks.setdefault(port, threading.Lock())
+    with lock:
+        for attempt in (0, 1):
+            try:
+                if port not in _rcon_conns:
+                    _rcon_conns[port] = _rcon_open(port, timeout)
+                return _rcon_send(_rcon_conns[port], command)
+            except (OSError, struct.error):
+                c = _rcon_conns.pop(port, None)
+                if c:
+                    c.close()
+                if attempt:
+                    raise
+
+def _rcon_pkt(rid, typ, body):
+    b = struct.pack("<ii", rid, typ) + body.encode("utf-8") + b"\0\0"
+    return struct.pack("<i", len(b)) + b
+
+def _rcon_recv(s):
+    n = struct.unpack("<i", _rcon_exact(s, 4))[0]
+    data = _rcon_exact(s, n)
+    rid, _ = struct.unpack("<ii", data[:8])
+    return rid, data[8:-2].decode("utf-8", "replace")
+
+def _rcon_exact(s, n):
+    data = b""
+    while len(data) < n:
+        chunk = s.recv(n - len(data))
+        if not chunk:
+            raise ConnectionError("rcon closed")
+        data += chunk
+    return data
+
+def _rcon_open(port, timeout):
+    s = socket.create_connection(("127.0.0.1", port), timeout=timeout)
+    s.sendall(_rcon_pkt(1, 3, secret()))
+    if _rcon_recv(s)[0] == -1:
+        raise RuntimeError("rcon auth failed")
+    return s
+
+def _rcon_send(s, command):
+    s.sendall(_rcon_pkt(2, 2, command))
+    return _rcon_recv(s)[1]
 
 
 # ---------------------------------------------------------------- git / sources
@@ -274,6 +305,7 @@ def write_devnav(reg):
         "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
         "execute as @a[scores={devnav.act=4}] run function devnav:fb_give\n"
+        "execute as @a[scores={devnav.act=5}] run function devnav:reset_world\n"
         "scoreboard players reset @a[scores={devnav.act=1..}] devnav.act\n")
     (fn / "go.mcfunction").write_text(
         "execute store result storage devnav:tmp port int 1 run scoreboard players get @s devnav.go\n"
@@ -299,7 +331,7 @@ def write_self_pack(name, s, d):
     hub_port = PRESETS["hub"]["port"]
     # Refresh: hop to the hub, the daemon rebuilds the pack (restarting this server if it changed), then sends you back.
     (fn / "refresh.mcfunction").write_text(
-        f"say [MCDEV] repack {name}\ntransfer {HOST} {hub_port} @s\n" if name != "hub" else f"transfer {HOST} {hub_port} @s\n")
+        f'data modify storage devnav:req q append value {{verb:"repack"}}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\ntransfer {HOST} {hub_port} @s\n' if name != "hub" else f"transfer {HOST} {hub_port} @s\n")
     where = f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "")
     void = s["world"] == "void"
     (fn / "load.mcfunction").write_text(
@@ -331,7 +363,11 @@ def write_self_pack(name, s, d):
     tags.mkdir(parents=True)
     (tags / "load.json").write_text(json.dumps({"values": ["devnav:load"]}))
     (tags / "tick.json").write_text(json.dumps({"values": ["devnav:tick"]}))
-    (fn / "fb_notify.mcfunction").write_text(f"say [MCDEV] feedback {name}\n")
+    (fn / "fb_notify.mcfunction").write_text('data modify storage devnav:req q append value {verb:"feedback"}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\n')
+    resettable = not s["persistent"] or name == "test"
+    (fn / "reset_world.mcfunction").write_text(  # daemon wipes the world, restarts, sends you back
+        f'data modify storage devnav:req q append value {{verb:"resetworld"}}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\ntransfer {HOST} {hub_port} @s\n' if resettable else
+        'tellraw @s {"text":"[dev] Only demo/branch servers (and test) can be reset from here.","color":"red"}\n')
     menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"),
             "external_title": text("Nonios Dev"),
             "body": [{"type": "minecraft:plain_message", "width": 300, "contents": [
@@ -345,7 +381,10 @@ def write_self_pack(name, s, d):
                  "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 2"}},
                 {"label": "Reload datapacks", "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 3"}},
                 {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."),
-                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 4"}}],
+                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 4"}}]
+            + ([{"label": text("Reset this server", "red"), "tooltip": text("Fresh world: wipes everything built/broken here, restarts, brings you back (~15s)"),
+                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 5"}}]
+               if resettable else []),
             "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
 
@@ -384,7 +423,7 @@ def build_resource_pack(name, s):
     return hashlib.sha1(data).hexdigest()
 
 def daemon():
-    """Serves .mcdev/packs over HTTP and reacts to '[MCDEV] ...' requests in server logs."""
+    """Serves .mcdev/packs over HTTP and handles in-game requests queued in storage devnav:req (polled via RCON)."""
     import re, threading
     from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
     class H(SimpleHTTPRequestHandler):
@@ -397,33 +436,35 @@ def daemon():
             print(time.strftime("%H:%M:%S"), "http", fmt % a, flush=True)
     PACKS.mkdir(parents=True, exist_ok=True)
     threading.Thread(target=ThreadingHTTPServer(("127.0.0.1", HTTP_PORT), H).serve_forever, daemon=True).start()
-    pat = re.compile(r"\[(\w+)\] \[MCDEV\] (\w+) (\S+)")
-    offsets = {}
     while True:
         for n, s in load_reg().items():
-            log = SERVERS / n / "logs" / "latest.log"
-            if s.get("status") != "up" or not log.exists():
+            if s.get("status") != "up":
                 continue
-            size = log.stat().st_size
-            off = offsets.setdefault(n, size)
-            if size < off:
-                off = 0
-            if size > off:
-                with open(log, "rb") as f:
-                    f.seek(off)
-                    chunk = f.read().decode("utf-8", "replace")
-                offsets[n] = size
-                for m in pat.finditer(chunk):
-                    player, verb, arg = m.groups()
-                    print(time.strftime("%H:%M:%S"), "request", player, verb, arg, flush=True)
-                    if verb == "repack":
-                        threading.Thread(target=repack, args=(arg, player), daemon=True).start()
-                    elif verb == "feedback":
-                        try:
-                            pull_feedback(n, s, player)
-                        except Exception as e:  # never let the daemon die on a bad book
-                            print("feedback pull failed:", e, flush=True)
-        time.sleep(0.5)
+            try:
+                r = rcon(s["port"] + 10000, "data get storage devnav:req q", timeout=2)
+            except (OSError, RuntimeError):
+                continue
+            if "contents: [{" not in r:
+                continue
+            rcon(s["port"] + 10000, "data remove storage devnav:req q")
+            for verb, ints in re.findall(r'verb: "(\w+)"(?:, uuid: \[I; ([-\d, ]+)\])?', r):
+                player = uuid_str(ints) if ints else None
+                print(time.strftime("%H:%M:%S"), "request", n, verb, player, flush=True)
+                if verb == "repack":
+                    threading.Thread(target=repack, args=(n, player), daemon=True).start()
+                elif verb == "resetworld":
+                    threading.Thread(target=reset_world, args=(n, player), daemon=True).start()
+                elif verb == "feedback":
+                    try:
+                        pull_feedback(n, s)
+                    except Exception as e:  # never let the daemon die on a bad book
+                        print("feedback pull failed:", e, flush=True)
+        time.sleep(1)
+
+def uuid_str(ints):
+    """'[I; a, b, c, d]' ints -> canonical UUID string (usable as an entity selector)."""
+    h = "".join(f"{int(i) & 0xFFFFFFFF:08x}" for i in ints.split(","))
+    return f"{h[:8]}-{h[8:12]}-{h[12:16]}-{h[16:20]}-{h[20:]}"
 
 def snbt_value(resp):
     """Value part of a '... has the following contents: <snbt>' RCON reply, unquoted if it is a string."""
@@ -470,10 +511,12 @@ def git_head(src):
     except OSError:
         return "?"
 
-def pull_feedback(name, s, player):
+def pull_feedback(name, s):
     """Drain storage devnav:fb inbox (signed feedback books) into the feedback log."""
     port = s["port"] + 10000
     while "passed" in rcon(port, "execute if data storage devnav:fb inbox[0]"):
+        a = rcon(port, "data get storage devnav:fb inbox[0].author")
+        player = snbt_value(a) if "contents" in a else "?"
         r = rcon(port, "data get storage devnav:fb inbox[0].title.raw")
         title = snbt_value(r) if "contents" in r else "(untitled)"
         pages, i = [], 0
@@ -498,10 +541,25 @@ def repack(name, player):
         print(time.strftime("%H:%M:%S"), f"pack changed for {name}, restarting", flush=True)
         stop(name, s)
         start(name, s, reg)
+    send_back(reg, s, player)
+
+def reset_world(name, player):
+    """Player was sent to the hub; wipe this server's world (test: re-copy main), restart, send them back."""
+    reg = load_reg()
+    s = reg.get(name)
+    if not s or (s["persistent"] and name != "test"):
+        return
+    print(time.strftime("%H:%M:%S"), f"resetting world of {name}", flush=True)
+    stop(name, s)
+    rmtree_safe(SERVERS / name / "world")
+    start(name, s, reg)
+    send_back(reg, s, player)
+
+def send_back(reg, s, player):
     hub = reg.get("hub", {})
     for _ in range(60):  # wait until the player has landed on the hub
         try:
-            if player in rcon(hub["port"] + 10000, "list"):
+            if player and "passed" in rcon(hub["port"] + 10000, f"execute if entity {player}"):
                 rcon(hub["port"] + 10000, f"transfer {HOST} {s['port']} {player}")
                 return
         except (OSError, KeyError):
@@ -663,7 +721,6 @@ def cmd_reset(a):
     if "test" in reg:
         stop("test", reg["test"])
         save_reg(reg)
-    shutil.rmtree(SERVERS / "test" / "world", ignore_errors=True)
     rmtree_safe(SERVERS / "test" / "world") if (SERVERS / "test" / "world").exists() else None
     a.branch = a.demo = a.desc = a.mem = None
     cmd_up(a)
