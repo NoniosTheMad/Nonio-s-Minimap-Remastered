@@ -1,0 +1,162 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Arena / Events",
+  "color": "light_purple"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Nodes, events, gates, core",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "TP: arena"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 20"
+   }
+  },
+  {
+   "label": {
+    "text": "Enemy captor on nearest node"
+   },
+   "tooltip": {
+    "text": "Still husk tagged nx.captor; captures in battle"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 21"
+   }
+  },
+  {
+   "label": {
+    "text": "Random arena event"
+   },
+   "tooltip": {
+    "text": "Surge / Golden Hour / Frog rain"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 22"
+   }
+  },
+  {
+   "label": {
+    "text": "Lightning on/off"
+   },
+   "tooltip": {
+    "text": "Lightning Rabbit (battle only)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 23"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: my arena gate",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 46"
+   },
+   "tooltip": {
+    "text": "Stand on your team's gate pad (open in battle: sends you in)"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: active gate exit",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 47"
+   },
+   "tooltip": {
+    "text": "Stand in the active slot's exit (battle: back to your gate)"
+   }
+  },
+  {
+   "label": {
+    "text": "Re-roll gate slot",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 48"
+   },
+   "tooltip": {
+    "text": "Pick a new active slot now"
+   }
+  },
+  {
+   "label": {
+    "text": "Gate status",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 49"
+   },
+   "tooltip": {
+    "text": "Open, active slot, landing/exit, next roll"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: arena core",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 50"
+   },
+   "tooltip": {
+    "text": "Next to the regrowing centre block"
+   }
+  },
+  {
+   "label": {
+    "text": "Break the core",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 51"
+   },
+   "tooltip": {
+    "text": "Empty it as if mined (no drop); regrows in battle"
+   }
+  },
+  {
+   "label": {
+    "text": "Core status",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 52"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

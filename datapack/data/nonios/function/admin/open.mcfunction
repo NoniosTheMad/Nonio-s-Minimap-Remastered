@@ -17,4 +17,11 @@ execute if score #state nx.state matches 2 run data modify storage nonios:ui adm
 execute if score #state nx.state matches 3 run data modify storage nonios:ui adm.phase set value "End screen"
 execute store result storage nonios:ui adm.w int 1 if entity @a[team=white]
 execute store result storage nonios:ui adm.b int 1 if entity @a[team=black]
+# Rebuild map: lobby only; elsewhere the same button greyed (no action) with a tooltip (dialog rule #41)
+data modify storage nonios:ui adm.rbc set value "gray"
+data modify storage nonios:ui adm.rbt set value "Regenerate the placeholder map"
+data modify storage nonios:ui adm.rba set value ',action:{type:"minecraft:run_command",command:"trigger nx.admin set 23"}'
+execute unless score #state nx.state matches 0 run data modify storage nonios:ui adm.rbc set value "dark_gray"
+execute unless score #state nx.state matches 0 run data modify storage nonios:ui adm.rbt set value "Lobby only"
+execute unless score #state nx.state matches 0 run data modify storage nonios:ui adm.rba set value ""
 function nonios:admin/show with storage nonios:ui adm

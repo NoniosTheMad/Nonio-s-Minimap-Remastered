@@ -1,0 +1,149 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Match flow",
+  "color": "green"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Start, phases, admin",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "Start match",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Joins a team for you if needed"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Skip phase",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Prep -> Battle -> (draw) End -> Lobby"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Stop match",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Prep time 20 s"
+   },
+   "tooltip": {
+    "text": "Applies to the next Start (admin panel: +/-30 s)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Switch my team"
+   },
+   "tooltip": {
+    "text": "Mid-match too: keeps gear and coins, teleports you to the other base"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Admin panel",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 12"
+   }
+  },
+  {
+   "label": {
+    "text": "Rebuild map"
+   },
+   "tooltip": {
+    "text": "Lobby only"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 13"
+   }
+  },
+  {
+   "label": {
+    "text": "Time x10 (toggle)",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Generators + arena timers: drops, payouts, events"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 15"
+   }
+  },
+  {
+   "label": {
+    "text": "Match clock +10 min",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Interest and coin weight jump as if 10 minutes passed"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 66"
+   }
+  },
+  {
+   "label": {
+    "text": "Status"
+   },
+   "tooltip": {
+    "text": "State, Dream unlocks, generators, arena nodes"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 26"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}
