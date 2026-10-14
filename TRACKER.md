@@ -206,6 +206,17 @@ M6 map & polish: Smoke test of main passes (server "full" deployed, be19d2d end 
 9. **Tipped arrows:** [default: V2 effects as written (Lightning Strike = Speed IV on the target, Healing Blast = Instant Health, Piercing Bolt = Instant Damage...). Vanilla still divides tipped-arrow durations by 8, as in V2]. The gap inventory's "Lightning Strike needs a projectile hook" is not built: V2's was only a Speed arrow. Real lightning?
 10. **XP x10 levels (100):** [default: kept on the Enchanting page]. OK?
 
+**Team V2: altar, spawn defense, talisman** (feat/team-v2, server `team2`; built with these defaults):
+1. **Altar costs:** [built: team level = V2 kit number, teams start at Kit I, so the altar asks 16 iron/16 gold/8 diamond blocks for Kit II and 64/64/64 for Kit III]. V2's 8/8/2 step (Kit I) is unused unless teams start at level 0. Config `altar_steps`.
+2. **When the new kit applies:** [built: on each player's next respawn, as V2 "a kit each life"]. Or re-kit the whole team immediately?
+3. **Altar style:** [built: right-click a respawn-anchor altar, own team only, takes only what is still needed, partial payments kept until the match ends]. V2 used a chest that needed the exact amounts. OK?
+4. **Spawn defense:** [built: enemies within 4 blocks of the spawn pad get Instant Damage II every 0.5 s, in prep and battle; switch `spawn_guard`]. V2's deeper zone (r=2) also gave the own team Wither. Not ported. Bring that back?
+5. **Emerald Talisman income:** [built: +1 coin every 3 s while worn on the head, prep and battle; Luck +100; Curse of Binding]. V2's exact clock rate is unknown. The head model is untested in game (paper with an item_model).
+6. **Talisman + Dragon Skull in the shop:** [built: listed in `src/specials.json` only, not sold yet, waiting for the shop-v2 rebuild]. Dragon Skull keeps V2's joke: "[Disabled]" unless you have 3,200,000 coins, then it says "dragon".
+7. **Lightning Rabbit:** [built: admin switch (Admin > Lightning Rabbit), off by default]. On by default?
+8. **Underground prep walls:** [built: barriers in the void layers (y -64..-1) + the prep containment now bounces anyone past the wall row at any depth]. Tunnels through solid ground are stopped by the bounce, not by blocks. OK?
+9. **All recipes at match start:** [built: every player gets every recipe on entering the match]. OK?
+
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
 - **Shader: RTX-like effects:** ref https://www.youtube.com/watch?v=AdTxrggo8e8 (advanced ray tracing style shaders for high-end clients).
