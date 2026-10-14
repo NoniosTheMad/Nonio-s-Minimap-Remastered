@@ -102,3 +102,15 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - Test trick: `tick sprint N` runs ticks on an empty, paused server (pause-when-empty), so lifecycle tests don't need a player online.
 - `demos/full` = classes2 buttons + arena2 gate/core buttons (46-52): one demo for everything on main.
 - V2 gap inventory: `docs/v2-gap-inventory.md` (built / partly / missing, autonomous vs needs user).
+
+## Shop Special page + integration smoke test #2 (main, server `full`)
+- [x] Shop page 10 "Special" (V2 page 11, line + prices from the V2 world): Emerald Talisman 200, Tinkiwinki's Touch 200, Nonios's Weakness 500,
+  Monster Skull 1800 (= the Monster class, price from src/classes.json, kept off the Classes page), Satan's Blade 2000, Dragon Skull [Disabled] 3200.
+  src/shop.json references: `{same: v2}`, `{special: id}` (src/specials.json -> `shop/buy_special`), `{class: id, name, v2}`. "Destroy Magical barriers" not ported (open question).
+- [x] Static: load 13 modules / tick 11, each once; 129 objectives, no criteria clash; triggers unique (same 9); no undefined objectives; clean log.
+- [x] RCON lifecycle (tick sprint, husks; temp `integ` pack in the `full` world, not in git): altar levels only in prep/battle, enemy clicks ignored,
+  silent in lobby/end; altar paid reset at start; guard + talisman counters run only in prep/battle; shop pages build (Special 6 + Back, Classes without
+  Monster Skull), talisman/dragon/monster buy paths (broke, ok, already, 3.2M joke). /reload mid-battle fine.
+- Fixed: lobby altars showed the last match's kit level (levels now back to 1 in `game/to_lobby`); `nx.shop_sec` carried over between matches (`game/lobby_player`).
+- Note: a world built before team-v2 has no altar entities until `map/build` (admin Rebuild / next lobby return). `full` was rebuilt.
+- `demos/full`: + shop2 buttons 53-55, team2 buttons 56-64 (team2's 53-61 shifted by 3).
