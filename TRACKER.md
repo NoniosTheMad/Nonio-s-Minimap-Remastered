@@ -15,7 +15,7 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M6 | → Now | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M6 map & polish: V2 classes (6db932a, feat/classes-v2, server classes2 ★) merged (Archer/Miner/Tank/Ninja/Berserker/Monster/Balrog); Arena v2 (939989e, feat/arena-v2, server arena2 ★) merged (random portals 6.4s, regrowing central block). Shaders round 4 (#22 Angel, #23 Fluorescent/Neon, #24 Monster heartbeat+madness, #25 Acid continuity+Planet). Dev-tool fixes (#26 Servers menu, #27 void spawn). Full server smoke test + V2 gap inventory (docs/v2-gap-inventory.md). Screenshots working (#26, #28 captured). Testing M2 + M3 + M4 + M5 + arena2 + classes2.
+M6 map & polish: Smoke test of main passes (server "full" deployed, be19d2d end bossbar fix). V2 gap inventory documented (docs/v2-gap-inventory.md, 3ef3cfe). Dev-tool fixes (#26 Servers menu labels/tooltip, #27 void spawn + respawn_radius=0, ec18b7c) — **user must restart mcdev daemon**. STARTED: V2 shop catalog (~80 items, enchant-in-hand, named items, shopkeeper lines; feat/shop-v2, server shop2). STARTED: Team offering altar, class level, spawn defense, Emerald Talisman, Lightning Rabbit admin, recipes, underground prep walls (feat/team-v2, server team2). Shaders r4 + V2 gap inventory yielded 7 new user-decision questions (add to Still open). Testing M2 + M3 + M4 + M5 + arena2 + classes2.
 
 ## Waiting on user
 1. **M5 classes (★):** server `m5` (Reaper 200 coins + Cracy Frog free). Join: G → Demo or G → Shop. Pick a class on respawn, test during match. Check: Reaper invisibility (4 s after kill), Cracy Frog confirm chain (3 questions), kill tier rewards, class selection persistence, death/respawn. Six class design questions below.
@@ -184,6 +184,16 @@ M6 map & polish: V2 classes (6db932a, feat/classes-v2, server classes2 ★) merg
 8. **Extras not in V2:** [default: emerald-block regrow chime, regrow particles, red/grey "ARENA" pad labels]. Keep?
 9. **Final layout:** [noted: 4 placeholder slots (corner landings → nearby exits) and pad positions; real arena geometry in M6].
 
+**V2 Gap Inventory** (from docs/v2-gap-inventory.md, new user-decision questions):
+1. **Early end to prep:** V2's "Destroy Magical barriers" ritual (200 coins). Bring back, or remove the prep exit?
+2. **Respawn kit by team level:** What does each team level's basic class kit hold? How does a player pick a basic class in the match?
+3. **New class designs:** Paladin, Death Knight, Titan, Destroyer, Guardian Angel. Specs and prices?
+4. **Repeat-buy mode:** Can a player buy the same shop class twice (e.g., two Archers) or force-switch? Or one per slot?
+5. **Coin weight growth:** Weight slowness that increases over the match (V2 trend: more coins = more ponderous). Linear, quadratic, or soft cap?
+6. **Emerald rates:** V2 = 1/20 (each ore block mined has 1/20 chance of emerald), now 5/45 (per generator outcome). Keep or rebalance?
+7. **V2 interest rate:** V2 = 0.5% per 60 s, cap 10 coins. Now 2%/60 s capped 50. Revert or keep?
+8. **Arena node payouts:** Arena nodes' coins don't feed the bank (only loot drops to ground). Keep or send to bank?
+
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
 - **Shader: RTX-like effects:** ref https://www.youtube.com/watch?v=AdTxrggo8e8 (advanced ray tracing style shaders for high-end clients).
@@ -198,7 +208,10 @@ M6 map & polish: V2 classes (6db932a, feat/classes-v2, server classes2 ★) merg
 | 10-14 | **V2 shop classes merged** (6db932a, feat/classes-v2 → main, server classes2 ★): Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog (all built, same data-driven framework as M5). Eleven design questions queued (Monster price/skull split, Balrog power/curse, potions→flasks, Berserker/Ninja armour, Archer extras, kit supplies, Monster numbers/head skin, invisible glow). |
 | 10-14 | **Arena v2 features merged** (939989e, feat/arena-v2 → main, server arena2 ★): Random-entry gates (one 3x3 pad per team field, slot every 6.4s), regrowing central block (V2 odds 36/18/9/16/2 of 81). Core economy risk ~300-400 coins/min (efficiency-V mine) vs ~72/min Lv3 generator. Nine design questions queued (gate location, exit dest, rotation repeat, sound global, core in prep, regrow delay, economy risk, extras, layout). |
 | 10-14 | **Shaders round 4 started:** #22 Angel (healer vision), #23 Fluorescent/Neon, #24 Monster heartbeat+madness, #25 Acid continuity+new Planet shader. |
-| 10-14 | **Dev-tool fixes:** #26 Servers menu labels/tooltip, #27 void spawn in demos. Smoke test (server "full") on main. V2 gap inventory doc (docs/v2-gap-inventory.md). Screenshot feedback confirmed (#26, #28 captured). |
+| 10-14 | **Smoke test passes** (be19d2d, server "full" on main): all modules turn on/off at right phase, end bossbar bug fixed, every button works. V2 gap inventory documented (docs/v2-gap-inventory.md, 3ef3cfe). |
+| 10-14 | **Dev-tool fixes done** (ec18b7c): #26 Servers menu (short labels, tooltip on all rows), #27 void spawn (player over void → spawn, respawn_radius=0). **User must restart mcdev daemon** (old process running old code). |
+| 10-14 | **Shop v2 started** (feat/shop-v2, server shop2): Full ~80-item V2 catalog, enchant-in-hand, named items, shopkeeper lines. |
+| 10-14 | **Team v2 started** (feat/team-v2, server team2): Team offering altar (class level upgrade), spawn defense, Emerald Talisman, Lightning Rabbit admin switch, all recipes at game start, underground prep walls. |
 | 10-14 | **M4 progression merged** (28e83b7, feat/m4-integration → main): Generators (one per field, 3 levels, upgrades 200/500 coins from purse, anyone collects pot), Arena (3 nodes active in battle, 10 s solo capture, contested frozen, payouts 30 s), Emerald Dream (shared, 1000-coin team portal on pad, 10 veins per visit ±3000). Demo server m4 ★. Eight design questions queued (pot collection, payment source, pad entry, lightning toggle, vein reset, admin panel, upgrade discovery, placement). |
 | 10-14 | **M5 classes into match started** (feat/m5-classes, server m5): Wiring Reaper + Cracy Frog from framework into match logic. Fixing emerald-block coin exploit. |
 | 10-14 | **Shaders feedback #18** (forwarded): Separate Layers and Presets sections in UI, move "No Effect" resets out of effect rows. |
