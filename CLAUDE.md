@@ -92,3 +92,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Harmless server noise on transfer: netty `IoRegistration` NPE and `ServerboundResourcePackPacket ... prepare_spawn` error.
 - Advancement/predicate format changed: conditions use `"type": "minecraft:entity_properties"`; entity predicate keys are namespaced (`"minecraft:entity_type"`, `"minecraft:nbt"`, `"minecraft:flags"`) and `entity` takes one object, not a list. The old format stops the server at startup.
 - Item icons in text components: `{type:"object",atlas:"minecraft:items",sprite:"minecraft:item/bread"}`.
+- Loot tables: a `group` entry offers its children as alternatives (drops one); to drop everything, one pool per item.
+- `tp` with relative yaw grows the stored rotation unbounded; use absolute yaw. Empty servers pause → `schedule` loops stop (test by calling the loop function directly).
+- 1.12 structure .nbt files load with `/place template` (auto-upgraded by DataFixer).
+- Shared names across branches: coins = `nx.coins`, teams = `white` / `black`.
