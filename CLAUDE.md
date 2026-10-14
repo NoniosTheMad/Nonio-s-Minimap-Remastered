@@ -96,3 +96,4 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - `tp` with relative yaw grows the stored rotation unbounded; use absolute yaw. Empty servers pause → `schedule` loops stop (test by calling the loop function directly).
 - 1.12 structure .nbt files load with `/place template` (auto-upgraded by DataFixer).
 - Shared names across branches: coins = `nx.coins`, teams = `white` / `black`.
+- Worldgen: surface rules live in the `worldgen/material_rule` registry; ore veins are a `minecraft:ore_vein` material rule. Sky/fog/particles/music via `attributes` maps (`minecraft:visual/...`) on dimension_type and biome.

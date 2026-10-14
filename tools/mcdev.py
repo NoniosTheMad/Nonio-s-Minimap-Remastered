@@ -1206,7 +1206,7 @@ def check_server(name, s):
     for pack in packs:
         files = list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))
         text = {f: re.sub(r"(?m)^\s*#.*$", "", f.read_text(errors="replace")) for f in files}  # ignore comments
-        used = {o for t in text.values() for o in re.findall(r"trigger ([\w.]+)", t)}
+        used = {o for t in text.values() for o in re.findall(r"(?m)(?:^\s*|run |/|\")trigger ([\w.]+)", t)}
         for obj in used:
             # the last enable/reset of obj in a function decides whether it is triggerable between ticks
             ok = False
