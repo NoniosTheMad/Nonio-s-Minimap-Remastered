@@ -13,6 +13,15 @@ Read this first, then `PROGRESS.md` (live state / next steps) and `DESIGN.md` (g
   Remote: https://github.com/NoniosTheMad/Nonio-s-Minimap-Remastered
 - Context compacts at ~256k tokens: keep `PROGRESS.md` current after every meaningful step.
 
+## Working protocol (agreed with user 2026-10-14)
+- **One main channel**: the main session owns design decisions, integration and merges to `main`. Subagents only get
+  isolated, well-specified tasks (spikes, demos) in their own worktree/branch; the main session reviews and merges.
+- **Feedback is a queue, not an interrupt**: in-game feedback lands in `.mcdev/feedback.log` (daemon, live).
+  Read it with `mcdev feedback` at checkpoints (task done / before next task / when asked), act, then `mcdev feedback --ack`.
+- **Monitoring is quiet**: only watch new feedback + crashes/function-load errors (`Failed to load function`,
+  `Exception in server tick`, OOM). Never stream joins/transfers/http noise. Arm a monitor only while the user is testing.
+- Don't react mid-task to routine events; batch them into the next checkpoint. Record outcomes in PROGRESS.md.
+
 ## Layout
 ```
 DESIGN.md          game/system design, milestones, open questions
@@ -34,7 +43,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
   In-game "Refresh resource pack": `say [MCDEV] repack <name>` → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
 - In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": server list (`/transfer`), refresh pack, reload, feedback.
-  Feedback is `say [FEEDBACK] [server] text` → collected by `mcdev feedback` (into `.mcdev/feedback.log`).
+  Feedback is `say [FEEDBACK] [server] text` → daemon appends to `.mcdev/feedback.log` → `mcdev feedback [--all] [--ack]`.
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.
   Client jar (vanilla assets/shaders reference): `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar`.
 

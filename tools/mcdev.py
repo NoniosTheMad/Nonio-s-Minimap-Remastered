@@ -19,7 +19,7 @@ Usage:
   mcdev reload [name|all]             /reload datapacks via RCON
   mcdev cmd <name> <command...>       run a console command via RCON
   mcdev logs <name> [-n 40]
-  mcdev feedback [--clear]            feedback sent from the in-game menu
+  mcdev feedback [--all] [--ack]      inbox of feedback sent from the in-game menu
   mcdev nav                           regenerate the in-game server list
 """
 import argparse, io, json, os, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
@@ -372,6 +372,11 @@ def daemon():
                     f.seek(off)
                     chunk = f.read().decode("utf-8", "replace")
                 offsets[n] = size
+                fb = [l for l in chunk.splitlines() if "[FEEDBACK]" in l]
+                if fb:
+                    with open(FEEDBACK, "a", encoding="utf-8") as f:
+                        f.writelines(f"{time.strftime('%Y-%m-%d %H:%M')} {n} ({s.get('branch')}) "
+                                     + l.split("[FEEDBACK]", 1)[1].strip().replace("\\n", "\n    ") + "\n" for l in fb)
                 for m in pat.finditer(chunk):
                     player, verb, arg = m.groups()
                     print(time.strftime("%H:%M:%S"), "request", player, verb, arg, flush=True)
@@ -527,30 +532,21 @@ def cmd_logs(a):
     print("".join(log.read_text(errors="replace").splitlines(True)[-a.n:]))
 
 def harvest_feedback(name):
-    log = SERVERS / name / "logs" / "latest.log"
-    if not log.exists():
-        return []
-    marker = SERVERS / name / ".feedback_seen"
-    seen = int(marker.read_text()) if marker.exists() else 0
-    lines = log.read_text(errors="replace").splitlines()
-    if seen > len(lines):  # log rotated
-        seen = 0
-    new = [l for l in lines[seen:] if "[FEEDBACK]" in l]
-    marker.write_text(str(len(lines)))
-    if new:
-        with open(FEEDBACK, "a", encoding="utf-8") as f:
-            f.writelines(l + "\n" for l in new)
-    return new
+    """Feedback is captured live by the daemon; kept as a hook for stop/start."""
+    return []
 
 def cmd_feedback(a):
-    for n in load_reg():
-        harvest_feedback(n)
-    if FEEDBACK.exists():
-        print(FEEDBACK.read_text(encoding="utf-8"))
-        if a.clear:
-            FEEDBACK.rename(STATE / f"feedback-{time.strftime('%Y%m%d-%H%M%S')}.log")
-    else:
+    """Inbox: prints entries not yet acknowledged; --all for history, --ack marks them read."""
+    if not FEEDBACK.exists():
         print("(no feedback yet)")
+        return
+    lines = FEEDBACK.read_text().splitlines(True)
+    mark = STATE / "feedback.read"
+    read = int(mark.read_text()) if mark.exists() else 0
+    out = lines if a.all else lines[read:]
+    print("".join(out) or "(no new feedback)")
+    if a.ack:
+        mark.write_text(str(len(lines)))
 
 def main():
     p = argparse.ArgumentParser(prog="mcdev", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -564,7 +560,7 @@ def main():
     r = sp.add_parser("reload"); r.add_argument("name", nargs="?"); r.set_defaults(f=cmd_reload)
     c = sp.add_parser("cmd"); c.add_argument("name"); c.add_argument("command", nargs="+"); c.set_defaults(f=cmd_cmd)
     l = sp.add_parser("logs"); l.add_argument("name"); l.add_argument("-n", type=int, default=40); l.set_defaults(f=cmd_logs)
-    fb = sp.add_parser("feedback"); fb.add_argument("--clear", action="store_true"); fb.set_defaults(f=cmd_feedback)
+    fb = sp.add_parser("feedback"); fb.add_argument("--all", action="store_true"); fb.add_argument("--ack", action="store_true"); fb.set_defaults(f=cmd_feedback)
     sp.add_parser("nav").set_defaults(f=lambda a: refresh_nav(sync_status(load_reg())))
     sp.add_parser("_daemon").set_defaults(f=lambda a: daemon())
     a = p.parse_args()
