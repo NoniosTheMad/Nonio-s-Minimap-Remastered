@@ -655,8 +655,26 @@ def build():
         decorate(s, hm)
     if PASS >= 8:
         lighting(s)
+    fixups(s)
     markers(s, hm)
     return s
+
+
+def fixups(s):
+    """Survival checks the game would otherwise apply after placing (found by place + diff)."""
+    from tools.voxel.connect import sturdy
+    above = np.zeros(s.shape, bool); above[:, :-1] = s.idx[:, 1:] != 0
+    s.fill(s.match("dirt_path") & above, "coarse_dirt")
+    st = sturdy(s)
+    off = {"north": (0, 1), "south": (0, -1), "east": (-1, 0), "west": (1, 0)}
+    for x, y, z in np.argwhere(np.isin(s.idx, [i for i, n in enumerate(s.palette) if n.startswith("minecraft:ladder")])):
+        face = s.palette[s.idx[x, y, z]].split("facing=")[1].split(",")[0].rstrip("]")
+        dx, dz = off[face]
+        if not st[x + dx, y, z + dz]:
+            s.idx[x, y, z] = 0
+    for x, y, z in np.argwhere(np.isin(s.idx, [i for i, n in enumerate(s.palette) if n.startswith("minecraft:lantern") and "hanging=true" in n])):
+        if s.idx[x, y + 1, z] == 0:
+            s.idx[x, y, z] = 0
 
 
 def markers(s, hm):
@@ -860,12 +878,20 @@ def cellar(s):
 
 
 def ladder_up(s, cx, cz, y0, y1):
-    """Ladder on the north inner wall of a tower from y0 to y1 (through the floors)."""
-    z = cz
-    while s.idx[cx, y0 + 1, z - 1] == 0:
-        z -= 1
+    """Ladder against the inner wall of a tower from y0 to y1 (through the floors), on a side with solid wall all the way."""
+    best = None
+    for (dx, dz), name in FACING.items():
+        x, z = cx, cz
+        while s.idx[x + dx, y0 + 1, z + dz] == 0 or s.palette[s.idx[x + dx, y0 + 1, z + dz]].startswith("minecraft:spruce_planks"):
+            x, z = x + dx, z + dz
+            if abs(x - cx) > 6 or abs(z - cz) > 6:
+                break
+        bad = sum(1 for y in range(y0, y1 + 1) if s.palette[s.idx[x + dx, y, z + dz]] in ("minecraft:air",) or "stairs" in s.palette[s.idx[x + dx, y, z + dz]])
+        if best is None or bad < best[0]:
+            best = (bad, x, z, FACING[(-dx, -dz)])
+    _, x, z, face = best
     for y in range(y0, y1 + 1):
-        s.set(cx, y, z, "ladder[facing=south]")
+        s.set(x, y, z, f"ladder[facing={face}]")
     return z
 
 
@@ -1012,7 +1038,7 @@ def lighting(s):
                 s.set(tx, y, tz - 1, "wall_torch[facing=south]")
     # solar / library / chapel / roof walk
     for F in (P + 8, P + 16):
-        for x, z in ((55, 44), (61, 34), (65, 44), (71, 37)):
+        for x, z in ((55, 42), (61, 36), (65, 42), (71, 37)):
             s.set(x, F + 5, z, "iron_chain[axis=y]") if s.idx[x, F + 5, z] == 0 else None
             if s.idx[x, F + 4, z] == 0:
                 s.set(x, F + 4, z, "lantern[hanging=true]")
