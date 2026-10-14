@@ -52,3 +52,19 @@ data modify storage nonios:arena config.golden_mult set value 2
 # Kill it for its loot; it comes back after `respawn` ticks. `on` = default for a fresh world; at runtime use
 # function nonios:arena/lightning/on | off | toggle (remembered across reloads).
 data modify storage nonios:arena config.lightning set value {on:0b,every:60,respawn:600}
+# Random-entry gates (V2 arena portals). Every gate is an entry pad: stepping on it while the arena runs drops you at the
+# landing point of the ACTIVE slot; only the active slot's exit works, and it puts you back at your team's gate (`out`).
+# The active slot is re-rolled at random every `gate.every` ticks (V2: a 16-item hopper clock, 128 ticks). Entry sound to everyone.
+#   gates: [{team, x y z = pad centre block (the pad itself is built by the map), out:{x,y,z,yaw}}]
+#   slots: [{land:{x,y,z,yaw}, exit:{x,y,z = block the feet go in}}]
+# Empty lists = no gates (a map or demo fills them through #nonios:arena/config).
+data modify storage nonios:arena config.gate set value {every:128,sound:"minecraft:block.end_portal.spawn"}
+data modify storage nonios:arena config.gates set value []
+data modify storage nonios:arena config.slots set value []
+# Core (V2 regrowing central block): config.core {x,y,z} = the block; while the arena runs, once it is mined (air) a new
+# block is rolled from core_blocks (weights w) `core_regrow` ticks later (0 = next 10-tick check; V2 refilled it at once).
+# V2 odds (two 9-slot dispenser rolls): cobblestone 4/9, log 2/9, hay 1/9, ore 2/9 -> emerald ore 8/9, emerald block 1/9 (x81).
+# No config.core = no core.
+data remove storage nonios:arena config.core
+data modify storage nonios:arena config.core_regrow set value 0
+data modify storage nonios:arena config.core_blocks set value [{id:"minecraft:cobblestone",w:36},{id:"minecraft:oak_log",w:18},{id:"minecraft:hay_block",w:9},{id:"minecraft:emerald_ore",w:16},{id:"minecraft:emerald_block",w:2}]

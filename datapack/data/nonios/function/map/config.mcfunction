@@ -4,12 +4,16 @@
 #   White field x -15..15, z 55..85   Arena z 86..114   Black field z 115..145   (mirror plane z = 100)
 #   Per field: gen = resource generator (Lv1 at match start; marker on top of its sea lantern),
 #   dream = Emerald Dream portal pad (centre block of a 5x5 pad, floor level).
+#   agate = arena gate pad (centre block of a 3x3 pad, floor level); out = where the arena exit puts this team back.
 # Island layers: y 60 stone, 61-62 dirt, 63 grass (top). Players stand at y 64.
 data modify storage nonios:map lobby set value {x:0.5d,y:64,z:0.5d,yaw:0,bx:0,bz:0,x1:-9,x2:9,z1:-9,z2:9,y:63}
 data modify storage nonios:map arena set value {x1:-15,x2:15,z1:86,z2:114,y:63,cx:0.5d,cy:75,cz:100.5d}
 # Arena nodes (feat/arena format, copied into storage nonios:arena config by map/arena_config): centre block at foot
 # level, r = half width, h = height, ind = indicator block offset from the centre (the Centre node sits on the ore pile).
 # bounds keep the Lightning Rabbit in; center = where it spawns.
+# slots = random-entry gate slots (V2 arena portals): land = where a gate drops you (facing the centre), exit = the block
+# that takes you back to your team's gate (<team>.agate). One slot is active at a time, re-rolled every few seconds.
+# core = the regrowing centre block (V2), on top of the Centre Node's ore pile.
 data modify storage nonios:map arena_cfg set value {\
   nodes:[\
     {id:"west",name:"West Node",x:-9,y:64,z:100,r:2,h:3},\
@@ -17,7 +21,14 @@ data modify storage nonios:map arena_cfg set value {\
     {id:"east",name:"East Node",x:9,y:64,z:100,r:2,h:3}\
   ],\
   bounds:{x:-15,y:56,z:86,dx:30,dy:30,dz:28},\
-  center:{x:0,y:68,z:100}\
+  center:{x:0,y:68,z:100},\
+  slots:[\
+    {land:{x:-11.5d,y:64,z:88.5d,yaw:-45},exit:{x:0,y:64,z:91}},\
+    {land:{x:12.5d,y:64,z:88.5d,yaw:45},exit:{x:12,y:64,z:96}},\
+    {land:{x:12.5d,y:64,z:111.5d,yaw:135},exit:{x:0,y:64,z:109}},\
+    {land:{x:-11.5d,y:64,z:111.5d,yaw:-135},exit:{x:-12,y:64,z:104}}\
+  ],\
+  core:{x:0,y:65,z:100}\
 }
 # area cleared on every rebuild (blocks y1..y2 + all non-player entities). Keep dx*dz*2 <= 32768 (one fill per 2 layers).
 data modify storage nonios:map area set value {x1:-48,x2:48,z1:44,z2:156,y1:40,y2:135,dx:96,dz:112}
@@ -33,6 +44,7 @@ data modify storage nonios:map white set value {\
   mine:{x:8,y:64,z:74},\
   gen:{team:"white",lvl:1,x:-8,y:64,z:75},\
   dream:{team:"white",Team:"White",x:-10,y:63,z:81},\
+  agate:{team:"white",x:5,y:63,z:81,out:{x:5.5d,y:64,z:78.5d,yaw:180}},\
   wall:{team:"white",z:85,tint:11069695},label:{Team:"WHITE",color:"white",x:0,y:68,z:76},\
   out:"x=-1000,y=-200,z=87,dx=2000,dy=900,dz=2000"\
 }
@@ -46,6 +58,7 @@ data modify storage nonios:map black set value {\
   mine:{x:8,y:64,z:121},\
   gen:{team:"black",lvl:1,x:-8,y:64,z:125},\
   dream:{team:"black",Team:"Black",x:-10,y:63,z:119},\
+  agate:{team:"black",x:5,y:63,z:119,out:{x:5.5d,y:64,z:121.5d,yaw:0}},\
   wall:{team:"black",z:115,tint:12086271},label:{Team:"BLACK",color:"dark_purple",x:0,y:68,z:124},\
   out:"x=-1000,y=-200,z=-1887,dx=2000,dy=900,dz=2000"\
 }
