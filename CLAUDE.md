@@ -43,7 +43,9 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
   In-game "Refresh resource pack": `say [MCDEV] repack <name>` → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
 - In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": server list (`/transfer`), refresh pack, reload, feedback.
-  Feedback is `say [FEEDBACK] [server] text` → daemon appends to `.mcdev/feedback.log` → `mcdev feedback [--all] [--ack]`.
+  Feedback = Book & Quill (menu → Feedback): signing it fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox
+  → `say [MCDEV] feedback` → daemon drains storage via RCON into `.mcdev/feedback.log` with context (branch@commit, pos, server log, client chat).
+  `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.
   Client jar (vanilla assets/shaders reference): `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar`.
 
@@ -52,6 +54,6 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Gamerules are snake_case (`advance_time`, `spawn_mobs`, …). `/transfer` needs op 3; servers need `accepts-transfers=true`.
 - Server needs a resource-pack sha1, else client caches by URL.
 - Dialog `run_command` buttons whose command needs op show a "run this command?" confirmation. **Always use `/trigger <obj> set N`**
-  in dialogs (permission 0, no prompt) and do the privileged work in a tick function. (Only the feedback text box still prompts.)
+  in dialogs (permission 0, no prompt) and do the privileged work in a tick function. Never `reset @a obj` after enabling it in the same tick (re-locks it); reset only triggerers, or enable last.
 - Empty servers pause (pause-when-empty-seconds=120): `/reload` applies but load functions run only on unpause.
 - Harmless server noise on transfer: netty `IoRegistration` NPE and `ServerboundResourcePackPacket ... prepare_spawn` error.

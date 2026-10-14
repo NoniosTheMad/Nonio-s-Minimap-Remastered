@@ -23,7 +23,7 @@ Usage:
   mcdev nav                           regenerate the in-game server list
   mcdev review <name> [--done]        star/unstar a server as waiting for the user's review
 """
-import argparse, io, json, os, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
+import argparse, io, json, os, re, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
 from pathlib import Path
 
 # Windows defaults to cp1252; everything we write (dialogs, properties, logs) is UTF-8.
@@ -243,19 +243,26 @@ def write_devnav(reg):
     fn.mkdir(parents=True, exist_ok=True)
     (d / "pack.mcmeta").write_text(json.dumps({"pack": {"description": "mcdev navigation", "min_format": DATA_FORMAT, "max_format": DATA_FORMAT}}))
     (fn / "list.mcfunction").write_text(f"dialog show @s {snbt(nav_dialog(reg))}\n")
-    # say is capped at 256 chars: store the text, emit 200-char chunks ([FEEDBACK] then [FEEDBACK+]).
-    (fn / "fb.mcfunction").write_text(
-        "$data modify storage devnav:fb msg set value '$(t)'\n"
-        "data modify storage devnav:fb tag set value 'FEEDBACK'\nfunction devnav:fb_chunk\n"
-        'tellraw @s {"text":"[dev] Feedback sent - thanks!","color":"green"}\n')
-    (fn / "fb_chunk.mcfunction").write_text(
-        "data modify storage devnav:fb part set string storage devnav:fb msg 0 200\n"
-        "data modify storage devnav:fb msg set string storage devnav:fb msg 200\n"
-        "function devnav:fb_say with storage devnav:fb\n"
-        "data modify storage devnav:fb tag set value 'FEEDBACK+'\n"
-        "execute store result score #len devnav.act run data get storage devnav:fb msg\n"
-        "execute if score #len devnav.act matches 1.. run function devnav:fb_chunk\n")
-    (fn / "fb_say.mcfunction").write_text("$say [$(tag)] $(part)\n")
+    # Feedback = a tagged Book & Quill. Signing it queues the book content in storage and pings the
+    # daemon, which pulls the pages over RCON (no quoting/length/newline limits, unlike dialog text + say).
+    (fn / "fb_give.mcfunction").write_text(
+        "clear @s minecraft:writable_book[minecraft:custom_data~{devnav_fb:1b}]\n"
+        'give @s minecraft:writable_book[minecraft:custom_data={devnav_fb:1b},'
+        'minecraft:item_name={"text":"Feedback for Claude","color":"green"},'
+        'minecraft:lore=[{"text":"Write, then Sign. The title is the topic.","color":"gray","italic":false}]]\n'
+        'tellraw @s {"text":"[dev] Feedback book in your inventory: write, then Sign (title = topic). Any length, any characters.","color":"green"}\n')
+    (fn / "fb_book.mcfunction").write_text(
+        "advancement revoke @s only devnav:fb_signed\n"
+        "data modify storage devnav:fb inbox append from entity @s Inventory"
+        '[{id:"minecraft:written_book",components:{"minecraft:custom_data":{devnav_fb:1b}}}].components."minecraft:written_book_content"\n'
+        "clear @s minecraft:written_book[minecraft:custom_data~{devnav_fb:1b}]\n"
+        "function devnav:fb_give\nfunction devnav:fb_notify\n")
+    adv = d / "data" / "devnav" / "advancement"
+    adv.mkdir(parents=True, exist_ok=True)
+    (adv / "fb_signed.json").write_text(json.dumps({
+        "criteria": {"signed": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [
+            {"items": "minecraft:written_book", "predicates": {"minecraft:custom_data": "{devnav_fb:1b}"}}]}}},
+        "rewards": {"function": "devnav:fb_book"}}))
     # Dialog buttons only use /trigger (permission 0 -> no "run this command?" prompt);
     # the privileged part (transfer, reload, ...) runs here at function permission level.
     (fn / "nav_load.mcfunction").write_text(
@@ -266,6 +273,7 @@ def write_devnav(reg):
         "execute as @a[scores={devnav.act=1}] run function devnav:list\n"
         "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
+        "execute as @a[scores={devnav.act=4}] run function devnav:fb_give\n"
         "scoreboard players reset @a[scores={devnav.act=1..}] devnav.act\n")
     (fn / "go.mcfunction").write_text(
         "execute store result storage devnav:tmp port int 1 run scoreboard players get @s devnav.go\n"
@@ -323,13 +331,7 @@ def write_self_pack(name, s, d):
     tags.mkdir(parents=True)
     (tags / "load.json").write_text(json.dumps({"values": ["devnav:load"]}))
     (tags / "tick.json").write_text(json.dumps({"values": ["devnav:tick"]}))
-    feedback = {"type": "minecraft:confirmation", "title": text("Feedback", "gold"),
-                "no": {"label": "Back", "action": {"type": "minecraft:show_dialog", "dialog": "devnav:menu"}},
-                "body": [{"type": "minecraft:plain_message", "contents": text(f"Goes to Claude, tagged with '{name}'.", "gray")}],
-                "inputs": [{"type": "minecraft:text", "key": "t", "label": "Comment", "width": 300, "max_length": 2000,
-                            "multiline": {"max_lines": 12, "height": 120}}],
-                "yes": {"label": "Send", "action": {"type": "minecraft:dynamic/run_command",
-                                                       "template": f"function devnav:fb {{t:'[{name}] $(t)'}}"}}}
+    (fn / "fb_notify.mcfunction").write_text(f"say [MCDEV] feedback {name}\n")
     menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"),
             "external_title": text("Nonios Dev"),
             "body": [{"type": "minecraft:plain_message", "width": 300, "contents": [
@@ -342,7 +344,8 @@ def write_self_pack(name, s, d):
                 {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"),
                  "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 2"}},
                 {"label": "Reload datapacks", "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 3"}},
-                {"label": text("Feedback...", "green"), "action": {"type": "minecraft:show_dialog", "dialog": feedback}}],
+                {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."),
+                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 4"}}],
             "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
 
@@ -410,21 +413,79 @@ def daemon():
                     f.seek(off)
                     chunk = f.read().decode("utf-8", "replace")
                 offsets[n] = size
-                entries = []
-                for l in chunk.splitlines():
-                    if "[FEEDBACK]" in l:
-                        entries.append(f"{time.strftime('%Y-%m-%d %H:%M')} {n} ({s.get('branch')}) " + l.split("[FEEDBACK]", 1)[1].strip())
-                    elif "[FEEDBACK+]" in l and entries:
-                        entries[-1] += l.split("[FEEDBACK+]", 1)[1].strip()
-                if entries:
-                    with open(FEEDBACK, "a", encoding="utf-8") as f:
-                        f.writelines(e.replace("\\n", "\n    ") + "\n" for e in entries)
                 for m in pat.finditer(chunk):
                     player, verb, arg = m.groups()
                     print(time.strftime("%H:%M:%S"), "request", player, verb, arg, flush=True)
                     if verb == "repack":
                         threading.Thread(target=repack, args=(arg, player), daemon=True).start()
+                    elif verb == "feedback":
+                        try:
+                            pull_feedback(n, s, player)
+                        except Exception as e:  # never let the daemon die on a bad book
+                            print("feedback pull failed:", e, flush=True)
         time.sleep(0.5)
+
+def snbt_value(resp):
+    """Value part of a '... has the following contents: <snbt>' RCON reply, unquoted if it is a string."""
+    import ast, re
+    v = resp.split("contents: ", 1)[1].strip()
+    if v[:1] in "\"'":
+        return ast.literal_eval(v)  # SNBT string escapes are a subset of Python's
+    m = re.search(r'text:\s*("(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\')', v)
+    return ast.literal_eval(m.group(1)) if m else v
+
+CLIENT_LOG = Path(r"C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log")
+NOISE = re.compile(r"IoRegistration|ServerboundResourcePackPacket|prepare_spawn|^\s+at |logged in with entity|lost connection|"
+                   r"left the game|joined the game|RCON|Loaded [0-9]+ |Server empty for|Disconnecting|UUID of player|\[MCDEV\]|Saving|Saved")
+
+def feedback_context(name, s, player):
+    """Indented context block appended to each feedback entry: where the user was + what just happened."""
+    port = s["port"] + 10000
+    ctx = [f"branch {s.get('branch')} @ {git_head(s['src'])}" + (f", demo {s['demo']}" if s.get("demo") else "")
+           + f", worktree {s['src']}"]
+    try:
+        pos = rcon(port, f"data get entity {player} Pos").split("data: ", 1)[-1]
+        dim = rcon(port, f"data get entity {player} Dimension").split("data: ", 1)[-1]
+        mode = rcon(port, f"data get entity {player} playerGameType").split("data: ", 1)[-1]
+        if "No entity" not in pos:
+            ctx.append(f"at {pos} in {dim}, gamemode {mode}")
+    except OSError:
+        pass
+    def tail(path, n):
+        try:
+            lines = Path(path).read_text(errors="replace").splitlines()[-400:]
+        except OSError:
+            return []
+        done = max((i for i, l in enumerate(lines) if "Done (" in l), default=-1)  # skip startup chatter
+        return [l.strip() for l in lines[done + 1:] if not NOISE.search(l)][-n:]
+    srv = tail(SERVERS / name / "logs" / "latest.log", 12)
+    cli = [l for l in tail(CLIENT_LOG, 200) if "[CHAT]" in l or "Connecting to" in l][-12:]
+    if srv: ctx += ["server log:"] + ["  " + l for l in srv]
+    if cli: ctx += ["client chat:"] + ["  " + l for l in cli]
+    return "".join(f"  | {l}\n" for l in ctx)
+
+def git_head(src):
+    try:
+        return subprocess.run(["git", "-C", str(src), "log", "-1", "--format=%h %s"], capture_output=True, text=True).stdout.strip()
+    except OSError:
+        return "?"
+
+def pull_feedback(name, s, player):
+    """Drain storage devnav:fb inbox (signed feedback books) into the feedback log."""
+    port = s["port"] + 10000
+    while "passed" in rcon(port, "execute if data storage devnav:fb inbox[0]"):
+        r = rcon(port, "data get storage devnav:fb inbox[0].title.raw")
+        title = snbt_value(r) if "contents" in r else "(untitled)"
+        pages, i = [], 0
+        while "contents" in (r := rcon(port, f"data get storage devnav:fb inbox[0].pages[{i}].raw")):
+            pages.append(snbt_value(r))
+            i += 1
+        rcon(port, "data remove storage devnav:fb inbox[0]")
+        body = "\n\n".join(pages).strip().replace("\n", "\n    ")
+        with open(FEEDBACK, "a", encoding="utf-8") as f:
+            f.write(f"{time.strftime('%Y-%m-%d %H:%M')} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
+                    + feedback_context(name, s, player))
+        print(time.strftime("%H:%M:%S"), f"feedback from {player} on {name}: {title}", flush=True)
 
 def repack(name, player):
     """Player was sent to the hub; rebuild the pack, restart if it changed, send them back."""
@@ -501,7 +562,33 @@ def start(name, s, _reg=None):
     save_reg(reg)
     t = wait_ready(name, s)
     refresh_nav(sync_status(reg))
+    for w in check_server(name, s):
+        print("WARNING:", w)
     return t
+
+def check_server(name, s):
+    """Catch breakage before the user does: datapack load errors + trigger objectives that can never fire."""
+    import re
+    warn = []
+    log = (SERVERS / name / "logs" / "latest.log").read_text(errors="replace")
+    warn += [l.strip() for l in log.splitlines()
+             if re.search(r"Failed to load function|Couldn't load tag|Failed to parse|Couldn't parse element", l)]
+    packs = [Path(s["src"]) / "datapack"] + ([Path(s["src"]) / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
+    for pack in packs:
+        files = list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))
+        text = {f: f.read_text(errors="replace") for f in files}
+        used = {o for t in text.values() for o in re.findall(r"trigger ([\w.]+)", t)}
+        for obj in used:
+            # the last enable/reset of obj in a function decides whether it is triggerable between ticks
+            ok = False
+            for f, t in text.items():
+                ev = re.findall(rf"scoreboard players (enable|reset) (\S+) {re.escape(obj)}\b", t)
+                if any(e == "enable" for e, _ in ev):
+                    last = [e for e, sel in ev if e == "enable" or sel == "@a"][-1]
+                    ok = ok or last == "enable"
+            if not ok:
+                warn.append(f"{pack.parent.name}: trigger '{obj}' is never left enabled (enable it after any 'reset @a {obj}')")
+    return warn
 
 def read_todo(src, demo):
     """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
