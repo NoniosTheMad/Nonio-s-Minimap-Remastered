@@ -11,11 +11,12 @@ Custom per-player post effects from the game resource pack (`resourcepack/assets
 | Look       | reaper, cinematic, thermal, cosmic, monster | 1st |
 | Colour     | rainbow, comic | 2nd |
 | Lines      | ink, neon | 3rd |
-| Distortion | acid | last (so it bends everything else) |
+| Wobble     | wobble | last post effect (so it bends everything else) |
+| Acid       | world warp (core shaders, not a post effect) | bends the geometry itself, combines with all of the above |
 
-Presets only set layers; a "No X" button while a preset is on removes the whole preset, and clicking an
-active effect again turns it off. The current stack stays on the action bar. Presets only set layers (`demo:fx/preset`): **Cracy Frog** = acid + rainbow (the old Acid), **Comic book** = comic + ink,
-**Angel** = thermal, **Neon Reaper** = reaper + neon, **Star trip** = cosmic + acid. Any combination works; some are
+Presets only set layers; an "x <category>" (REMOVE row) button while a preset is on removes the whole preset, and clicking an
+active effect again turns it off. The current stack stays on the action bar. Presets only set layers (`demo:fx/preset`): **Cracy Frog** = wobble + rainbow (the old Acid), **Comic book** = comic + ink,
+**Angel** = thermal, **Neon Reaper** = reaper + neon, **Star trip** = cosmic + Acid, **Bad trip** = Acid + wobble + rainbow. Any combination works; some are
 pointless (e.g. reaper + comic). Post effects are client state, so the stack is re-applied when a player rejoins.
 
 ## Effects
@@ -35,7 +36,30 @@ pointless (e.g. reaper + comic). Post effects are client state, so the stack is 
 - `rainbow`: hue cycling with an outward ripple (colour only, no distortion).
 - `comic`: posterised colours, halftone dots in the shadows, paper highlights.
 - `ink` / `neon`: the same line shader (`ink.fsh`): dark comic lines, or glowing additive cyan lines.
-- `acid`: wavy screen + pulsing chromatic split (distortion only; the colour cycling moved to `rainbow`).
+- `wobble`: wavy screen + pulsing chromatic split (screen-space; was "Acid" in v2, the colour cycling moved to `rainbow`).
+
+## Acid (world warp)
+The classic "acid" (GLSL shaders mod formula): with distance from you the world waves up and down and rotates around
+you, so far terrain curls up over your head and covers the sky; the terrain near you stays still. It moves the vertices,
+so it lives in **core shader overrides** (`demos/shaders/resourcepack/assets/minecraft/shaders/core`: terrain, block,
+entity, particle `.vsh` + `lightmap.fsh`, shared code in `include/nonios_acid.glsl`). Resource-pack core overrides still
+load in 26.3 (`ShaderManager` lists `shaders/` from all packs).
+
+Per player switch: a core shader can't see scores or `/posteffect`, so the server drives a per-player value that reaches
+the GPU: the **night vision** effect. The overridden `lightmap.fsh` no longer brightens with night vision and instead
+writes the night vision factor into the lightmap alpha (1 - 8/255 when on); the vertex shaders read lightmap texel (0,0)
+and warp when it is set. The button gives/clears `night_vision infinite` (hidden particles).
+
+Limits / trade-offs:
+- It is a demo overlay (only the shaders server's pack), because it changes vanilla shaders for everyone using the pack:
+  real night vision (potions, conduit underwater) stops brightening and turns the warp on instead. Night vision still
+  brightens the fog/sky colour (Java side), so the sky is a bit lighter while Acid is on.
+- Chunk culling is done on the unwarped world: some bent terrain pops in or out at the screen edges; the sky and
+  clouds are not bent (terrain covers them); held items/hand barely move (they are near the camera).
+- With "Improved transparency" (OIT), the alpha-only pass of translucent blocks cannot read the lightmap, so water/glass
+  may look slightly off while warped. Emissive entity layers (spider/enderman eyes) don't bend.
+- The timing is the original's (cycles of ~45-80 s), mapped to `GameTime` so it loops seamlessly.
+- If core overrides break in a later version (26.4 moves to Vulkan), only this overlay breaks; the post effects are separate.
 
 ## Thermal / angel HP: how it works and its limits
 A post shader only sees the final image: it cannot read entity health or the entity-outline buffer (`/posteffect`

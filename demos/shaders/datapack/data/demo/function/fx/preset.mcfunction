@@ -3,6 +3,7 @@ scoreboard players set @s demo.look 0
 scoreboard players set @s demo.col 0
 scoreboard players set @s demo.line 0
 scoreboard players set @s demo.dist 0
+scoreboard players set @s demo.warp 0
 scoreboard players operation @s demo.pre = @s demo.fx
 execute if score @s demo.fx matches 49 run scoreboard players set @s demo.pre 0
 # 41 Cracy Frog
@@ -18,4 +19,8 @@ execute if score @s demo.fx matches 44 run scoreboard players set @s demo.look 1
 execute if score @s demo.fx matches 44 run scoreboard players set @s demo.line 22
 # 45 Star trip
 execute if score @s demo.fx matches 45 run scoreboard players set @s demo.look 4
-execute if score @s demo.fx matches 45 run scoreboard players set @s demo.dist 31
+execute if score @s demo.fx matches 45 run scoreboard players set @s demo.warp 35
+# 46 Bad trip
+execute if score @s demo.fx matches 46 run scoreboard players set @s demo.col 11
+execute if score @s demo.fx matches 46 run scoreboard players set @s demo.dist 31
+execute if score @s demo.fx matches 46 run scoreboard players set @s demo.warp 35

@@ -3,8 +3,8 @@
 
 #include <minecraft:globals.glsl>
 
-// nonios:acid - distortion layer: wavy UVs + pulsing chromatic aberration.
-// (The colour cycling moved to nonios:rainbow; "Cracy Frog" = acid + rainbow.)
+// nonios:wobble - distortion layer: wavy UVs + pulsing chromatic aberration.
+// (The colour cycling moved to nonios:rainbow; "Cracy Frog" = wobble + rainbow.)
 // Time: Globals.GameTime = ((worldTicks % 24000) + partialTick) / 24000, i.e. it
 // runs 0..1 every 20 real minutes (1 unit = 1200 s). Every periodic term below
 // uses a whole number of cycles per unit so the 20-minute wrap is seamless.
@@ -18,7 +18,7 @@ layout(std140) uniform SamplerInfo {
     vec2 InSize;
 };
 
-layout(std140) uniform AcidConfig {
+layout(std140) uniform WobbleConfig {
     float WaveAmplitude;   // UV offset, fraction of the screen
     float WaveFrequency;   // waves across the screen (radians per unit UV)
     float Aberration;      // RGB split, fraction of the screen at the corners

@@ -4,6 +4,7 @@ execute if score @s demo.pre matches 1.. if score @s demo.fx matches 10 run func
 execute if score @s demo.pre matches 1.. if score @s demo.fx matches 19 run function demo:fx/unpreset
 execute if score @s demo.pre matches 1.. if score @s demo.fx matches 29 run function demo:fx/unpreset
 execute if score @s demo.pre matches 1.. if score @s demo.fx matches 39 run function demo:fx/unpreset
+execute if score @s demo.pre matches 1.. if score @s demo.fx matches 38 run function demo:fx/unpreset
 # any single-layer click turns a preset into a custom stack
 execute if score @s demo.fx matches 1..39 run scoreboard players set @s demo.pre 0
 # demo.look: clicking the active effect again turns it off
@@ -26,5 +27,10 @@ scoreboard players set #tog demo.st 0
 execute if score @s demo.fx matches 31..31 if score @s demo.dist = @s demo.fx store success score #tog demo.st run scoreboard players set @s demo.dist 0
 execute if score #tog demo.st matches 0 if score @s demo.fx matches 31..31 run scoreboard players operation @s demo.dist = @s demo.fx
 execute if score @s demo.fx matches 39 run scoreboard players set @s demo.dist 0
+# demo.warp: clicking the active effect again turns it off
+scoreboard players set #tog demo.st 0
+execute if score @s demo.fx matches 35..35 if score @s demo.warp = @s demo.fx store success score #tog demo.st run scoreboard players set @s demo.warp 0
+execute if score #tog demo.st matches 0 if score @s demo.fx matches 35..35 run scoreboard players operation @s demo.warp = @s demo.fx
+execute if score @s demo.fx matches 38 run scoreboard players set @s demo.warp 0
 execute if score @s demo.fx matches 41..49 run function demo:fx/preset
 function demo:fx/apply

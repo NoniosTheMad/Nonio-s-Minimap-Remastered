@@ -5,7 +5,7 @@
     "passes": [
         {
             "vertex_shader": "minecraft:core/screenquad",
-            "fragment_shader": "nonios:post/acid",
+            "fragment_shader": "nonios:post/wobble",
             "inputs": [
                 {
                     "sampler_name": "In",
@@ -15,7 +15,7 @@
             ],
             "output": "swap",
             "uniforms": {
-                "AcidConfig": [
+                "WobbleConfig": [
                     {
                         "name": "WaveAmplitude",
                         "type": "float",

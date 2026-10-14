@@ -1,0 +1,130 @@
+{
+    "type": "minecraft:multi_action",
+    "title": {
+        "text": "Shaders demo: presets",
+        "color": "yellow"
+    },
+    "body": [
+        {
+            "type": "minecraft:plain_message",
+            "width": 420,
+            "contents": {
+                "text": "A preset replaces your current mix. Back to build your own.",
+                "color": "gray"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "label": {
+                "text": "Cracy Frog",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 41"
+            },
+            "tooltip": {
+                "text": "Wobble + Rainbow (the old Acid)"
+            }
+        },
+        {
+            "label": {
+                "text": "Comic book",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 42"
+            },
+            "tooltip": {
+                "text": "Comic colours + Ink lines"
+            }
+        },
+        {
+            "label": {
+                "text": "Angel",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 43"
+            },
+            "tooltip": {
+                "text": "Thermal: HP-bracket heat signatures (see HP test)"
+            }
+        },
+        {
+            "label": {
+                "text": "Neon Reaper",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 44"
+            },
+            "tooltip": {
+                "text": "Reaper + Neon lines"
+            }
+        },
+        {
+            "label": {
+                "text": "Star trip",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 45"
+            },
+            "tooltip": {
+                "text": "Cosmic + Acid world warp"
+            }
+        },
+        {
+            "label": {
+                "text": "Bad trip",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 46"
+            },
+            "tooltip": {
+                "text": "Acid + Wobble + Rainbow: everything"
+            }
+        },
+        {
+            "label": {
+                "text": "Clear all",
+                "color": "red"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 49"
+            },
+            "tooltip": {
+                "text": "Turn every effect off"
+            }
+        }
+    ],
+    "columns": 3,
+    "exit_action": {
+        "label": {
+            "text": "Back",
+            "color": "gray"
+        },
+        "action": {
+            "type": "minecraft:show_dialog",
+            "dialog": "demo:effects"
+        }
+    },
+    "after_action": "none",
+    "pause": false
+}

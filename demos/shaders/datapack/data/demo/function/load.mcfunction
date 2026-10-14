@@ -6,6 +6,7 @@ scoreboard objectives add demo.look dummy
 scoreboard objectives add demo.col dummy
 scoreboard objectives add demo.line dummy
 scoreboard objectives add demo.dist dummy
+scoreboard objectives add demo.warp dummy
 scoreboard objectives add demo.hp dummy
 scoreboard objectives add demo.abs dummy
 scoreboard objectives add demo.max dummy

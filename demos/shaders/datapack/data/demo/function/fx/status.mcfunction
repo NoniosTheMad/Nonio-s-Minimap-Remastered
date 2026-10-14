@@ -8,6 +8,7 @@ execute if score @s demo.col matches 11 run data modify storage demo:ui fx appen
 execute if score @s demo.col matches 12 run data modify storage demo:ui fx append value "Comic"
 execute if score @s demo.line matches 21 run data modify storage demo:ui fx append value "Ink"
 execute if score @s demo.line matches 22 run data modify storage demo:ui fx append value "Neon"
-execute if score @s demo.dist matches 31 run data modify storage demo:ui fx append value "Acid"
+execute if score @s demo.dist matches 31 run data modify storage demo:ui fx append value "Wobble"
+execute if score @s demo.warp matches 35 run data modify storage demo:ui fx append value "Acid"
 execute unless data storage demo:ui fx[0] run data modify storage demo:ui fx append value "none"
 title @s actionbar [{"text":"Shaders: ","color":"gray"},{"storage":"demo:ui","nbt":"fx[]","interpret":true,"separator":{"text":" + ","color":"gray"},"color":"gold"}]

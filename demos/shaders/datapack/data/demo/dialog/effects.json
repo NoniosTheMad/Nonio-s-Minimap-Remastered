@@ -9,7 +9,7 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "Layers stack in a fixed order: Look > Colour > Lines > Distortion. One pick per category; presets set them all. The window stays open so you can combine; Esc closes it.",
+                "text": "Build your own mix: one Look + any of the Mix-ins + Acid. Click an effect again to turn it off. Your current mix is shown on the action bar. Ready-made combos are under Presets.",
                 "color": "gray"
             }
         },
@@ -17,7 +17,7 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "Row 1: Look.  Row 2: Colour | Lines.  Row 3: Distortion | Presets.",
+                "text": "Mix-ins: pick one colour (Rainbow / Comic), one line style (Ink / Neon), and Wobble.",
                 "color": "dark_gray"
             }
         }
@@ -25,16 +25,13 @@
     "actions": [
         {
             "label": {
-                "text": "No look",
-                "color": "gray"
+                "text": "LOOK",
+                "color": "dark_gray",
+                "bold": true
             },
             "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 10"
-            },
             "tooltip": {
-                "text": "Remove the Look layer"
+                "text": "One at a time"
             }
         },
         {
@@ -48,7 +45,7 @@
                 "command": "trigger demo.fx set 1"
             },
             "tooltip": {
-                "text": "Look: death vision. Black world, white outlines"
+                "text": "Death vision. Black world, white outlines"
             }
         },
         {
@@ -62,7 +59,7 @@
                 "command": "trigger demo.fx set 2"
             },
             "tooltip": {
-                "text": "Look: bloom, god rays, depth haze, filmic tone map, warm grade (the RTX feel)"
+                "text": "Bloom, god rays, depth haze, filmic tone map, warm grade (the RTX feel)"
             }
         },
         {
@@ -76,7 +73,7 @@
                 "command": "trigger demo.fx set 3"
             },
             "tooltip": {
-                "text": "Look: angel infrared vision. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
+                "text": "Angel infrared vision. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
             }
         },
         {
@@ -90,7 +87,7 @@
                 "command": "trigger demo.fx set 4"
             },
             "tooltip": {
-                "text": "Look: glowing stars with spikes, nebulae, starlight on the ground. Best at Midnight"
+                "text": "Glowing stars with spikes, nebulae, starlight on the ground. Best at Midnight"
             }
         },
         {
@@ -104,21 +101,18 @@
                 "command": "trigger demo.fx set 5"
             },
             "tooltip": {
-                "text": "Look: monster-class Hunger vision. Blood-red, short sight, hot rims, heartbeat"
+                "text": "Monster-class Hunger vision. Blood-red, short sight, hot rims, heartbeat"
             }
         },
         {
             "label": {
-                "text": "No colour",
-                "color": "gray"
+                "text": "MIX IN",
+                "color": "dark_gray",
+                "bold": true
             },
             "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 19"
-            },
             "tooltip": {
-                "text": "Remove the Colour layer"
+                "text": "One colour, one line style, and Wobble"
             }
         },
         {
@@ -151,22 +145,8 @@
         },
         {
             "label": {
-                "text": "No lines",
-                "color": "gray"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 29"
-            },
-            "tooltip": {
-                "text": "Remove the Lines layer"
-            }
-        },
-        {
-            "label": {
                 "text": "Ink",
-                "color": "dark_gray"
+                "color": "gray"
             },
             "width": 72,
             "action": {
@@ -193,21 +173,7 @@
         },
         {
             "label": {
-                "text": "No wave",
-                "color": "gray"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 39"
-            },
-            "tooltip": {
-                "text": "Remove the Distortion layer"
-            }
-        },
-        {
-            "label": {
-                "text": "Acid",
+                "text": "Wobble",
                 "color": "green"
             },
             "width": 72,
@@ -216,105 +182,46 @@
                 "command": "trigger demo.fx set 31"
             },
             "tooltip": {
-                "text": "Distortion: wavy screen + colour split"
+                "text": "Screen wave + colour split (the v2 Acid)"
             }
         },
         {
             "label": {
-                "text": "Cracy Frog",
+                "text": "WORLD",
+                "color": "dark_gray",
+                "bold": true
+            },
+            "width": 72,
+            "tooltip": {
+                "text": "Bends the world itself, combines with everything"
+            }
+        },
+        {
+            "label": {
+                "text": "Acid",
+                "color": "dark_green"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 35"
+            },
+            "tooltip": {
+                "text": "World warp: distant terrain waves and curls up over you, covering the sky. Near you stays still"
+            }
+        },
+        {
+            "label": {
+                "text": "Presets...",
                 "color": "yellow"
             },
             "width": 72,
             "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 41"
+                "type": "minecraft:show_dialog",
+                "dialog": "demo:presets"
             },
             "tooltip": {
-                "text": "Acid wave + Rainbow (the old Acid)"
-            }
-        },
-        {
-            "label": {
-                "text": "Comic book",
-                "color": "yellow"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 42"
-            },
-            "tooltip": {
-                "text": "Comic colours + Ink lines"
-            }
-        },
-        {
-            "label": {
-                "text": "Angel",
-                "color": "yellow"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 43"
-            },
-            "tooltip": {
-                "text": "Thermal: HP-bracket heat signatures (see HP test)"
-            }
-        },
-        {
-            "label": {
-                "text": "Neon Reaper",
-                "color": "yellow"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 44"
-            },
-            "tooltip": {
-                "text": "Reaper + Neon lines"
-            }
-        },
-        {
-            "label": {
-                "text": "Star trip",
-                "color": "yellow"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 45"
-            },
-            "tooltip": {
-                "text": "Cosmic + Acid wave"
-            }
-        },
-        {
-            "label": {
-                "text": "Clear all",
-                "color": "red"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 49"
-            },
-            "tooltip": {
-                "text": "Remove every layer"
-            }
-        },
-        {
-            "label": {
-                "text": "Show stack",
-                "color": "aqua"
-            },
-            "width": 72,
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 50"
-            },
-            "tooltip": {
-                "text": "Show your current layers on the action bar"
+                "text": "Ready-made combinations (they replace your mix)"
             }
         },
         {
@@ -347,16 +254,97 @@
         },
         {
             "label": {
-                "text": "Go to gallery",
-                "color": "white"
+                "text": "Clear all",
+                "color": "red"
             },
             "width": 72,
             "action": {
                 "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 70"
+                "command": "trigger demo.fx set 49"
             },
             "tooltip": {
-                "text": "Teleport to the materials gallery entrance"
+                "text": "Turn every effect off"
+            }
+        },
+        {
+            "label": {
+                "text": "REMOVE",
+                "color": "dark_gray",
+                "bold": true
+            },
+            "width": 72,
+            "tooltip": {
+                "text": "Turn off one category"
+            }
+        },
+        {
+            "label": {
+                "text": "x Look",
+                "color": "dark_red"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 10"
+            },
+            "tooltip": {
+                "text": "Remove the Look"
+            }
+        },
+        {
+            "label": {
+                "text": "x Colour",
+                "color": "dark_red"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 19"
+            },
+            "tooltip": {
+                "text": "Remove Rainbow / Comic"
+            }
+        },
+        {
+            "label": {
+                "text": "x Lines",
+                "color": "dark_red"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 29"
+            },
+            "tooltip": {
+                "text": "Remove Ink / Neon"
+            }
+        },
+        {
+            "label": {
+                "text": "x Wobble",
+                "color": "dark_red"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 39"
+            },
+            "tooltip": {
+                "text": "Remove Wobble"
+            }
+        },
+        {
+            "label": {
+                "text": "x Acid",
+                "color": "dark_red"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 38"
+            },
+            "tooltip": {
+                "text": "Remove Acid"
             }
         }
     ],
