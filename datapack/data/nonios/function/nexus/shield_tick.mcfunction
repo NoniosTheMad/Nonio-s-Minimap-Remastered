@@ -3,6 +3,7 @@ $execute if data entity @s attack run function nonios:nexus/hit {team:"$(team)",
 scoreboard players remove @s[scores={nx.cd=1..}] nx.cd 1
 scoreboard players remove @s[scores={nx.alert=1..}] nx.alert 1
 execute if score @s nx.cd matches 0 if score @s nx.hp < @s nx.hp_max run function nonios:nexus/regen
+function nonios:nexus/fx/tick
 $execute store result bossbar nonios:barrier_$(team) value run scoreboard players get @s nx.hp
 $execute store result bossbar nonios:barrier_$(team) max run scoreboard players get @s nx.hp_max
 # defenders always see their bar; anyone within 24 blocks sees it too

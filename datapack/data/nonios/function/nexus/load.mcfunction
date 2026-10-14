@@ -5,6 +5,13 @@ scoreboard objectives add nx.hp_max dummy
 scoreboard objectives add nx.cd dummy
 scoreboard objectives add nx.alert dummy
 scoreboard objectives add nx.regen dummy
+# shell visuals: nx.col team tint, nx.stage 0 ok/1 cracked/2 critical, nx.fx ticks until rest pose
+scoreboard objectives add nx.col dummy
+scoreboard objectives add nx.stage dummy
+scoreboard objectives add nx.fx dummy
+# per player: gametime of the next allowed explain message
+scoreboard objectives add nx.msg_t dummy
+data modify storage nonios:nexus col set value {white:11069695,black:12086271}
 team add white
 team modify white color white
 team add black
@@ -20,3 +27,4 @@ execute unless score #barrier_max nx.const matches 1.. run scoreboard players se
 execute unless score #regen_mult nx.const matches 1.. run scoreboard players set #regen_mult nx.const 1
 execute unless score #regen_delay nx.const matches 0.. run scoreboard players set #regen_delay nx.const 200
 scoreboard players set #regen_unit nx.const 24000
+scoreboard players set #100 nx.const 100

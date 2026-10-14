@@ -1,6 +1,9 @@
-You are an attacker (survival) with swords + pickaxe.
-1. Hit the blue glass shell around the obsidian: the bossbar drops (diamond sword ~70 of 1000).
-2. Try mining the obsidian first: you can't while the shield is up.
-3. Break the barrier to 0: shield vanishes; mine the obsidian = NEXUS DESTROYED.
-4. G > "Demo: Nexus Barrier": become defender (alerts), reset, regen x20, HP 200 for quick tests.
-Feedback: hit damage, regen speed, bar visibility, alert feel.
+You are an attacker (survival) with swords + pickaxe. Accept the resource pack (the shell needs it).
+1. Look at the obsidian: it sits in a shimmering forcefield cube (worldborder-style stripes, pale blue = white team).
+2. Try mining the obsidian with the pickaxe: the shell flashes and the actionbar says "The Barrier protects the Nexus - break it first (HP x/y)".
+3. Hit it with the sword: each hit = white flash + bulge, sparks, shield-block sound; bossbar drops (~70 of 1000).
+4. Below 50% HP the shell shows cracks (glass-crack sound); below 25% it is heavily cracked and flickers.
+5. Break it to 0: the shell bursts outward and shatters (glass + sparks); then mine the obsidian = NEXUS DESTROYED.
+6. G > "Demo: Nexus Barrier" > Reset Nexus: the shell re-forms (grows in with portal particles + beacon sound).
+7. Regen x20 + stop hitting: cracks mend as HP climbs; at full HP a bright pulse + chime. Join defenders and hit your own shell: different message, no damage.
+Feedback: is it obvious it's a shield? shell look/tint/size, flash feel, crack stages, message wording, shatter/re-form.
