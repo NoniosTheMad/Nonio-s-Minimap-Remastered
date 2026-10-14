@@ -221,15 +221,27 @@ Remaster/
 
 ---
 
-## 6. Open design questions
+## 6. Design decisions (user, 2026-10-14) — these override earlier sections where they conflict
 
-1. **Nexus:** one break (original) or **Nexus HP** (sieges)?
-2. **Team sizes** and match length target?
-3. **Classes:** chosen once per match, per life, or bought in the shop (original: bought, lost on death)?
-4. Keep **coins carried drop to the killer** + bank safety (original), or simplify?
-5. **Emerald Dream:** separate dimension, or a zone inside the Arena?
-6. **Map:** build new from scratch, or reuse V2 terrain as a base?
-7. Keep the original humor and lore (Shop Keeper lines, "Nonios's Weakness" pickaxe, Satan's Blade…)?
+1. **Nexus = Barrier + Obsidian.** The obsidian block is the final target (mine it to win/eliminate). It is protected by a
+   **Barrier** with HP shown as a team **bossbar** (visible to the defending team — warns of infiltration). While the barrier
+   is up the obsidian can't be mined. Barrier regenerates **~5% per minute** unless fully destroyed (then stays down).
+   Purpose: sneaking in with few players is not an instant win.
+2. **Scale:** no hard player cap (no per-player command blocks). Design target up to **20 per team**; typical games **2v2–5v5**.
+   Field size / generators must scale with team size.
+3. **Classes, two tiers:**
+   - *Basic classes*: selectable, given/applied on respawn; upgraded team-wide (the old "offering" upgrades).
+   - *Shop classes*: the "juice". One-time use, heavily customised mechanics, strengths + weaknesses; often lock armour
+     (curse of binding) and require their custom tool. Lost on death.
+4. **Coins:** keep the risk economy — carrying coins slows you; dying gives **everything carried to the killer**; bank is the safe.
+   Drop the "emeralds cleared from inventory" proxy. Proposal (Claude): coins are a scoreboard purse fed directly
+   (ore mined → `minecraft.mined` stat → coins; generators collected by right-clicking them; arena events) — no item juggling.
+   - *Tentative (to detail later)*: keepInventory on (gear kept), but on death the purse goes to the killer + kill reward;
+     respawn equipment reduced/removed accordingly. Must be reconciled with basic-class respawn kits (point 3).
+5. **Emerald Dream = custom dimension**, regenerated each time (or random arrival point). Exit by **sneaking for X seconds**
+   (risky channel). Room for lots of extra juice.
+6. **Map:** brand-new build (with tooling), not the V2 terrain.
+7. **Keep legacy humour & lore** (Shop Keeper lines, Nonios's Weakness, Satan's Blade, Cracy Frog…) — sells the "remaster".
 
 ---
 

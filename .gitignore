@@ -2,3 +2,4 @@
 .mcdev/
 .worktrees/
 __pycache__/
+.claude/

@@ -15,8 +15,14 @@
 - [ ] main server world: decide fresh flat vs. imported terrain
 
 ## Next (after M0)
-Resume DESIGN.md §5 milestones: M1 spikes (custom post_effect shader, shop dialog, loot-table generator), answer §6 open questions with user.
+Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-10-14).
 
 ## Known unknowns
 - Does `/posteffect` persist across death / relog / transfer?
 - Does dialog `run_command` with op-level commands (transfer) show a confirmation screen?
+
+## M1 spikes
+- [~] Shaders: `spike/shaders` (server `shaders` :25571) — nonios:reaper (depth+luma edges), nonios:reaper_luma, nonios:acid. Compiles with shaderc; awaiting user test in client. Depth input unproven.
+- [ ] Shop dialog buying one item (trigger-based)
+- [ ] Coin purse: mined-stat → coins, weight slowdown, purse-to-killer
+- [ ] Nexus barrier bossbar + regen
