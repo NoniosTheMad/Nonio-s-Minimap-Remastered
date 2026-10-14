@@ -9,7 +9,8 @@
     "  kind enchant: enchants the item in the main hand (ench, lvl). Refused, nothing taken, if the item can't take it.",
     "  kind xp: adds lvl levels.",
     "  icon = 'item/<tex>' (items atlas) or 'block/<tex>' (blocks atlas). blurb = V2 hover text (tooltip). chat = text component sent to the buyer.",
-    "The same V2 item can sit on several pages (V2 did that too); each entry is its own button."
+    "The same V2 item can sit on several pages (V2 did that too); each entry is its own button.",
+    "References: {same: v2} copies an earlier item, {special: id} = src/specials.json, {class: id, name, v2} = a class under another label."
   ],
   "sections": [
     {
@@ -219,6 +220,19 @@
     {
       "id": "classes", "name": "Classes", "icon": "item/iron_chestplate", "classes": true,
       "line": "Perhaps this junk is of some use to you."
+    },
+    {
+      "id": "special", "name": "Special", "icon": "item/nether_star",
+      "line": "These magical items possess powers beyond your imagination.",
+      "_v2": "V2 page 11 also sold 'Destroy Magical barriers' (203, 200): open question, not ported.",
+      "items": [
+        {"special": "emerald_talisman"},
+        {"same": 41},
+        {"same": 42},
+        {"class": "monster", "name": "Monster Skull", "v2": 89},
+        {"same": 52},
+        {"special": "dragon_skull"}
+      ]
     }
   ]
 }

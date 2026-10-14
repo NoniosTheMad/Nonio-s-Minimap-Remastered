@@ -1,10 +1,10 @@
 {
   "_doc": [
     "V2 'Special' shop section items that are not classes (classes live in src/classes.json).",
-    "For the shop (feat/shop-v2): list each entry like a catalog item. charge = take price from the purse before running buy;",
+    "Fields: charge = take price from the purse before running buy;",
     "slot = needs a free inventory slot (refuse when full, as other items). buy = function run as/at the buyer after paying:",
     "it gives the item / does the effect itself. charge false = buy decides everything (no purse change by the shop).",
-    "v2 = the V2 WhiteShop/BlackShop id. Not wired into shop/catalog yet on purpose (the shop is being rebuilt in parallel)."
+    "v2 = the V2 WhiteShop/BlackShop id. Sold on the shop Special page: src/shop.json {special: id} -> tools/build_shop.py -> shop/buy_special."
   ],
   "items": [
     {

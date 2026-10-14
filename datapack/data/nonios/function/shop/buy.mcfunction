@@ -6,6 +6,8 @@ function nonios:shop/pick with storage nonios:shop arg
 execute unless data storage nonios:shop sel run return run data modify storage nonios:shop ui.msg set value {type:"minecraft:plain_message",width:300,contents:{text:"✘ That item is no longer sold.",color:"red"}}
 # classes (class/gen/shop_items): no inventory slot needed, applied instead of given
 execute if data storage nonios:shop sel.class run return run function nonios:shop/buy_class with storage nonios:shop sel
+# specials (src/specials.json): their own charge/slot rules, then their buy function
+execute if data storage nonios:shop sel{kind:"special"} run return run function nonios:shop/buy_special with storage nonios:shop sel
 execute store result score #p nx.tmp run data get storage nonios:shop sel.price
 execute if score @s nx.coins < #p nx.tmp run return run function nonios:shop/broke
 # enchant the held item / experience levels: no slot needed

@@ -4,6 +4,8 @@ data modify storage nonios:shop ui.c set from storage nonios:shop ui.tmp[0]
 data remove storage nonios:shop ui.tmp[0]
 scoreboard players add #n nx.tmp 1
 execute unless data storage nonios:shop ui.c.class run return run function nonios:shop/ui/each
+# a class sold under another label on another page (alias, e.g. Monster Skull) is listed there, not here
+execute if data storage nonios:shop ui.c.alias run return run function nonios:shop/ui/each
 execute store result storage nonios:shop ui.c.n int 1 run scoreboard players get #n nx.tmp
 execute unless data storage nonios:shop ui.c.atlas run data modify storage nonios:shop ui.c.atlas set value "minecraft:items"
 function nonios:shop/ui/afford
