@@ -8,6 +8,5 @@ $function nonios:nexus/fx/pulse with storage nonios:nexus team.$(team)
 $execute if score @s nx.alert matches 0 run function nonios:nexus/alert {team:"$(team)"}
 $execute if score @s nx.hp matches ..0 run return run function nonios:nexus/broken {team:"$(team)"}
 # explain to the attacker why the obsidian doesn't break (rate-limited per player)
-function nonios:nexus/hp_text
-execute on attacker if function nonios:nexus/msg_gate run title @s actionbar [{"text":"⛨ The Barrier protects the Nexus","color":"aqua"},{"text":" — break it first ","color":"gray"},{"text":"(HP ","color":"gray"},{"score":{"name":"#hp","objective":"nx.const"},"color":"white"},{"text":"/","color":"gray"},{"score":{"name":"#hp_max","objective":"nx.const"},"color":"white"},{"text":")","color":"gray"}]
+execute on attacker if function nonios:nexus/msg_gate run title @s actionbar [{"text":"⛨ The Barrier protects the Nexus","color":"aqua"},{"text":" — break it first","color":"gray"}]
 function nonios:nexus/hit_end
