@@ -23,3 +23,8 @@ execute store result score #lt_resp nx.arena run data get storage nonios:arena c
 execute store result score #lt_on nx.arena run data get storage nonios:arena config.lightning.on
 execute if score #lt_set nx.arena matches 0..1 run scoreboard players operation #lt_on nx.arena = #lt_set nx.arena
 function nonios:arena/event/sum_weights
+# gates + core
+execute store result score #g_every nx.arena run data get storage nonios:arena config.gate.every
+execute if score #g_every nx.arena matches ..0 run scoreboard players set #g_every nx.arena 128
+execute store result score #c_regrow nx.arena run data get storage nonios:arena config.core_regrow
+function nonios:arena/core/sum_weights

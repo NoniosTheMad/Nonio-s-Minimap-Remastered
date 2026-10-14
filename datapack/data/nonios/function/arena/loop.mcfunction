@@ -14,5 +14,8 @@ scoreboard players operation #ev_t nx.arena -= #dt nx.arena
 execute if score #ev_t nx.arena matches ..0 run function nonios:arena/event/random
 execute if score #golden_t nx.arena matches 1.. run function nonios:arena/event/golden_tick
 execute if score #frog_t nx.arena matches 1.. run function nonios:arena/event/frog_tick
+# random-entry gates, regrowing core
+execute if score #gon nx.arena matches 1 run function nonios:arena/gate/loop
+execute if score #core nx.arena matches 1 run function nonios:arena/core/loop
 # lightning
 execute if score #lt_on nx.arena matches 1 run function nonios:arena/lightning/loop

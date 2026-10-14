@@ -160,6 +160,17 @@ M5 classes merged to main (5850661): Reaper (200) and Cracy Frog (free) in shop,
 5. **Class on match reset:** [default: everyone loses their class (and basic pick) at match start and in the lobby; team class levels back to 1].
 6. **Buying a shop class while having one:** [default: allowed, the old one is replaced (no refund); buying the same class again is refused].
 
+**Arena V2: portals + central block** (feat/arena-v2, server arena2; built with these defaults):
+1. **Where the gates are:** [default: one 3x3 gate pad per team field (placeholder, next to the Dream pad); anyone may use either pad]. V2 had a single portal on top of the shared central tower. One shared pad, or one per team?
+2. **Exit destination:** [default: the exit sends you back to your own team's pad (`out`); V2 sent everyone to the tower base]. OK?
+3. **Rotation:** [default: V2 values: one random slot of 4 every 128 ticks (6.4 s), repeats allowed; only the active slot's exit works and shows particles]. Keep, or never repeat the same slot twice in a row?
+4. **Entry sound global:** [default: yes, like V2 (end_portal.spawn for every player)]. It gives away arena entries map-wide. Keep, or local only?
+5. **Active phases:** [default: gates and core only in battle; V2's core regrew in every phase]. Core in prep too?
+6. **Core odds + regrow delay:** [default: V2 odds 36/18/9/16/2 of 81 (cobble/log/hay/emerald ore/emerald block); regrows on the next 0.5 s check (V2: same tick)]. Add a delay (config `core_regrow`, ticks)?
+7. **Core economy:** [default: unchanged mining payouts (ore 25, block 100) ⇒ ~7.4 coins per break; an efficiency-V pickaxe could farm ~300-400 coins/min vs generators ~72/min at Lv3]. Lower the core's payouts, add a regrow delay, or keep it as the arena's prize?
+8. **Extras not in V2:** [default: emerald-block regrow chime, regrow particles, red/grey "ARENA" pad labels]. Keep?
+9. **Final layout:** [noted: 4 placeholder slots (corner landings → nearby exits) and pad positions; real arena geometry in M6].
+
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
 - **Shader: RTX-like effects:** ref https://www.youtube.com/watch?v=AdTxrggo8e8 (advanced ray tracing style shaders for high-end clients).
