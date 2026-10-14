@@ -21,6 +21,7 @@ Usage:
   mcdev logs <name> [-n 40]
   mcdev feedback [--all] [--ack]      inbox of feedback sent from the in-game menu
   mcdev nav                           regenerate the in-game server list
+  mcdev review <name> [--done]        star/unstar a server as waiting for the user's review
 """
 import argparse, io, json, os, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
 from pathlib import Path
@@ -211,14 +212,16 @@ def text(t, color=None, **kw):
     return c
 
 def nav_dialog(reg):
-    live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"]) if s.get("status") == "up"]
+    live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: (not kv[1].get("review"), kv[1]["port"])) if s.get("status") == "up"]
     actions = []
     for n, s in live:
-        label = [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['branch']}" + (f" / {s['demo']}" if s.get("demo") else ""), "gray")]
-        actions.append({"label": label, "tooltip": text(s["desc"] or n), "width": 300,
+        label = ([text("\u2605 ", "yellow")] if s.get("review") else []) + \
+                [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['desc'] or s['branch']}", "gray")]
+        tip = f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "") + (f"\n\n{s['todo']}" if s.get("todo") else "")
+        actions.append({"label": label, "tooltip": text(tip), "width": 310,
                         "action": {"type": "minecraft:run_command", "command": f"trigger devnav.go set {s['port']}"}})
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
-            "body": [{"type": "minecraft:plain_message", "contents": text(f"{len(live)} running. Gold = persistent, aqua = branch/demo.", "gray"), "width": 300}],
+            "body": [{"type": "minecraft:plain_message", "contents": text(f"{len(live)} running. \u2605 = waiting for your review. Hover a server to see what to try.", "gray"), "width": 300}],
             "actions": actions or [{"label": "(none)", "action": {"type": "minecraft:run_command", "command": "help"}}],
             "columns": 1, "pause": False}
 
@@ -240,7 +243,19 @@ def write_devnav(reg):
     fn.mkdir(parents=True, exist_ok=True)
     (d / "pack.mcmeta").write_text(json.dumps({"pack": {"description": "mcdev navigation", "min_format": DATA_FORMAT, "max_format": DATA_FORMAT}}))
     (fn / "list.mcfunction").write_text(f"dialog show @s {snbt(nav_dialog(reg))}\n")
-    (fn / "fb.mcfunction").write_text('$say [FEEDBACK] $(t)\n')
+    # say is capped at 256 chars: store the text, emit 200-char chunks ([FEEDBACK] then [FEEDBACK+]).
+    (fn / "fb.mcfunction").write_text(
+        "$data modify storage devnav:fb msg set value '$(t)'\n"
+        "data modify storage devnav:fb tag set value 'FEEDBACK'\nfunction devnav:fb_chunk\n"
+        'tellraw @s {"text":"[dev] Feedback sent - thanks!","color":"green"}\n')
+    (fn / "fb_chunk.mcfunction").write_text(
+        "data modify storage devnav:fb part set string storage devnav:fb msg 0 200\n"
+        "data modify storage devnav:fb msg set string storage devnav:fb msg 200\n"
+        "function devnav:fb_say with storage devnav:fb\n"
+        "data modify storage devnav:fb tag set value 'FEEDBACK+'\n"
+        "execute store result score #len devnav.act run data get storage devnav:fb msg\n"
+        "execute if score #len devnav.act matches 1.. run function devnav:fb_chunk\n")
+    (fn / "fb_say.mcfunction").write_text("$say [$(tag)] $(part)\n")
     # Dialog buttons only use /trigger (permission 0 -> no "run this command?" prompt);
     # the privileged part (transfer, reload, ...) runs here at function permission level.
     (fn / "nav_load.mcfunction").write_text(
@@ -294,7 +309,9 @@ def write_self_pack(name, s, d):
         f"title @s title {json.dumps(text(name, 'gold'))}",
         "tellraw @s " + json.dumps([text("[dev] ", "dark_gray"), text("Press ", "gray"), text("G", "yellow"),
                                     text(" (Quick Actions) or ", "gray"), text("Esc > Nonios Dev", "yellow"), text(" to travel.", "gray")]),
-    ]
+    ] + ([
+        "tellraw @s " + json.dumps([text("\nWhat to try here:\n", "yellow", bold=True), text(s["todo"], "white")]),
+    ] if s.get("todo") else [])
     if name == "hub":
         welcome += ["fill -8 63 -8 8 63 8 minecraft:polished_blackstone keep", "tp @s 0.5 64 0.5", "function devnav:rules"]
     elif void:
@@ -317,7 +334,9 @@ def write_self_pack(name, s, d):
             "external_title": text("Nonios Dev"),
             "body": [{"type": "minecraft:plain_message", "width": 300, "contents": [
                 text("You are on ", "gray"), text(name, "yellow", bold=True), text(f"  ({where})\n", "gray"),
-                text(s["desc"] or "", "white")]}],
+                text(s["desc"] or "", "white")]}]
+            + ([{"type": "minecraft:plain_message", "width": 310, "contents": [
+                text("What to try here:\n", "yellow", bold=True), text(s["todo"], "white")]}] if s.get("todo") else []),
             "actions": [
                 {"label": text("Servers...", "aqua"), "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 1"}},
                 {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"),
@@ -391,11 +410,15 @@ def daemon():
                     f.seek(off)
                     chunk = f.read().decode("utf-8", "replace")
                 offsets[n] = size
-                fb = [l for l in chunk.splitlines() if "[FEEDBACK]" in l]
-                if fb:
+                entries = []
+                for l in chunk.splitlines():
+                    if "[FEEDBACK]" in l:
+                        entries.append(f"{time.strftime('%Y-%m-%d %H:%M')} {n} ({s.get('branch')}) " + l.split("[FEEDBACK]", 1)[1].strip())
+                    elif "[FEEDBACK+]" in l and entries:
+                        entries[-1] += l.split("[FEEDBACK+]", 1)[1].strip()
+                if entries:
                     with open(FEEDBACK, "a", encoding="utf-8") as f:
-                        f.writelines(f"{time.strftime('%Y-%m-%d %H:%M')} {n} ({s.get('branch')}) "
-                                     + l.split("[FEEDBACK]", 1)[1].strip().replace("\\n", "\n    ") + "\n" for l in fb)
+                        f.writelines(e.replace("\\n", "\n    ") + "\n" for e in entries)
                 for m in pat.finditer(chunk):
                     player, verb, arg = m.groups()
                     print(time.strftime("%H:%M:%S"), "request", player, verb, arg, flush=True)
@@ -457,6 +480,8 @@ def cmd_up(a):
              mem=a.mem or preset.get("mem", "1536M"), persistent=preset.get("persistent", False),
              world=preset.get("world", "void"),
              desc=a.desc or preset.get("desc") or reg.get(name, {}).get("desc", ""))
+    s["todo"] = a.todo or read_todo(src, s["demo"]) or reg.get(name, {}).get("todo", "")
+    s["review"] = reg.get(name, {}).get("review", not s["persistent"])
     t = start(name, s)
     print(f"{name} up on {HOST}:{port} ({t:.0f}s)  branch={branch}" + (f" demo={s['demo']}" if s['demo'] else ""))
 
@@ -477,6 +502,18 @@ def start(name, s, _reg=None):
     t = wait_ready(name, s)
     refresh_nav(sync_status(reg))
     return t
+
+def read_todo(src, demo):
+    """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
+    f = Path(src) / "demos" / str(demo) / "try.txt"
+    return f.read_text().strip() if demo and f.exists() else ""
+
+def cmd_review(a):
+    reg = load_reg()
+    reg[a.name]["review"] = not a.done
+    save_reg(reg)
+    refresh_nav(sync_status(reg))
+    print(a.name, "marked", "reviewed" if a.done else "awaiting review")
 
 def stop(name, s):
     if pid_alive(s.get("pid")):
@@ -506,13 +543,31 @@ def cmd_down(a):
     refresh_nav(reg)
     print(f"{a.name} down" + ("" if a.name in reg else " (deleted)"))
 
+def online(s):
+    try:
+        r = rcon(s["port"] + 10000, "list")
+        return [p.strip() for p in r.split(":", 1)[1].split(",") if p.strip()]
+    except (OSError, IndexError):
+        return []
+
 def cmd_restart(a):
-    reg = load_reg()
+    """Restart; players on it are parked on the hub and sent back when it's up."""
+    reg = sync_status(load_reg())
     s = reg[a.name]
+    hub = reg.get("hub") if a.name != "hub" else None
+    players = online(s) if hub and hub.get("status") == "up" else []
+    for p in players:
+        rcon(s["port"] + 10000, f"transfer {HOST} {hub['port']} {p}")
     stop(a.name, s)
     save_reg(reg)
-    a.branch = a.demo = a.desc = a.mem = None
+    a.branch = a.demo = a.desc = a.mem = a.todo = None
     cmd_up(a)
+    for p in players:
+        for _ in range(20):
+            if p in online(hub):
+                rcon(hub["port"] + 10000, f"transfer {HOST} {s['port']} {p}")
+                break
+            time.sleep(0.5)
 
 def cmd_reset(a):
     if a.name != "test":
@@ -571,7 +626,10 @@ def main():
     p = argparse.ArgumentParser(prog="mcdev", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = p.add_subparsers(dest="cmd", required=True)
     u = sp.add_parser("up"); u.add_argument("name"); u.add_argument("--branch"); u.add_argument("--demo")
-    u.add_argument("--desc"); u.add_argument("--mem"); u.set_defaults(f=cmd_up)
+    u.add_argument("--desc"); u.add_argument("--mem"); u.add_argument("--todo", help="what the user should try (else demos/<demo>/try.txt)")
+    u.set_defaults(f=cmd_up)
+    rv = sp.add_parser("review", help="star a server as awaiting review, or --done")
+    rv.add_argument("name"); rv.add_argument("--done", action="store_true"); rv.set_defaults(f=cmd_review)
     d = sp.add_parser("down"); d.add_argument("name"); d.add_argument("--purge", action="store_true"); d.set_defaults(f=cmd_down)
     for nm, f in (("restart", cmd_restart), ("reset", cmd_reset)):
         x = sp.add_parser(nm); x.add_argument("name"); x.set_defaults(f=f)
