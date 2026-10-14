@@ -250,7 +250,7 @@
     "text": "Random arena event"
    },
    "tooltip": {
-    "text": "Surge / Golden Hour / Frog rain"
+    "text": "Picked by weight, announced first"
    },
    "action": {
     "type": "minecraft:run_command",

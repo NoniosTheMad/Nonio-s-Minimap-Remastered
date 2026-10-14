@@ -1,0 +1,242 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Demo: Arena events",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 300,
+    "contents": {
+      "text": "Announce = countdown bar first (the real flow). Now = fires at once. The buttons start the battle if needed.",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "Start + battle now",
+        "color": "green"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 1"
+      },
+      "tooltip": {
+        "text": "Joins a team if needed, skips the preparation"
+      }
+    },
+    {
+      "label": {
+        "text": "Stop match"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 2"
+      }
+    },
+    {
+      "label": {
+        "text": "Announce: Emerald Surge",
+        "color": "green"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 3"
+      }
+    },
+    {
+      "label": {
+        "text": "Now: Emerald Surge"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 4"
+      }
+    },
+    {
+      "label": {
+        "text": "Announce: Supply Drop",
+        "color": "aqua"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 5"
+      }
+    },
+    {
+      "label": {
+        "text": "Now: Supply Drop"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 6"
+      }
+    },
+    {
+      "label": {
+        "text": "Announce: Golden Hour",
+        "color": "gold"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 7"
+      }
+    },
+    {
+      "label": {
+        "text": "Now: Golden Hour"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 8"
+      }
+    },
+    {
+      "label": {
+        "text": "Announce: Bounty Hunt",
+        "color": "red"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 9"
+      }
+    },
+    {
+      "label": {
+        "text": "Now: Bounty Hunt"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 10"
+      }
+    },
+    {
+      "label": {
+        "text": "Announce: Low Gravity",
+        "color": "light_purple"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 11"
+      }
+    },
+    {
+      "label": {
+        "text": "Now: Low Gravity"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 12"
+      }
+    },
+    {
+      "label": {
+        "text": "Announce: Frog Rain",
+        "color": "light_purple"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 13"
+      },
+      "tooltip": {
+        "text": "Troll event"
+      }
+    },
+    {
+      "label": {
+        "text": "Now: Frog Rain"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 14"
+      },
+      "tooltip": {
+        "text": "Troll event"
+      }
+    },
+    {
+      "label": {
+        "text": "Random event"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 15"
+      },
+      "tooltip": {
+        "text": "Picked by weight, announced"
+      }
+    },
+    {
+      "label": {
+        "text": "Trolls on/off"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 16"
+      },
+      "tooltip": {
+        "text": "Can frog rain come up at random"
+      }
+    },
+    {
+      "label": {
+        "text": "Warning 5 s / 30 s"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 17"
+      }
+    },
+    {
+      "label": {
+        "text": "Time x10"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 18"
+      }
+    },
+    {
+      "label": {
+        "text": "Tp: arena"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 19"
+      }
+    },
+    {
+      "label": {
+        "text": "Enemy dummy"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 20"
+      },
+      "tooltip": {
+        "text": "For Bounty Hunt: kill it inside the arena"
+      }
+    },
+    {
+      "label": {
+        "text": "Switch team"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 21"
+      }
+    },
+    {
+      "label": {
+        "text": "Status"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ev set 22"
+      }
+    }
+  ],
+  "pause": false
+}

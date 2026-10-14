@@ -138,3 +138,19 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - RCON-verified (no player online, test armor stand + probes): dialog SNBT parses on every screen, nav/modes/grey/again, gear categories
   of 17 items, probe copy + drop, arrow speed (2.92 b/t) and damage (Power V = 29 HP), clean log + lint.
   Not verified with a real player: hotbar placement, partial fit, the dialog look at GUI scale 2.
+
+## Arena v3 (`feat/arena-v3`, servers `arena3` + `events`; #39 #40 #41 #42 #43)
+- [x] Field generators (#39): mineable, V2 odds per team/level (`src/generators.json` -> build_generators.py -> `generator/grow/<team>_lvlN`),
+  regrow 300/200/140 ticks (Lv 1/2/3), faster with more players (x(1+(n-1)/4)); coins only through the purse yields. Upgrade 200/500 from the purse
+  (compact dialog, greyed when poor / max). Lucky block (proposal, `#lucky_def` 0 = off): 1 in 15 regrowths, coins / item / trap.
+- [x] Centre generator: shared pot at `arena_cfg.cgen`, level and rolls from both banks B (Lv 1/2/3 at 0/1000/3000, rolls = min(5, 1 + B/1000),
+  every 10 s, pot caps 100/300/800, Golden Hour x3); items as well as coins (loot `arena/cgen_lvlN`). Click = collect.
+- [x] Node bonuses (#40): config `bonus` per node: West Haste in your field, Centre bank +0.5% (cap 10) per payout, East field generator regrows x1.5.
+  Node loot drops off by default (`loot:""`).
+- [x] Events (#42): announced (bossbar countdown `config.event_warn`, 30 s), then run. Emerald Surge, Supply Drop (falling loot chest), Golden Hour,
+  Bounty Hunt (kills inside the arena +50), Low Gravity, Frog Rain (troll, `config.trolls` 0b). Demo `events` (#41).
+- [x] Centre protection (#43): the arena's blocks are backed up at y -40 on setup; broken ones come back the same tick (`clone masked`), drops removed,
+  coin blocks pay nothing (`nx.mn.*` cancelled nearby); placed blocks stay; core + node indicators are holes.
+- RCON-verified (no player): grow/regrow, lucky grow + break, cgen pot scaling with banks, node bonus counters + interest, announce -> go,
+  every event, supply chest lands with its loot table, protection restore + drop removal, stop/reset, clean log + lint on both servers.
+  Not verified with a real player: mining feel, Haste, bounty kill, gravity, dialog look.

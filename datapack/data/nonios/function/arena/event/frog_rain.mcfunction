@@ -1,4 +1,4 @@
-# EVENT (as + at a node): frogs full of emeralds rain down; one is the Cracy Frog (glowing, big loot).
+# EVENT (troll, as + at a node): frogs full of emeralds rain down; one is the Cracy Frog (glowing, big loot).
 # Frogs not killed within frog_life ticks vanish (no loot).
 scoreboard players operation #left nx.arena = #frogs nx.arena
 execute if score #left nx.arena matches 1.. run function nonios:arena/event/frog_one
@@ -7,3 +7,4 @@ execute as @e[type=frog,tag=nx.ev_frog_new] run function nonios:arena/event/flin
 particle minecraft:item_slime ~ ~9 ~ 2 1 2 0 60
 playsound minecraft:entity.frog.ambient master @a ~ ~ ~ 3 0.7
 scoreboard players operation #frog_t nx.arena = #frog_life nx.arena
+scoreboard players operation #ev_run nx.arena = #frog_life nx.arena

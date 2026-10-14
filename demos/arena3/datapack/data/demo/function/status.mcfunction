@@ -1,0 +1,5 @@
+tellraw @s [{"text":"[demo] state ","color":"yellow"},{"score":{"name":"#state","objective":"nx.state"},"color":"white"},{"text":" (0 lobby, 1 prep, 2 battle, 3 end) | time x","color":"yellow"},{"score":{"name":"#speed","objective":"nx.arena"},"color":"white"},{"text":" | lucky block ","color":"yellow"},{"score":{"name":"#lucky","objective":"nx.gen"},"color":"white"},{"text":" | regrow step W/B ","color":"yellow"},{"score":{"name":"#st_white","objective":"nx.gen"},"color":"white"},{"text":"/","color":"yellow"},{"score":{"name":"#st_black","objective":"nx.gen"},"color":"white"}]
+tag @s add demo.ask
+execute as @e[type=marker,tag=nx.gen] run tellraw @a[tag=demo.ask] [{"text":"  generator ","color":"gray"},{"entity":"@s","nbt":"data.team","color":"white"},{"text":" Lv ","color":"gray"},{"score":{"name":"@s","objective":"nx.gen_lvl"},"color":"yellow"},{"text":", regrows in ","color":"gray"},{"score":{"name":"@s","objective":"nx.gen_t"},"color":"yellow"},{"text":" ticks once mined","color":"gray"}]
+tag @s remove demo.ask
+function nonios:arena/status

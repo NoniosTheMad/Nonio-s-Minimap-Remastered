@@ -40,7 +40,7 @@ execute unless score #ab_every nx.purse = #ab_every nx.purse run scoreboard play
 # deepslate, cobblestone...) earn nothing and cost nothing to place. Fortune: +#fortune_pct % per level.
 scoreboard objectives add nx.pfrac dummy
 function nonios:purse/gen/yields
-# --- emerald items: coins on pickup (purse/emerald), same as a generator's emerald / emerald block outcome (#e1 / #e9 nx.gen) ---
+# --- emerald items: coins on pickup (purse/emerald), same as the centre generator's coin outcomes (#ce1 / #ce9 nx.gen) ---
 execute unless score #emerald_item nx.coinval = #emerald_item nx.coinval run scoreboard players set #emerald_item nx.coinval 5
 execute unless score #emerald_block_item nx.coinval = #emerald_block_item nx.coinval run scoreboard players set #emerald_block_item nx.coinval 45
 

@@ -10,13 +10,20 @@ execute if score #per_roll nx.arena matches ..0 run scoreboard players set #per_
 execute store result score #item_cap nx.arena run data get storage nonios:arena config.item_cap
 execute store result score #coins nx.arena run data get storage nonios:arena config.coins
 execute store result score #indicator nx.arena run data get storage nonios:arena config.indicator
+execute store result score #int_pm nx.arena run data get storage nonios:arena config.interest_permille
+execute store result score #int_cap nx.arena run data get storage nonios:arena config.interest_cap
 execute store result score #ev_first nx.arena run data get storage nonios:arena config.event_first
 execute store result score #ev_every nx.arena run data get storage nonios:arena config.event_every
+execute store result score #ev_warn nx.arena run data get storage nonios:arena config.event_warn
+execute store result score #trolls nx.arena run data get storage nonios:arena config.trolls
 execute store result score #surge_waves nx.arena run data get storage nonios:arena config.surge_waves
 execute store result score #frogs nx.arena run data get storage nonios:arena config.frogs
 execute store result score #frog_life nx.arena run data get storage nonios:arena config.frog_life
 execute store result score #golden_time nx.arena run data get storage nonios:arena config.golden_time
 execute store result score #golden_mult nx.arena run data get storage nonios:arena config.golden_mult
+execute store result score #bounty_time nx.arena run data get storage nonios:arena config.bounty_time
+execute store result score #bounty_coins nx.arena run data get storage nonios:arena config.bounty_coins
+execute store result score #grav_time nx.arena run data get storage nonios:arena config.gravity_time
 execute store result score #lt_every nx.arena run data get storage nonios:arena config.lightning.every
 execute store result score #lt_resp nx.arena run data get storage nonios:arena config.lightning.respawn
 # lightning: the runtime switch (#lt_set, set by lightning/on|off) wins over the config default

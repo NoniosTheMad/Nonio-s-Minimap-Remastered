@@ -6,5 +6,7 @@ scoreboard players operation #vs nx.eco = #dummy nx.streak
 scoreboard players set #bonus nx.eco 0
 scoreboard players operation #vtier nx.eco = #dummy nx.tier
 function nonios:economy/kill_bonus/tier_value
+# arena Bounty Hunt (#nonios:economy/kill_bonus entry): the husk is gone, so the killer's position stands in for it
+function nonios:arena/event/bounty_bonus
 data modify storage nonios:eco vname set value "Dummy"
 function nonios:economy/kill/award

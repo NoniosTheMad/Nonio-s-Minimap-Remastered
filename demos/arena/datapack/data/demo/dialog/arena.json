@@ -82,11 +82,11 @@
   },
   {
    "label": {
-    "text": "Event: Raining Frogs",
-    "color": "light_purple"
+    "text": "Event: Supply Drop",
+    "color": "aqua"
    },
    "tooltip": {
-    "text": "Frogs full of emeralds + the Cracy Frog"
+    "text": "Loot chest falls on a node (frogs: Demo events)"
    },
    "action": {
     "type": "minecraft:run_command",
