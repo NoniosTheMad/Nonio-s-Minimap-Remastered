@@ -1,0 +1,101 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Nexus Barrier",
+  "color": "gold"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 310,
+   "contents": {
+    "text": "The obsidian is the Nexus. Its Barrier is the shimmering forcefield cube around it: hit it to damage it (it flashes; the actionbar explains). Damage = your weapon's attack damage. At 75/50/25% it cracks like a block being mined, turns redder, shrinks and flickers. After 10 s without hits it regenerates 20% of max per minute. At 0 it shatters for good and the obsidian can be mined. Only the barrier's own team sees the bossbar (plus an alert when attacked).",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "Join attackers (black)",
+    "color": "white"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Join defenders (white)",
+    "color": "white"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset Nexus",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Regen x1 (20%/min)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Regen x20 (fast)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Barrier HP 1000",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Barrier HP 200 (quick test)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Give gear",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.nx set 8"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

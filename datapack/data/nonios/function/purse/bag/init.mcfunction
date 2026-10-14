@@ -1,0 +1,4 @@
+tag @s remove nx.coinbag_new
+scoreboard players operation @s nx.coins = #drop nx.purse
+execute store result storage nonios:purse bag.n int 1 run scoreboard players get @s nx.coins
+function nonios:purse/bag/name with storage nonios:purse bag

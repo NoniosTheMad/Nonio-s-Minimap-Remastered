@@ -1,0 +1,121 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Coin Purse",
+  "color": "gold"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 310,
+   "contents": {
+    "text": "Mining ores puts coins in your purse (actionbar). Coins are heavy: the first 20 weigh nothing, then 0.1% slower per coin, max 40%. Placing a coin block costs its value back. Die to a player (or the Purse Thief): they take your whole purse. Die to anything else: your purse drops as a glowing coin bag anyone can grab for 5 min. The bank pad (gold, west) stores coins safely in your team bank.",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "+50 coins",
+    "color": "yellow"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "+300 coins",
+    "color": "yellow"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Empty purse",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Spawn Purse Thief",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Drop my purse here",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Refill mine",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Weight 0.1%/coin (default)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Weight 0.5%/coin (feel it)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Bank balance",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Give gear",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cp set 6"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}
