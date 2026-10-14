@@ -12,6 +12,7 @@ scoreboard players set #white nx.last 0
 scoreboard players set #black nx.last 0
 scoreboard players set #white nx.bank 0
 scoreboard players set #black nx.bank 0
+function nonios:economy/match_start
 kill @e[type=item,tag=nx.coinbag]
 kill @e[type=husk,tag=nx.dummy]
 function nonios:nexus/spawn with storage nonios:map white.nexus
@@ -30,6 +31,6 @@ title @a times 10 60 20
 title @a subtitle {"text":"Mine, build, buy. The walls drop when the timer ends.","color":"gray"}
 title @a title {"text":"PREPARATION","color":"yellow","bold":true}
 execute as @a at @s run playsound minecraft:block.beacon.activate master @s ~ ~ ~ 1 1
-tellraw @a [{"text":"Match #","color":"gold"},{"score":{"name":"#match","objective":"nx.state"},"color":"gold"},{"text":" started. Shop: the villager at your base. Bank: the gold pad. Coins: mine ores.","color":"gold"}]
+tellraw @a [{"text":"Match #","color":"gold"},{"score":{"name":"#match","objective":"nx.state"},"color":"gold"},{"text":" started. Shop: the villager at your base. Bank: the vault on the gold pad (right-click). Coins: mine ores.","color":"gold"}]
 execute if score #timer nx.state matches ..0 run return run function nonios:game/battle/start
 function nonios:game/prep/second
