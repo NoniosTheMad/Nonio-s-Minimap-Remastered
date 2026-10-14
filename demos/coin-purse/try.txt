@@ -1,0 +1,12 @@
+You are in survival with an Efficiency V pickaxe, a Silk Touch pickaxe and a sword. Actionbar = your purse.
+1. Mine the stone block east of spawn (ores inside and on the face): each block adds coins (stone 1, coal 3, iron 5, diamond 20...). Actionbar shows Coins N and Weight -X% speed.
+2. G > "Demo: Coin Purse" > +300 coins: you walk 30% slower (max 40%). "Weight 0.5%/coin" exaggerates it; "Empty purse" = full speed again.
+3. Anti-farm: silk-touch a stone or ore, place it (coins go down by its value), mine it again (back up). Net zero.
+4. Killer transfer, solo: get some coins, menu > Spawn Purse Thief (husk with a sword, north). Let it kill you
+   (or let it hit you once and type /kill within 5 s). Chat: "Purse Thief took your purse"; its name shows the coins.
+   Kill the thief: it drops a glowing gold nugget "N coins" bag; walk over it to get them back.
+5. Death without a killer (e.g. /kill with no recent hit, or fall off the edge... the void eats the bag): the purse drops as a bag at your body.
+   Quick check: menu > "Drop my purse here", step away, walk back over it.
+6. Bank (stub): stand on the gold pad west of spawn: the whole purse is deposited (chime). Menu > Bank balance.
+2-player test (optional): a 2nd account kills you with coins = they get them all, chat line on both sides.
+Feedback: coin values per block, weight per coin and the 40% cap, drop-vs-lost when nobody killed you, bank per player or per team?

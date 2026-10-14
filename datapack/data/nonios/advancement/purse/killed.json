@@ -1,0 +1,1 @@
+{"criteria": {"killed": {"trigger": "minecraft:entity_killed_player"}}, "rewards": {"function": "nonios:purse/death/killed"}}
