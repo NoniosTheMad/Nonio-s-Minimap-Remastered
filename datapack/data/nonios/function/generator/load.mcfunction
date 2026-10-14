@@ -17,6 +17,8 @@ scoreboard objectives add nx.gen_t dummy
 scoreboard objectives add nx.gen_iv dummy
 scoreboard objectives add nx.gen_pot dummy
 scoreboard objectives add nx.gen_cap dummy
+# upgrade dialog (generator/ui): /trigger nx.genup set 1
+scoreboard objectives add nx.genup trigger
 function nonios:generator/config
 scoreboard players set #20 nx.gen 20
 scoreboard players set #45 nx.gen 45
