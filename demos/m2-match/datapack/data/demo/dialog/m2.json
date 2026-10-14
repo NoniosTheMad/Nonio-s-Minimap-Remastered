@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {"text": "Demo: M2 match", "color": "gold"},
+  "body": {"type": "minecraft:plain_message", "width": 320, "contents": {"text": "Solo test buttons. The real controls are in G > Nonios's Map (Choose team, Admin panel). Dummies are enemy-team husks: they count as alive enemies until killed.", "color": "gray"}},
+  "actions": [
+    {"label": {"text": "Start match", "color": "green"}, "tooltip": {"text": "Joins a team for you if needed"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 1"}},
+    {"label": {"text": "Skip phase", "color": "yellow"}, "tooltip": {"text": "Prep -> Battle -> (draw) End -> Lobby"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 2"}},
+    {"label": {"text": "Stop match", "color": "red"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 3"}},
+    {"label": {"text": "Switch my team"}, "tooltip": {"text": "Mid-match too: keeps gear and coins, teleports you to the other base"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 4"}},
+    {"label": {"text": "Enemy dummy (still)"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 5"}},
+    {"label": {"text": "2 enemy raiders"}, "tooltip": {"text": "Husks that attack you (one with a sword)"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 6"}},
+    {"label": {"text": "+100 coins", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 7"}},
+    {"label": {"text": "Prep time 20 s"}, "tooltip": {"text": "Applies to the next Start (admin panel: +/-30 s)"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 8"}},
+    {"label": {"text": "Destroy MY Nexus", "color": "red"}, "tooltip": {"text": "Last life: your next death makes you a spectator"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 9"}},
+    {"label": {"text": "Destroy ENEMY Nexus", "color": "green"}, "tooltip": {"text": "Win test (battle only: kill any enemy dummies too)"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 10"}},
+    {"label": {"text": "Kill me"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 11"}},
+    {"label": {"text": "Admin panel", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 12"}},
+    {"label": {"text": "Rebuild map"}, "tooltip": {"text": "Lobby only"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 13"}},
+    {"label": {"text": "Diamond gear"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.m2 set 14"}}
+  ],
+  "columns": 2,
+  "pause": false
+}
