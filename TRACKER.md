@@ -15,25 +15,27 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M1 spikes — validating tech before building the game on it.
+M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge spikes into main).
 
 ## Waiting on user
-1. **Shaders:** go to server `shaders`, press G → Demo: custom shaders. Try Reaper, Acid, both. Send feedback book.
-2. **Nexus barrier (★):** server `nexus`. Read cracks from 10–20 blocks (vanilla destroy_stage textures). Check hit actionbar text.
-3. **Text-box feedback:** any server. Press G → Feedback, type topic + text with quotes/accents, Send. Expect "✔ noted (#N)".
+1. **Shaders (★):** server `shaders`, G → Demo: custom shaders. Try Reaper, Acid, both. Send feedback book.
+2. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
+3. **Text-box feedback:** any server. G → Feedback, type topic + text with quotes/accents, Send. Expect "✔ noted (#N)".
+4. **Shop dialog (★):** server `shop`. Try buying. Check NPC, catalog, trigger buttons, not-enough-coins message.
+5. **Coin purse (★):** server `purse`. Mine blocks. Check coins earned, weight slowdown, drop on death, killer gets purse.
 
 ## Promised
 - Shader spikes (Reaper, Acid) — working, awaiting user test
-- Nexus barrier v3 (vanilla destroy_stage cracks, 20% regen/min dialog, no HP numbers in hits, defenders-only bossbar) — done (658e2d2)
-- In-game inbox (G → Inbox; chat notifications; chat = feedback grouped; persistent "recent" thread replay on join; `mcdev notify` and `feedback --resolve`) — done (f6fdfb8)
-- Text-box feedback dialog (topic + multiline text, log4j2 route, ✔ noted) — done (f9d3229)
+- Nexus barrier v3 (vanilla destroy_stage cracks, 20% regen/min, no HP numbers, defenders-only bossbar) — done (658e2d2)
+- Shop dialog spike (data-driven catalog, trigger buttons, NPC, not-enough-coins) — done (f8fa3f8)
+- Coin purse spike (mining → coins, weight slowdown, killer takes purse, bank stub, anti-silk-touch) — done (3f09c2c)
+- In-game inbox (G → Inbox, chat notifications, chat = feedback grouped, persistent "recent" replay) — done (f6fdfb8)
+- Text-box feedback dialog (topic + multiline, log4j2 route, ✔ noted) — done (f9d3229)
 - Roadmap kept current (docs/roadmap.html) — synced with this file
 - Quiet session (only checkpoints) — established
 
 ## In flight
-- **Shop dialog spike** (feat/shop-dialog): buy one item from a dialog.
-- **Coin purse spike** (feat/coin-purse): mining earns coins; carrying slows; death → purse to killer.
-- **Shaders v2** (spike/shaders, feedback #14): split acid (wave/rainbow), stackable, drop Reaper (no-depth), real landscape, cosmic, monster class effect.
+- **Shaders v2** (spike/shaders, feedback #14): split acid (wave/rainbow), stackable, drop Reaper (no-depth), real landscape, cosmic, monster class effect. Awaiting user test.
 
 ## Decisions
 | Date | Decision |
@@ -58,6 +60,16 @@ M1 spikes — validating tech before building the game on it.
 1. **Main world:** fresh flat or import V2 terrain? Decide before M6 build.
 2. **Respawn gear vs keepInventory:** draft idea (user 2026-10-14): keep inventory, but bank + reward to killer. Reconcile with class kits in M2.
 3. **`/posteffect` persistence:** does it survive death, relog, transfer?
+4. **Shop catalog:** real catalog (per team/phase?) vs. test data?
+5. **Shop stay/close:** keep open after buy or close dialog? (Suggested: stay open)
+6. **Shop location:** base NPC only / safe zone / anywhere? (Suggested: base NPC only)
+7. **Quantity picker:** support buying multiple items per dialog?
+8. **Full inventory:** refuse purchases or drop/split items? (Suggested: refuse when full)
+9. **Coin values:** per-block mining rates and whether building blocks count? (Suggested: anti-silk-touch, per-block values set)
+10. **Weight curve & allowance:** current 0.1%/coin capped at 40%. Free allowance? Non-linear curve?
+11. **Drop vs lost on mob death:** coins on ground when killed by mob, or lost? (Suggested: coin-bag drop for non-player deaths)
+12. **Bank:** per-player or per-team? How does withdraw work?
+13. **Actionbar priority:** coin counter vs barrier HP display. Which shows on hit/updates?
 
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
@@ -67,6 +79,9 @@ M1 spikes — validating tech before building the game on it.
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | **M1 spikes complete.** All built and awaiting user tests (shaders, nexus, shop, purse, text-box feedback). **MERGE NOTE:** shop, nexus-barrier, and purse all modify tick.json/load.json (conflicts on merge to main). Proposed next: user tests, then plan M2 playable core. |
+| 10-14 | Coin purse spike done (3f09c2c, feat/coin-purse, server purse ★): per-block mining values (anti-silk-touch), weight 0.1%/coin (capped 40%), killer takes purse, coin-bag drop for non-player deaths, bank stub. User tests. |
+| 10-14 | Shop dialog spike done (f8fa3f8, feat/shop-dialog, server shop ★): data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message, G → Shop. User tests. |
 | 10-14 | Shop dialog spike (feat/shop-dialog) and Coin purse spike (feat/coin-purse) started in parallel. Critical path M1. |
 | 10-14 | Shaders: side track decision. After v2 + feedback #14, deferred after M2 (M5 classes may pull specific shaders earlier). Feedback #14: split acid (wave/rainbow), stackable, drop Reaper (no-depth), landscape/cosmic/monster added. |
 | 10-14 | Barrier v3 done (658e2d2): vanilla destroy_stage crack textures, HP numbers removed from hit messages, dialog shows regen 20%/min. User tests crack readability 10–20 blocks, hit actionbar. |

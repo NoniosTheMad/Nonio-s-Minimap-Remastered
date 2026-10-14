@@ -75,14 +75,16 @@ a{color:var(--accent)}
     <span class="label">Remaster · Minecraft Java 26.3 · vanilla</span>
     <h1>Nonios's Map Roadmap</h1>
     <p>Two teams, each with its own field and a Nexus of obsidian; a contested arena in between. Destroy the enemy Nexus to win. Every system rebuilt for 26.3: datapack, resource pack and shaders, no mods.</p>
-    <span class="updated">Updated 2026-10-14 · source of truth: PROGRESS.md in the repo</span>
+    <span class="updated">Updated 2026-10-14 · source of truth: TRACKER.md in the repo</span>
   </header>
 
   <section class="you" aria-labelledby="you-h">
     <h2 id="you-h">Waiting on you</h2>
     <ol>
-      <li><b>Shaders:</b> go to server <b>shaders</b>, press <kbd>G</kbd> → <b>Demo: custom shaders</b>, then try Reaper, Acid, and both together. Send a feedback book on how they look.</li>
-      <li><b>Nothing else right now.</b> The Nexus barrier comes back to you once it has visuals.</li>
+      <li><b>Nexus barrier (★):</b> server <b>nexus</b>. Read cracks from 10–20 blocks (vanilla textures). Check hit actionbar text.</li>
+      <li><b>Shop dialog (★):</b> server <b>shop</b>. Try buying items. Check NPC, catalog, trigger buttons, and insufficient coins message.</li>
+      <li><b>Coin purse (★):</b> server <b>purse</b>. Mine blocks. Check coins earned, weight slowdown, and purse dropping to killer on death.</li>
+      <li><b>Shaders round 2:</b> server <b>shaders</b>, <kbd>G</kbd> → <b>Demo: custom shaders</b>. Still being built; we'll ask again once ready.</li>
     </ol>
   </section>
 
@@ -104,10 +106,10 @@ a{color:var(--accent)}
     <p style="color:var(--muted)">Small proofs that the risky parts work in vanilla 26.3 before we build the game on them.</p>
     <ul class="items">
       <li><span class="pill p-done">Done</span><span class="what">Vanilla post effects (/posteffect)</span><span class="why">Server fx. Effects apply per player and stack.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Custom shaders: Reaper and Acid</span><span class="why">Server shaders. Built and compiling; not yet seen in your client.</span></li>
-      <li><span class="pill p-now">Now</span><span class="what">Nexus barrier visuals</span><span class="why">Breaking the barrier works. It needs to look like a barrier (a worldborder-style shimmer, a flash on hit) so new players understand why the obsidian won't break.</span></li>
-      <li><span class="pill p-todo">Next</span><span class="what">Shop dialog</span><span class="why">Buy one item from an in-game menu, with no command prompts.</span></li>
-      <li><span class="pill p-todo">Next</span><span class="what">Coin purse</span><span class="why">Mining earns coins; carrying them slows you down; when you die, your purse goes to your killer.</span></li>
+      <li><span class="pill p-now">In progress</span><span class="what">Custom shaders: Reaper and Acid round 2</span><span class="why">Enhanced with split Acid, stackable effects, and new shaders. Being built and tested.</span></li>
+      <li><span class="pill p-wait">Your test</span><span class="what">Nexus barrier with visuals</span><span class="why">Built and live on server nexus (★). Vanilla destroy_stage textures, 20% regen/min, 4 crack stages, hit flash.</span></li>
+      <li><span class="pill p-wait">Your test</span><span class="what">Shop dialog</span><span class="why">Built and live on server shop (★). Data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message.</span></li>
+      <li><span class="pill p-wait">Your test</span><span class="what">Coin purse</span><span class="why">Built and live on server purse (★). Mining earns coins, weight slowdown, killer takes purse, coin-bag on mob death.</span></li>
     </ul>
   </section>
 
@@ -126,11 +128,12 @@ a{color:var(--accent)}
     <section aria-labelledby="dec-h">
       <h2 id="dec-h">Decided</h2>
       <dl>
-        <dt>Nexus</dt><dd>A barrier with a health bar protects the obsidian. It regenerates about 5% a minute unless it's fully destroyed.</dd>
+        <dt>Nexus</dt><dd>A barrier with a health bar protects the obsidian. It regenerates <b>20% per minute</b> unless fully destroyed.</dd>
         <dt>Scale</dt><dd>Typical matches run 2v2 to 5v5, and it holds up to 20 per team.</dd>
         <dt>Coins</dt><dd>Carrying coins slows you; dying gives your purse to the killer; the bank is safe.</dd>
         <dt>Emerald Dream</dt><dd>Its own dimension; you leave by sneaking for a few seconds.</dd>
         <dt>Map &amp; tone</dt><dd>A new map, keeping the legacy humour and lore.</dd>
+        <dt>Shaders</dt><dd>A side track. After round 2 + your feedback, new shader ideas wait until after M2 is done. M5 classes may pull specific shaders earlier.</dd>
       </dl>
     </section>
     <section aria-labelledby="open-h">
@@ -138,6 +141,14 @@ a{color:var(--accent)}
       <dl>
         <dt>Respawn gear vs keepInventory</dt><dd>Your idea: keep the inventory, but the bank and the reward go to the killer. Needs to be reconciled with class kits in M2.</dd>
         <dt>Main world</dt><dd>Start from a fresh flat world or import terrain. Decide before the M6 build.</dd>
+        <dt>Shop: stay or close?</dt><dd>Keep the dialog open after buying, or close it? <i>Suggested: stay open.</i></dd>
+        <dt>Shop: location?</dt><dd>NPC at base only, in a safe zone, or anywhere? <i>Suggested: base NPC only.</i></dd>
+        <dt>Shop: full inventory?</dt><dd>Refuse purchases when your inventory is full, or drop/split items? <i>Suggested: refuse when full.</i></dd>
+        <dt>Coin: values &amp; building blocks?</dt><dd>Per-block mining rates, and do building blocks (dirt, stone, etc.) count? <i>Current: anti-silk-touch, per-block values.</i></dd>
+        <dt>Coin: weight &amp; allowance?</dt><dd>Current weight is 0.1% per coin (capped at 40%). Free coins allowed? Non-linear curve?</dd>
+        <dt>Coin: mob death?</dt><dd>Drop coins to the ground when killed by a mob, or are they lost? <i>Current: coin-bag drop for non-player deaths.</i></dd>
+        <dt>Bank: scope &amp; withdraw?</dt><dd>Per-player or shared by team? How does withdrawal work?</dd>
+        <dt>Actionbar priority</dt><dd>The coin counter and the barrier hit message share the actionbar. Which wins? <i>Suggested: the hit message, briefly.</i></dd>
       </dl>
     </section>
   </div>
@@ -145,10 +156,11 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
-      <li><time>10-14</time>Feedback is now a Book &amp; Quill: any length or characters, sent quietly with full context.</li>
-      <li><time>10-14</time>G menu: ★ marks servers waiting for your review; "Reset this server" gives a fresh demo world.</li>
-      <li><time>10-14</time>Demo buttons fixed, and every server checks for that kind of bug when it starts.</li>
-      <li><time>10-14</time>Dev framework done: hub, main, test and demo servers, switching in-game, resource packs.</li>
+      <li><time>10-14</time><b>M1 spikes built:</b> barrier, shop and purse await your tests; shaders round 2 still in progress.</li>
+      <li><time>10-14</time>Coin purse spike: per-block mining, anti-silk-touch, weight 0.1%/coin (capped 40%), killer gets purse, coin-bag on mob death.</li>
+      <li><time>10-14</time>Shop dialog spike: data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message, G → Shop.</li>
+      <li><time>10-14</time>Nexus barrier v3: vanilla destroy_stage crack textures (4 stages), 20% regen/min, hit flash, defenders-only bossbar.</li>
+      <li><time>10-14</time>Idle sleep + wake: servers sleep after 10 min empty; G → Servers shows dimmed "(asleep, ~10s)"; click to wake.</li>
     </ul>
   </section>
 </div>
