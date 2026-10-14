@@ -1,0 +1,14 @@
+Solo test of the full M4 match. Buttons: G > "Demo: M4 match". Game menu: G > "Nonios's Map" (Choose team, Admin panel).
+1. Lobby: "Prep time 20 s" (or keep it longer for the Dream), then "Start match". You land at your base.
+   New on each field: a generator (glass + sea lantern, left side) and a Dream portal pad (end stone, eye frame, near the arena wall).
+2. Generator: watch the hologram (Lv, next drop, coins). Right-click: coins go to your purse, drops jump to you.
+   Sneak-right-click (or right-click with nothing to collect): upgrade dialog. "+1000 coins", buy Lv2 (200) and Lv3 (500). Core turns diamond, then emerald.
+   "Time x10" speeds up drops. Generators sleep in the lobby and at the end screen.
+3. Dream: step on your pad's frame. Dialog: Open (1000 coins). Not enough coins -> refused. With coins: the team is told, you drift into the Dream.
+   Mine veins (coins), sneak to wake up: you are back on your pad. Try the enemy pad (refused) and stepping on yours in the lobby (dormant).
+   Stay in the Dream until the walls drop: nothing traps you. "Stop match" while dreaming: you wake up in the lobby.
+4. Battle: "TP: arena". 3 nodes (West / Centre / East): stand in a ring to capture (bossbar). Held nodes drop loot over time.
+   "Enemy captor on nearest node": an enemy husk contests it. "Random arena event", "Lightning on/off" (rabbit in the arena).
+   In prep the nodes are inert; after Stop/Start everything is neutral, generators Lv1, portals locked.
+5. "Status": phase, Dream unlocks, generator levels/pots, node owners.
+Feedback: generator placement/feel, upgrade prompt, portal price and prompt wording, node sizes, event frequency.
