@@ -8,6 +8,8 @@ scoreboard players operation @s nx.match = #match nx.state
 function nonios:class/reset
 clear @s
 effect clear @s
+# V2 start chain: every recipe unlocked
+recipe give @s *
 effect give @s minecraft:instant_health 1 10 true
 effect give @s minecraft:saturation 1 10 true
 execute store result score @s nx.coins run data get storage nonios:config start_coins

@@ -1,0 +1,37 @@
+{
+  "_doc": [
+    "V2 'Special' shop section items that are not classes (classes live in src/classes.json).",
+    "For the shop (feat/shop-v2): list each entry like a catalog item. charge = take price from the purse before running buy;",
+    "slot = needs a free inventory slot (refuse when full, as other items). buy = function run as/at the buyer after paying:",
+    "it gives the item / does the effect itself. charge false = buy decides everything (no purse change by the shop).",
+    "v2 = the V2 WhiteShop/BlackShop id. Not wired into shop/catalog yet on purpose (the shop is being rebuilt in parallel)."
+  ],
+  "items": [
+    {
+      "id": "emerald_talisman",
+      "v2": 87,
+      "name": "Emerald Talisman",
+      "ncol": "green",
+      "price": 200,
+      "charge": true,
+      "slot": true,
+      "buy": "nonios:talisman/give",
+      "atlas": "minecraft:blocks",
+      "sprite": "nonios:block/emerald_talisman",
+      "blurb": "Fortune comes for those who seek it. Worn on the head: luck, and coins while it stays there. It does not come off."
+    },
+    {
+      "id": "dragon_skull",
+      "v2": 88,
+      "name": "Dragon Skull [Disabled]",
+      "ncol": "dark_gray",
+      "price": 3200,
+      "charge": false,
+      "slot": false,
+      "buy": "nonios:special/dragon_skull",
+      "atlas": "minecraft:blocks",
+      "sprite": "minecraft:block/dragon_egg",
+      "blurb": "[Disabled]"
+    }
+  ]
+}

@@ -10,5 +10,6 @@ execute if score #sec nx.tmp matches 1..5 run title @a times 0 25 5
 execute if score #sec nx.tmp matches 1..5 run title @a subtitle {"text":"Walls drop in","color":"gray"}
 execute if score #sec nx.tmp matches 1..5 run title @a title {"score":{"name":"#sec","objective":"nx.tmp"},"color":"yellow","bold":true}
 execute if score #sec nx.tmp matches 1..5 as @a at @s run playsound minecraft:block.note_block.hat master @s ~ ~ ~ 1 1
+function nonios:talisman/second
 function nonios:game/prep/contain with storage nonios:map white
 function nonios:game/prep/contain with storage nonios:map black
