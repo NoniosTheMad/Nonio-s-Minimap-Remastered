@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {"text": "Demo: Economy", "color": "gold"},
+  "body": {"type": "minecraft:plain_message", "width": 320, "contents": {"text": "Solo test buttons for the team bank, interest and kill rewards. The bank: right-click the vault on your gold pad (prep/battle only). Real controls: G > Nonios's Map.", "color": "gray"}},
+  "actions": [
+    {"label": {"text": "Start match", "color": "green"}, "tooltip": {"text": "Joins a team for you if needed. 10 min preparation (the bank works in prep and battle)"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 1"}},
+    {"label": {"text": "Skip phase", "color": "yellow"}, "tooltip": {"text": "Prep -> Battle -> (draw) End -> Lobby"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 2"}},
+    {"label": {"text": "+100 coins", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 5"}},
+    {"label": {"text": "+1000 coins", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 6"}},
+    {"label": "Go to my bank", "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 7"}},
+    {"label": "Go to the enemy bank", "tooltip": {"text": "Its vault refuses you"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 8"}},
+    {"label": {"text": "Simulate a kill", "color": "red"}, "tooltip": {"text": "As if you killed a player with the victim profile below: kill reward + bounty + tier bonus, actionbar, your streak +1"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 9"}},
+    {"label": "Victim profile (cycle)", "tooltip": {"text": "Streak/tier of simulated and dummy victims: 0/0 -> 3/1 -> 6/3"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 10"}},
+    {"label": "Enemy dummy (still)", "tooltip": {"text": "Kill it with a sword: same reward as Simulate a kill"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 11"}},
+    {"label": {"text": "Fast-forward interest", "color": "aqua"}, "tooltip": {"text": "Pays one interest round to both team banks now"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 12"}},
+    {"label": "Kill me", "tooltip": {"text": "Your purse drops as a coin bag, your streak ends; the bank keeps its coins"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 13"}},
+    {"label": "Switch my team", "tooltip": {"text": "Keeps your coins; the other bank becomes yours"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 4"}},
+    {"label": {"text": "Admin: Economy", "color": "gold"}, "tooltip": {"text": "Interest, kill reward and bounty settings"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 14"}},
+    {"label": "Diamond gear", "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 15"}},
+    {"label": {"text": "Stop match", "color": "red"}, "action": {"type": "minecraft:run_command", "command": "trigger demo.ec set 3"}}
+  ],
+  "columns": 2,
+  "pause": false
+}

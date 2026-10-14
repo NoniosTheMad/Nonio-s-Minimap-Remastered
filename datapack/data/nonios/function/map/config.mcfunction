@@ -15,7 +15,7 @@ data modify storage nonios:map white set value {\
   spawn:{x:0.5d,y:64,z:70.5d,yaw:0,bx:0,bz:70},\
   nexus:{team:"white",x:0,y:65,z:60},\
   shop:{team:"white",x:-8.5d,y:64,z:64.5d,yaw:-90},\
-  bank:{team:"white",x:9,y:63,z:64},\
+  bank:{team:"white",x:9,y:63,z:64,facing:"west"},\
   mine:{x:8,y:64,z:74},\
   wall:{team:"white",z:85,tint:11069695},label:{Team:"WHITE",color:"white",x:0,y:68,z:76},\
   out:"x=-1000,y=-200,z=87,dx=2000,dy=900,dz=2000"\
@@ -26,7 +26,7 @@ data modify storage nonios:map black set value {\
   spawn:{x:0.5d,y:64,z:130.5d,yaw:180,bx:0,bz:130},\
   nexus:{team:"black",x:0,y:65,z:140},\
   shop:{team:"black",x:-8.5d,y:64,z:136.5d,yaw:-90},\
-  bank:{team:"black",x:9,y:63,z:136},\
+  bank:{team:"black",x:9,y:63,z:136,facing:"west"},\
   mine:{x:8,y:64,z:121},\
   wall:{team:"black",z:115,tint:12086271},label:{Team:"BLACK",color:"dark_purple",x:0,y:68,z:124},\
   out:"x=-1000,y=-200,z=-1887,dx=2000,dy=900,dz=2000"\

@@ -1,0 +1,1 @@
+$title @s actionbar [{"text":"⚔","color":"red"},{"text":"$(k)","color":"gold"},{"text":"$(b)","color":"red"},{"text":"$(t)","color":"light_purple"},{"text":"$(p)","color":"yellow"},{"text":"   = +$(sum) coins","color":"yellow","bold":true}]

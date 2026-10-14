@@ -12,6 +12,7 @@ effect give @s minecraft:saturation 1 10 true
 execute store result score @s nx.coins run data get storage nonios:config start_coins
 scoreboard players set @s nx.plast -1
 scoreboard players set @s nx.kills 0
+scoreboard players set @s nx.streak 0
 scoreboard players set @s nx.deaths 0
 scoreboard players set @s nx.mined 0
 scoreboard players set @s nx.nxdmg 0

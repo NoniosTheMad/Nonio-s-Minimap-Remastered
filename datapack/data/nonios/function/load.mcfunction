@@ -6,3 +6,4 @@ function nonios:nexus/load
 function nonios:shop/load
 function nonios:purse/load
 function nonios:game/load
+function nonios:economy/load
