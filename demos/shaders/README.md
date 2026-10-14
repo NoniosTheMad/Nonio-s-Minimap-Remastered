@@ -1,10 +1,74 @@
-# shaders (M1 spike)
-Custom per-player post effects from the game resource pack (`resourcepack/assets/nonios/post_effect`).
-G -> "Demo: custom shaders": Reaper, Acid, Reaper (no depth), Reaper + Acid, list, clear.
+# shaders (M1 spike, v2)
+Custom per-player post effects from the game resource pack (`resourcepack/assets/nonios/post_effect`, GLSL in
+`resourcepack/assets/nonios/shaders/post`). Menu: G -> "Demo: custom shaders".
 
-- `nonios:reaper` - black world, white outlines. Depth-buffer edges (`use_depth_buffer`) + faint luminance Sobel.
-- `nonios:reaper_luma` - same look from colour only; diagnostic if depth sampling fails.
-- `nonios:acid` - hue cycling, wavy UVs, chromatic aberration, animated via `Globals.GameTime` (0..1 per 20 min).
+## Layers
+`/posteffect add` stacks effects on a player. The demo keeps one pick per **layer** (scores `demo.look`, `demo.col`,
+`demo.line`, `demo.dist`) and rebuilds the stack in a fixed order on every change (`demo:fx/apply`):
 
-Tuning lives in the JSON `uniforms` blocks (no GLSL edit needed). If the reaper outlines look inverted/empty,
-flip `DepthReversed` to 0.0.
+| Layer      | Effects | Order |
+|------------|---------|-------|
+| Look       | reaper, cinematic, thermal, cosmic, monster | 1st |
+| Colour     | rainbow, comic | 2nd |
+| Lines      | ink, neon | 3rd |
+| Distortion | acid | last (so it bends everything else) |
+
+Presets only set layers (`demo:fx/preset`): **Cracy Frog** = acid + rainbow (the old Acid), **Comic book** = comic + ink,
+**Angel** = thermal, **Neon Reaper** = reaper + neon, **Star trip** = cosmic + acid. Any combination works; some are
+pointless (e.g. reaper + comic). Post effects are client state, so the stack is re-applied when a player rejoins.
+
+## Effects
+- `reaper`: black world, white outlines (depth edges + faint luma Sobel). Unchanged from v1. `reaper_luma` is removed.
+- `cinematic` (the "RTX" feel): soft-knee bloom (4 blur passes), god rays from bright sky (radial march toward
+  `RayOrigin` = above the screen top), depth haze, ACES tone map, warm/cool split toning, vignette, grain.
+  It is screen-space only: rays come from bright sky *visible on screen*, there is no real light position.
+  If rays look like they point the wrong way, flip `RayOrigin.y` (1.3 -> -0.3).
+- `thermal`: angel infrared vision. Cold ironbow world, heat edges, glowing heat signatures that pulse faster when
+  the target is weaker. Signature colour = HP bracket (see below).
+- `cosmic`: stars get a glow, four-point spikes and violet/teal nebulae that grow out of star clusters (all derived from
+  the visible sky, so they stay locked to it as you turn). Terrain gets starlight spill and a cool lift in the shadows,
+  so nights stay playable. Best at Midnight on a clear sky; during the day it is a mild grade + sun glow.
+- `monster` ("Hunger" vision, my pick for the monster class): blood-red monochrome, sight fades to murk past
+  ~28 blocks (`Range`), near silhouettes get hot rims (prey stand out), barrel warp + colour split, and a
+  double-thump heartbeat that pulses the vignette. Meant to feel predatory, not to give information.
+- `rainbow`: hue cycling with an outward ripple (colour only, no distortion).
+- `comic`: posterised colours, halftone dots in the shadows, paper highlights.
+- `ink` / `neon`: the same line shader (`ink.fsh`): dark comic lines, or glowing additive cyan lines.
+- `acid`: wavy screen + pulsing chromatic split (distortion only; the colour cycling moved to `rainbow`).
+
+## Thermal / angel HP: how it works and its limits
+A post shader only sees the final image: it cannot read entity health or the entity-outline buffer (`/posteffect`
+chains only get `minecraft:main`). So the datapack encodes HP and the shader decodes it:
+- While anyone has the Thermal look, every player and every `demo.patient` mob gets Glowing (hidden particles) and joins
+  a team whose colour encodes its HP: red <= 30%, gold 31-65%, green >= 66%; light_purple > 40 HP (20 hearts),
+  aqua > 80 HP (40 hearts), counting absorption (doubling tiers = log scale). `demo:hp/one`.
+- The outline is drawn into the main image before post effects, so `thermal_sig` picks those colours out
+  (brightness-normalised match) and `thermal` turns them into blurred heat halos with a white-hot core.
+
+Limits: Glowing is visible to **everyone** (also without the shader: they see coloured outlines); the team colour
+takes the scoreboard team slot (clashes with real team colours in the map, would need a per-team palette or
+a resource-pack-only outline); any other red/gold/green/purple/aqua pixel with the outline's look can trigger a false
+signature (rare in practice, tune `Tolerance`/`MinBright`); only 5 brackets; HP updates every tick but the
+infinite Glowing has to be cleared when thermal is turned off (`demo:hp/off`, automatic when nobody uses it).
+For the real game, prefer showing the HP through the outline colour only to the angel's team.
+
+## World
+The server runs on a pre-generated normal world, seed **2** (forest at spawn, river ~30 blocks, plains ~100, meadow hills ~100,
+ocean ~270, snowy slopes ~1000). Scouted 32 seeds; none had real peaks inside view distance with spawn at sea level. mcdev can only create void/flat worlds, so the world was generated
+on a scratch server and copied into `.mcdev/servers/shaders/world`. **G -> Reset this server turns it back into void**
+(the gallery still builds, there is just no landscape).
+
+## Materials gallery
+`demo:build` (run once by `demo:ensure` on load, flag in storage `demo:state`; G -> Time & gallery -> Rebuild) carves a
+plaza at spawn (x -21..21, z -9..43, floor y63) and builds: water and lava pools, glass / stained / tinted glass, ice,
+light sources, wool / concrete / terracotta / stained-glass wall, ores, deepslate ores, metal blocks, stones, logs,
+planks, grass / flowers / trees, a small house (furniture, lantern, bed), armour stands (leather to netherite, trims),
+and NoAI "patients" for the HP test (villager low HP, sheep half, cow full, pig 50 HP, iron golem 100 HP).
+Generated by a script; edit `build.mcfunction` directly for small changes.
+
+## Time of day
+Dawn 23400, Noon 6000, Dusk 12600, Midnight 18000 (`time set N`), cycle on/off = `gamerule advance_time`.
+
+## Tuning
+All knobs are JSON `uniforms` (no GLSL edit needed); the uniform list must keep the GLSL block's order and types.
+If outlines/haze look inverted or empty, flip `DepthReversed` to 0.0. Bigger blur `Radius` = softer glow (costs GPU).

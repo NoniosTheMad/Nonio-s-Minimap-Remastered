@@ -30,21 +30,6 @@
                         "name": "Aberration",
                         "type": "float",
                         "value": 0.008
-                    },
-                    {
-                        "name": "HueCycles",
-                        "type": "float",
-                        "value": 240.0
-                    },
-                    {
-                        "name": "Saturation",
-                        "type": "float",
-                        "value": 1.6
-                    },
-                    {
-                        "name": "HueMix",
-                        "type": "float",
-                        "value": 0.85
                     }
                 ]
             }
@@ -58,16 +43,21 @@
                     "target": "swap"
                 }
             ],
+            "output": "minecraft:main",
             "uniforms": {
                 "BlitConfig": [
                     {
                         "name": "ColorModulate",
                         "type": "vec4",
-                        "value": [ 1.0, 1.0, 1.0, 1.0 ]
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
                     }
                 ]
-            },
-            "output": "minecraft:main"
+            }
         }
     ]
 }

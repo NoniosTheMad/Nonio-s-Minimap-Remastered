@@ -1,0 +1,124 @@
+{
+    "type": "minecraft:multi_action",
+    "title": {
+        "text": "Shaders demo: HP test (Thermal)",
+        "color": "aqua"
+    },
+    "body": [
+        {
+            "type": "minecraft:plain_message",
+            "width": 420,
+            "contents": {
+                "text": "With the Thermal look on, every player and the patients glow in their HP colour: red <= 30%, gold <= 65%, green above; purple > 20 hearts, aqua > 40 hearts (tiers double, log scale). Press F5 to see yourself.",
+                "color": "gray"
+            }
+        },
+        {
+            "type": "minecraft:plain_message",
+            "width": 420,
+            "contents": {
+                "text": "Creative ignores damage: use survival (F3+F4) for Hurt me.",
+                "color": "dark_gray"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "label": {
+                "text": "Thermal on",
+                "color": "aqua"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 3"
+            },
+            "tooltip": {
+                "text": "Set the Thermal look"
+            }
+        },
+        {
+            "label": {
+                "text": "Hurt me",
+                "color": "red"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 80"
+            },
+            "tooltip": {
+                "text": "-3 hearts"
+            }
+        },
+        {
+            "label": {
+                "text": "Heal me",
+                "color": "green"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 81"
+            },
+            "tooltip": {
+                "text": "Instant health"
+            }
+        },
+        {
+            "label": {
+                "text": "+20 hearts",
+                "color": "light_purple"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 82"
+            },
+            "tooltip": {
+                "text": "Absorption: total > 20 hearts"
+            }
+        },
+        {
+            "label": {
+                "text": "+40 hearts",
+                "color": "aqua"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 83"
+            },
+            "tooltip": {
+                "text": "Absorption: total > 40 hearts"
+            }
+        },
+        {
+            "label": {
+                "text": "Remove extra",
+                "color": "gray"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 84"
+            },
+            "tooltip": {
+                "text": "Clear absorption"
+            }
+        }
+    ],
+    "columns": 3,
+    "exit_action": {
+        "label": {
+            "text": "Back",
+            "color": "gray"
+        },
+        "action": {
+            "type": "minecraft:show_dialog",
+            "dialog": "demo:effects"
+        }
+    },
+    "after_action": "none",
+    "pause": false
+}

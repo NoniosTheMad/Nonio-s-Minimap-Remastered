@@ -1,0 +1,364 @@
+{
+    "targets": {
+        "swap": {},
+        "stars": {},
+        "tmp": {},
+        "glow": {},
+        "neb": {}
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cosmic_stars",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "stars",
+            "uniforms": {
+                "StarConfig": [
+                    {
+                        "name": "StarGain",
+                        "type": "float",
+                        "value": 4.0
+                    },
+                    {
+                        "name": "DarkSky",
+                        "type": "float",
+                        "value": 0.3
+                    },
+                    {
+                        "name": "BrightStart",
+                        "type": "float",
+                        "value": 0.75
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "stars",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 4.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "glow",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 4.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "glow",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "neb",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "neb",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "neb",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cosmic",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Stars",
+                    "target": "stars"
+                },
+                {
+                    "sampler_name": "Glow",
+                    "target": "glow",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Nebula",
+                    "target": "neb",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "CosmicConfig": [
+                    {
+                        "name": "StarLight",
+                        "type": "vec4",
+                        "value": [
+                            0.35,
+                            0.45,
+                            0.85,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "NebulaA",
+                        "type": "vec4",
+                        "value": [
+                            0.45,
+                            0.15,
+                            0.75,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "NebulaB",
+                        "type": "vec4",
+                        "value": [
+                            0.1,
+                            0.75,
+                            0.85,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "StarBoost",
+                        "type": "float",
+                        "value": 1.2
+                    },
+                    {
+                        "name": "GlowStrength",
+                        "type": "float",
+                        "value": 3.0
+                    },
+                    {
+                        "name": "SpikeStrength",
+                        "type": "float",
+                        "value": 0.9
+                    },
+                    {
+                        "name": "SpikeLength",
+                        "type": "float",
+                        "value": 14.0
+                    },
+                    {
+                        "name": "NebulaGain",
+                        "type": "float",
+                        "value": 40.0
+                    },
+                    {
+                        "name": "NebulaStrength",
+                        "type": "float",
+                        "value": 0.35
+                    },
+                    {
+                        "name": "Spill",
+                        "type": "float",
+                        "value": 0.35
+                    },
+                    {
+                        "name": "ShadowLift",
+                        "type": "float",
+                        "value": 0.12
+                    },
+                    {
+                        "name": "Twinkle",
+                        "type": "float",
+                        "value": 0.25
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "output": "minecraft:main",
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

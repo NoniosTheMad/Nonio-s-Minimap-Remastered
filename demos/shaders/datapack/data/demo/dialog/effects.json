@@ -7,87 +7,360 @@
     "body": [
         {
             "type": "minecraft:plain_message",
-            "width": 300,
+            "width": 420,
             "contents": {
-                "text": "Custom /posteffect shaders from the game resource pack (nonios namespace). Each button clears your effects first, then adds one.",
+                "text": "Layers stack in a fixed order: Look > Colour > Lines > Distortion. One pick per category; presets set them all. The window stays open so you can combine; Esc closes it.",
                 "color": "gray"
+            }
+        },
+        {
+            "type": "minecraft:plain_message",
+            "width": 420,
+            "contents": {
+                "text": "Row 1: Look.  Row 2: Colour | Lines.  Row 3: Distortion | Presets.",
+                "color": "dark_gray"
             }
         }
     ],
     "actions": [
         {
             "label": {
+                "text": "No look",
+                "color": "gray"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 10"
+            },
+            "tooltip": {
+                "text": "Remove the Look layer"
+            }
+        },
+        {
+            "label": {
                 "text": "Reaper",
                 "color": "white"
             },
-            "tooltip": {
-                "text": "nonios:reaper - black world, white outlines (depth + luma edges)"
-            },
+            "width": 72,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 1"
+            },
+            "tooltip": {
+                "text": "Look: death vision. Black world, white outlines"
+            }
+        },
+        {
+            "label": {
+                "text": "Cinematic",
+                "color": "gold"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 2"
+            },
+            "tooltip": {
+                "text": "Look: bloom, god rays, depth haze, filmic tone map, warm grade (the RTX feel)"
+            }
+        },
+        {
+            "label": {
+                "text": "Thermal",
+                "color": "aqua"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 3"
+            },
+            "tooltip": {
+                "text": "Look: angel infrared vision. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
+            }
+        },
+        {
+            "label": {
+                "text": "Cosmic",
+                "color": "light_purple"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 4"
+            },
+            "tooltip": {
+                "text": "Look: glowing stars with spikes, nebulae, starlight on the ground. Best at Midnight"
+            }
+        },
+        {
+            "label": {
+                "text": "Monster",
+                "color": "red"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 5"
+            },
+            "tooltip": {
+                "text": "Look: monster-class Hunger vision. Blood-red, short sight, hot rims, heartbeat"
+            }
+        },
+        {
+            "label": {
+                "text": "No colour",
+                "color": "gray"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 19"
+            },
+            "tooltip": {
+                "text": "Remove the Colour layer"
+            }
+        },
+        {
+            "label": {
+                "text": "Rainbow",
+                "color": "light_purple"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 11"
+            },
+            "tooltip": {
+                "text": "Colour: hue cycling with a ripple"
+            }
+        },
+        {
+            "label": {
+                "text": "Comic",
+                "color": "yellow"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 12"
+            },
+            "tooltip": {
+                "text": "Colour: flat posterised colours, halftone shadows"
+            }
+        },
+        {
+            "label": {
+                "text": "No lines",
+                "color": "gray"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 29"
+            },
+            "tooltip": {
+                "text": "Remove the Lines layer"
+            }
+        },
+        {
+            "label": {
+                "text": "Ink",
+                "color": "dark_gray"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 21"
+            },
+            "tooltip": {
+                "text": "Lines: dark comic-book outlines"
+            }
+        },
+        {
+            "label": {
+                "text": "Neon",
+                "color": "aqua"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 22"
+            },
+            "tooltip": {
+                "text": "Lines: glowing cyan outlines"
+            }
+        },
+        {
+            "label": {
+                "text": "No wave",
+                "color": "gray"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 39"
+            },
+            "tooltip": {
+                "text": "Remove the Distortion layer"
             }
         },
         {
             "label": {
                 "text": "Acid",
-                "color": "light_purple"
+                "color": "green"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 31"
             },
             "tooltip": {
-                "text": "nonios:acid - hue cycling, wavy UVs, chromatic aberration (animated)"
-            },
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 2"
+                "text": "Distortion: wavy screen + colour split"
             }
         },
         {
             "label": {
-                "text": "Reaper (no depth)",
-                "color": "gray"
+                "text": "Cracy Frog",
+                "color": "yellow"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 41"
             },
             "tooltip": {
-                "text": "nonios:reaper_luma - fallback without the depth buffer (diagnostic)"
-            },
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 3"
+                "text": "Acid wave + Rainbow (the old Acid)"
             }
         },
         {
             "label": {
-                "text": "Reaper + Acid",
-                "color": "dark_purple"
+                "text": "Comic book",
+                "color": "yellow"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 42"
             },
             "tooltip": {
-                "text": "Stack both effects"
-            },
-            "action": {
-                "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 4"
+                "text": "Comic colours + Ink lines"
             }
         },
         {
             "label": {
-                "text": "list mine",
-                "color": "aqua"
+                "text": "Angel",
+                "color": "yellow"
             },
+            "width": 72,
             "action": {
                 "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 6"
+                "command": "trigger demo.fx set 43"
+            },
+            "tooltip": {
+                "text": "Thermal: HP-bracket heat signatures (see HP test)"
             }
         },
         {
             "label": {
-                "text": "clear all",
+                "text": "Neon Reaper",
+                "color": "yellow"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 44"
+            },
+            "tooltip": {
+                "text": "Reaper + Neon lines"
+            }
+        },
+        {
+            "label": {
+                "text": "Star trip",
+                "color": "yellow"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 45"
+            },
+            "tooltip": {
+                "text": "Cosmic + Acid wave"
+            }
+        },
+        {
+            "label": {
+                "text": "Clear all",
                 "color": "red"
             },
+            "width": 72,
             "action": {
                 "type": "minecraft:run_command",
-                "command": "trigger demo.fx set 7"
+                "command": "trigger demo.fx set 49"
+            },
+            "tooltip": {
+                "text": "Remove every layer"
+            }
+        },
+        {
+            "label": {
+                "text": "Show stack",
+                "color": "aqua"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 50"
+            },
+            "tooltip": {
+                "text": "Show your current layers on the action bar"
+            }
+        },
+        {
+            "label": {
+                "text": "Time, gallery",
+                "color": "green"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:show_dialog",
+                "dialog": "demo:world"
+            },
+            "tooltip": {
+                "text": "Dawn / Noon / Dusk / Midnight, day cycle, gallery"
+            }
+        },
+        {
+            "label": {
+                "text": "HP test",
+                "color": "aqua"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:show_dialog",
+                "dialog": "demo:hp_test"
+            },
+            "tooltip": {
+                "text": "Hurt / heal / overheal yourself to test Thermal"
+            }
+        },
+        {
+            "label": {
+                "text": "Go to gallery",
+                "color": "white"
+            },
+            "width": 72,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 70"
+            },
+            "tooltip": {
+                "text": "Teleport to the materials gallery entrance"
             }
         }
     ],
-    "columns": 2,
+    "columns": 6,
+    "after_action": "none",
     "pause": false
 }

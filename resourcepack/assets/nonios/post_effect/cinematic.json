@@ -1,0 +1,350 @@
+{
+    "targets": {
+        "swap": {},
+        "bright": {},
+        "blur": {},
+        "rays": {}
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cine_bright",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "bright",
+            "uniforms": {
+                "BrightConfig": [
+                    {
+                        "name": "Threshold",
+                        "type": "float",
+                        "value": 0.72
+                    },
+                    {
+                        "name": "Knee",
+                        "type": "float",
+                        "value": 0.2
+                    },
+                    {
+                        "name": "SkyThreshold",
+                        "type": "float",
+                        "value": 0.35
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cine_rays",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "bright",
+                    "bilinear": true
+                }
+            ],
+            "output": "rays",
+            "uniforms": {
+                "RayConfig": [
+                    {
+                        "name": "RayOrigin",
+                        "type": "vec2",
+                        "value": [
+                            0.5,
+                            1.3
+                        ]
+                    },
+                    {
+                        "name": "RayLength",
+                        "type": "float",
+                        "value": 0.85
+                    },
+                    {
+                        "name": "RayDecay",
+                        "type": "float",
+                        "value": 0.96
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "bright",
+                    "bilinear": true
+                }
+            ],
+            "output": "blur",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 10.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "blur",
+                    "bilinear": true
+                }
+            ],
+            "output": "bright",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 10.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "bright",
+                    "bilinear": true
+                }
+            ],
+            "output": "blur",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 10.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "blur",
+                    "bilinear": true
+                }
+            ],
+            "output": "bright",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 10.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cinematic",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Bloom",
+                    "target": "bright",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Rays",
+                    "target": "rays",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "CinematicConfig": [
+                    {
+                        "name": "RayColor",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            0.85,
+                            0.6,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "HazeTint",
+                        "type": "vec4",
+                        "value": [
+                            1.05,
+                            0.95,
+                            0.85,
+                            0.35
+                        ]
+                    },
+                    {
+                        "name": "ShadowTint",
+                        "type": "vec4",
+                        "value": [
+                            0.92,
+                            0.97,
+                            1.06,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "HighlightTint",
+                        "type": "vec4",
+                        "value": [
+                            1.08,
+                            1.0,
+                            0.88,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Exposure",
+                        "type": "float",
+                        "value": 1.05
+                    },
+                    {
+                        "name": "BloomStrength",
+                        "type": "float",
+                        "value": 0.9
+                    },
+                    {
+                        "name": "RayStrength",
+                        "type": "float",
+                        "value": 0.45
+                    },
+                    {
+                        "name": "HazeDensity",
+                        "type": "float",
+                        "value": 0.012
+                    },
+                    {
+                        "name": "HazeMax",
+                        "type": "float",
+                        "value": 0.6
+                    },
+                    {
+                        "name": "Near",
+                        "type": "float",
+                        "value": 0.05
+                    },
+                    {
+                        "name": "Saturation",
+                        "type": "float",
+                        "value": 1.15
+                    },
+                    {
+                        "name": "Contrast",
+                        "type": "float",
+                        "value": 1.08
+                    },
+                    {
+                        "name": "Vignette",
+                        "type": "float",
+                        "value": 0.45
+                    },
+                    {
+                        "name": "Grain",
+                        "type": "float",
+                        "value": 0.025
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "output": "minecraft:main",
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,144 @@
+{
+    "type": "minecraft:multi_action",
+    "title": {
+        "text": "Shaders demo: time & gallery",
+        "color": "gold"
+    },
+    "body": [
+        {
+            "type": "minecraft:plain_message",
+            "width": 420,
+            "contents": {
+                "text": "Set the time of day to judge each effect in different light. Cycle off freezes the time.",
+                "color": "gray"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "label": {
+                "text": "Dawn",
+                "color": "gold"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 60"
+            },
+            "tooltip": {
+                "text": "time 23400"
+            }
+        },
+        {
+            "label": {
+                "text": "Noon",
+                "color": "yellow"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 61"
+            },
+            "tooltip": {
+                "text": "time 6000"
+            }
+        },
+        {
+            "label": {
+                "text": "Dusk",
+                "color": "red"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 62"
+            },
+            "tooltip": {
+                "text": "time 12600"
+            }
+        },
+        {
+            "label": {
+                "text": "Midnight",
+                "color": "dark_aqua"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 63"
+            },
+            "tooltip": {
+                "text": "time 18000"
+            }
+        },
+        {
+            "label": {
+                "text": "Cycle on",
+                "color": "green"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 64"
+            },
+            "tooltip": {
+                "text": "gamerule advance_time true"
+            }
+        },
+        {
+            "label": {
+                "text": "Cycle off",
+                "color": "gray"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 65"
+            },
+            "tooltip": {
+                "text": "gamerule advance_time false"
+            }
+        },
+        {
+            "label": {
+                "text": "Go to gallery",
+                "color": "white"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 70"
+            },
+            "tooltip": {
+                "text": "Teleport to the gallery entrance"
+            }
+        },
+        {
+            "label": {
+                "text": "Rebuild gallery",
+                "color": "red"
+            },
+            "width": 90,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 71"
+            },
+            "tooltip": {
+                "text": "Rebuild blocks and mobs"
+            }
+        }
+    ],
+    "columns": 2,
+    "exit_action": {
+        "label": {
+            "text": "Back",
+            "color": "gray"
+        },
+        "action": {
+            "type": "minecraft:show_dialog",
+            "dialog": "demo:effects"
+        }
+    },
+    "after_action": "none",
+    "pause": false
+}

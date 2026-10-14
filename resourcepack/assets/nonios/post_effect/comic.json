@@ -5,7 +5,7 @@
     "passes": [
         {
             "vertex_shader": "minecraft:core/screenquad",
-            "fragment_shader": "nonios:post/reaper_luma",
+            "fragment_shader": "nonios:post/comic",
             "inputs": [
                 {
                     "sampler_name": "In",
@@ -14,26 +14,36 @@
             ],
             "output": "swap",
             "uniforms": {
-                "ReaperConfig": [
+                "ComicConfig": [
                     {
-                        "name": "LineColor",
+                        "name": "PaperColor",
                         "type": "vec4",
-                        "value": [ 1.0, 1.0, 1.0, 1.0 ]
+                        "value": [
+                            1.0,
+                            0.96,
+                            0.85,
+                            1.0
+                        ]
                     },
                     {
-                        "name": "BackColor",
-                        "type": "vec4",
-                        "value": [ 0.0, 0.0, 0.0, 1.0 ]
-                    },
-                    {
-                        "name": "LumaSensitivity",
+                        "name": "Levels",
                         "type": "float",
-                        "value": 1.0
+                        "value": 4.0
                     },
                     {
-                        "name": "Ghost",
+                        "name": "Saturation",
                         "type": "float",
-                        "value": 0.08
+                        "value": 1.45
+                    },
+                    {
+                        "name": "DotSize",
+                        "type": "float",
+                        "value": 5.0
+                    },
+                    {
+                        "name": "DotStrength",
+                        "type": "float",
+                        "value": 0.55
                     }
                 ]
             }
@@ -47,16 +57,21 @@
                     "target": "swap"
                 }
             ],
+            "output": "minecraft:main",
             "uniforms": {
                 "BlitConfig": [
                     {
                         "name": "ColorModulate",
                         "type": "vec4",
-                        "value": [ 1.0, 1.0, 1.0, 1.0 ]
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
                     }
                 ]
-            },
-            "output": "minecraft:main"
+            }
         }
     ]
 }

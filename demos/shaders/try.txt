@@ -1,6 +1,8 @@
-1. Press G, pick "Demo: custom shaders" (not Nonios Dev).
-2. Click Reaper: black world, white outlines. Walk around, look at blocks and mobs.
-3. Click Acid: wavy, colour-cycling screen.
-4. Reaper + Acid stacks both. Clear all removes them.
-5. If Reaper is empty/white, try "Reaper (no depth)" and tell me.
-Feedback: thickness, contrast, speed, too much / too little.
+1. Press G, pick "Demo: custom shaders". The window stays open: combine, then Esc.
+2. Row 1 = Look (one at a time). Try Cinematic at Noon and Dusk ("Time, gallery" button).
+3. Cosmic: set Midnight, look up at the stars.
+4. Monster: walk to the patients near the house.
+5. Thermal: "HP test" button. Patients glow by HP; F5 to see yourself; Hurt (survival) / +20 / +40 hearts.
+6. Mix layers: Rainbow or Comic + Ink or Neon + Acid. Presets: Cracy Frog, Comic book, Neon Reaper, Star trip.
+7. Walk out of the plaza: real terrain (forest, river, meadow hills) to judge distance.
+Feedback: which look you like, what is too strong / too weak.
