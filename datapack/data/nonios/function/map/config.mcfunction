@@ -5,6 +5,9 @@
 #   Per field: gen = resource generator (Lv1 at match start; marker on top of its sea lantern),
 #   dream = Emerald Dream portal pad (centre block of a 5x5 pad, floor level).
 #   agate = arena gate pad (centre block of a 3x3 pad, floor level); out = where the arena exit puts this team back.
+#   altar = team offering altar (block on top of its 3x3 pad, altar/). guard = spawn defense (guard/, V2 "House"):
+#   players of team foe within r blocks of x y z are hurt. out = prep containment (game/prep/contain): everything past
+#   the wall row at any depth (white z >= 86, black z <= 114: z + dz + 1 = 115), so tunnels can't get round the walls.
 # Island layers: y 60 stone, 61-62 dirt, 63 grass (top). Players stand at y 64.
 data modify storage nonios:map lobby set value {x:0.5d,y:64,z:0.5d,yaw:0,bx:0,bz:0,x1:-9,x2:9,z1:-9,z2:9,y:63}
 data modify storage nonios:map arena set value {x1:-15,x2:15,z1:86,z2:114,y:63,cx:0.5d,cy:75,cz:100.5d}
@@ -45,8 +48,10 @@ data modify storage nonios:map white set value {\
   gen:{team:"white",lvl:1,x:-8,y:64,z:75},\
   dream:{team:"white",Team:"White",x:-10,y:63,z:81},\
   agate:{team:"white",x:5,y:63,z:81,out:{x:5.5d,y:64,z:78.5d,yaw:180}},\
+  altar:{team:"white",Team:"White",x:4,y:64,z:66},\
+  guard:{team:"white",foe:"black",x:0.5d,y:64,z:70.5d,r:4},\
   wall:{team:"white",z:85,tint:11069695},label:{Team:"WHITE",color:"white",x:0,y:68,z:76},\
-  out:"x=-1000,y=-200,z=87,dx=2000,dy=900,dz=2000"\
+  out:"x=-1000,y=-200,z=86,dx=2000,dy=900,dz=2000"\
 }
 data modify storage nonios:map black set value {\
   team:"black",Team:"BLACK",x1:-15,x2:15,z1:115,z2:145,y:63,\
@@ -59,6 +64,8 @@ data modify storage nonios:map black set value {\
   gen:{team:"black",lvl:1,x:-8,y:64,z:125},\
   dream:{team:"black",Team:"Black",x:-10,y:63,z:119},\
   agate:{team:"black",x:5,y:63,z:119,out:{x:5.5d,y:64,z:121.5d,yaw:0}},\
+  altar:{team:"black",Team:"Black",x:4,y:64,z:134},\
+  guard:{team:"black",foe:"white",x:0.5d,y:64,z:130.5d,r:4},\
   wall:{team:"black",z:115,tint:12086271},label:{Team:"BLACK",color:"dark_purple",x:0,y:68,z:124},\
-  out:"x=-1000,y=-200,z=-1887,dx=2000,dy=900,dz=2000"\
+  out:"x=-1000,y=-200,z=-1887,dx=2000,dy=900,dz=2001"\
 }

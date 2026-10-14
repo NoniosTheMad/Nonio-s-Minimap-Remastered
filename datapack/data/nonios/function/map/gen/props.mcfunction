@@ -8,3 +8,4 @@ $function nonios:map/gen/label with storage nonios:map $(t).label
 $function nonios:map/gen/generator with storage nonios:map $(t).gen
 $function nonios:map/gen/dream_pad with storage nonios:map $(t).dream
 $function nonios:map/gen/arena_gate with storage nonios:map $(t).agate
+$function nonios:map/gen/altar with storage nonios:map $(t).altar
