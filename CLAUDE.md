@@ -51,7 +51,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
   In-game "Refresh resource pack": queues {verb:"repack",uuid} in storage devnav:req → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
 - In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": What to try here (dialog, if the server has a todo), Inbox, Servers, Feedback,
-  Feedback (book), refresh pack, reload, Reset this server (ephemeral + test only). Welcome = title + one short chat line (no instruction dump in chat).
+  Feedback (book), refresh pack, reload, Reset this server (ephemeral + test only; restores `.mcdev/servers/<name>/world.pristine` if present, else a fresh world). Welcome = title + one short chat line (no instruction dump in chat).
   Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack, 3 reload, 4 feedback dialog, 5 reset, 6 inbox, 7 back to menu, 8 todo, 9 book).
 - **Feedback** (`.mcdev/feedback.log`, entries `#N ...`; read with `mcdev feedback`, `--ack`):
   - Text box (menu → Feedback, dialog `devnav:feedback`): topic + multiline text (4000 chars); Send = `dynamic/custom` id `devnav:feedback` (no op prompt).

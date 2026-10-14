@@ -1034,6 +1034,9 @@ def reset_world(name, player):
     print(time.strftime("%H:%M:%S"), f"resetting world of {name}", flush=True)
     stop(name, s)
     rmtree_safe(SERVERS / name / "world")
+    pristine = SERVERS / name / "world.pristine"  # optional snapshot (e.g. a generated landscape) to reset to
+    if pristine.exists():
+        shutil.copytree(pristine, SERVERS / name / "world")
     start(name, s, reg)
     send_back(reg, s, player)
 
