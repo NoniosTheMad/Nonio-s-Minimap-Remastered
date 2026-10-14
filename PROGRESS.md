@@ -89,3 +89,16 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 ## Backlog ideas (user feedback, not commitments)
 - Healer-class vision shader (M5): HP visualization (infrared-like), hearts >20 glow (log-scaled)
 - RTX-like shaders (M5): advanced ray tracing effects (reference: https://www.youtube.com/watch?v=AdTxrggo8e8)
+
+## Integration smoke test of main (6db932a, server `full`, demo `full`)
+- [x] Clean load (no function/loot/advancement/tag errors), check_server trigger lint clean (demos m5-classes, m4-match, arena2, classes2, full).
+- [x] `nonios:load` / `nonios:tick` call each module once (10 loads; 10 ticks + `death`); no objective criteria clashes (126 objectives, 128 referenced, none undefined);
+  triggers unique (nx.team, nx.admin, nx.shop, nx.bankt/d/w, nx.genup, nx.portal_t, nx.cls_ask); generated class/generator files match their sources.
+- [x] RCON lifecycle with test husks (temporary `integ` pack in the server world, not in git): lobby -> prep -> battle -> end -> lobby, plus skip in every
+  phase, stop in battle, a second match, /reload mid-battle. Generators tick only in prep/battle; interest pays only in prep/battle; walls up in prep,
+  down in battle; arena loop, gates (`#gon`) and core regrowth only in battle; nexus shields/cores spawned at start and removed in the lobby;
+  Dream portals locked again at start. Fixed: the end phase showed the battle clock for its first second (`game/end/begin`).
+- Not RCON-testable (need a real player): class apply/strip on death, Dream force-exit, gate teleports, kill rewards on a player kill.
+- Test trick: `tick sprint N` runs ticks on an empty, paused server (pause-when-empty), so lifecycle tests don't need a player online.
+- `demos/full` = classes2 buttons + arena2 gate/core buttons (46-52): one demo for everything on main.
+- V2 gap inventory: `docs/v2-gap-inventory.md` (built / partly / missing, autonomous vs needs user).
