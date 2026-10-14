@@ -15,7 +15,7 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M6 | → Now | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M6 map & polish: Smoke test of main passes (server "full" deployed, be19d2d end bossbar fix). V2 gap inventory documented (docs/v2-gap-inventory.md, 3ef3cfe). Dev-tool fixes (#26 Servers menu labels/tooltip, #27 void spawn + respawn_radius=0, ec18b7c) — **user must restart mcdev daemon**. V2 shop catalog merged (31f59f2, 84 items, V2 prices, enchant-in-hand, named items, shopkeeper lines, server shop2 ★). Team v2 merged (4994386, altar, spawn defense, Emerald Talisman, Lightning Rabbit, recipes, underground walls, server team2 ★). Shaders round 4 merged (306f9f0, Acid reset fixed, Planet + Tiny Planet, Angel rebuilt, Fluorescent + Neon, Monster heartbeat + madness, #22-25 resolved). Testing M2 + M3 + M4 + M5 + arena2 + classes2 + shop2 + team2.
+M6 map & polish: Full main (be19d2d end bossbar fix, server "full" ★ awaiting review). WP-D mcdev (96c5022/19ce0cb/8a5ba01): 2×2 menu (Inbox/Servers/Feedback/Reset), datapack auto-reload, 1 s restart warnings, daemon autostart, m4 archived (#51). WP-C ui-sweep (852d58f): tutorial text removed, greyed Dream Open ("Need N coins"), compact Admin/Economy dialogs, team picker greyed reasons, demo gear via `gear/give`, 8-page hub with new try.txt. Bank v4 merged (be8a7b1): per-second interest 1–10% (min 30, cap 20/s), gold deposit pads, enemy cue, quick withdraw. Gen-dream merged (288b961): single-block generator mode (off by default), projectile + melee barrier damage, centre pressure + decay from min 20 on Nexus barrier, richer Dream. Feedback audit documented (db1755b). Wake queue transfer fixed (old daemon restarted 23:37); shop/shop2 archived. **Shaders NOT merged**: round 6 (spike/shaders, 7cb6051, Thermal v3, Cinematic v2); round 7 in progress (Cosmic moon/horizon, Planet continuity, Angel/Monster being prototyped offline, shader playbook). Servers awaiting review: full, shaders, bank4, gd3, gdream, voxel (when up).
 
 ## Waiting on user
 1. **M5 classes (★):** server `m5` (Reaper 200 coins + Cracy Frog free). Join: G → Demo or G → Shop. Pick a class on respawn, test during match. Check: Reaper invisibility (4 s after kill), Cracy Frog confirm chain (3 questions), kill tier rewards, class selection persistence, death/respawn. Six class design questions below.
@@ -44,10 +44,12 @@ M6 map & polish: Smoke test of main passes (server "full" deployed, be19d2d end 
 - M5 classes (5850661, feat/m5-classes → main): Reaper (200 coins, 4 s post-kill invisibility, −10 HP +6 armour, in shop) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain, frog vision permanent, in shop). Death/respawn hooks wired; kill tier set by class; classes reset at match start. Coin-minting fix (emerald pickup = 5 coins, placing while broke creates debt, emerald ores/blocks drop nothing). Demo server m5 ★. Ready for user test. Six design questions queued.
 
 ## In flight
-- V2 classes roster (feat/classes-v2, server classes2): Archer, Miner, Tank, Ninja, Berserker (confirm), Monster, Balrog (maybe). Data-driven via src/classes.json + build_classes.py (same framework as M5).
-- Arena v2 features (feat/arena-v2, server arena2): Random-entry portals (V2 return) + regrowing central block (capture mechanic from V2).
-- Shaders v3: Cosmic (rebuild around light, feedback #19/#21), Acid (real world warp effect), both awaiting user test.
-- Daemon feature: Screenshots (F2) now queued automatically to feedback log.
+- **Voxel studio platform** (feat/voxel-studio, server voxel): world editor for structured maps. Voxel research (feat/voxel-research, unmerged) yields voxel-research.md + voxel-playbook.md.
+- **Mcfilm in-game capture rig** (feat/mcfilm): cinematic recording inside Minecraft.
+- **Castle demo** (≤128×128 with interior): awaiting voxel platform ready.
+- Shaders round 7: Cosmic (moon/horizon bug), Planet (continuity), Angel + Monster (being prototyped offline with reference animations), shader playbook.
+- V2 classes roster (feat/classes-v2, server classes2 ★ for review): Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog. Data-driven via src/classes.json + build_classes.py (same framework as M5).
+- Arena v2 features (feat/arena-v2, server arena2 ★ for review): Random-entry portals (V2 return) + regrowing central block (capture mechanic from V2).
 
 ## Decisions
 | Date | Decision |
@@ -78,11 +80,16 @@ M6 map & polish: Smoke test of main passes (server "full" deployed, be19d2d end 
 | 2026-10-14 | **Coin objective & teams:** coin objective = `nx.coins` (scoreboard). Teams: `white` and `black` everywhere (universal naming across branches). |
 
 ## Open questions
-1. **Main world:** fresh flat or import V2 terrain? Decide before M6 build.
-2. **Respawn gear vs keepInventory:** draft idea (user 2026-10-14): keep inventory, but bank + reward to killer. Reconcile with class kits in M2 playable core.
-3. **`/posteffect` persistence:** does shader effect survive death, relog, transfer? Critical for class/shop effects in M3+.
-4. **Shop catalog:** real catalog (per team/phase?) vs. test data? Decide before M3 economy build.
-5. **Quantity picker:** support buying multiple items per dialog (2x Diamond Sword) or single-item only?
+1. **#48: Centre pressure/decay target:** was the pressure/decay feature meant for the Nexus barrier (as built in gen-dream) or the prep walls that drop at battle start? Clarify the design intent.
+2. **Single-block generator default:** should single-block generator mode (currently off by default) become the default?
+3. **Archive candidates:** which superseded demos should be archived — m2, econ, arena, gens, classes, m5, arena2, team2, econ3, shop3, bank4?
+4. **Dream sneak-to-wake hint:** does Dream sneak-to-exit need a diegetic hint (visual/audio cue, title, actionbar)?
+5. **Main menu goal line:** should the original objective line ("Break the enemy Barrier, then mine their Nexus") come back to the title/main menu?
+6. **#46 wake:** approve the SessionStart hook for headless triage runs (budget estimation, triage-only or small fixes)? What's your approval threshold?
+7. **Bank mechanics:** is 20 coins/s interest rate intended? Keep/scale/drop centre node interest bonus? Withdraw presets OK? Should the shop take a shortfall from the bank? Enemy cue as title or actionbar?
+8. **Gen-dream pressure curve:** quadratic pressure scaling, 5 min to full rate, 12% max/min? Should pressure block regen? Decay clock from battle start? Diamond/lapis in Dream OK? Ruins count/loot? Gilded blackstone as the single generator block?
+9. **Shaders tuning:** Thermal ironbow or white-hot? Cinematic bar size? Should Planet skip letterbox bars in Tiny Planet? Thermal hot chests/signs OK? Monster easing speed? Angel mote density? Carry sky/marker codes into the game pack?
+10. **Castle style:** default aesthetic (weathered late-medieval stone keep) — accept or change?
 
 ## Questions for when user returns
 **Classes** (built 6d87e5a; from coordinator notes, with suggested defaults):
@@ -227,9 +234,17 @@ M6 map & polish: Smoke test of main passes (server "full" deployed, be19d2d end 
 |------|-------|
 | 10-14 | **Shop v2 merged** (31f59f2, feat/shop-v2 → main, server shop2 ★): 84-item catalog at V2 prices, 8 pages (Blocks/Ores/Food/Utility/Enchanting/Tools/Alchemy/Ammo), enchant-in-hand, named items with V2 lore, Shop Keeper lines, stay-open dialog. Ten design questions queued (catalog layout, duplicates, prices scaling, Ghast Tear, button labels, enchant rules, Satan's Blade, Tinkiwinki's Touch, tipped arrows, XP levels). |
 | 10-14 | **Team v2 merged** (4994386, feat/team-v2 → main, server team2 ★): Offering altar (team class level upgrades, respawn-anchor interface), spawn defense (enemies get Instant Damage II in 4-block zone), Emerald Talisman (head armor, +1 coin/3 s), Lightning Rabbit admin toggle, underground prep walls (void barriers), all recipes on match start. Nine design questions queued (altar timing, spawn zone depth, talisman income/model, dragon skull gating, Wither back, underground wall bounce, recipe auto-grant). |
-| 10-14 | **Shaders round 4 complete** (306f9f0, feat/shaders → main): Acid fixed (reset fully functional world warp), Planet + Tiny Planet shaders added, Angel rebuilt with new healer vision, Fluorescent + Neon dual effects, Monster with heartbeat + madness overlays. Issues #22-25 resolved. Ready for user test. |
+| 10-15 | **Servers for review:** full, shaders, bank4, gd3, gdream, voxel (when up). Archive candidates: m2, econ, arena, gens, classes, m5, arena2, team2, econ3, shop3, bank4. Ten questions queued (centre pressure intent, single-block gen default, archive list, Dream wake hint, goal line, wake hook, bank rates, gen-dream curve, shaders tuning, castle style). |
+| 10-15 | **Voxel studio platform started** (feat/voxel-studio, server voxel): world editor for structured maps. Voxel research (feat/voxel-research, unmerged): voxel-research.md + voxel-playbook.md. Castle demo (≤128×128) awaiting platform ready. |
+| 10-15 | **Mcfilm in-game capture rig started** (feat/mcfilm): cinematic recording inside Minecraft. |
+| 10-15 | **Shaders CORRECTION:** NOT merged to main. Spike/shaders round 6 (7cb6051): Thermal v3, Cinematic v2. Round 7 in progress: Cosmic moon/horizon, Planet continuity, Angel/Monster being prototyped offline, shader playbook. |
+| 10-15 | **Gen-dream merged** (288b961, feat/gen-dream → main, servers gd3/gdream ★): Single-block generator mode (off by default), projectile + melee barrier damage, centre pressure + decay (min 20 on Nexus barrier), richer Dream (ruins, diamond/lapis). |
+| 10-15 | **WP-C ui-sweep merged** (852d58f, feat/ui-sweep → main, server "full" ★): Tutorial text removed, greyed Dream Open ("Need N coins"), compact Admin/Economy, team picker greyed reasons, demo gear via `gear/give`, 8-page hub, new try.txt. |
+| 10-15 | **WP-D mcdev merged** (96c5022/19ce0cb/8a5ba01, feat/mcdev → main): 2×2 menu (Inbox/Servers/Feedback/Reset), datapack auto-reload, 1 s warnings, daemon autostart. m4 archived (#51). Docs: mcdev-wake.md proposal. |
+| 10-15 | **Bank v4 merged** (be8a7b1, feat/bank-v4 → main, server bank4 ★): Per-second interest (1–10%, min 30 cap 20/s), gold deposit pads, enemy cue, quick withdraw. |
+| 10-15 | **Feedback audit documented** (db1755b): docs/feedback-audit.md. |
+| 10-15 | **Wake queue transfer fixed:** old daemon restarted 23:37; shop/shop2 archived. SessionStart hook (#46) proposal. |
 | 10-14 | **M5 classes merged** (5850661, feat/m5-classes → main): Reaper (200 coins, 4 s post-kill invisibility) + Cracy Frog (free, 3-question confirm chain) in shop; death/respawn hooks wired; kill tier set by class; classes reset at match start. Coin exploit fixed (emerald pickup 5 coins, placing while broke = debt, ores/blocks drop nothing). Demo server m5 ★. Six design questions queued. |
-| 10-14 | **Shaders progress:** Cosmic v3 rebuilt around light (feedback #19, #21 resolved); Acid reborn as real world warp effect. Both awaiting user playtest. |
 | 10-14 | **Daemon feature:** Screenshots (F2) now auto-queued to feedback log (.mcdev/screenshots/<N>.png). Acked "📷 noted (#N)", entry written after 60s with image path + chat context. |
 | 10-14 | **V2 shop classes merged** (6db932a, feat/classes-v2 → main, server classes2 ★): Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog (all built, same data-driven framework as M5). Eleven design questions queued (Monster price/skull split, Balrog power/curse, potions→flasks, Berserker/Ninja armour, Archer extras, kit supplies, Monster numbers/head skin, invisible glow). |
 | 10-14 | **Arena v2 features merged** (939989e, feat/arena-v2 → main, server arena2 ★): Random-entry gates (one 3x3 pad per team field, slot every 6.4s), regrowing central block (V2 odds 36/18/9/16/2 of 81). Core economy risk ~300-400 coins/min (efficiency-V mine) vs ~72/min Lv3 generator. Nine design questions queued (gate location, exit dest, rotation repeat, sound global, core in prep, regrow delay, economy risk, extras, layout). |
