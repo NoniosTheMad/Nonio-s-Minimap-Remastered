@@ -6,7 +6,7 @@ function nonios:shop/tick
 function nonios:purse/tick
 function nonios:economy/tick
 function nonios:dream/tick
-function nonios:generator/ui/tick
+function nonios:generator/tick
 function nonios:portal/tick
 function nonios:class/tick
 function nonios:arena/gate/tick

@@ -1,0 +1,2 @@
+# max level: the same button, greyed out (no action)
+$dialog show @s {type:"minecraft:multi_action",title:{text:"$(name) generator",color:"$(col)"},body:{type:"minecraft:plain_message",width:200,contents:[{text:"Lv $(lvl) · regrows in $(sec)s\n",color:"yellow"},{text:"Purse: $(coins)",color:"gray"}]},columns:1,actions:[{label:{text:"Max level",color:"dark_gray"},width:200}],exit_action:{label:"Close",width:200},pause:false}

@@ -1,14 +1,19 @@
-"""Build the resource-generator data from src/generators.json.
+"""Build the generator data from src/generators.json.
 
-    python tools/build_generators.py                 # loot tables + roll functions + config
+    python tools/build_generators.py                 # loot tables + grow/roll functions + config
     python tools/build_generators.py --structures    # also (re)import the V2.0 level structures (needs nbtlib)
 
 Writes into datapack/data/nonios/:
-  loot_table/generator/<team>_lvl<N>.json     item outcomes (weights = outcomes out of 81, coin outcomes left out)
-  loot_table/generator/jackpot_<id>.json      the V2 "chest" outcomes (everything in the chest + the chest)
-  function/generator/roll/<team>_lvl<N>.mcfunction   one roll: coins (emerald outcomes) or loot spawn
-  function/generator/config.mcfunction        intervals, caps, costs, coin values (runs on load)
-  structure/generator/<team>_lvl<N>.nbt       (--structures) V2 visuals; white is cropped from 5x5 to its 3x3 core
+  FIELD generators (mineable, V2 style; feedback #39):
+  function/generator/grow/<team>_lvl<N>.mcfunction   one regrowth: 1 of 81 outcomes -> setblock at the generator
+  loot_table/generator/jackpot_<id>.json             the V2 "chest" outcomes (the chest that grows is filled with it)
+  loot_table/generator/lucky_item.json               the lucky block's item outcome (lucky block = optional proposal)
+  function/generator/config.mcfunction               regrow delays, upgrade costs, lucky block switch (runs on load)
+  CENTRE generator (shared, pot style, in the arena):
+  loot_table/arena/cgen_lvl<N>.json                  item outcomes
+  function/arena/cgen/roll/lvl<N>.mcfunction         one roll: coins into the pot (emerald outcomes) or loot spawn
+  function/arena/cgen/config.mcfunction              interval, bank scaling, pot caps (runs on load)
+  structure/generator/<team>_lvl<N>.nbt              (--structures) V2 visuals; white is cropped from 5x5 to its 3x3 core
 """
 import json
 import sys
@@ -38,10 +43,18 @@ def write(path, text):
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
-def build():
-    d = json.loads(SRC.read_text(encoding="utf-8"))
+def ns(b):
+    return b if ":" in b else "minecraft:" + b
+
+
+def field(d):
     lt = OUT / "loot_table" / "generator"
     fn = OUT / "function" / "generator"
+    # pot-style outputs from before feedback #39 are gone
+    for old in list(lt.glob("white_lvl*.json")) + list(lt.glob("black_lvl*.json")) + list((fn / "roll").glob("*.mcfunction")):
+        old.unlink()
+    if (fn / "roll").is_dir() and not any((fn / "roll").iterdir()):
+        (fn / "roll").rmdir()
     for jid, j in d["jackpots"].items():
         # one pool per item so everything in the chest drops (a "group" entry only offers its children as alternatives)
         write(lt / f"jackpot_{jid}.json", json.dumps({
@@ -51,39 +64,80 @@ def build():
         for lvl, outcomes in levels.items():
             total = sum(o[1] for o in outcomes)
             assert total == 81, f"{team} lvl{lvl}: outcomes sum to {total}, expected 81"
-            entries, coins = [], []
-            for o in outcomes:
-                name, w = o[0], o[1]
-                if name == "coins":
-                    coins.append((w, o[2], o[3] if len(o) > 3 else ""))
-                elif name.startswith("jackpot:"):
-                    entries.append({"type": "minecraft:loot_table", "value": f"nonios:generator/jackpot_{name[8:]}", "weight": w})
-                else:
-                    entries.append(item_entry(name, w))
-            write(lt / f"{team}_lvl{lvl}.json", json.dumps({
-                "type": "minecraft:chest", "pools": [{"rolls": 1, "entries": entries}]}, indent=1) + "\n")
-            lines = [HEADER, f"# {team} lvl{lvl}: 1 of 81 outcomes. Coin outcomes fill the pot, the rest drop items.\n",
+            lines = [HEADER, f"# {team} lvl{lvl}: as + at the generator marker (the block on top of the sea lantern). 1 of 81 outcomes.\n",
                      "execute store result score #r nx.gen run random value 1..81\n"]
             lo = 1
-            for w, emeralds, src in coins:
+            for o in outcomes:
+                name, w = o[0], o[1]
                 hi = lo + w - 1
-                lines.append(f"# {src}: {w}/81 -> {emeralds} emerald(s) worth of coins\n")
-                lines.append(f"execute if score #r nx.gen matches {lo}..{hi} run return run "
-                             f"scoreboard players operation @s nx.gen_pot += #e{emeralds} nx.gen\n")
+                if name == "coins":
+                    block, what = ns(o[3]), f"{o[2]} emerald(s): pays through the purse when mined"
+                elif name.startswith("jackpot:"):
+                    block, what = f'minecraft:chest{{LootTable:"nonios:generator/jackpot_{name[8:]}"}}', "loot chest"
+                else:
+                    block = ns(o[2]) if len(o) > 2 and isinstance(o[2], str) else name
+                    what = f"drops {name}"
+                lines.append(f"# {w}/81 {what}\n")
+                lines.append(f"execute if score #r nx.gen matches {lo}..{hi} run return run setblock ~ ~ ~ {block}\n")
                 lo = hi + 1
-            lines.append(f"loot spawn ~ ~0.4 ~ loot nonios:generator/{team}_lvl{lvl}\n")
-            write(fn / "roll" / f"{team}_lvl{lvl}.mcfunction", "".join(lines))
+            write(fn / "grow" / f"{team}_lvl{lvl}.mcfunction", "".join(lines))
+    L = d["lucky"]
+    write(lt / "lucky_item.json", json.dumps({"type": "minecraft:chest", "pools": [{"rolls": 1, "entries": [
+        item_entry(n, w, c) for n, w, c in L["items"]]}]}, indent=1) + "\n")
     cfg = [HEADER, "# Runs on load. Per-level values are copied onto a generator when its level changes.\n",
-           f"scoreboard players set #e1 nx.gen {d['emerald_coins']}\n",
-           f"scoreboard players set #e9 nx.gen {9 * d['emerald_coins']}\n",
-           f"scoreboard players set #per_roll nx.gen {d['players_per_roll']}\n",
-           f"scoreboard players set #item_cap nx.gen {d['item_cap']}\n"]
-    for lvl, L in d["levels"].items():
-        cfg += [f"scoreboard players set #iv{lvl} nx.gen {L['interval_ticks']}\n",
-                f"scoreboard players set #cap{lvl} nx.gen {L['pot_cap']}\n",
-                f"scoreboard players set #cost{lvl} nx.gen {L['upgrade_cost']}\n",
-                f"data modify storage nonios:gen core.l{lvl} set value \"{L['core']}\"\n"]
+           f"scoreboard players set #per_roll nx.gen {d['players_per_roll']}\n"]
+    for lvl, v in d["levels"].items():
+        cfg += [f"scoreboard players set #iv{lvl} nx.gen {v['regrow_ticks']}\n",
+                f"scoreboard players set #cost{lvl} nx.gen {v['upgrade_cost']}\n"]
+    cfg += ["# lucky block (proposal): default switch; the runtime switch (#lucky, generator/lucky/toggle) wins once set\n",
+            f"scoreboard players set #lucky_def nx.gen {1 if L['on'] else 0}\n",
+            f"scoreboard players set #lucky_n nx.gen {L['one_in']}\n",
+            f"data modify storage nonios:gen lucky set value {{block:\"{L['block']}\",min:{L['coins_min']},max:{L['coins_max']}}}\n"]
     write(fn / "config.mcfunction", "".join(cfg))
+
+
+def centre(d):
+    c = d["centre"]
+    lt = OUT / "loot_table" / "arena"
+    fn = OUT / "function" / "arena" / "cgen"
+    for lvl, outcomes in c["tables"].items():
+        total = sum(o[1] for o in outcomes)
+        assert total == 81, f"centre lvl{lvl}: outcomes sum to {total}, expected 81"
+        entries = []
+        lines = [HEADER, f"# centre lvl{lvl}: as + at the centre generator marker. Coin outcomes fill the pot, the rest drop items.\n",
+                 "execute store result score #r nx.gen run random value 1..81\n"]
+        lo = 1
+        for o in outcomes:
+            if o[0] == "coins":
+                hi = lo + o[1] - 1
+                lines.append(f"# {o[1]}/81 -> {o[2]} emerald(s) worth of coins\n")
+                lines.append(f"execute if score #r nx.gen matches {lo}..{hi} run return run "
+                             f"scoreboard players operation @s nx.gen_pot += #ce{o[2]} nx.gen\n")
+                lo = hi + 1
+            else:
+                entries.append(item_entry(o[0], o[1], o[2] if len(o) > 2 else 1))
+        lines.append(f"loot spawn ~ ~0.4 ~ loot nonios:arena/cgen_lvl{lvl}\n")
+        write(lt / f"cgen_lvl{lvl}.json", json.dumps({"type": "minecraft:chest", "pools": [{"rolls": 1, "entries": entries}]}, indent=1) + "\n")
+        write(fn / "roll" / f"lvl{lvl}.mcfunction", "".join(lines))
+    ems = sorted({o[2] for t in c["tables"].values() for o in t if o[0] == "coins"})
+    cfg = [HEADER, "# Runs on load (arena/load). Centre generator: interval, bank scaling, per-level pot cap + core item.\n"]
+    cfg += [f"scoreboard players set #ce{e} nx.gen {e * c['emerald_coins']}\n" for e in ems]
+    cfg += [f"scoreboard players set #cg_iv nx.gen {c['interval_ticks']}\n",
+            f"scoreboard players set #cg_bpr nx.gen {c['bank_per_roll']}\n",
+            f"scoreboard players set #cg_maxr nx.gen {c['max_rolls']}\n",
+            f"scoreboard players set #cg_icap nx.gen {c['item_cap']}\n",
+            f"scoreboard players set #cg_gold nx.gen {c['golden_speed']}\n"]
+    for lvl, v in c["levels"].items():
+        cfg += [f"scoreboard players set #cg_bank{lvl} nx.gen {v['bank']}\n",
+                f"scoreboard players set #cg_cap{lvl} nx.gen {v['pot_cap']}\n",
+                f"data modify storage nonios:gen ccore.l{lvl} set value \"{v['core']}\"\n"]
+    write(fn / "config.mcfunction", "".join(cfg))
+
+
+def build():
+    d = json.loads(SRC.read_text(encoding="utf-8"))
+    field(d)
+    centre(d)
     print("generator data built")
 
 
