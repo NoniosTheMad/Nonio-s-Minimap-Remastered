@@ -114,3 +114,15 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - Fixed: lobby altars showed the last match's kit level (levels now back to 1 in `game/to_lobby`); `nx.shop_sec` carried over between matches (`game/lobby_player`).
 - Note: a world built before team-v2 has no altar entities until `map/build` (admin Rebuild / next lobby return). `full` was rebuilt.
 - `demos/full`: + shop2 buttons 53-55, team2 buttons 56-64 (team2's 53-61 shifted by 3).
+
+## Economy v3 (`feat/econ-v3`, server `econ3`, demo `economy`; feedback #35 #36 #41)
+- [x] Yields (#36): `src/yields.json` -> `tools/build_yields.py` -> `purse/gen/{yields,check}`. Coal 0.1, copper 0.2, iron 0.5, gold 1, redstone 2,
+  lapis 4, diamond 3, emerald 5 (nether gold 0.5, emerald block 20: my picks); stone/deepslate/cobble 0 both ways. Hundredths kept in `nx.pfrac`.
+  Fortune +40%/level (item predicate on the main hand). Placing a coin block costs its Fortune III value (2.2x) -> no silk/place/fortune profit; debt as before.
+- [x] Weight (#35): coins weighed at money scale S = min(max(100 + 10%/min, 100 + team avg earned / 5), 1000%); config `#w_grow #w_iref #w_smax nx.purse`.
+- [x] Interest (#41): rate 1.0% + 0.1%/min up to 5.0%, cap 50 + 10/min per payout (storage nonios:config interest_*). No chat: team sidebar
+  (Bank / Interest / Last payout (+"max") / Next in). Admin Economy page shows the growth terms.
+- [x] Bank dialog: fixed layout (2 sliders, 4 buttons always), greyed = dark_gray label, tooltip, no action. Altar hologram icons: list root was
+  "OFFERINGS" (light purple) and sprites inherit + are tinted by the colour -> plain "" root, sprites color white.
+- RCON-verified: yields/fortune/placement/debt maths on a husk, interest growth + schedule loop, sidebar storage, bank dialog both states, altar text, clean log.
+  Not verified in the client: sidebar look, greyed buttons, mining feel, altar icons.

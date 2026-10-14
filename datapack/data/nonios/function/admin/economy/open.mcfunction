@@ -7,6 +7,9 @@ data modify storage nonios:ui eco.bc set from storage nonios:config bounty_cap
 data modify storage nonios:ui eco.ip set from storage nonios:config interest_period
 data modify storage nonios:ui eco.ic set from storage nonios:config interest_cap
 data modify storage nonios:ui eco.br set from storage nonios:config bank_range
+data modify storage nonios:ui eco.ig set from storage nonios:config interest_grow
+data modify storage nonios:ui eco.im set from storage nonios:config interest_rate_max
+data modify storage nonios:ui eco.icg set from storage nonios:config interest_cap_grow
 execute store result score #r nx.eco run data get storage nonios:config interest_rate
 scoreboard players operation #rw nx.eco = #r nx.eco
 scoreboard players operation #rw nx.eco /= #10 nx.eco

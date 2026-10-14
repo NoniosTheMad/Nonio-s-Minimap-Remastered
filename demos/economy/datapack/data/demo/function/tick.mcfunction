@@ -14,5 +14,9 @@ execute as @a[scores={demo.ec=12}] run function demo:interest
 execute as @a[scores={demo.ec=13}] run kill @s
 execute as @a[scores={demo.ec=14}] run function nonios:admin/economy/open
 execute as @a[scores={demo.ec=15}] run function demo:gear
+execute as @a[scores={demo.ec=16}] at @s run function demo:ores
+execute as @a[scores={demo.ec=17}] run function demo:clock
+execute as @a[scores={demo.ec=18}] run function demo:status
+execute as @a[scores={demo.ec=19}] run function demo:altar
 scoreboard players reset @a[scores={demo.ec=1..}] demo.ec
 scoreboard players enable @a demo.ec

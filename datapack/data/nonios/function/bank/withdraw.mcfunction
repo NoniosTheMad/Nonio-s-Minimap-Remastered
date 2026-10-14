@@ -3,6 +3,8 @@ scoreboard players operation #bw nx.eco < #b nx.eco
 execute if score #bw nx.eco matches ..0 run return run function nonios:bank/msg {m1:"The team bank is empty.",m2:"",c:"red"}
 scoreboard players operation #b nx.eco -= #bw nx.eco
 scoreboard players operation @s nx.coins += #bw nx.eco
+# not income (purse/changed counts purse increases as earned, for the money scale)
+scoreboard players operation @s nx.earned -= #bw nx.eco
 scoreboard players operation #amt nx.eco = #bw nx.eco
 function nonios:bank/msg {m1:"Withdrew ",m2:" coins into your purse.",c:"yellow"}
 execute at @s run playsound minecraft:block.chain.break player @s ~ ~ ~ 1 1.2

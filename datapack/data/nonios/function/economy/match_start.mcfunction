@@ -9,3 +9,9 @@ tag @a remove nx.k.done
 scoreboard players set #acc_white nx.eco 0
 scoreboard players set #acc_black nx.eco 0
 function nonios:bank/interest/arm
+# match clock (money scale + interest growth); last payouts for the sidebar
+execute store result score #t0 nx.eco run time query gametime
+scoreboard players set #last_white nx.eco 0
+scoreboard players set #last_black nx.eco 0
+scoreboard players set #capped_white nx.eco 0
+scoreboard players set #capped_black nx.eco 0
