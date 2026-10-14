@@ -659,27 +659,367 @@ def build():
     return s
 
 
-def palette(s, hm):
-    pass
-
-
-def interior(s):
-    pass
-
-
-def decorate(s, hm):
-    pass
-
-
-def lighting(s):
-    pass
-
-
 def markers(s, hm):
     def stand(x, z):
         col = np.nonzero(s.idx[x, :, z])[0]
         return [x, int(col.max()) + 1 if len(col) else 0, z]
-    s.mark("spawn_approach", stand(67, 117), look_at=[64, P + 8, 80])
+    s.mark("spawn_approach", [64, P, 108], look_at=[64, P + 9, 80])
     s.mark("cam_meadow_sw", stand(36, 104), look_at=[56, P + 12, 56])
     s.mark("cam_yard", [63, P, 76], look_at=[63, P + 14, 40])
+    if PASS >= 6:
+        s.mark("cam_hall", [63, P, 45], look_at=[63, P + 2, 33])
+        s.mark("cam_library", [61, P + 8, 44], look_at=[54, P + 9, 35])
+        s.mark("cam_chapel", [70, P + 16, 39], look_at=[53, P + 18, 39])
+        s.mark("cam_cellar", [64, P - 8, 44], look_at=[60, P - 6, 34])
+        wx = [x for x in range(W) if -3 < SD[x, 64] <= -2 and EDGE[x, 64] == 1][0]
+        s.mark("cam_walk", [wx, WALK, 64], look_at=[63, P + 20, 40])
+        s.mark("cam_keeptop", [KX0 + 2, P + 24, KZ1 - 2], look_at=[79, P + 36, 39])
     s.meta["origin"] = list(ORIGIN)
+
+
+# ------------------------------------------------------------------ pass 5: palette
+ROCKS = ["minecraft:tuff", "minecraft:andesite", "minecraft:stone", "minecraft:deepslate", "minecraft:cobbled_deepslate", "minecraft:blackstone"]
+
+
+def palette(s, hm):
+    s.replace(MASON, masonry(SEED + 40))
+    X, Z = grid2()
+    # courtyard ground: worn earth and cobbles, a cobbled road from the gate to the keep door
+    yard = col_mask(SD <= -4, P - 1, P - 1) & s.match(ROCKS)
+    road = col_mask((np.abs(X - 63.5) < 3 + noise.fbm(X, Z, 2.0, scale=5, seed=SEED + 41)) & (Z > KZ1) & (Z < GH[2]), P - 1, P - 1)
+    s.fill(yard, Noise([(-0.35, "packed_mud"), (0.0, "coarse_dirt"), (0.3, Mix({"dirt_path": 2, "coarse_dirt": 1})),
+                        (0.55, "mossy_cobblestone"), (1, "cobblestone")], scale=6, seed=SEED + 42))
+    s.fill(road & s.match(["minecraft:packed_mud", "minecraft:coarse_dirt", "minecraft:dirt_path", "minecraft:mossy_cobblestone", "minecraft:cobblestone"]),
+           Noise([(-0.2, "cobblestone"), (0.3, Mix({"stone_bricks": 1, "cobblestone": 2})), (1, "mossy_cobblestone")], scale=4, seed=SEED + 43))
+    soil(s)
+    # moss sheets on flattish rock tops
+    rock = s.match(["minecraft:tuff", "minecraft:andesite", "minecraft:stone", "minecraft:deepslate"])
+    s.fill(rock, Gradient("up", [(0.5, None), (2, Noise([(-0.1, "moss_block"), (1, None)], scale=5, seed=SEED + 44))]))
+
+
+def soil(s):
+    hm = s.surface("solid")
+    pad = np.pad(hm, 1, mode="edge")
+    slope = np.max([np.abs(hm - pad[1:-1, :-2]), np.abs(hm - pad[1:-1, 2:]), np.abs(hm - pad[:-2, 1:-1]), np.abs(hm - pad[2:, 1:-1])], 0)
+    top = np.zeros(s.shape, bool); sub = np.zeros(s.shape, bool)
+    for x, z in zip(*np.nonzero((slope <= 1) & (hm > 0) & (SD > 0.5))):
+        y = hm[x, z]
+        if s.palette[s.idx[x, y, z]] not in ROCKS:
+            continue
+        top[x, y, z] = True
+        sub[x, max(0, y - 2):y, z] = True
+    sub &= s.match(ROCKS)
+    s.fill(sub, Noise([(-0.3, "rooted_dirt"), (0.4, "dirt"), (1, "coarse_dirt")], scale=5, seed=SEED + 45))
+    s.fill(top, Noise([(-0.45, "moss_block"), (0.55, "grass_block"), (0.68, "coarse_dirt"), (1, "grass_block")], scale=7, seed=SEED + 46))
+
+
+# ------------------------------------------------------------------ pass 6: interior
+IX0, IX1, IZ0, IZ1 = KX0 + KT, KX1 - KT, KZ0 + KT, KZ1 - KT     # 53..73 x 33..45
+
+
+def interior(s):
+    great_hall(s)
+    solar_and_library(s)
+    chapel(s)
+    cellar(s)
+    tower_rooms(s)
+    gate_room(s)
+
+
+def great_hall(s):
+    F = P
+    s.box((IX0, F - 1, IZ0), (IX1, F - 1, IZ1), Noise([(-0.2, "polished_tuff"), (0.35, "tuff_bricks"), (1, "polished_andesite")], scale=5, seed=SEED + 50))
+    # ceiling beams (dark oak, every 4) under the solar floor
+    for z in range(IZ0 + 1, IZ1, 4):
+        s.box((IX0, F + 6, z), (IX1, F + 6, z), "stripped_dark_oak_log[axis=x]")
+    s.box((IX0, F + 7, IZ0), (IX1, F + 7, IZ1), "dark_oak_planks")
+    # dais at the north end, high table, lord's chair
+    s.box((IX0 + 2, F, IZ0), (IX1 - 2, F, IZ0 + 2), "dark_oak_planks")
+    for x in range(IX0 + 2, IX1 - 1):
+        s.set(x, F, IZ0 + 3, "dark_oak_stairs[facing=north]")
+    s.box((57, F + 1, IZ0 + 1), (69, F + 1, IZ0 + 1), "dark_oak_slab[type=top]")
+    for x in range(58, 69, 2):
+        s.set(x, F + 1, IZ0, "spruce_stairs[facing=north]")
+    s.set(63, F + 1, IZ0, "dark_oak_stairs[facing=north]")
+    s.set(63, F + 2, IZ0, "dark_oak_trapdoor[facing=south,half=bottom,open=true]")
+    # two long tables with benches
+    for tx in (58, 68):
+        s.box((tx, F, 38), (tx, F, 44), "dark_oak_slab[type=top]")
+        s.box((tx - 1, F, 38), (tx - 1, F, 44), "spruce_stairs[facing=west]")
+        s.box((tx + 1, F, 38), (tx + 1, F, 44), "spruce_stairs[facing=east]")
+        for z in (39, 42):
+            s.set(tx, F + 1, z, "candle[candles=3,lit=true]")
+    # red runner from the door to the dais
+    s.box((62, F, IZ0 + 4), (64, F, IZ1), "red_carpet")
+    # fireplace in the west wall
+    s.box((IX0 - 1, F, 38), (IX0 - 1, F + 2, 40), "air")
+    s.box((IX0 - 2, F, 38), (IX0 - 2, F + 3, 40), "bricks")
+    s.set(IX0 - 1, F, 39, "campfire[lit=true,facing=east]")
+    s.set(IX0 - 1, F, 38, "polished_deepslate"); s.set(IX0 - 1, F, 40, "polished_deepslate")
+    for z in range(37, 42):
+        s.set(IX0, F + 3, z, "polished_deepslate_stairs[facing=west,half=top]")
+    s.set(IX0, F + 4, 39, "chiseled_tuff_bricks")
+    s.set(IX0, F, 37, "polished_deepslate"); s.set(IX0, F, 41, "polished_deepslate")
+    s.set(IX0, F + 1, 37, "polished_deepslate_wall"); s.set(IX0, F + 1, 41, "polished_deepslate_wall")
+    s.set(IX0, F + 2, 37, "polished_deepslate_wall"); s.set(IX0, F + 2, 41, "polished_deepslate_wall")
+    # chandeliers on chains from the beams
+    for cx, cz in ((58, 41), (68, 41), (63, 37)):
+        s.set(cx, F + 5, cz, "iron_chain[axis=y]")
+        s.set(cx, F + 4, cz, "lantern[hanging=true]")
+    # sideboards and barrels along the east wall
+    for z in (34, 36, 44):
+        s.set(IX1, F, z, "barrel[facing=up]")
+    s.box((IX1, F, 41), (IX1, F, 43), "spruce_slab[type=top]")
+    s.set(IX1, F + 1, 42, "decorated_pot")
+
+
+def solar_and_library(s):
+    F = P + 8
+    for z in range(IZ0 + 1, IZ1, 4):
+        s.box((IX0, F + 6, z), (IX1, F + 6, z), "stripped_dark_oak_log[axis=x]")
+    s.box((IX0, F + 7, IZ0), (IX1, F + 7, IZ1), "spruce_planks")
+    # timber partition at x=63 with a door gap
+    s.box((63, F, IZ0), (63, F + 5, IZ1), Mix({"spruce_planks": 3, "stripped_spruce_log": 1}, seed=3))
+    for z in (IZ0, 37, 41, IZ1):
+        s.box((63, F, z), (63, F + 5, z), "dark_oak_log")
+    s.box((63, F, 39), (63, F + 2, 39), "air")
+    # library (west half)
+    s.box((IX0, F, 37), (IX0, F + 3, 41), "bookshelf")
+    s.box((IX0 + 1, F, IZ0), (62, F + 2, IZ0), Mix({"bookshelf": 4, "chiseled_bookshelf": 1}))
+    s.box((IX0 + 1, F + 3, IZ0), (62, F + 3, IZ0), "spruce_slab")
+    s.box((56, F, 39), (59, F, 41), "spruce_slab[type=top]")
+    for x in (56, 58):
+        s.set(x, F, 38, "spruce_stairs[facing=north]"); s.set(x + 1, F, 42, "spruce_stairs[facing=south]")
+    s.set(57, F + 1, 40, "lectern[facing=south]")
+    s.set(59, F + 1, 39, "candle[candles=2,lit=true]")
+    s.box((IX0 + 1, F - 0, 43), (60, F, 45), "brown_carpet")
+    # lord's chamber (east half): bed, chest, wardrobe, rug
+    s.set(70, F, 34, "red_bed[facing=north,part=head]"); s.set(70, F, 35, "red_bed[facing=north,part=foot]")
+    s.set(71, F, 34, "red_bed[facing=north,part=head]"); s.set(71, F, 35, "red_bed[facing=north,part=foot]")
+    s.set(69, F, 33, "spruce_slab[type=top]"); s.set(72, F, 33, "spruce_slab[type=top]")
+    s.set(69, F + 1, 33, "lantern"); s.set(72, F + 1, 33, "candle[candles=1,lit=true]")
+    s.set(66, F, IZ1, "chest[facing=north]")
+    s.box((IX1, F, 43), (IX1, F + 2, 45), "spruce_planks")
+    s.box((IX1 - 1, F, 43), (IX1 - 1, F + 2, 45), "spruce_trapdoor[facing=west,open=true]")
+    s.box((66, F, 37), (71, F, 42), "red_carpet")
+    s.box((67, F, 38), (70, F, 41), "brown_carpet")
+    s.set(65, F, 42, "spruce_stairs[facing=east]")
+
+
+def chapel(s):
+    F = P + 16
+    s.box((IX0, F - 1, IZ0), (IX1, F - 1, IZ1), Noise([(0, "polished_tuff"), (1, "tuff_bricks")], scale=4, seed=SEED + 51))
+    # altar at the west end on a step
+    s.box((IX0, F, 35), (IX0 + 2, F, 43), "polished_deepslate")
+    for z in range(35, 44):
+        s.set(IX0 + 3, F, z, "polished_deepslate_stairs[facing=west]")
+    s.box((IX0, F + 1, 37), (IX0, F + 1, 41), "chiseled_tuff_bricks")
+    s.box((IX0 + 1, F + 1, 37), (IX0 + 1, F + 1, 41), "polished_deepslate_slab[type=top]")
+    for z in (37, 39, 41):
+        s.set(IX0 + 1, F + 2, z, "candle[candles=4,lit=true]")
+    s.box((IX0, F + 2, 38), (IX0, F + 5, 40), "air")
+    s.box((IX0 - 1, F + 2, 38), (IX0 - 1, F + 5, 40), "yellow_stained_glass")
+    s.set(IX0, F + 3, 39, "lightning_rod")
+    # pews facing the altar, aisle down the middle
+    for x in range(58, 71, 2):
+        for z in list(range(34, 38)) + list(range(41, 45)):
+            s.set(x, F, z, "spruce_stairs[facing=east]")
+    s.box((58, F, 38), (72, F, 40), "red_carpet")
+    # vaulted feel: stepped corbels along the long walls
+    for x in range(IX0, IX1 + 1, 4):
+        for z, f in ((IZ0, "south"), (IZ1, "north")):
+            s.box((x, F, z), (x, F + 6, z), "tuff_bricks")
+            s.set(x, F + 5, z + (1 if f == "south" else -1), f"tuff_brick_stairs[facing={'north' if f == 'south' else 'south'},half=top]")
+    s.box((IX0, F + 6, IZ0), (IX1, F + 6, IZ1), "spruce_planks")
+    for x in range(IX0, IX1 + 1, 4):
+        s.box((x, F + 6, IZ0), (x, F + 6, IZ1), "stripped_dark_oak_log[axis=z]")
+
+
+def cellar(s):
+    F = P - 8
+    s.box((IX0, F - 1, IZ0), (IX1, F - 1, IZ1), Noise([(-0.1, "cobbled_deepslate"), (0.4, "packed_mud"), (1, "mossy_cobblestone")], scale=4, seed=SEED + 52))
+    # vault springers along the walls and two piers
+    for x in range(IX0, IX1 + 1):
+        s.set(x, F + 6, IZ0, "deepslate_brick_stairs[facing=north,half=top]")
+        s.set(x, F + 6, IZ1, "deepslate_brick_stairs[facing=south,half=top]")
+    for px in (59, 67):
+        s.box((px, F, 38), (px + 1, F + 6, 40), "deepslate_bricks")
+        for dx, f in ((-1, "east"), (2, "west")):
+            s.box((px + dx, F + 6, 38), (px + dx, F + 6, 40), f"deepslate_brick_stairs[facing={f},half=top]")
+    # casks along the north wall (two high), barrels and sacks
+    s.box((IX0 + 1, F, IZ0), (IX1 - 1, F + 1, IZ0), "barrel[facing=south]")
+    for x in range(IX0 + 1, IX1, 3):
+        s.box((x, F, IZ0), (x, F + 1, IZ0), "spruce_planks")
+    s.box((IX0, F, IZ0 + 3), (IX0, F, IZ1 - 1), "barrel[facing=up]")
+    s.box((IX0 + 1, F, IZ1), (IX0 + 4, F, IZ1), "brown_wool")
+    s.box((IX0 + 1, F + 1, IZ1), (IX0 + 2, F + 1, IZ1), "brown_wool")
+    s.box((IX1 - 4, F, IZ1), (IX1 - 1, F, IZ1), "hay_block")
+    s.set(IX0, F + 5, IZ0, "cobweb"); s.set(IX1, F + 5, IZ1, "cobweb")
+    for x, z in ((56, 39), (63, 36), (63, 43), (70, 39)):
+        s.set(x, F + 5, z, "iron_chain[axis=y]"); s.set(x, F + 4, z, "lantern[hanging=true]")
+
+
+def ladder_up(s, cx, cz, y0, y1):
+    """Ladder on the north inner wall of a tower from y0 to y1 (through the floors)."""
+    z = cz
+    while s.idx[cx, y0 + 1, z - 1] == 0:
+        z -= 1
+    for y in range(y0, y1 + 1):
+        s.set(cx, y, z, "ladder[facing=south]")
+    return z
+
+
+def tower_rooms(s):
+    X, Z = grid2()
+    for name, c, kind, R, top, roof in TOWERS:
+        outer, inner, r = tower_masks(name, c, kind, R, top)
+        cx, cz = c
+        # floors: walk level and top
+        s.fill(col_mask(inner, WALK - 1, WALK - 1), "spruce_planks")
+        if roof != "hoard":
+            s.fill(col_mask(inner, top - 1, top - 1), "spruce_planks")
+        s.fill(col_mask(inner, P - 1, P - 1), Mix({"cobbled_deepslate": 2, "tuff": 1}))
+        # doorways onto the wall-walks and into the yard
+        ring = outer & ~inner
+        s.fill(col_mask(ring & (SD > -4) & (SD <= -0.5), WALK, WALK + 2), "air")
+        vx, vz = 64 - cx, 60 - cz
+        n = math.hypot(vx, vz); vx, vz = vx / n, vz / n
+        for t in np.arange(R - 2.5, R + 1.5, 0.5):
+            px, pz = int(cx + 0.5 + vx * t), int(cz + 0.5 + vz * t)
+            for py in range(P, P + 3):
+                s.set(px, py, pz, "air")
+        lz = ladder_up(s, cx, cz, P, top - 1 if roof != "hoard" else top - 2)
+        # light + furnishing per floor
+        for F in (P, WALK, top):
+            s.set(cx + 1, F, cz + 1, "lantern")
+            s.set(cx - 1, F, cz + 1, "barrel[facing=up]")
+        if name == "ne":   # armoury store
+            for dx in (-3, -2, 2, 3):
+                s.set(cx + dx, P, cz - 3, "lightning_rod")
+            s.set(cx + 3, P, cz, "anvil[facing=north]")
+            s.set(cx + 3, P, cz + 2, "grindstone[face=floor,facing=north]")
+            s.set(cx - 3, P, cz + 3, "smithing_table")
+            s.set(cx - 3, P, cz, "chest[facing=east]")
+            s.set(cx - 3, P, cz - 1, "chest[facing=east]")
+
+
+def gate_room(s):
+    """Guard room / armoury over the gate passage, level with the wall-walks."""
+    x0, x1, z0, z1 = GH
+    F = WALK
+    s.box((x0 + 2, F, z0 + 2), (x1 - 2, F + 3, z1 - 3), "air")
+    s.box((x0 + 2, F - 1, z0 + 2), (x1 - 2, F - 1, z1 - 3), "spruce_planks")
+    s.box((x0, F, 89), (x1, F + 2, 90), "air")       # through to both wall-walks
+    s.box((x0 + 2, F + 4, z0 + 2), (x1 - 2, F + 4, z1 - 3), "dark_oak_planks")
+    # portcullis winch over the passage: chains down to raised iron bars
+    for x in range(GATE_X0, GATE_X1 + 1):
+        s.set(x, P + 4, 94, "iron_bars")
+        s.set(x, P + 5, 94, "iron_bars")
+    s.box((GATE_X0, F, 92), (GATE_X1, F, 92), "stripped_spruce_log[axis=x]")
+    # weapon racks: lightning-rod spears, shields = trapdoors, barrels of arrows
+    for x in range(x0 + 2, x1 - 1, 2):
+        s.set(x, F, z0 + 2, "lightning_rod")
+    s.box((x0 + 2, F, 92), (x0 + 3, F, 93), "barrel[facing=up]")
+    s.set(x1 - 2, F, 93, "anvil[facing=east]")
+    s.set(x1 - 3, F, 93, "smithing_table")
+    s.box((x0 + 5, F, 88), (x0 + 5, F, 90), "dark_oak_slab[type=top]")
+    for x, z in ((59, 88), (69, 88)):
+        s.set(x, F + 3, z, "lantern[hanging=true]")
+
+
+# ------------------------------------------------------------------ pass 7: decoration
+def decorate(s, hm):
+    s.decorate("grass_block", Mix({"short_grass": 6, "fern": 2, "poppy": 0.2, "cornflower": 0.2}), chance=0.3, seed=SEED + 70)
+    s.decorate("moss_block", Mix({"moss_carpet": 3, "short_grass": 1}), chance=0.35, seed=SEED + 71)
+    # rubble and fallen stones at the foot of the walls, outside
+    rng = np.random.default_rng(SEED + 72)
+    frags = ["cobblestone", "mossy_cobblestone", "stone_brick_slab", "mossy_stone_brick_slab", "tuff_brick_slab", "cobblestone_wall"]
+    surf = s.surface("solid")
+    cand = np.argwhere((SD > 2.5) & (SD < 7) & (surf > 0))
+    for x, z in cand[rng.random(len(cand)) < 0.05]:
+        y = surf[x, z]
+        if s.palette[s.idx[x, y, z]].split("[")[0].endswith(("slab", "stairs", "wall", "carpet", "grass", "fern")):
+            continue
+        s.set(x, y + 1, z, frags[rng.integers(len(frags))])
+    # yard life: hay, barrels, a cart of crates by the lean-to; a well with a timber hood
+    for x, z, b in ((48, 66, "hay_block"), (48, 67, "hay_block"), (48, 68, "barrel[facing=up]"), (49, 66, "hay_block"),
+                    (80, 70, "barrel[facing=up]"), (81, 70, "barrel[facing=up]"), (80, 71, "spruce_planks"),
+                    (55, 52, "barrel[facing=up]"), (71, 52, "barrel[facing=up]")):
+        s.set(x, P, z, b)
+    s.set(48, P + 1, 66, "hay_block")
+    for dx, dz in ((-2, 0), (2, 0)):
+        s.box((70 + dx, P + 1, 68 + dz), (70 + dx, P + 2, 68 + dz), "spruce_fence")
+    s.box((68, P + 3, 68), (72, P + 3, 68), "stripped_spruce_log[axis=x]")
+    s.box((68, P + 4, 67), (72, P + 4, 69), "deepslate_tile_slab")
+    s.set(70, P + 2, 68, "iron_chain[axis=y]")
+    vines(s)
+
+
+def vines(s):
+    from tools.voxel.connect import sturdy
+    rng = np.random.default_rng(SEED + 73)
+    solid = sturdy(s)
+    air = s.match("air")
+    X, Y, Z = s.shape
+    dirs = {"north": (0, -1), "south": (0, 1), "west": (-1, 0), "east": (1, 0)}
+    out_ok = (SD > 0.5)[:, None, :]
+    for name, (ddx, ddz) in dirs.items():
+        nb = np.zeros_like(solid)
+        xs = slice(max(0, ddx), X + min(0, ddx)); xd = slice(max(0, -ddx), X + min(0, -ddx))
+        zs = slice(max(0, ddz), Z + min(0, ddz)); zd = slice(max(0, -ddz), Z + min(0, -ddz))
+        nb[xd, :, zd] = solid[xs, :, zs]
+        c = air & nb & out_ok
+        c[:, :L0 - 6] = False
+        c[:, P + 8:] = False
+        pts = np.argwhere(c)
+        keep = noise.fbm(pts[:, 0], pts[:, 1], pts[:, 2], scale=6, octaves=1, seed=SEED + 74 + len(name)) > 0.4
+        pts = pts[keep]
+        st = s.id(f"minecraft:vine[{name}=true]")
+        for x, y, z in pts[rng.random(len(pts)) < 0.1]:
+            for k in range(int(rng.integers(2, 7))):
+                yy = y - k
+                if yy < 0 or s.idx[x, yy, z] != 0 or not solid[x + ddx, yy, z + ddz]:
+                    break
+                s.idx[x, yy, z] = st
+
+
+# ------------------------------------------------------------------ pass 8: lighting
+def lighting(s):
+    # wall-walk lanterns on the inner edge every ~9 blocks
+    walk = (SD > -4) & (SD <= -3) & ((np.floor(ALONG) % 9) == 4) & ~no_depth_zone()
+    for x, z in zip(*np.nonzero(walk)):
+        if s.idx[x, WALK, z] == 0 and s.idx[x, WALK - 1, z] != 0:
+            s.set(x, WALK, z, "lantern")
+    # yard: lantern posts
+    for x, z in ((58, 60), (69, 60), (58, 75), (69, 75), (50, 52), (77, 52)):
+        s.box((x, P, z), (x, P + 1, z), "dark_oak_fence")
+        s.set(x, P + 2, z, "lantern")
+    # keep door: hanging lanterns on brackets
+    for x in (60, 66):
+        s.set(x, P + 4, KZ1 + 2, "dark_oak_fence")
+        s.set(x, P + 3, KZ1 + 2, "lantern[hanging=true]")
+        s.set(x, P + 4, KZ1 + 1, "dark_oak_fence")
+    # gate passage
+    for x in (GATE_X0, GATE_X1):
+        for z in (86, 92):
+            s.set(x, P + 2, z, "wall_torch[facing=" + ("east" if x == GATE_X0 else "west") + "]")
+    # stair turret: a torch every revolution on the north wall
+    tx, tz = TUR
+    for k in SPIRAL_K:
+        if k % 8 == 1:
+            y = SPIRAL_Y0 + k + 2
+            if s.idx[tx, y, tz - 1] == 0 and s.idx[tx, y, tz - 2] != 0:
+                s.set(tx, y, tz - 1, "wall_torch[facing=south]")
+    # solar / library / chapel / roof walk
+    for F in (P + 8, P + 16):
+        for x, z in ((55, 44), (61, 34), (65, 44), (71, 37)):
+            s.set(x, F + 5, z, "iron_chain[axis=y]") if s.idx[x, F + 5, z] == 0 else None
+            if s.idx[x, F + 4, z] == 0:
+                s.set(x, F + 4, z, "lantern[hanging=true]")
+    for x, z in ((KX0 + 1, KZ0 + 1), (KX1 - 1, KZ0 + 1), (KX0 + 1, KZ1 - 1), (KX1 - 1, KZ1 - 1)):
+        s.set(x, P + 24, z, "lantern")
+    # lean-to and towers are lit in their own functions; tunnels in the lean-to
+    for z in (65, 70, 74):
+        xs = [x for x in range(W) if -8 < SD[x, z] <= -7 and EDGE[x, z] == 4]
+        if xs:
+            s.set(xs[0], P + 3, z, "lantern[hanging=true]")
