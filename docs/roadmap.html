@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Nonios's Map Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -86,6 +85,8 @@ a{color:var(--accent)}
       <li><b>Shop dialog (★):</b> server <b>shop</b>. Try buying items. Check NPC, catalog, trigger buttons, and insufficient coins message.</li>
       <li><b>Coin purse (★):</b> server <b>purse</b>. Mine blocks. Check coins earned, weight slowdown, and purse dropping to killer on death.</li>
       <li><b>Shaders v2 (★):</b> server <b>shaders</b>. Refresh pack (<kbd>G</kbd> → <b>Refresh resource pack</b>), then <kbd>G</kbd> → <b>Demo: custom shaders</b>. Check god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.</li>
+      <li><b>Generators (★):</b> server <b>gens</b>. Watch drops, right-click a generator to collect its coins, try the upgrade buttons (<kbd>G</kbd> → demo).</li>
+      <li><b>Emerald Dream (★):</b> server <b>dream</b>. <kbd>G</kbd> → demo → Enter, mine emeralds, then hold sneak 5 s to wake up. Judge the sky, fog and islands.</li>
     </ol>
   </section>
 
@@ -122,8 +123,8 @@ a{color:var(--accent)}
       <li><span class="pill p-now">In progress</span><span class="what">Teams &amp; match phases</span><span class="why">Team assignment, Pre-match, Arena, Post-match (win screen). Spectator mode.</span></li>
       <li><span class="pill p-todo">Queued</span><span class="what">Respawn &amp; keepInventory</span><span class="why">Reconcile with class kits and bank + kill reward.</span></li>
       <li><span class="pill p-todo">Queued</span><span class="what">Placeholder map</span><span class="why">Two team bases, Nexus rooms, contested arena. Flat or imported V2? Decide before M6.</span></li>
-      <li><span class="pill p-todo">Queued</span><span class="what">Emerald Dream spike demo</span><span class="why">Custom dimension; lore from V1.0; risky channel exit (sneak for X seconds).</span></li>
-      <li><span class="pill p-todo">Queued</span><span class="what">Resource generators spike demo</span><span class="why">Proof-of-concept: ore/resource generators in contested areas. Reference V2.0 structures.</span></li>
+      <li><span class="pill p-wait">Your test</span><span class="what">Emerald Dream demo</span><span class="why">Custom dimension with floating islands, random arrivals, 10 regrowing veins, 5 s sneak-exit. Lore from V2.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Resource generators spike demo</span><span class="why">V2.0 structures via /place template, emerald outcomes → coin pot, data-driven, loot from V2 dispenser odds.</span></li>
     </ul>
   </section>
 
@@ -132,7 +133,7 @@ a{color:var(--accent)}
     <dl>
       <dt>M3 · Economy</dt><dd>Coins and their weight, the bank, kill rewards and the full shop.</dd>
       <dt>M4 · Progression &amp; Arena</dt><dd>Field upgrades, generators, arena events, and the Emerald Dream dimension.</dd>
-      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders.</dd>
+      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders. Reaper and Cracy Frog end-to-end (in progress).</dd>
       <dt>M6 · Map &amp; polish</dt><dd>The new map build, sounds, textures, balance and playtests.</dd>
     </dl>
   </section>
@@ -165,6 +166,19 @@ a{color:var(--accent)}
         <dt>Shop: full catalog?</dt><dd>Real catalog (per team/phase?) or test data for now?</dd>
         <dt>&sol;posteffect persistence</dt><dd>Do shader effects survive death, relog, or transfer? Critical for classes and shop effects in M3+.</dd>
         <dt>Shop: quantity picker?</dt><dd>Support buying multiple items in one dialog (e.g., 2× Diamond Sword), or single-item only?</dd>
+        <dt><b>Generators:</b> coins per outcome</dt><dd>Suggested: 5 coins; block 45; Lv3 ≈72 coins/min. Scales with team size; rolls from V2's 81-outcome dispenser.</dd>
+        <dt>Generators: drop intervals &amp; caps</dt><dd>Suggested: 10/8/6 s per level; pot caps 50/150/500. How often rolls occur; limits per team.</dd>
+        <dt>Generators: enemy raid?</dt><dd>Can enemies collect your generator pot? Suggested: yes (raid incentive).</dd>
+        <dt>Generators: upgrade costs</dt><dd>Suggested: V2 values — 200→Lv2, 500→Lv3; later via Team Altar. How teams level generators.</dd>
+        <dt>Generators: fortune drops</dt><dd>Suggested: yes, drops as mined items without fortune. Generator outcomes count as mined.</dd>
+        <dt>Generators: protection &amp; loading</dt><dd>TBD: How to prevent/allow breaking structures; which chunks keep them loaded during map reset.</dd>
+        <dt><b>Emerald Dream:</b> shared or per-team</dt><dd>Suggested: shared by both teams (unlike V2). Same dimension or separate instances?</dd>
+        <dt>Dream: void fall</dt><dd>Suggested: yes. Does falling out of the floating islands kill you?</dd>
+        <dt>Dream: Jump Boost</dt><dd>Suggested: on. Should players get Jump Boost III in the Dream?</dd>
+        <dt>Dream: channel time</dt><dd>Fixed at 5 s to sneak-exit. Veins regrow in 30 s; 10 per arrival at ±3000 range.</dd>
+        <dt>Dream: emerald value</dt><dd>Suggested: 100 coins per emerald block. Scales dream farming value.</dd>
+        <dt>Dream: arrival range</dt><dd>Suggested: ±3000 blocks. Smaller for guaranteed team meetings, or larger for separation?</dd>
+        <dt>Dream: mob danger</dt><dd>Suggested: endermen + allays. What creatures make the dream risky?</dd>
       </dl>
     </section>
   </div>
@@ -172,15 +186,13 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
-      <li><time>10-14</time><b>M2 core started:</b> merging M1 spikes, teams/phases/respawn/win. Parallel research: Generators and Emerald Dream.</li>
+      <li><time>10-14</time><b>Arena started:</b> feat/arena. Contested nodes, timed events, lightning toggle.</li>
+      <li><time>10-14</time><b>Emerald Dream spike done:</b> custom dimension with floating islands, random arrivals (±3000), 10 regrowing veins, 5 s sneak-exit, saved return point. Lore from V2 recovered. Seven design questions queued.</li>
+      <li><time>10-14</time><b>Generators spike done:</b> V2 level structures via /place, coin pot (right-click), team-scaled rolls, data-driven. Six design questions queued.</li>
+      <li><time>10-14</time><b>Classes framework started:</b> feat/classes. Reaper and Cracy Frog end-to-end implementation underway.</li>
       <li><time>10-14</time><b>All M1 design questions approved:</b> shop stays open, NPC at base, refuses when full. Coins: no building blocks, first 20 weightless, mob deaths drop purse. Bank: team-wide. Actionbar: barrier > coin.</li>
+      <li><time>10-14</time><b>M2 core started:</b> merging M1 spikes, teams/phases/respawn/win. Parallel research: Generators and Emerald Dream.</li>
       <li><time>10-14</time><b>M1 complete:</b> all five spikes built. Shaders v2, nexus, shop, and purse await your tests.</li>
-      <li><time>10-14</time>Shaders v2: combinable layers, four looks (Cinematic/Thermal/Cosmic/Monster), presets, time-of-day buttons, materials gallery, real landscape (seed 2).</li>
-      <li><time>10-14</time>Coin purse spike: per-block mining, anti-silk-touch, weight 0.1%/coin (capped 40%), killer gets purse, coin-bag on mob death.</li>
-      <li><time>10-14</time>Shop dialog spike: data-driven catalog, trigger buttons, NPC shopkeeper, not-enough-coins message.</li>
-      <li><time>10-14</time>Nexus barrier v3: vanilla destroy_stage crack textures (4 stages), 20% regen/min, hit flash, defenders-only bossbar.</li>
     </ul>
   </section>
 </div>
-
-</body></html>

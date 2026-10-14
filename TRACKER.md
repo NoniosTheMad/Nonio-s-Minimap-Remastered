@@ -33,11 +33,13 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 - Text-box feedback dialog (topic + multiline, log4j2 route, ✔ noted) — done (f9d3229)
 - Roadmap kept current (docs/roadmap.html) — synced with this file
 - Quiet session (only checkpoints) — established
+- Generators spike (V2.0 level structure reuse via `/place template`, coin pot, data-driven via src/generators.json, loot table from V2's 81-outcome dispenser odds) — done (855e046)
+- Emerald Dream spike (custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point, V2 lore recovered) — done (6729ef0)
 
 ## In flight
 - M2 core (feat/m2-core): Merge M1 spikes (barrier, shop, purse) into main; teams/phases/respawn/win logic; placeholder map.
-- Generators (feat/generators): Resource generator structures; V2.0 reference; spike demo.
-- Emerald Dream (feat/emerald-dream): Custom dimension spike; lore extraction from V1.0; risky channel mechanic.
+- Classes (feat/classes): Class framework + Reaper + Cracy Frog end-to-end implementation.
+- Arena (feat/arena): Contested nodes, timed events, lightning toggle.
 
 ## Decisions
 | Date | Decision |
@@ -65,6 +67,7 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 | 2026-10-14 | **Coins: mob/environment deaths drop purse.** Killed by mob/fall/environment = coin-bag on ground for anyone to pick up. Killer gets kill reward separately. |
 | 2026-10-14 | **Bank: team-wide.** Single vault per team (not per-player); all team members deposit/withdraw from same pool. Recoverable on death (coins to killer, bank intact). |
 | 2026-10-14 | **Actionbar: barrier hit beats coin counter.** On nexus hit, barrier HP text shows on actionbar (coin counter yields). Coin counter resumes when not hitting. |
+| 2026-10-14 | **Coin objective & teams:** coin objective = `nx.coins` (scoreboard). Teams: `white` and `black` everywhere (universal naming across branches). |
 
 ## Open questions
 1. **Main world:** fresh flat or import V2 terrain? Decide before M6 build.
@@ -74,7 +77,24 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 5. **Quantity picker:** support buying multiple items per dialog (2x Diamond Sword) or single-item only?
 
 ## Questions for when user returns
-(Accumulated design choices that need user approval; discovered during M2 core, Generators, and Emerald Dream research. Will add to this section as agents report findings.)
+**Generators** (spike done 855e046; from coordinator notes, with suggested defaults):
+1. **Coins per emerald outcome:** [suggested: 5; block-level 45; Lv3 ≈72 coins/min]. Scales with team size; rolls from V2's 81-outcome dispenser odds.
+2. **Drop intervals:** [suggested: 10/8/6 s per level; pot caps 50/150/500]. How often rolls occur; pot size limit per team.
+3. **Can enemies collect your pot?** [suggested: yes]. Raid incentive; holders can defend or split coins before enemy raid.
+4. **Upgrade costs:** [suggested: V2 values — 200→Lv2, 500→Lv3; later via Team Altar]. How teams level generators; Altar not yet built.
+5. **Drops as mined items without fortune:** [suggested: yes]. Generator outcomes count as mined; no fortune multiplier applied.
+6. **Generator structure protection + chunk loading:** [noted: not handled yet]. How to prevent/allow breaking structures; which chunks keep them loaded during map reset.
+
+**Emerald Dream** (spike done 6729ef0; from coordinator notes, with suggested defaults):
+7. **Dream shared or per-team?** [suggested: shared by both teams, unlike V2]. Same dimension or separate instances?
+8. **Void fall = death?** [suggested: yes]. Does falling out of floating islands kill you?
+9. **Jump Boost in the Dream?** [suggested: on]. Should players get Jump Boost III in the Dream?
+10. **Channel time, regrow, veins count:** [fixed: 5 s sneak to exit, 30 s regrow, 10 per arrival]. Adjustable or keep as-is?
+11. **Emerald block value:** [suggested: 100 coins per emerald]. Scales dream farming value relative to generators.
+12. **Arrival range:** [suggested: ±3000 blocks]. Smaller for guaranteed team meetings, or larger for separation?
+13. **Dream mob danger:** [suggested: endermen + allays]. What creatures make the dream risky vs. just a farm?
+
+(More questions will accumulate from M2 core, Classes, and Arena research.)
 
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
@@ -84,6 +104,11 @@ M2 playable core: merge M1 spikes into main, build teams/phases/respawn/win logi
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | **Arena started** (feat/arena): contested nodes, timed events, lightning toggle. Parallel: M2 core, Classes, both spikes (Generators, Emerald Dream) done. |
+| 10-14 | **Emerald Dream spike done** (6729ef0, feat/emerald-dream, server dream ★): custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point. V2 lore recovered (Shop Keeper, Emerald Talisman, Crazy Frog chain). Seven design questions for user (shared/void/jump/regrow/value/range/mobs). |
+| 10-14 | **Classes started** (feat/classes): class framework + Reaper + Cracy Frog end-to-end. M5 milestone now in progress; spikes ongoing (M2 core, Arena). |
+| 10-14 | **Generators spike done** (855e046, feat/generators, server gens ★): V2 level structure reuse via `/place template`, emerald outcomes → coin pot (right-click collect), rolls scale team size, data-driven via src/generators.json, loot from V2's 81-outcome dispenser. Six design questions for user (coins/drops/raids/costs/fortune/protection). |
+| 10-14 | **Coin objective + teams decided:** `nx.coins` scoreboard, teams `white`/`black` universal across branches. |
 | 10-14 | **M2 core started** (feat/m2-core): merging M1 spikes into main; teams/phases/respawn/win logic; placeholder map. Parallel: Generators (feat/generators, resource structures) and Emerald Dream (feat/emerald-dream, dimension spike). |
 | 10-14 | **All M1 shop + purse design questions approved** (user via coordinator): Shop stays open, NPC at base, refuses when full. Coins: blocks earn nothing, first 20 weightless, mob deaths drop purse. Bank: team-wide. Actionbar: barrier > coin counter. Added to Decisions table. |
 | 10-14 | **M1 spikes complete.** All built and awaiting user tests (shaders, nexus, shop, purse, text-box feedback). **MERGE NOTE:** shop, nexus-barrier, and purse all modify tick.json/load.json (conflicts on merge to main). Proposed next: user tests, then plan M2 playable core. |
