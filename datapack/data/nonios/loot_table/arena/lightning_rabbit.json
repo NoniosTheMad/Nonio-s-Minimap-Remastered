@@ -1,0 +1,65 @@
+{
+ "type": "minecraft:entity",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:emerald",
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": {
+       "type": "minecraft:uniform",
+       "min": 8,
+       "max": 12
+      }
+     }
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:rabbit_foot",
+     "modifier": [
+      {
+       "type": "minecraft:set_name",
+       "target": "item_name",
+       "name": {
+        "text": "Charred Rabbit's Foot",
+        "color": "yellow"
+       }
+      },
+      {
+       "type": "minecraft:set_lore",
+       "mode": "append",
+       "lore": [
+        {
+         "text": "Lucky? It got struck 400 times.",
+         "color": "gray",
+         "italic": true
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:lightning_rod"
+    }
+   ],
+   "condition": {
+    "type": "minecraft:random_chance",
+    "chance": 0.5
+   }
+  }
+ ]
+}

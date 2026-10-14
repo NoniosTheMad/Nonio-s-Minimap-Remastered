@@ -9,3 +9,4 @@ function nonios:game/load
 function nonios:economy/load
 function nonios:generator/load
 function nonios:dream/load
+function nonios:arena/load
