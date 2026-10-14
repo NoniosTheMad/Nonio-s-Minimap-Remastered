@@ -46,6 +46,26 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [x] RCON-verified: build, lifecycle resets, arena gate, portal gate + unlock, dream dimension not hit by prep walls selector.
 - [ ] Client test (dialogs, pad step, Dream round trip, captures with the captor dummy). Design questions in the integration report.
 
+## Classes (feat/classes, server `classes` :25580, demo `classes`)
+- [x] Framework: `src/classes.json` -> `tools/build_classes.py` (loot tables, enchantments, use advancements, `class/gen/**`).
+  API `class/set {num}` / `set_id {id}` / `remove`; hooks `class/on_death` + `class/on_respawn` (for M2 game/death, `#nonios:kit/respawn`).
+  Shop tier: binding armour + vanishing, kit re-completed every second, lost on death. Basic tier: re-applied on respawn at team level `#white/#black/#solo nx.cls_lvl`.
+- [x] Reaper (lifesteal, souls + 4 s invisibility on kill, souls burst, `nonios:reaper` vision), Cracy Frog (frog legs, broom flight, tongue chaos + RIBBIT,
+  rainbow+acid vision, V2 3-step confirmation chain), Warrior placeholder basic class. Server-verified over RCON; client feel untested.
+- 26.3 facts: loot tables use `modifier` / `type` / single `condition`; `use_cooldown` only applies when a consumable finishes (item used up -> re-given next tick);
+  `use_effects {can_sprint, speed_multiplier}` removes the slow-down while using; movement predicate speeds are blocks/second.
+
+## M5 classes in the match (`feat/m5-classes`, server `m5`, demo `m5-classes`)
+- [x] Merged feat/classes on main (one `nonios:load` / `nonios:tick`). `game/death` -> `class/on_death` (every death); `#nonios:kit/respawn` += `class/on_respawn`.
+- [x] `nx.tier` owned by classes (`kill_tier` in src/classes.json, basic = team level - 1), read by `economy/kill_bonus/tier` at death time.
+- [x] Shop sells classes: `shop/catalog` appends generated `class/gen/shop_items`; `shop/buy_class` (refuse same class, purse, `class/set_id`);
+  Cracy Frog = `confirm` -> its 3-question chain (`class/gen/confirm`); bare `trigger nx.cls_ask set 1` only next to your shopkeeper.
+- [x] Match reset: `class/reset` in `game/enter` (new match) + `game/lobby_player`; team class levels -> 1 on start.
+- [x] Coin minting closed: debt `nx.pdebt` for coin blocks placed while broke; emerald items -> coins on pickup (adv `purse/emerald`, 5/45);
+  emerald ores/blocks drop nothing (`data/minecraft/loot_table/blocks`).
+- [x] RCON-verified on test husks: shop dialog entries, broke/buy/already/frog-confirm paths, tier 2 -> +90 bonus, death strips + basic back on respawn,
+  reset, debt maths, loot overrides. Not verified in the client: dialogs, frog chain, emerald pickup advancement, Reaper souls on match dummies.
+
 ## Inbox (done, f6fdfb8)
 - [x] Chat notifications + G → Inbox
 - [x] `mcdev notify` and `feedback --resolve`

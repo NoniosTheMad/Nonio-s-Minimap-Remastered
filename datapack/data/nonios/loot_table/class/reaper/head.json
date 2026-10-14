@@ -1,0 +1,74 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:jack_o_lantern",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:equippable": {
+         "slot": "head"
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:max_health",
+          "id": "nonios:reaper_head_hp",
+          "amount": -10,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:armor",
+          "id": "nonios:reaper_head_armor",
+          "amount": 6,
+          "operation": "add_value",
+          "slot": "head"
+         }
+        ],
+        "minecraft:enchantments": {
+         "nonios:class/reaper_shroud": 1,
+         "minecraft:projectile_protection": 4,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "reaper",
+         "nx_item": "reaper_head",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Possessed Pumpkin",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Something inside is still smiling.",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Reaper \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,82 @@
+{
+    "targets": {
+        "swap": {}
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/reaper",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "ReaperConfig": [
+                    {
+                        "name": "LineColor",
+                        "type": "vec4",
+                        "value": [ 1.0, 1.0, 1.0, 1.0 ]
+                    },
+                    {
+                        "name": "BackColor",
+                        "type": "vec4",
+                        "value": [ 0.0, 0.0, 0.0, 1.0 ]
+                    },
+                    {
+                        "name": "DepthSensitivity",
+                        "type": "float",
+                        "value": 60.0
+                    },
+                    {
+                        "name": "LumaSensitivity",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "LumaWeight",
+                        "type": "float",
+                        "value": 0.35
+                    },
+                    {
+                        "name": "Ghost",
+                        "type": "float",
+                        "value": 0.08
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [ 1.0, 1.0, 1.0, 1.0 ]
+                    }
+                ]
+            },
+            "output": "minecraft:main"
+        }
+    ]
+}

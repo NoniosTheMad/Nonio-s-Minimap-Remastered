@@ -118,7 +118,7 @@ M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog i
 8. **Full inventory edge case:** Refuses purchases even when a matching stack has room? [suggested: yes, strict].
 9. **Map regeneration:** Fresh copy pulled at each return to lobby. Accept? [suggested: yes].
 10. **Prep phase lockdown:** Barrier plane + 1 Hz pushback keeps teams in base during prep. Physics OK? [built].
-11. **Emerald block farm cost:** Placing one costs 100 coins to prevent infinite farms. Accept? [suggested: yes].
+11. **Emerald block farm cost:** Placing one costs 100 coins to prevent infinite farms. Accept? [suggested: yes]. (Superseded by M5 #1: emerald blocks are never held now.)
 
 **Generators** (spike done 855e046; from coordinator notes, with suggested defaults):
 1. **Coins per emerald outcome:** [suggested: 5; block-level 45; Lv3 ≈72 coins/min]. Scales with team size; rolls from V2's 81-outcome dispenser odds.
@@ -146,6 +146,14 @@ M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog i
 6. **Admin panel dream_cost:** [noted: not yet in admin UI]. Should dream_cost (emerald block value) be admin-tunable?
 7. **Generator upgrade discovery:** [current: sneak-click to upgrade, no in-game hint]. Is sneak-upgrade action discoverable enough without tutorial?
 8. **Generator + pad placement:** [noted: placeholder]. Final placement on actual map to be decided in M6.
+
+**M5 Classes in the match** (feat/m5-classes, server m5; built with these defaults):
+1. **Emeralds = coins (anti-mint fix):** [default: emerald / emerald block items become purse coins on pickup, 5 / 45 like generator outcomes; emerald ore and emerald blocks drop nothing when mined (the mined stat pays 25 / 100); placing any coin block while broke books the rest as debt, repaid first from mining]. Closes the M4 exploit (place an emerald block with 0 coins, mine it for 100). OK, or should arena emerald blocks pay 100 like Dream blocks?
+2. **Shop roster:** [default: only implemented classes listed: Reaper 200, Cracy Frog free (via the three questions). Archer 50, Warrior 60, Miner 80, Tank 100, Ninja 100, Berserker 120, Monster 1800, Balrog 10000 hidden until built; prices/tiers kept in src/classes.json _v2_roster]. Show the rest greyed out instead?
+3. **Kill tier per class:** [default: V2 values — Tank/Ninja/Berserker 1, Reaper/Monster 2, Balrog 3, Cracy Frog 0; basic class = team level − 1 (V2 kit II = 1, III = 2)]. Killing a Reaper pays +90 on top of the kill reward.
+4. **Warrior:** [default: stays the placeholder *basic* class (team kit, back on respawn), not sold]. V2 sold Warrior as a 60-coin shop kit (iron + shield). Basic, shop, or both?
+5. **Class on match reset:** [default: everyone loses their class (and basic pick) at match start and in the lobby; team class levels back to 1].
+6. **Buying a shop class while having one:** [default: allowed, the old one is replaced (no refund); buying the same class again is refused].
 
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).

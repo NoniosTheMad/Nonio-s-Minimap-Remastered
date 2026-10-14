@@ -14,3 +14,5 @@ data modify storage nonios:shop items set value [\
   {name:"Diamond Pickaxe",item:"minecraft:diamond_pickaxe",count:1,price:60,sprite:"minecraft:item/diamond_pickaxe"},\
   {name:"Diamond Sword",item:"minecraft:diamond_sword",count:1,price:80,sprite:"minecraft:item/diamond_sword"}\
 ]
+# + the classes sold here (generated from src/classes.json by tools/build_classes.py)
+function nonios:class/gen/shop_items

@@ -1,0 +1,4 @@
+# Once a second: shop-class kits stay complete (armour back on, tools back in the inventory), stray class items vanish.
+scoreboard players set #t nx.cls_tmp 0
+execute as @e[type=player,scores={nx.class=1..}] at @s run function nonios:class/gen/check
+execute as @e[type=player] run function nonios:class/gen/purge

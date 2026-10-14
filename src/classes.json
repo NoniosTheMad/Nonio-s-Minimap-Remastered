@@ -1,0 +1,307 @@
+{
+  "_doc": [
+    "Class definitions (DESIGN 2.12, 6.3). python tools/build_classes.py turns this into loot tables, enchantments and",
+    "function/class/gen/**. Hand-written ability logic lives in function/class/<class>/ (hooks listed per class).",
+    "tier: basic = selectable, re-applied on respawn, team upgrade level 1-3 picks the loadout;",
+    "      shop  = one-time, lost on death. Its items get curse of vanishing (never drop) and armour gets binding (locked).",
+    "items: slot = armor.head|armor.chest|armor.legs|armor.feet|weapon.offhand (equipped, old item returned to you)",
+    "       or 'inventory' (given; must stay with the owner: dropped copies are deleted and it comes back).",
+    "       components = raw 26.3 item components (JSON form). name/lore are text components; custom_data and the",
+    "       class tags are added by the generator. Vanilla look via item_model until we have textures.",
+    "lost_msg: shop classes only, shown on death. vision: post effects (resource pack) in stacking order; added on apply, removed on death / class change, re-added on rejoin.",
+    "enchantments: raw enchantment definitions written to data/nonios/enchantment/class/<key>.json (dynamic registry: restart).",
+    "kill_tier: victim tier for the kill bonus (nx.tier -> economy kill_bonus/tier, V2 tier 1/2/3 = +20/+90/+190). Shop classes: fixed;",
+    "      basic classes: team level - 1 (V2: respawn kit II = tier 1, kit III = tier 2). Back to 0 when the class goes (death, reset).",
+    "shop: present = sold by the team shopkeeper for price coins from the purse (sprite = button icon, items atlas).",
+    "      confirm = function run instead of the purchase (it applies the class itself; free classes only)."
+  ],
+  "_v2_roster": {
+    "_doc": "V2 shop kits (WhiteShop 73-80, 666): price and kill tier. Not implemented = not in the shop. Basic Warrior here is the placeholder, not the V2 kit.",
+    "archer": {"price": 50, "kill_tier": 0}, "warrior": {"price": 60, "kill_tier": 0}, "miner": {"price": 80, "kill_tier": 0},
+    "tank": {"price": 100, "kill_tier": 1}, "ninja": {"price": 100, "kill_tier": 1}, "berserker": {"price": 120, "kill_tier": 1},
+    "reaper": {"price": 200, "kill_tier": 2}, "monster": {"price": 1800, "kill_tier": 2}, "balrog": {"price": 10000, "kill_tier": 3},
+    "cracy_frog": {"price": 0, "kill_tier": 0}
+  },
+  "classes": {
+    "reaper": {
+      "num": 1,
+      "tier": "shop",
+      "name": {"text": "Reaper", "color": "dark_gray"},
+      "price": 200,
+      "kill_tier": 2,
+      "shop": {"sprite": "minecraft:item/netherite_hoe"},
+      "lost_msg": "Death came for the Reaper. Ironic.",
+      "blurb": "Glass cannon. Scythe heals you on hit, kills give souls and a few seconds of invisibility, right-click releases the souls as a burst. 5 hearts, armour locked.",
+      "vision": ["nonios:reaper"],
+      "hooks": ["on_apply", "on_strip"],
+      "clear_effects": ["minecraft:invisibility", "minecraft:speed"],
+      "items": {
+        "head": {
+          "slot": "armor.head", "id": "minecraft:jack_o_lantern",
+          "name": {"text": "Possessed Pumpkin", "color": "gold"},
+          "lore": [{"text": "Something inside is still smiling.", "color": "gray", "italic": true}],
+          "components": {
+            "minecraft:equippable": {"slot": "head"},
+            "minecraft:attribute_modifiers": [
+              {"type": "minecraft:max_health", "id": "nonios:reaper_head_hp", "amount": -10, "operation": "add_value", "slot": "head"},
+              {"type": "minecraft:armor", "id": "nonios:reaper_head_armor", "amount": 6, "operation": "add_value", "slot": "head"}
+            ],
+            "minecraft:enchantments": {"nonios:class/reaper_shroud": 1, "minecraft:projectile_protection": 4}
+          }
+        },
+        "chest": {
+          "slot": "armor.chest", "id": "minecraft:black_dye",
+          "name": {"text": "Reaper's Shroud", "color": "dark_gray"},
+          "lore": [{"text": "Nothing to protect. Nothing to lose.", "color": "gray", "italic": true}],
+          "components": {"minecraft:equippable": {"slot": "chest"}, "minecraft:max_stack_size": 1}
+        },
+        "legs": {
+          "slot": "armor.legs", "id": "minecraft:black_dye",
+          "name": {"text": "Reaper's Shroud", "color": "dark_gray"},
+          "lore": [{"text": "Nothing to protect. Nothing to lose.", "color": "gray", "italic": true}],
+          "components": {"minecraft:equippable": {"slot": "legs"}, "minecraft:max_stack_size": 1}
+        },
+        "feet": {
+          "slot": "armor.feet", "id": "minecraft:black_dye",
+          "name": {"text": "Reaper's Shroud", "color": "dark_gray"},
+          "lore": [{"text": "Nothing to protect. Nothing to lose.", "color": "gray", "italic": true}],
+          "components": {"minecraft:equippable": {"slot": "feet"}, "minecraft:max_stack_size": 1}
+        },
+        "scythe": {
+          "slot": "inventory", "id": "minecraft:stick",
+          "name": {"text": "Reaper's Scyce", "color": "dark_purple"},
+          "lore": [
+            {"text": "Only the souls of the living can grant eternal life... or Death", "color": "gray", "italic": true},
+            {"text": ""},
+            {"text": "Hit: steal 2 hearts (once per swing)", "color": "dark_green", "italic": false},
+            {"text": "Kill: +1 soul (max 5), 4s invisible", "color": "dark_green", "italic": false},
+            {"text": "Right-click: release souls (2 + 2/soul dmg, 6 blocks)", "color": "dark_green", "italic": false}
+          ],
+          "components": {
+            "minecraft:item_model": "minecraft:netherite_hoe",
+            "minecraft:max_stack_size": 1,
+            "minecraft:weapon": {"item_damage_per_attack": 0},
+            "minecraft:attribute_modifiers": [
+              {"type": "minecraft:attack_damage", "id": "minecraft:base_attack_damage", "amount": 8, "operation": "add_value", "slot": "mainhand"},
+              {"type": "minecraft:attack_speed", "id": "minecraft:base_attack_speed", "amount": -3.1, "operation": "add_value", "slot": "mainhand"},
+              {"type": "minecraft:entity_interaction_range", "id": "nonios:reaper_reach", "amount": 0.75, "operation": "add_value", "slot": "mainhand"},
+              {"type": "minecraft:movement_speed", "id": "nonios:reaper_haste", "amount": 0.2, "operation": "add_multiplied_base", "slot": "mainhand"},
+              {"type": "minecraft:knockback_resistance", "id": "nonios:reaper_kbres", "amount": 0.5, "operation": "add_value", "slot": "mainhand"}
+            ],
+            "minecraft:use_effects": {"can_sprint": true, "speed_multiplier": 1.0},
+            "minecraft:consumable": {"consume_seconds": 0.5, "animation": "bow", "sound": "minecraft:entity.vex.charge", "has_consume_particles": false},
+            "minecraft:use_cooldown": {"seconds": 8, "cooldown_group": "nonios:reaper_burst"},
+            "minecraft:enchantments": {"nonios:class/reaper_scythe": 1, "minecraft:fire_aspect": 1}
+          }
+        }
+      },
+      "enchantments": {
+        "reaper_scythe": {
+          "description": {"text": "Soul Harvest", "color": "dark_purple"},
+          "supported_items": "minecraft:stick", "weight": 1, "max_level": 1, "anvil_cost": 1,
+          "min_cost": {"base": 1, "per_level_above_first": 0}, "max_cost": {"base": 1, "per_level_above_first": 0},
+          "slots": ["mainhand"],
+          "effects": {
+            "minecraft:post_attack": [
+              {"enchanted": "attacker", "affected": "attacker",
+               "effect": {"type": "minecraft:run_function", "function": "nonios:class/reaper/lifesteal"},
+               "requirements": {"type": "minecraft:damage_source_properties", "predicate": {"is_direct": true}}},
+              {"enchanted": "attacker", "affected": "victim",
+               "effect": {"type": "minecraft:run_function", "function": "nonios:class/reaper/hit_fx"},
+               "requirements": {"type": "minecraft:damage_source_properties", "predicate": {"is_direct": true}}}
+            ]
+          }
+        },
+        "reaper_shroud": {
+          "description": {"text": "Shroud", "color": "dark_gray"},
+          "supported_items": "minecraft:jack_o_lantern", "weight": 1, "max_level": 1, "anvil_cost": 1,
+          "min_cost": {"base": 1, "per_level_above_first": 0}, "max_cost": {"base": 1, "per_level_above_first": 0},
+          "slots": ["head"],
+          "effects": {
+            "minecraft:tick": [
+              {"effect": {"type": "minecraft:run_function", "function": "nonios:class/reaper/aura"},
+               "requirements": {"type": "minecraft:all_of", "terms": [
+                 {"type": "minecraft:random_chance", "chance": 0.25},
+                 {"type": "minecraft:inverted", "term": {"type": "minecraft:entity_properties", "entity": "this",
+                   "predicate": {"minecraft:effects": {"minecraft:invisibility": {}}}}}
+               ]}}
+            ]
+          }
+        }
+      }
+    },
+
+    "cracy_frog": {
+      "num": 2,
+      "tier": "shop",
+      "name": {"text": "Cracy Frog", "color": "dark_purple"},
+      "price": 0,
+      "kill_tier": 0,
+      "shop": {"sprite": "minecraft:item/slime_ball", "confirm": "nonios:class/cracy_frog/ask_step {step:1}"},
+      "lost_msg": "The frog croaked. #Useful",
+      "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that sends things anywhere. Leather armour locked on, and the world never stops melting.",
+      "vision": ["nonios:rainbow", "nonios:acid"],
+      "hooks": ["on_apply", "on_strip", "tick"],
+      "clear_effects": ["minecraft:levitation", "minecraft:slow_falling"],
+      "items": {
+        "head": {
+          "slot": "armor.head", "id": "minecraft:player_head",
+          "name": {"text": "Cracy Frog", "color": "dark_purple"},
+          "lore": [{"text": "#Useful", "color": "gray", "italic": true}],
+          "components": {
+            "minecraft:profile": {"properties": [{"name": "textures", "value": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDJjM2I5OGFkYTE5OTU3ZjhkODNhN2Q0MmZhZjgxYTI5MGZhZTdkMDhkYmY2YzFmODk5MmExYWRhNDRiMzEifX19"}]},
+            "minecraft:attribute_modifiers": [
+              {"type": "minecraft:movement_speed", "id": "nonios:frog_speed", "amount": 0.1, "operation": "add_multiplied_base", "slot": "head"},
+              {"type": "minecraft:armor", "id": "nonios:frog_head_armor", "amount": 1, "operation": "add_value", "slot": "head"}
+            ],
+            "minecraft:enchantments": {"minecraft:thorns": 3}
+          }
+        },
+        "chest": {
+          "slot": "armor.chest", "id": "minecraft:leather_chestplate",
+          "name": {"text": "Frog Skin", "color": "green"},
+          "lore": [{"text": "#Useful", "color": "gray", "italic": true}],
+          "components": {"minecraft:dyed_color": 8439583}
+        },
+        "legs": {
+          "slot": "armor.legs", "id": "minecraft:leather_leggings",
+          "name": {"text": "Frog Skin", "color": "green"},
+          "lore": [{"text": "#Useful", "color": "gray", "italic": true}],
+          "components": {"minecraft:dyed_color": 8439583}
+        },
+        "feet": {
+          "slot": "armor.feet", "id": "minecraft:leather_boots",
+          "name": {"text": "Frog Spring", "color": "green"},
+          "lore": [{"text": "#Useful", "color": "gray", "italic": true}],
+          "components": {"minecraft:dyed_color": 8439583, "minecraft:enchantments": {"nonios:class/frog_spring": 1}}
+        },
+        "broom": {
+          "slot": "inventory", "id": "minecraft:stick",
+          "name": {"text": "Magic Broom", "color": "light_purple"},
+          "lore": [
+            {"text": "When frogs fly", "color": "gray", "italic": true},
+            {"text": ""},
+            {"text": "Hold right-click: fly where you look", "color": "dark_green", "italic": false},
+            {"text": "3s of flight, refills on the ground", "color": "dark_green", "italic": false}
+          ],
+          "components": {
+            "minecraft:item_model": "minecraft:brush",
+            "minecraft:max_stack_size": 1,
+            "minecraft:use_effects": {"can_sprint": true, "speed_multiplier": 1.0},
+            "minecraft:consumable": {"consume_seconds": 3600, "animation": "none", "sound": "minecraft:entity.phantom.flap", "has_consume_particles": false},
+            "minecraft:enchantments": {"nonios:class/frog_broom": 1}
+          }
+        },
+        "tongue": {
+          "slot": "inventory", "id": "minecraft:slime_ball",
+          "name": {"text": "Frog Tongue", "color": "light_purple"},
+          "lore": [
+            {"text": "Sticky. Unpredictable. Licensed.", "color": "gray", "italic": true},
+            {"text": ""},
+            {"text": "Hit: something random happens to someone", "color": "dark_green", "italic": false},
+            {"text": "Right-click: RIBBIT (wind bursts all around)", "color": "dark_green", "italic": false}
+          ],
+          "components": {
+            "minecraft:max_stack_size": 1,
+            "minecraft:attribute_modifiers": [
+              {"type": "minecraft:attack_damage", "id": "minecraft:base_attack_damage", "amount": 2, "operation": "add_value", "slot": "mainhand"},
+              {"type": "minecraft:attack_speed", "id": "minecraft:base_attack_speed", "amount": -2.0, "operation": "add_value", "slot": "mainhand"}
+            ],
+            "minecraft:use_effects": {"can_sprint": true, "speed_multiplier": 1.0},
+            "minecraft:consumable": {"consume_seconds": 0.35, "animation": "toot_horn", "sound": "minecraft:entity.frog.ambient", "has_consume_particles": false},
+            "minecraft:use_cooldown": {"seconds": 6, "cooldown_group": "nonios:frog_ribbit"},
+            "minecraft:enchantments": {"nonios:class/frog_tongue": 1}
+          }
+        }
+      },
+      "enchantments": {
+        "frog_spring": {
+          "description": {"text": "Frog Legs", "color": "green"},
+          "supported_items": "minecraft:leather_boots", "weight": 1, "max_level": 1, "anvil_cost": 1,
+          "min_cost": {"base": 1, "per_level_above_first": 0}, "max_cost": {"base": 1, "per_level_above_first": 0},
+          "slots": ["feet"],
+          "effects": {
+            "minecraft:attributes": [
+              {"id": "nonios:frog_jump", "attribute": "minecraft:jump_strength", "amount": 0.42, "operation": "add_value"},
+              {"id": "nonios:frog_safe_fall", "attribute": "minecraft:safe_fall_distance", "amount": 12, "operation": "add_value"}
+            ]
+          }
+        },
+        "frog_broom": {
+          "description": {"text": "Broomstick Flight", "color": "light_purple"},
+          "supported_items": "minecraft:stick", "weight": 1, "max_level": 1, "anvil_cost": 1,
+          "min_cost": {"base": 1, "per_level_above_first": 0}, "max_cost": {"base": 1, "per_level_above_first": 0},
+          "slots": ["hand"],
+          "effects": {
+            "minecraft:tick": [
+              {"effect": {"type": "minecraft:apply_impulse", "direction": [0.0, 0.0, 1.0], "coordinate_scale": [1.0, 0.0, 1.0], "magnitude": 0.22},
+               "requirements": {"type": "minecraft:all_of", "terms": [
+                 {"type": "minecraft:entity_properties", "entity": "this", "predicate": {"minecraft:movement": {"horizontal_speed": {"max": 8.0}}}},
+                 {"type": "minecraft:entity_scores", "entity": "this", "scores": {"nx.cls_kick": {"min": 1}}}
+               ]}}
+            ]
+          }
+        },
+        "frog_tongue": {
+          "description": {"text": "Chaos", "color": "light_purple"},
+          "supported_items": "minecraft:slime_ball", "weight": 1, "max_level": 1, "anvil_cost": 1,
+          "min_cost": {"base": 1, "per_level_above_first": 0}, "max_cost": {"base": 1, "per_level_above_first": 0},
+          "slots": ["mainhand"],
+          "effects": {
+            "minecraft:post_attack": [
+              {"enchanted": "attacker", "affected": "victim",
+               "effect": {"type": "minecraft:run_function", "function": "nonios:class/cracy_frog/chaos"},
+               "requirements": {"type": "minecraft:damage_source_properties", "predicate": {"is_direct": true}}}
+            ]
+          }
+        }
+      }
+    },
+
+    "warrior": {
+      "num": 3,
+      "tier": "basic",
+      "name": {"text": "Warrior", "color": "gray"},
+      "price": 0,
+      "blurb": "Basic class (placeholder for the framework): the V2 'Automatic Kits'. Team upgrade I chainmail / II iron / III diamond. Re-applied on every respawn.",
+      "vision": [],
+      "hooks": [],
+      "clear_effects": [],
+      "levels": {
+        "1": {
+          "head": {"slot": "armor.head", "id": "minecraft:chainmail_helmet"},
+          "chest": {"slot": "armor.chest", "id": "minecraft:chainmail_chestplate"},
+          "legs": {"slot": "armor.legs", "id": "minecraft:chainmail_leggings"},
+          "feet": {"slot": "armor.feet", "id": "minecraft:chainmail_boots"},
+          "sword": {"slot": "inventory", "id": "minecraft:stone_sword"},
+          "bow": {"slot": "inventory", "id": "minecraft:bow"},
+          "arrows": {"slot": "inventory", "id": "minecraft:arrow", "count": 16}
+        },
+        "2": {
+          "head": {"slot": "armor.head", "id": "minecraft:iron_helmet"},
+          "chest": {"slot": "armor.chest", "id": "minecraft:iron_chestplate"},
+          "legs": {"slot": "armor.legs", "id": "minecraft:iron_leggings"},
+          "feet": {"slot": "armor.feet", "id": "minecraft:iron_boots"},
+          "sword": {"slot": "inventory", "id": "minecraft:iron_sword"},
+          "bow": {"slot": "inventory", "id": "minecraft:bow", "components": {"minecraft:enchantments": {"minecraft:power": 3}}},
+          "shield": {"slot": "weapon.offhand", "id": "minecraft:shield"},
+          "arrows": {"slot": "inventory", "id": "minecraft:arrow", "count": 32}
+        },
+        "3": {
+          "head": {"slot": "armor.head", "id": "minecraft:diamond_helmet"},
+          "chest": {"slot": "armor.chest", "id": "minecraft:diamond_chestplate"},
+          "legs": {"slot": "armor.legs", "id": "minecraft:diamond_leggings"},
+          "feet": {"slot": "armor.feet", "id": "minecraft:diamond_boots"},
+          "sword": {"slot": "inventory", "id": "minecraft:diamond_sword", "components": {"minecraft:enchantments": {"minecraft:sharpness": 3}}},
+          "bow": {"slot": "inventory", "id": "minecraft:bow", "components": {"minecraft:enchantments": {"minecraft:power": 5, "minecraft:flame": 1}}},
+          "shield": {"slot": "weapon.offhand", "id": "minecraft:shield",
+                     "name": {"text": "Gardna's Shield", "color": "aqua"},
+                     "lore": [{"text": "The ultimate protection", "color": "gray", "italic": true}],
+                     "components": {"minecraft:enchantments": {"minecraft:blast_protection": 4, "minecraft:thorns": 3}}},
+          "arrows": {"slot": "inventory", "id": "minecraft:arrow", "count": 64}
+        }
+      },
+      "enchantments": {}
+    }
+  }
+}

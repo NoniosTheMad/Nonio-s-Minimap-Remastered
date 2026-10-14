@@ -1,4 +1,6 @@
 # as a player who died and has respawned (from nonios:death). Spawnpoint = team spawn, so they are already home.
+# classes first, on every death: shop class lost, basic class items/vision removed (back via #nonios:kit/respawn)
+function nonios:class/on_death
 execute unless score #state nx.state matches 1..2 run return 0
 execute if entity @s[team=] run return 0
 scoreboard players add @s nx.deaths 1

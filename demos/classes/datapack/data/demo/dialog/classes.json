@@ -1,0 +1,177 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Classes",
+  "color": "dark_purple"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 310,
+   "contents": {
+    "text": "Pick a class, then fight the dummies. Shop classes (Reaper, Cracy Frog) lock their armour and are lost on death; the basic Warrior comes back on every respawn. Old armour goes back to your inventory.",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "Reaper",
+    "color": "dark_purple"
+   },
+   "tooltip": {
+    "text": "Shop class (V2 Reaper Invocation, 200). Scythe lifesteal, souls, burst, reaper vision"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Cracy Frog (ask me)",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "The V2 'are you sure?' chain, as the shop will show it"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Cracy Frog (skip)",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "Straight to frog"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Warrior (basic)",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Basic class: re-applied on every respawn, gear follows the team level"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Team level +1",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Basic-class level 1 > 2 > 3 > 1 (chainmail / iron / diamond); re-applies Warrior"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Remove class",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "No class, no basic class"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Simulate death",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Runs class/on_death then class/on_respawn (the M2 hooks), no dying"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Die for real",
+    "color": "dark_red"
+   },
+   "tooltip": {
+    "text": "/kill: the demo calls the same hooks after you respawn"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Spawn test dummies",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "3 husks (no AI, tagged nx.soul): kills count as souls for the Reaper"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset cooldowns",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Swaps the items' cooldown group (vanilla can't clear one), 5 souls, full broom"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Survival / Creative",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Creative never uses up items and ignores damage: test in survival"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 11"
+   }
+  },
+  {
+   "label": {
+    "text": "Status",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "Class, basic class, level, souls, broom fuel"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 12"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

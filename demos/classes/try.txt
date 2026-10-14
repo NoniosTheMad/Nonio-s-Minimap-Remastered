@@ -1,0 +1,10 @@
+You spawn in survival in a walled yard. G > Demo: Classes has every button. Dummies (husks, no AI) count as kills for the Reaper.
+1. Spawn test dummies, then Reaper: pumpkin head, invisible shroud (armour locked), dark reaper vision, 5 hearts. Old armour drops back into your inventory.
+2. Hit a dummy with the Scyce: you heal 2 hearts per swing. Kill it: +1 soul, 4 s invisible, wither sound. Right-click the scythe (hold 0.5 s): the souls explode around you (8 s cooldown).
+3. Cracy Frog (ask me): answer the Shop Keeper's three questions (the V2 joke). The world turns rainbow + acid. Jump: frog legs (no fall damage up to ~15 blocks).
+4. Hold right-click with the Magic Broom: look up to climb, level to hover, down to glide; it pushes you forward. 3 s of fuel, refills on the ground.
+5. Hit a dummy with the Frog Tongue: something random happens to it. Right-click the tongue: RIBBIT (wind bursts all around you, you fly too).
+6. Simulate death: shop classes are lost (and the vision goes); Die for real does the same through an actual death.
+7. Warrior (basic), then Team level +1 a few times, then die: it comes back at the current level.
+8. Leave and rejoin while being a class: the vision should come back. Reset cooldowns if you are stuck waiting.
+Feedback: how each class feels (too strong/weak), the broom flight, the frog chaos outcomes, the reaper/frog vision, what else a class should do.

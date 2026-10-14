@@ -1,0 +1,55 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:leather_boots",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:dyed_color": 8439583,
+        "minecraft:enchantments": {
+         "nonios:class/frog_spring": 1,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "cracy_frog",
+         "nx_item": "cracy_frog_feet",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Frog Spring",
+         "color": "green",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "#Useful",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Cracy Frog \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

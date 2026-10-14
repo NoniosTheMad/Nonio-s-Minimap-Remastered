@@ -13,6 +13,9 @@ scoreboard players set #black nx.last 0
 scoreboard players set #white nx.bank 0
 scoreboard players set #black nx.bank 0
 function nonios:economy/match_start
+# basic-class team upgrades back to level 1 (players lose their class in game/enter)
+scoreboard players set #white nx.cls_lvl 1
+scoreboard players set #black nx.cls_lvl 1
 kill @e[type=item,tag=nx.coinbag]
 kill @e[type=husk,tag=nx.dummy]
 function nonios:nexus/spawn with storage nonios:map white.nexus

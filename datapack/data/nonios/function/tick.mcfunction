@@ -8,5 +8,6 @@ function nonios:economy/tick
 function nonios:dream/tick
 function nonios:generator/ui/tick
 function nonios:portal/tick
+function nonios:class/tick
 # deaths: handled once the player has respawned (@e skips dead players), so kits/gamemode apply to the new body
 execute as @e[type=player,scores={nx.died=1..}] at @s run function nonios:death
