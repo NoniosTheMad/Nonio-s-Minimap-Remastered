@@ -1,7 +1,8 @@
 You start in survival with 50 coins (sidebar). Coins and prices are placeholders.
-1. Right-click the "Shop" villager in front of you: the shop opens with your balance and 7 items (icon, name x count, price; red price = can't afford).
+1. Right-click the "Shop" villager in front of you: the shop opens with your balance and 11 items (icon, name x count, price; red price = can't afford).
 2. Hover a button: tooltip with price. Click Bread (5c): you get 4 bread, an XP "ding", and the shop re-opens showing "Bought ..." and 45 coins.
 3. Click Golden Apple (40c) then TNT (50c): TNT fails with a red "Not enough coins ... You need N more" line and a villager "no" sound; nothing is taken.
 4. Press G: "Shop" opens it too (Open shop). "Demo: Shop" has +10/+100 coins, set 0, clear inventory, respawn shopkeeper.
-5. Check: no "run this command?" confirmation anywhere, the icons render (not pink/black), and Close / Esc work.
-Feedback: layout (2 columns), wording, should the shop stay open after buying, sounds, how to open it in the real map.
+5. Fill your inventory (36 slots) and buy something: refused with "inventory is full", no coins taken.
+6. Check: no "run this command?" confirmation anywhere, the icons render (not pink/black), and Close / Esc work.
+Feedback: layout (2 columns), wording, sounds, prices.

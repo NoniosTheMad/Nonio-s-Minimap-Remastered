@@ -1,6 +1,9 @@
 # function nonios:nexus/spawn {team:"white",x:0,y:64,z:-8}
 $setblock $(x) $(y) $(z) minecraft:obsidian
-$kill @e[tag=nx.$(team)]
+# only this team's Nexus entities (shop NPC, bank pad and wall tiles carry the team tag too)
+$kill @e[type=marker,tag=nx.core,tag=nx.$(team)]
+$kill @e[type=interaction,tag=nx.shield,tag=nx.$(team)]
+$kill @e[type=item_display,tag=nx.shield_fx,tag=nx.$(team)]
 $summon minecraft:marker $(x) $(y) $(z) {Tags:["nx.core","nx.$(team)"]}
 $execute positioned $(x) $(y) $(z) align xyz positioned ~0.5 ~-0.1 ~0.5 run summon minecraft:interaction ~ ~ ~ {Tags:["nx.shield","nx.$(team)"],width:1.3f,height:1.25f,response:1b}
 # shell = forcefield-textured cube (resourcepack nonios:nexus_shield), tinted per team via dyed_color.

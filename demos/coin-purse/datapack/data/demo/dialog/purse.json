@@ -9,7 +9,7 @@
    "type": "minecraft:plain_message",
    "width": 310,
    "contents": {
-    "text": "Mining stone, deepslate and ores puts coins in your purse (actionbar). Coins are heavy: 0.1% slower per coin, max 40%. Placing a coin block costs its value back. Die to a player (or the Purse Thief): they take your whole purse. Die to anything else: your purse drops as a glowing coin bag anyone can grab for 5 min. The bank pad (gold, west) stores coins safely.",
+    "text": "Mining ores puts coins in your purse (actionbar). Coins are heavy: the first 20 weigh nothing, then 0.1% slower per coin, max 40%. Placing a coin block costs its value back. Die to a player (or the Purse Thief): they take your whole purse. Die to anything else: your purse drops as a glowing coin bag anyone can grab for 5 min. The bank pad (gold, west) stores coins safely in your team bank.",
     "color": "gray"
    }
   }

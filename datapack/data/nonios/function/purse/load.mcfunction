@@ -1,29 +1,30 @@
 # Coin purse: mining earns coins (scoreboard "coins", shared with the shop), carrying them slows you down,
 # dying hands the purse to your killer (or drops it as a coin bag). Config lives in nx.purse / nx.coinval.
-scoreboard objectives add coins dummy
+scoreboard objectives add nx.coins dummy {"text":"Coins","color":"gold"}
 scoreboard objectives add nx.purse dummy
 scoreboard objectives add nx.coinval dummy
 scoreboard objectives add nx.bank dummy
 scoreboard objectives add nx.died deathCount
 scoreboard objectives add nx.pslow dummy
 scoreboard objectives add nx.plast dummy
+# stats: coins earned by mining this match (ore value, minus placed-back)
+scoreboard objectives add nx.mined dummy
+# per player: gametime until which the coin actionbar stays quiet (a barrier message is showing)
+scoreboard objectives add nx.ab_hold dummy
 
 # --- config (only set when missing, so /scoreboard tweaks survive /reload) ---
-# weight: speed penalty in permille = coins * w_num / w_den, capped at w_cap  (default 0.1%/coin, max 40%)
+# weight: speed penalty in permille = (coins - w_free) * w_num / w_den, capped at w_cap  (default 0.1%/coin, max 40%)
 execute unless score #w_num nx.purse = #w_num nx.purse run scoreboard players set #w_num nx.purse 1
 execute unless score #w_den nx.purse = #w_den nx.purse run scoreboard players set #w_den nx.purse 1
+# the first #w_free coins weigh nothing (user, 2026-10-14)
+execute unless score #w_free nx.purse = #w_free nx.purse run scoreboard players set #w_free nx.purse 20
 execute unless score #w_cap nx.purse = #w_cap nx.purse run scoreboard players set #w_cap nx.purse 400
 # actionbar refresh period (ticks)
 execute unless score #ab_every nx.purse = #ab_every nx.purse run scoreboard players set #ab_every nx.purse 40
 
 # --- coins per mined block (fake player #<block> in nx.coinval; 0 = worthless) ---
+# Building blocks (stone, deepslate, cobblestone, granite, dirt...) earn nothing (user, 2026-10-14): only ores are listed.
 # Placing one of these blocks costs its value back, so silk-touch place/mine loops earn nothing.
-scoreboard objectives add nx.mn.stone minecraft.mined:minecraft.stone
-scoreboard objectives add nx.pl.stone minecraft.used:minecraft.stone
-execute unless score #stone nx.coinval = #stone nx.coinval run scoreboard players set #stone nx.coinval 1
-scoreboard objectives add nx.mn.deepslate minecraft.mined:minecraft.deepslate
-scoreboard objectives add nx.pl.deepslate minecraft.used:minecraft.deepslate
-execute unless score #deepslate nx.coinval = #deepslate nx.coinval run scoreboard players set #deepslate nx.coinval 1
 scoreboard objectives add nx.mn.coal_ore minecraft.mined:minecraft.coal_ore
 scoreboard objectives add nx.pl.coal_ore minecraft.used:minecraft.coal_ore
 execute unless score #coal_ore nx.coinval = #coal_ore nx.coinval run scoreboard players set #coal_ore nx.coinval 3
@@ -75,5 +76,9 @@ execute unless score #emerald_ore nx.coinval = #emerald_ore nx.coinval run score
 scoreboard objectives add nx.mn.deepslate_emerald_ore minecraft.mined:minecraft.deepslate_emerald_ore
 scoreboard objectives add nx.pl.deepslate_emerald_ore minecraft.used:minecraft.deepslate_emerald_ore
 execute unless score #deepslate_emerald_ore nx.coinval = #deepslate_emerald_ore nx.coinval run scoreboard players set #deepslate_emerald_ore nx.coinval 25
+# emerald_block: veins in the Emerald Dream arena (coordinator, 2026-10-14)
+scoreboard objectives add nx.mn.emerald_block minecraft.mined:minecraft.emerald_block
+scoreboard objectives add nx.pl.emerald_block minecraft.used:minecraft.emerald_block
+execute unless score #emerald_block nx.coinval = #emerald_block nx.coinval run scoreboard players set #emerald_block nx.coinval 100
 
 scoreboard players set #10 nx.purse 10

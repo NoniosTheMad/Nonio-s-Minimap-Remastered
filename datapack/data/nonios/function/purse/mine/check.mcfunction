@@ -1,8 +1,4 @@
 # as player, every tick: convert new mined/placed stats into coins
-execute if score @s nx.mn.stone matches 1.. run function nonios:purse/mine/award {b:"stone"}
-execute if score @s nx.pl.stone matches 1.. run function nonios:purse/mine/placed {b:"stone"}
-execute if score @s nx.mn.deepslate matches 1.. run function nonios:purse/mine/award {b:"deepslate"}
-execute if score @s nx.pl.deepslate matches 1.. run function nonios:purse/mine/placed {b:"deepslate"}
 execute if score @s nx.mn.coal_ore matches 1.. run function nonios:purse/mine/award {b:"coal_ore"}
 execute if score @s nx.pl.coal_ore matches 1.. run function nonios:purse/mine/placed {b:"coal_ore"}
 execute if score @s nx.mn.deepslate_coal_ore matches 1.. run function nonios:purse/mine/award {b:"deepslate_coal_ore"}
@@ -37,3 +33,5 @@ execute if score @s nx.mn.emerald_ore matches 1.. run function nonios:purse/mine
 execute if score @s nx.pl.emerald_ore matches 1.. run function nonios:purse/mine/placed {b:"emerald_ore"}
 execute if score @s nx.mn.deepslate_emerald_ore matches 1.. run function nonios:purse/mine/award {b:"deepslate_emerald_ore"}
 execute if score @s nx.pl.deepslate_emerald_ore matches 1.. run function nonios:purse/mine/placed {b:"deepslate_emerald_ore"}
+execute if score @s nx.mn.emerald_block matches 1.. run function nonios:purse/mine/award {b:"emerald_block"}
+execute if score @s nx.pl.emerald_block matches 1.. run function nonios:purse/mine/placed {b:"emerald_block"}

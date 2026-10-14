@@ -1,7 +1,7 @@
 {
   "type": "minecraft:notice",
   "title": {"text": "Shop", "color": "gold", "bold": true},
-  "body": {"type": "minecraft:plain_message", "contents": {"text": "Buy items with coins. Shortcut: right-click the Shop villager.", "color": "gray"}},
+  "body": {"type": "minecraft:plain_message", "contents": {"text": "Buy items with coins. Shortcut: right-click the Shop villager. (Demo only: in the game the shop opens only at your team's shopkeeper.)", "color": "gray"}},
   "action": {"label": {"text": "Open shop", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "trigger nx.shop set 1"}},
   "after_action": "wait_for_response",
   "pause": false

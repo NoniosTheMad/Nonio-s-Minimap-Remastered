@@ -1,5 +1,6 @@
-# speed penalty (permille) = min(coins * w_num / w_den, w_cap), applied as a movement_speed modifier
-scoreboard players operation @s nx.pslow = @s coins
+# speed penalty (permille) = min(max(coins - w_free, 0) * w_num / w_den, w_cap), applied as a movement_speed modifier
+scoreboard players operation @s nx.pslow = @s nx.coins
+scoreboard players operation @s nx.pslow -= #w_free nx.purse
 scoreboard players operation @s nx.pslow *= #w_num nx.purse
 scoreboard players operation @s nx.pslow /= #w_den nx.purse
 scoreboard players operation @s nx.pslow < #w_cap nx.purse

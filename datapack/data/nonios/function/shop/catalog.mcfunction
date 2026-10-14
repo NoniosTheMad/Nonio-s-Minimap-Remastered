@@ -8,5 +8,9 @@ data modify storage nonios:shop items set value [\
   {name:"Iron Sword",item:"minecraft:iron_sword",count:1,price:25,sprite:"minecraft:item/iron_sword"},\
   {name:"Ender Pearl",item:"minecraft:ender_pearl",count:2,price:30,sprite:"minecraft:item/ender_pearl"},\
   {name:"Golden Apple",item:"minecraft:golden_apple",count:1,price:40,sprite:"minecraft:item/golden_apple"},\
-  {name:"TNT",item:"minecraft:tnt",count:2,price:50,atlas:"minecraft:blocks",sprite:"minecraft:block/tnt_side"}\
+  {name:"TNT",item:"minecraft:tnt",count:2,price:50,atlas:"minecraft:blocks",sprite:"minecraft:block/tnt_side"},\
+  {name:"Cobblestone",item:"minecraft:cobblestone",count:32,price:4,atlas:"minecraft:blocks",sprite:"minecraft:block/cobblestone"},\
+  {name:"Oak Planks",item:"minecraft:oak_planks",count:32,price:6,atlas:"minecraft:blocks",sprite:"minecraft:block/oak_planks"},\
+  {name:"Diamond Pickaxe",item:"minecraft:diamond_pickaxe",count:1,price:60,sprite:"minecraft:item/diamond_pickaxe"},\
+  {name:"Diamond Sword",item:"minecraft:diamond_sword",count:1,price:80,sprite:"minecraft:item/diamond_sword"}\
 ]
