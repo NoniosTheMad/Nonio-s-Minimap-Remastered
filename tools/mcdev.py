@@ -309,12 +309,17 @@ def nav_dialog(reg):
     actions = []
     for n, s in live:
         asleep = s["status"] == "sleeping"
+        # same shape for every row: [★] name + state; the description lives in the tooltip (long labels overflow the button)
         label = ([text("\u2605 ", "yellow")] if s.get("review") else []) + (
             [text(n, "dark_gray", bold=True), text("  (asleep, ~10s)", "dark_gray", italic=True)] if asleep else
-            [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['desc'] or s['branch']}", "gray")])
-        tip = (f"Asleep (nobody on it for a while). Click to start it; you're sent there when it's up.\n\n{s['desc'] or ''}\n" if asleep else "") \
-            + f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "") + (f"\n\n{s['todo']}" if s.get("todo") else "")
-        actions.append({"label": label, "tooltip": text(tip), "width": 310,
+            [text(n, "gold" if s["persistent"] else "aqua", bold=True), text("  (running)", "green", italic=True)])
+        tip = [text(f"{s['desc'] or n}\n", "white"),
+               text(f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else ""), "dark_gray")]
+        if asleep:
+            tip.append(text("\nAsleep: click to start it (~10s), you're sent there.", "gray", italic=True))
+        if s.get("todo"):
+            tip.append(text("\n\n" + todo_summary(s["todo"]), "gray"))
+        actions.append({"label": label, "tooltip": tip, "width": 310,
                         "action": {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}})
     n_up = sum(s["status"] == "up" for _, s in live)
     summary = f"{n_up} running" + (f", {len(live) - n_up} asleep" if len(live) > n_up else "")
@@ -326,6 +331,23 @@ def nav_dialog(reg):
             "body": [{"type": "minecraft:plain_message", "contents": text(f"{summary}. \u2605 = waiting for your review. Hover a server to see what to try.", "gray"), "width": 300}],
             "actions": actions or [{"label": "(none)", "action": {"type": "minecraft:run_command", "command": "help"}}],
             "columns": 1, "pause": False}
+
+def todo_summary(todo, steps=5):
+    """A few tooltip lines from try.txt: the step headlines ("2. Generator: ..." -> "Generator"). The full text is the
+    server's own G > What to try here dialog; a tall tooltip runs off the top of the screen (feedback #26)."""
+    import re
+    heads = []
+    for ln in todo.splitlines():
+        m = re.match(r"\s*(\d+)[.)]\s*(.+)", ln)
+        if m:
+            h = m.group(2)
+            c = h.find(":")
+            head = 0 < c <= 28 and not any(ch in h[:c] for ch in '">')  # "Lobby: ..." yes, 'G > Demo: ...' no
+            heads.append(f"{m.group(1)}. " + (h[:c] if head else trunc(h, 34)))
+    if not heads:
+        return trunc(todo, 110) + "\nFull text: G > What to try here."
+    more = len(heads) - steps
+    return "\n".join(heads[:steps]) + (f"\n(+{more} more)" if more > 0 else "") + "\nFull steps: G > What to try here."
 
 def archived(reg):
     """Archived servers, most recently archived first."""
@@ -457,14 +479,44 @@ def write_self_pack(name, s, d):
         f'data modify storage devnav:req q append value {{verb:"repack"}}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\ntransfer {HOST} {hub_port} @s\n' if name != "hub" else f"transfer {HOST} {hub_port} @s\n")
     where = f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "")
     void = s["world"] == "void"
+    # Spawn (feedback #27): void worlds have nothing outside the map, so the world spawn is a declared point
+    # (s["spawn"]: --spawn / demos/<demo>/spawn.txt, default 0 64 0) with a solid block under it, respawn_radius 0
+    # (radius 10 scatters first joins/respawns off a small platform), and a joining player with no ground under
+    # them (saved position over the void, map rebuilt, ...) is sent there.
+    sx, sy, sz, syaw = spawn_of(s)
     (fn / "load.mcfunction").write_text(
         "scoreboard objectives add devnav.left minecraft.custom:minecraft.leave_game\n"
-        + ("setworldspawn 0 64 0\n" if void else ""))
+        "scoreboard objectives add devnav.chk dummy\n"
+        + ("function devnav:spawn_set\n" if void else ""))
+    (fn / "spawn_set.mcfunction").write_text(
+        f"execute in minecraft:overworld run setworldspawn {sx} {sy} {sz} {syaw} 0\n"
+        "gamerule respawn_radius 0\n"
+        # spawn chunk kept loaded, so the floor check below (and to_spawn's) can always see it
+        f"execute in minecraft:overworld run forceload add {sx} {sz}\n"
+        # solid floor under the spawn (keep: never overwrites a map); not loaded yet at load time -> done again on join
+        f"execute in minecraft:overworld if loaded {sx} {sy} {sz} if block {sx} {sy - 1} {sz} #minecraft:air "
+        f"run fill {sx - 3} {sy - 1} {sz - 3} {sx + 3} {sy - 1} {sz + 3} minecraft:smooth_stone keep\n")
+    (fn / "to_spawn.mcfunction").write_text(
+        f"execute in minecraft:overworld run tp @s {sx + 0.5} {sy} {sz + 0.5} {syaw} 0\n"
+        f"execute in minecraft:overworld if block {sx} {sy - 1} {sz} #minecraft:air "
+        f"run fill {sx - 3} {sy - 1} {sz - 3} {sx + 3} {sy - 1} {sz + 3} minecraft:smooth_stone keep\n"
+        "scoreboard players reset @s devnav.chk\n")
+    # Ground = any block in the player's column (world_surface = just above the top non-air block). An empty column gives
+    # the world's min height, where "~ ~-1 ~" is out of the world and the test errors -> #g stays 0. Below the world -> spawn.
+    (fn / "ground_check.mcfunction").write_text(
+        "scoreboard players remove @s devnav.chk 1\n"
+        "execute if entity @s[gamemode=spectator] run return run scoreboard players reset @s devnav.chk\n"
+        "execute if entity @s[y=-2000,dy=1935] run return run function devnav:to_spawn\n"
+        "execute at @s unless loaded ~ ~ ~ run return 0\n"
+        "scoreboard players set #g devnav.chk 0\n"
+        "execute at @s positioned over world_surface unless block ~ ~-1 ~ #minecraft:air run scoreboard players set #g devnav.chk 1\n"
+        "execute if score #g devnav.chk matches 0 run function devnav:to_spawn\n")
     (fn / "rules.mcfunction").write_text(  # separate file: a bad gamerule name only breaks this one
         "gamerule advance_time false\ngamerule advance_weather false\ngamerule spawn_mobs false\ntime set noon\n")
     (fn / "tick.mcfunction").write_text(
         "execute as @a[tag=!devnav.seen] run function devnav:welcome\n"
-        "execute as @a[scores={devnav.left=1..}] run function devnav:welcome\n")
+        "execute as @a[scores={devnav.left=1..}] run function devnav:welcome\n"
+        + ("execute as @a[scores={devnav.chk=1..}] run function devnav:ground_check\n" if void and name != "hub" else ""))
     welcome = [
         "tag @s add devnav.seen", "scoreboard players reset @s devnav.left",
         "title @s times 5 50 15",
@@ -478,9 +530,8 @@ def write_self_pack(name, s, d):
     if name == "hub":
         welcome += ["fill -8 63 -8 8 63 8 minecraft:polished_blackstone keep", "tp @s 0.5 64 0.5", "function devnav:rules"]
     elif void:
-        # first login on a fresh void world spawns at y=-63, before setworldspawn applies
-        welcome += ["fill -6 63 -6 6 63 6 minecraft:smooth_stone keep",
-                    "execute if entity @s[y=-70,dy=60] run tp @s 0.5 64 0.5"]
+        # checked for 2 s after joining/transferring (chunks around a far-off saved position may still be loading)
+        welcome += ["scoreboard players set @s devnav.chk 40", "function devnav:ground_check"]
     (fn / "welcome.mcfunction").write_text("\n".join(welcome) + "\n")
     tags = d / "data" / "minecraft" / "tags" / "function"
     tags.mkdir(parents=True)
@@ -1330,6 +1381,10 @@ def cmd_up(a):
              world=preset.get("world", "void"),
              desc=a.desc or preset.get("desc") or reg.get(name, {}).get("desc", ""))
     s["todo"] = a.todo or read_todo(src, s["demo"]) or reg.get(name, {}).get("todo", "")
+    sp = getattr(a, "spawn", None)
+    sp = parse_spawn(sp) if sp else read_spawn(src, s["demo"]) or reg.get(name, {}).get("spawn")
+    if sp:
+        s["spawn"] = sp
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
     if reg.get(name, {}).get("archive"):  # note + id survive revive/re-archive
         s["archive"] = reg[name]["archive"]
@@ -1382,6 +1437,22 @@ def check_server(name, s):
             if not ok:
                 warn.append(f"{pack.parent.name}: trigger '{obj}' is never left enabled (enable it after any 'reset @a {obj}')")
     return warn
+
+def spawn_of(s):
+    """(x, y, z, yaw) ints: where players land on this server (block coords; the block below is made solid)."""
+    v = [int(float(x)) for x in (s.get("spawn") or [0, 64, 0])]
+    return v[:3] + [v[3] if len(v) > 3 else 0]
+
+def parse_spawn(t):
+    v = [float(x) for x in str(t).replace(",", " ").split()]
+    if len(v) not in (3, 4):
+        raise ValueError(f"spawn must be 'x y z [yaw]', got {t!r}")
+    return [int(x) for x in v]
+
+def read_spawn(src, demo):
+    """demos/<demo>/spawn.txt: 'x y z [yaw]' = where players land (world spawn), default 0 64 0."""
+    f = Path(src) / "demos" / str(demo) / "spawn.txt"
+    return parse_spawn(f.read_text().strip()) if demo and f.exists() else None
 
 def read_todo(src, demo):
     """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
@@ -1587,6 +1658,7 @@ def main():
     sp = p.add_subparsers(dest="cmd", required=True)
     u = sp.add_parser("up"); u.add_argument("name"); u.add_argument("--branch"); u.add_argument("--demo")
     u.add_argument("--desc"); u.add_argument("--mem"); u.add_argument("--todo", help="what the user should try (else demos/<demo>/try.txt)")
+    u.add_argument("--spawn", help="'x y z [yaw]' where players land (else demos/<demo>/spawn.txt, else kept, else 0 64 0)")
     u.set_defaults(f=cmd_up)
     rv = sp.add_parser("review", help="star a server as awaiting review, or --done")
     rv.add_argument("name"); rv.add_argument("--done", action="store_true"); rv.set_defaults(f=cmd_review)
