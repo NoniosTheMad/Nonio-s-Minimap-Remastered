@@ -42,11 +42,10 @@ from pathlib import Path
 
 
 def repo_root():
+    """The main checkout (owner of .mcdev), also when this file runs from a worktree."""
     here = Path(__file__).resolve().parent.parent
-    if (here / ".mcdev").exists():
-        return here
     r = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here, capture_output=True, text=True)
-    return Path(r.stdout.strip()).parent if r.returncode == 0 else here
+    return Path(r.stdout.strip()).parent if r.returncode == 0 and r.stdout.strip() else here
 
 
 ROOT = repo_root()
@@ -461,13 +460,19 @@ def ffmpeg():
     hits = sorted(tools.glob("ffmpeg*/bin/ffmpeg.exe"))
     if hits:
         return str(hits[-1])
-    log("ffmpeg not found: downloading a static build into .mcdev/tools (~100 MB, once)")
-    tools.mkdir(parents=True, exist_ok=True)
-    z = tools / "ffmpeg.zip"
-    subprocess.run(["curl", "-sSL", "-o", str(z), "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"], check=True)
-    zipfile.ZipFile(z).extractall(tools)
-    z.unlink()
-    return str(sorted(tools.glob("ffmpeg*/bin/ffmpeg.exe"))[-1])
+    # the imageio-ffmpeg wheel on PyPI carries a static gyan.dev build (x264 included), ~30 MB, fast CDN
+    log("ffmpeg not found: fetching the imageio-ffmpeg wheel into .mcdev/tools (~30 MB, once)")
+    tmp = tools / "wheel"
+    subprocess.run([sys.executable, "-m", "pip", "download", "imageio-ffmpeg", "--no-deps", "--only-binary=:all:",
+                    "--platform", "win_amd64", "-d", str(tmp), "-q"], check=True)
+    whl = zipfile.ZipFile(next(tmp.glob("imageio_ffmpeg-*.whl")))
+    exe = next(n for n in whl.namelist() if n.endswith(".exe"))
+    out = tools / "ffmpeg-imageio" / "bin" / "ffmpeg.exe"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(whl.read(exe))
+    whl.close()
+    shutil.rmtree(tmp, ignore_errors=True)
+    return str(out)
 
 
 # ---------------------------------------------------------------- session
@@ -731,6 +736,28 @@ def contact_sheet(frames, out, cols=3, label=None):
     sheet.save(out)
 
 
+CLIENT_LOG = CAM / "client" / "logs" / "latest.log"
+SHADER_RX = re.compile(r"/(WARN|ERROR)\]: .*(shader|post effect|post_effect|program|uniform|sampler|compil|link|pipeline|Failed to load|Couldn't)", re.I)
+NOISE_RX = re.compile(r"end_of_frame|realms|profile properties|user properties", re.I)
+
+
+def log_mark():
+    return CLIENT_LOG.stat().st_size if CLIENT_LOG.exists() else 0
+
+
+def client_warnings(mark):
+    """New WARN/ERROR lines about shaders/post effects/resources in the cam client log since mark (agents: read these)."""
+    if not CLIENT_LOG.exists():
+        return []
+    with open(CLIENT_LOG, "rb") as f:
+        f.seek(mark)
+        txt = f.read().decode("utf-8", "replace")
+    out = [l.strip() for l in txt.splitlines() if SHADER_RX.search(l) and not NOISE_RX.search(l)]
+    for l in out:
+        log("client:", l[:300])
+    return out
+
+
 def out_dir(a, default):
     d = Path(a.out) if a.out else STATE_DIR / "film" / default
     if not d.is_absolute():
@@ -748,9 +775,13 @@ def cmd_shoot(a):
     had = session_alive(load_state())
     st, r, hwnd = up(a.server, a.fov, a.render_distance, keep=a.keep)
     try:
+        mark = log_mark()
         tp(r, path.pose(0))
         apply_setup(r, a)
         time.sleep(a.settle)
+        if not a.hud:
+            clean_hud(r)
+            time.sleep(0.15)
         g = Grabber(hwnd)
         mp4 = out / "video.mp4"
         ff = subprocess.Popen([ffmpeg(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgra", "-s", f"{g.w}x{g.h}",
@@ -797,7 +828,8 @@ def cmd_shoot(a):
         contact_sheet(tiles, out / "sheet.png", cols=math.ceil(math.sqrt(len(tiles))), label=label)
         black = sum(is_black(im) for _, im in tiles)
         meta = {"server": a.server, "setup": a.setup, "time": a.time, "seconds": secs, "fps": fps, "frames": n,
-                "late_frames_repeated": dup, "wall_secs": round(took, 2), "black_tiles": black, "path": path.spec}
+                "late_frames_repeated": dup, "wall_secs": round(took, 2), "black_tiles": black, "path": path.spec,
+                "client_warnings": client_warnings(mark)}
         (out / "shot.json").write_text(json.dumps(meta, indent=2))
         log(f"shot: {mp4}  sheet: {out / 'sheet.png'}  ({n} frames, {dup} repeated, {black} black tiles)")
         if black:
@@ -820,6 +852,7 @@ def cmd_still(a):
     had = session_alive(load_state())
     st, r, hwnd = up(a.server, a.fov, a.render_distance, keep=a.keep)
     try:
+        mark = log_mark()
         tp(r, shots[0][:5])
         apply_setup(r, a)
         g = Grabber(hwnd)
@@ -840,6 +873,8 @@ def cmd_still(a):
         if len(tiles) > 1:
             contact_sheet(tiles, out / "sheet.png", cols=min(3, len(tiles)), label=f"{a.server}  {' | '.join(a.setup or [])}  time={a.time}")
             log(f"sheet: {out / 'sheet.png'}")
+        (out / "shot.json").write_text(json.dumps({"server": a.server, "setup": a.setup, "time": a.time, "shots": shots,
+                                                   "client_warnings": client_warnings(mark)}, indent=2))
     finally:
         r.close()
         if not (a.keep or had):
