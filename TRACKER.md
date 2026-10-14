@@ -11,18 +11,19 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M2 | ★ Your test | Playable core: teams, phases, respawn, win screen, reset (built, merged to main) |
 | M3 | ★ Your test | Economy: bank dialog, interest, kill rewards (built, merged to main) |
 | M4 | ✓ Done | Progression: generators, Emerald Dream, arena (merged to main 28e83b7); demo server m4 ★ |
-| M5 | → Now | Classes: Reaper and Cracy Frog into match, roster (feat/m5-classes, emerald-block exploit fix) |
-| M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
+| M5 | ✓ Done | Classes: Reaper (200 coins) and Cracy Frog (free) merged to main (5850661); demo server m5 ★; V2 classes roster in progress |
+| M6 | → Now | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog into match logic, fixing emerald-block coin exploit. M4 merged to main (28e83b7): generators (one per field, 3 levels, 200/500 upgrades), arena (3 nodes, battle-phase only), Emerald Dream (1000-coin portal unlock, shared dimension). Testing M2 + M3 + M4.
+M5 classes merged to main (5850661): Reaper (200) and Cracy Frog (free) in shop, death/respawn hooks wired, kill tier by class, coin-minting fixed. Demo server m5 ★. Shaders: Cosmic v3 (feedback #19, #21) and Acid rebuilt (world warp effect). V2 roster in progress (feat/classes-v2: Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog; server classes2). Arena v2 (feat/arena-v2: random portals, regrowing central block; server arena2). Screenshots now queued (F2). Testing M2 + M3 + M4 + M5.
 
 ## Waiting on user
-1. **M4 progression (★):** server `m4` (generators + arena + Emerald Dream). Join: G → Demo or explore. Test: build generators (sneak-click to upgrade Lv1→Lv2→Lv3; upgrades cost 200/500 coins from purse), capture arena nodes (3 active in battle; watch contested freeze, payouts, events), unlock Emerald Dream (1000-coin team portal on pad, shared dimension). Check: generator placement, upgrade discovery, arena events, Dream exits (sneak 5s), field costs, admin panel (dream_cost TBD).
-2. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
-3. **M3 economy (★):** server `econ`. G → Demo or go to team base vault. Test: deposit/withdraw coins with sliders, check interest (+2%/60 s, capped 50, overflow carried), kill rewards (+10 base, +10×streak from 3+ kills max 150, +20/+90/+190 tier bonus), admin economy page. Check: own team's vault only, teammates can see/withdraw all, interest during prep.
-4. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
-5. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
+1. **M5 classes (★):** server `m5` (Reaper 200 coins + Cracy Frog free). Join: G → Demo or G → Shop. Pick a class on respawn, test during match. Check: Reaper invisibility (4 s after kill), Cracy Frog confirm chain (3 questions), kill tier rewards, class selection persistence, death/respawn. Six class design questions below.
+2. **M4 progression (★):** server `m4` (generators + arena + Emerald Dream). Join: G → Demo or explore. Test: build generators (sneak-click to upgrade Lv1→Lv2→Lv3; upgrades cost 200/500 coins from purse), capture arena nodes (3 active in battle; watch contested freeze, payouts, events), unlock Emerald Dream (1000-coin team portal on pad, shared dimension). Check: generator placement, upgrade discovery, arena events, Dream exits (sneak 5s), field costs, admin panel (dream_cost TBD).
+3. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
+4. **M3 economy (★):** server `econ`. G → Demo or go to team base vault. Test: deposit/withdraw coins with sliders, check interest (+2%/60 s, capped 50, overflow carried), kill rewards (+10 base, +10×streak from 3+ kills max 150, +20/+90/+190 tier bonus), admin economy page. Check: own team's vault only, teammates can see/withdraw all, interest during prep.
+5. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic v3 (lightray rebuild), Acid (world warp), Monster darkness.
+6. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
 
 ## Promised
 - Shader spikes v2 (combinable layers, 4 looks: Cinematic/Thermal/Cosmic/Monster, presets, time-of-day, materials gallery, landscape) — done (c65d643)
@@ -40,9 +41,13 @@ M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog i
 - M3 economy (feat/economy, merged to main f584840): bank dialog at vault on team pad (deposit/withdraw sliders + all buttons), interest 2%/60 s capped 50 (overflow carried as V2), kill rewards (+10 base, +10×streak from 3+ max 150, +20/+90/+190 tier bonus), admin economy page. Server econ ★. Awaiting user test.
 - Classes (6d87e5a, feat/classes, server classes ★): Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, invisibility 4 s after kill, HP −10 armour +6) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain word-for-word, frog vision permanent). Shop kits lost on death, basic at team level. Not merged yet; wired into match after M4 integration.
 - M4 progression (28e83b7, feat/m4-integration → main): Generators (one per field, 3 levels, team-wide upgrades 200/500 coins from purse, anyone can collect pot, emerald outcomes → coin pot), Arena (3 nodes in battle phase, 10 s solo capture, contested frozen, payouts every 30 s, weighted events), Emerald Dream (shared dimension, 1000-coin team portal unlock on pad, 10 regrowing veins per visit). Demo server m4 ★. Ready for user test. Eight design questions queued.
+- M5 classes (5850661, feat/m5-classes → main): Reaper (200 coins, 4 s post-kill invisibility, −10 HP +6 armour, in shop) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain, frog vision permanent, in shop). Death/respawn hooks wired; kill tier set by class; classes reset at match start. Coin-minting fix (emerald pickup = 5 coins, placing while broke creates debt, emerald ores/blocks drop nothing). Demo server m5 ★. Ready for user test. Six design questions queued.
 
 ## In flight
-- M5 classes into match (feat/m5-classes, server m5): Wiring Reaper + Cracy Frog class framework into match logic. Fixing emerald-block coin exploit. Shaders feedback #18: separate Layers and Presets sections in UI, move "No Effect" resets out of effect rows.
+- V2 classes roster (feat/classes-v2, server classes2): Archer, Miner, Tank, Ninja, Berserker (confirm), Monster, Balrog (maybe). Data-driven via src/classes.json + build_classes.py (same framework as M5).
+- Arena v2 features (feat/arena-v2, server arena2): Random-entry portals (V2 return) + regrowing central block (capture mechanic from V2).
+- Shaders v3: Cosmic (rebuild around light, feedback #19/#21), Acid (real world warp effect), both awaiting user test.
+- Daemon feature: Screenshots (F2) now queued automatically to feedback log.
 
 ## Decisions
 | Date | Decision |
@@ -163,6 +168,11 @@ M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog i
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | **M5 classes merged** (5850661, feat/m5-classes → main): Reaper (200 coins, 4 s post-kill invisibility) + Cracy Frog (free, 3-question confirm chain) in shop; death/respawn hooks wired; kill tier set by class; classes reset at match start. Coin exploit fixed (emerald pickup 5 coins, placing while broke = debt, ores/blocks drop nothing). Demo server m5 ★. Six design questions queued. |
+| 10-14 | **Shaders progress:** Cosmic v3 rebuilt around light (feedback #19, #21 resolved); Acid reborn as real world warp effect. Both awaiting user playtest. |
+| 10-14 | **Daemon feature:** Screenshots (F2) now auto-queued to feedback log (.mcdev/screenshots/<N>.png). Acked "📷 noted (#N)", entry written after 60s with image path + chat context. |
+| 10-14 | **V2 classes started** (feat/classes-v2, server classes2): Archer, Miner, Tank, Ninja, Berserker (confirm), Monster, Balrog (maybe). Data-driven same as M5 framework. |
+| 10-14 | **V2 arena features started** (feat/arena-v2, server arena2): Random-entry portals (V2 return) + regrowing central block (capture mechanic). |
 | 10-14 | **M4 progression merged** (28e83b7, feat/m4-integration → main): Generators (one per field, 3 levels, upgrades 200/500 coins from purse, anyone collects pot), Arena (3 nodes active in battle, 10 s solo capture, contested frozen, payouts 30 s), Emerald Dream (shared, 1000-coin team portal on pad, 10 veins per visit ±3000). Demo server m4 ★. Eight design questions queued (pot collection, payment source, pad entry, lightning toggle, vein reset, admin panel, upgrade discovery, placement). |
 | 10-14 | **M5 classes into match started** (feat/m5-classes, server m5): Wiring Reaper + Cracy Frog from framework into match logic. Fixing emerald-block coin exploit. |
 | 10-14 | **Shaders feedback #18** (forwarded): Separate Layers and Presets sections in UI, move "No Effect" resets out of effect rows. |
