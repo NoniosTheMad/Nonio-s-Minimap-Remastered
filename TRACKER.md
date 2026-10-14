@@ -184,6 +184,18 @@ M6 map & polish: V2 classes (6db932a, feat/classes-v2, server classes2 ★) merg
 8. **Extras not in V2:** [default: emerald-block regrow chime, regrow particles, red/grey "ARENA" pad labels]. Keep?
 9. **Final layout:** [noted: 4 placeholder slots (corner landings → nearby exits) and pad positions; real arena geometry in M6].
 
+**V2 shop catalog** (feat/shop-v2, server `shop2`; built with these defaults, prices in `src/shop.json`):
+1. **Page layout:** [default: first page = section menu; pages Blocks, Ores, Food, Utility, Enchanting, Tools, Alchemy, Ammo, Classes, each with V2's Shop Keeper line and a Back button; the dialog stays on the page after a purchase]. V2's "Special" page is left out (its items are on Tools/Classes or not built yet: Talisman, barriers, Dragon Skull). OK?
+2. **Duplicates:** [default: like V2, an item can sit on several pages (Golden Apple in Food + Utility, Sand/Soul Sand/Redstone... in Blocks/Ores + Alchemy, Lapis in Ores + Enchanting)]. Keep, or one page each?
+3. **Prices:** [default: V2's live prices, e.g. TNT x4 320, Ender Pearl 100, Totem 500, Diamond Block 12, Satan's Blade 2000]. The remaster's emerald rate is 5/45 vs V2 1/20, so V2 prices are relatively cheaper now. Scale them?
+4. **Ghast Tear:** [default: 5 (the price V2 showed); V2 actually charged 20]. OK?
+5. **Button labels:** [default: V2's names with spelling fixed: Oak Sapling, Bookshelf, Cobweb, Lapis Lazuli, Rabbit's Foot]. The named items keep V2's names and lore exactly ("Farting device", `"Faker's Elixir"` with the quotes, "Mining boost", "Toxic dart", "He rushes this everytime..."). OK?
+6. **Enchant in hand:** [default: vanilla /enchant rules like V2: the item must accept it, no conflicts, and an item that already has that enchantment is refused (Efficiency II then V = refused); refused = no coins taken]. Tooltip says "Enchants the item in your hand." (V2: "Put the item in hand to enchant"). V2's Fortune III also handed out a Fortune III book (looks like a leftover CB); not copied. OK?
+7. **Satan's Blade:** [default: V2 stats exactly: Fire Aspect 100, Fire Protection 25, Knockback 3, Curse of Vanishing, unbreakable, +12 attack damage, +20 max health, +4 toughness, +1 knockback resistance, -0.025 speed while held; enchantments hidden]. The gap inventory said "Sharpness 100, Smite 25": wrong, V2's numeric ids were 20 = Fire Aspect and 1 = Fire Protection. As in V2, its modifiers replace the sword's own, so it swings with no cooldown. Keep, or add the normal attack speed?
+8. **Tinkiwinki's Touch / Nonios's Weakness:** [default: V2 exactly: Fortune V (+10 luck) / Efficiency V + Fortune X (+100 luck), unbreakable; their modifiers replace the pickaxe's own attack damage, like V2]. Nonios's Weakness sends the buyer "<NoniosTheMad> Good Choice!" (V2). OK?
+9. **Tipped arrows:** [default: V2 effects as written (Lightning Strike = Speed IV on the target, Healing Blast = Instant Health, Piercing Bolt = Instant Damage...). Vanilla still divides tipped-arrow durations by 8, as in V2]. The gap inventory's "Lightning Strike needs a projectile hook" is not built: V2's was only a Speed arrow. Real lightning?
+10. **XP x10 levels (100):** [default: kept on the Enchanting page]. OK?
+
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
 - **Shader: RTX-like effects:** ref https://www.youtube.com/watch?v=AdTxrggo8e8 (advanced ray tracing style shaders for high-end clients).
