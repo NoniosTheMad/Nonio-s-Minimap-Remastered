@@ -1,0 +1,7 @@
+Voxel studio: this island was written as code (scenes/ruined_tower.py), rendered, then placed here by the agent.
+1. Look around: G > "Voxel: ruined tower" has teleports (two spawns, the stair path, inside the tower).
+2. Judge it like a build: what looks wrong or fake? Say it in chat (each line is feedback), or F2 screenshots + a chat line.
+3. Fix it yourself if easier: "Creative", then break/place blocks. Tell the agent "pull" in chat when done: it reads
+   your edits back from the world, diffs them against the code and can keep them (patch) or rewrite the code.
+4. Ideas for the next scene (arena pieces, terrain styles, references) are welcome too.
+"Reset this server" (G > Nonios Dev) restores the island as placed.

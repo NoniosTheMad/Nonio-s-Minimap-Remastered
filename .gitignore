@@ -3,3 +3,4 @@
 .worktrees/
 __pycache__/
 .claude/
+__pycache__/
