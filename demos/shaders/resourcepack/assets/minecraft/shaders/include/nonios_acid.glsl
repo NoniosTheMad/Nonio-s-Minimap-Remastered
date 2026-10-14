@@ -25,9 +25,8 @@ vec3 nonios_acid_warp(vec3 pos, float amount) {
     float t1 = sin(TAU * GameTime * 27.0);
     float t2 = sin(TAU * GameTime * 15.0);
     float t3 = sin(TAU * GameTime * 19.0);
-    // keep a minimum bend so the effect never fully flattens while it is on
-    t2 = sign(t2) * max(abs(t2), 0.35);
-    t3 = sign(t3) * max(abs(t3), 0.35);
+    // No clamping here: an earlier sign(t)*max(|t|,0.35) floor jumped from -0.35 to +0.35 at every zero
+    // crossing and flipped the curl instantly (feedback #25). Plain sines are continuous.
     float d2 = pos.x * pos.x + pos.z * pos.z;
     vec3 p = pos;
     p.y += 5.0 * sin(d2 * t1 / 1000.0);

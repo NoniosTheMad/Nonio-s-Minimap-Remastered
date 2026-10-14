@@ -1,7 +1,7 @@
 {
     "type": "minecraft:multi_action",
     "title": {
-        "text": "Shaders demo: HP test (Thermal)",
+        "text": "Shaders demo: HP test",
         "color": "aqua"
     },
     "body": [
@@ -9,7 +9,7 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "With the Thermal look on, every player and the patients glow in their HP colour: red <= 30%, gold <= 65%, green above; purple > 20 hearts, aqua > 40 hearts (tiers double, log scale). Press F5 to see yourself.",
+                "text": "With Thermal or Angel on, every player and the patients glow in their HP colour: red <= 30%, gold <= 65%, green above; purple > 20 hearts, aqua > 40 hearts (tiers double, log scale). Press F5 to see yourself. Monster: madness grows below 60%, 35% and 15% HP.",
                 "color": "gray"
             }
         },
@@ -35,6 +35,34 @@
             },
             "tooltip": {
                 "text": "Set the Thermal look"
+            }
+        },
+        {
+            "label": {
+                "text": "Angel on",
+                "color": "yellow"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 6"
+            },
+            "tooltip": {
+                "text": "Set the Angel look"
+            }
+        },
+        {
+            "label": {
+                "text": "Monster on",
+                "color": "red"
+            },
+            "width": 100,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 5"
+            },
+            "tooltip": {
+                "text": "Set the Monster look"
             }
         },
         {

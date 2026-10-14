@@ -21,6 +21,9 @@ execute as @a[scores={demo.fx=84}] run effect clear @s absorption
 execute as @a[scores={demo.left=1..}] run function demo:fx/apply
 scoreboard players reset @a[scores={demo.left=1..}] demo.left
 function demo:hp/update
+# Monster look: heartbeat sound + madness tiers
+execute if entity @a[scores={demo.look=5}] store result score #r demo.st run random value 1..1000
+execute as @a[scores={demo.look=5}] at @s run function demo:monster/tick
 scoreboard players add #hud demo.st 1
 execute if score #hud demo.st matches 40.. as @a run function demo:fx/hud
 execute if score #hud demo.st matches 40.. run scoreboard players set #hud demo.st 0

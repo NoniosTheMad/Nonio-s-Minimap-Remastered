@@ -7,12 +7,17 @@ scoreboard objectives add demo.col dummy
 scoreboard objectives add demo.line dummy
 scoreboard objectives add demo.dist dummy
 scoreboard objectives add demo.warp dummy
+scoreboard objectives add demo.planet dummy
 scoreboard objectives add demo.hp dummy
 scoreboard objectives add demo.abs dummy
 scoreboard objectives add demo.max dummy
 scoreboard objectives add demo.tot dummy
 scoreboard objectives add demo.pct dummy
+scoreboard objectives add demo.mad dummy
+scoreboard objectives add demo.madp dummy
+scoreboard objectives add demo.mpct dummy
 scoreboard players set #100 demo.st 100
+scoreboard players set #20 demo.st 20
 team add demo.hp1
 team modify demo.hp1 color red
 team add demo.hp2

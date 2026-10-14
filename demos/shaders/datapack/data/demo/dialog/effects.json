@@ -9,7 +9,7 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "Build your own mix: one Look + any of the Mix-ins + Acid. Click an effect again to turn it off. Your current mix is shown on the action bar. Ready-made combos are under Presets.",
+                "text": "Build your own mix: one Look + any of the Mix-ins + Acid / Planet. Click an effect again to turn it off. Your current mix is shown on the action bar. Ready-made combos are under Presets.",
                 "color": "gray"
             }
         },
@@ -17,7 +17,7 @@
             "type": "minecraft:plain_message",
             "width": 420,
             "contents": {
-                "text": "Mix-ins: pick one colour (Rainbow / Comic), one line style (Ink / Neon), and Wobble.",
+                "text": "Mix-ins: pick one colour (Rainbow / Comic), one line style (Ink / Fluorescent), and Wobble.",
                 "color": "dark_gray"
             }
         }
@@ -29,7 +29,7 @@
                 "color": "dark_gray",
                 "bold": true
             },
-            "width": 72,
+            "width": 66,
             "tooltip": {
                 "text": "One at a time"
             }
@@ -39,7 +39,7 @@
                 "text": "Reaper",
                 "color": "white"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 1"
@@ -53,7 +53,7 @@
                 "text": "Cinematic",
                 "color": "gold"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 2"
@@ -67,13 +67,13 @@
                 "text": "Thermal",
                 "color": "aqua"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 3"
             },
             "tooltip": {
-                "text": "Angel infrared vision. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
+                "text": "Infrared vision. Cold world, glowing HP-coloured heat signatures (turns HP tags on)"
             }
         },
         {
@@ -81,7 +81,7 @@
                 "text": "Cosmic",
                 "color": "light_purple"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 4"
@@ -95,13 +95,41 @@
                 "text": "Monster",
                 "color": "red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 5"
             },
             "tooltip": {
-                "text": "Monster-class Hunger vision. Blood-red, short sight, hot rims, heartbeat"
+                "text": "Hunger vision. Blood-red, short sight, hot rims, a heartbeat you can hear. Madness creeps in as your HP drops (HP test)"
+            }
+        },
+        {
+            "label": {
+                "text": "Angel",
+                "color": "yellow"
+            },
+            "width": 66,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 6"
+            },
+            "tooltip": {
+                "text": "Majestic light: soft whites and golds, bloom, haze, drifting motes. Living things show as heat (turns HP tags on)"
+            }
+        },
+        {
+            "label": {
+                "text": "Neon",
+                "color": "aqua"
+            },
+            "width": 66,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 7"
+            },
+            "tooltip": {
+                "text": "Grey world; the edges of every object glow as neon tubes in its own colour"
             }
         },
         {
@@ -110,7 +138,7 @@
                 "color": "dark_gray",
                 "bold": true
             },
-            "width": 72,
+            "width": 66,
             "tooltip": {
                 "text": "One colour, one line style, and Wobble"
             }
@@ -120,7 +148,7 @@
                 "text": "Rainbow",
                 "color": "light_purple"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 11"
@@ -134,7 +162,7 @@
                 "text": "Comic",
                 "color": "yellow"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 12"
@@ -148,7 +176,7 @@
                 "text": "Ink",
                 "color": "gray"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 21"
@@ -159,10 +187,10 @@
         },
         {
             "label": {
-                "text": "Neon",
+                "text": "Fluorescent",
                 "color": "aqua"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 22"
@@ -176,7 +204,7 @@
                 "text": "Wobble",
                 "color": "green"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 31"
@@ -187,11 +215,23 @@
         },
         {
             "label": {
+                "text": ""
+            },
+            "width": 66
+        },
+        {
+            "label": {
+                "text": ""
+            },
+            "width": 66
+        },
+        {
+            "label": {
                 "text": "WORLD",
                 "color": "dark_gray",
                 "bold": true
             },
-            "width": 72,
+            "width": 66,
             "tooltip": {
                 "text": "Bends the world itself, combines with everything"
             }
@@ -201,7 +241,7 @@
                 "text": "Acid",
                 "color": "dark_green"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 35"
@@ -212,10 +252,24 @@
         },
         {
             "label": {
+                "text": "Planet",
+                "color": "dark_aqua"
+            },
+            "width": 66,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 36"
+            },
+            "tooltip": {
+                "text": "Tiny planet: distant terrain curves down over the horizon"
+            }
+        },
+        {
+            "label": {
                 "text": "Presets...",
                 "color": "yellow"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:show_dialog",
                 "dialog": "demo:presets"
@@ -229,7 +283,7 @@
                 "text": "Time, gallery",
                 "color": "green"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:show_dialog",
                 "dialog": "demo:world"
@@ -243,13 +297,13 @@
                 "text": "HP test",
                 "color": "aqua"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:show_dialog",
                 "dialog": "demo:hp_test"
             },
             "tooltip": {
-                "text": "Hurt / heal / overheal yourself to test Thermal"
+                "text": "Hurt / heal / overheal yourself to test Thermal, Angel and Monster"
             }
         },
         {
@@ -257,7 +311,7 @@
                 "text": "Clear all",
                 "color": "red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 49"
@@ -268,11 +322,17 @@
         },
         {
             "label": {
+                "text": ""
+            },
+            "width": 66
+        },
+        {
+            "label": {
                 "text": "REMOVE",
                 "color": "dark_gray",
                 "bold": true
             },
-            "width": 72,
+            "width": 66,
             "tooltip": {
                 "text": "Turn off one category"
             }
@@ -282,7 +342,7 @@
                 "text": "x Look",
                 "color": "dark_red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 10"
@@ -296,7 +356,7 @@
                 "text": "x Colour",
                 "color": "dark_red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 19"
@@ -310,13 +370,13 @@
                 "text": "x Lines",
                 "color": "dark_red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 29"
             },
             "tooltip": {
-                "text": "Remove Ink / Neon"
+                "text": "Remove Ink / Fluorescent"
             }
         },
         {
@@ -324,7 +384,7 @@
                 "text": "x Wobble",
                 "color": "dark_red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 39"
@@ -338,7 +398,7 @@
                 "text": "x Acid",
                 "color": "dark_red"
             },
-            "width": 72,
+            "width": 66,
             "action": {
                 "type": "minecraft:run_command",
                 "command": "trigger demo.fx set 38"
@@ -346,9 +406,29 @@
             "tooltip": {
                 "text": "Remove Acid"
             }
+        },
+        {
+            "label": {
+                "text": "x Planet",
+                "color": "dark_red"
+            },
+            "width": 66,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 37"
+            },
+            "tooltip": {
+                "text": "Remove Planet"
+            }
+        },
+        {
+            "label": {
+                "text": ""
+            },
+            "width": 66
         }
     ],
-    "columns": 6,
+    "columns": 8,
     "after_action": "none",
     "pause": false
 }

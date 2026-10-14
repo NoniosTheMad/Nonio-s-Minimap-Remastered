@@ -54,7 +54,7 @@
                 "command": "trigger demo.fx set 43"
             },
             "tooltip": {
-                "text": "Thermal: HP-bracket heat signatures (see HP test)"
+                "text": "Angel look: luminous world, thermal sight only on living things (see HP test)"
             }
         },
         {
@@ -68,7 +68,7 @@
                 "command": "trigger demo.fx set 44"
             },
             "tooltip": {
-                "text": "Reaper + Neon lines"
+                "text": "Reaper + Fluorescent lines"
             }
         },
         {
@@ -97,6 +97,20 @@
             },
             "tooltip": {
                 "text": "Acid + Wobble + Rainbow: everything"
+            }
+        },
+        {
+            "label": {
+                "text": "Tiny planet",
+                "color": "yellow"
+            },
+            "width": 110,
+            "action": {
+                "type": "minecraft:run_command",
+                "command": "trigger demo.fx set 47"
+            },
+            "tooltip": {
+                "text": "Cinematic + Planet"
             }
         },
         {

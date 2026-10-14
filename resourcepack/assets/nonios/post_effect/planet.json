@@ -1,0 +1,78 @@
+{
+    "targets": {
+        "swap": {}
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/planet",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "PlanetConfig": [
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 256.0
+                    },
+                    {
+                        "name": "TanHalfFov",
+                        "type": "float",
+                        "value": 0.7
+                    },
+                    {
+                        "name": "MaxDist",
+                        "type": "float",
+                        "value": 224.0
+                    },
+                    {
+                        "name": "Near",
+                        "type": "float",
+                        "value": 0.05
+                    },
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "output": "minecraft:main",
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
