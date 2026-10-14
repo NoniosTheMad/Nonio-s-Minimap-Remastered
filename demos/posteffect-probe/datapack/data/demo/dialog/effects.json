@@ -19,35 +19,35 @@
    "label": "invert",
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect add @s minecraft:invert"
+    "command": "trigger demo.fx set 1"
    }
   },
   {
    "label": "creeper",
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect add @s minecraft:creeper"
+    "command": "trigger demo.fx set 2"
    }
   },
   {
    "label": "spider",
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect add @s minecraft:spider"
+    "command": "trigger demo.fx set 3"
    }
   },
   {
    "label": "blur",
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect add @s minecraft:blur"
+    "command": "trigger demo.fx set 4"
    }
   },
   {
    "label": "entity_outline",
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect add @s minecraft:entity_outline"
+    "command": "trigger demo.fx set 5"
    }
   },
   {
@@ -57,7 +57,7 @@
    },
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect list @s"
+    "command": "trigger demo.fx set 6"
    }
   },
   {
@@ -67,7 +67,7 @@
    },
    "action": {
     "type": "minecraft:run_command",
-    "command": "posteffect clear @s"
+    "command": "trigger demo.fx set 7"
    }
   }
  ],
