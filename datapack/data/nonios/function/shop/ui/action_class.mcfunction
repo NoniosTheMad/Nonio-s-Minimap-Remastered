@@ -1,2 +1,0 @@
-# a class button (class/gen/shop_items): name in the class colour, price or "free", blurb in the tooltip
-$data modify storage nonios:shop ui.d.actions append value {label:[{type:"object",atlas:"$(atlas)",sprite:"$(sprite)"},{text:" $(name)  ",color:"$(ncol)"},{text:"$(ptxt)",color:"$(col)"}],tooltip:[{text:"$(name)\n",color:"$(ncol)"},{text:"$(blurb)\n",color:"gray"},{text:"$(tip)",color:"$(col)"}],width:150,action:{type:"minecraft:run_command",command:"trigger nx.shop set $(n)"}}

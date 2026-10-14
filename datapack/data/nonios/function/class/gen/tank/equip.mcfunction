@@ -10,5 +10,5 @@ function nonios:class/stash {slot:"armor.feet"}
 loot replace entity @s armor.feet loot nonios:class/tank/feet
 function nonios:class/stash {slot:"weapon.offhand"}
 loot replace entity @s weapon.offhand loot nonios:class/tank/shield
-loot give @s loot nonios:class/tank/sword
-loot give @s loot nonios:class/tank/ironskin
+function nonios:gear/loot {table:"nonios:class/tank/sword"}
+function nonios:gear/loot {table:"nonios:class/tank/ironskin"}

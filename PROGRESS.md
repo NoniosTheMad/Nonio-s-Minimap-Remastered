@@ -126,3 +126,15 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
   "OFFERINGS" (light purple) and sprites inherit + are tinted by the colour -> plain "" root, sprites color white.
 - RCON-verified: yields/fortune/placement/debt maths on a husk, interest growth + schedule loop, sidebar storage, bank dialog both states, altar text, clean log.
   Not verified in the client: sidebar look, greyed buttons, mining feel, altar icons.
+
+## Shop v3 + gear slots + bow vs Nexus (`feat/shop-v3`, server `shop3`, demo `shop3`; #32 #34 #37)
+- [x] Shop v3 (#32): categories/subcategories/pages from `src/shop.json` (build_shop.py, any size: stress build 452 items / 37 screens);
+  fixed 4x6 grid (nav row, quantity row x1/x8/x64/Stack, 16 slots), "Again" repeats the last purchase, unaffordable = grey + "Need Nc more",
+  partial buys when the bag is nearly full, body = purse + last result. Reopens where the player left it.
+- [x] Gear slots (#34): `gear/give` / `gear/loot` used by kits, respawn, classes (build_classes.py), shop, talisman, demo. CLAUDE.md "Gear slots".
+- [x] Bow vs Nexus (#37): arrows from enemy players near the core deal 20% of their damage (speed x damage x Power, x10 scale): full shot 11-12,
+  Power V ~29, a diamond sword hit is ~70.
+- mcdev lint: trigger check looks at all the server's packs together (a demo catalog uses the game's `nx.shop`).
+- RCON-verified (no player online, test armor stand + probes): dialog SNBT parses on every screen, nav/modes/grey/again, gear categories
+  of 17 items, probe copy + drop, arrow speed (2.92 b/t) and damage (Power V = 29 HP), clean log + lint.
+  Not verified with a real player: hotbar placement, partial fit, the dialog look at GUI scale 2.

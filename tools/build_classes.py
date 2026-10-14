@@ -42,6 +42,8 @@ def item_components(cid, c, key, it):
     comp = dict(it.get("components", {}))
     tag = f"{cid}_{key}"
     comp["minecraft:custom_data"] = {"nx_cls": cid, "nx_item": tag, "nx_cls_item": True}
+    if "gear" in it:  # hotbar convention override for plain bases (gear/category): weapon|bow|pickaxe|bucket|tool|none
+        comp["minecraft:custom_data"]["nx_gear"] = it["gear"]
     ench = dict(comp.get("minecraft:enchantments", {}))
     ench["minecraft:vanishing_curse"] = 1  # class items never drop on death (keep_inventory off) - they are re-given
     if c["tier"] == "shop" and it["slot"] in ARMOR:
@@ -118,7 +120,7 @@ def build():
                 if it["slot"] == "supply":
                     assert not basic, f"{cid}.{key}: supply items are for shop classes (given once)"
                     write(OUT / "loot_table" / "class" / cid / f"{key}.json", json.dumps(loot_table(it, supply_components(it)), indent=1) + "\n")
-                    supply.append(f"loot give @s loot nonios:class/{cid}/{key}")
+                    supply.append(f'function nonios:gear/loot {{table:"nonios:class/{cid}/{key}"}}')
                     continue
                 comp = item_components(cid, c, key, it)
                 write(OUT / "loot_table" / "class" / cid / f"{sub}{key}.json", json.dumps(loot_table(it, comp), indent=1) + "\n")
@@ -127,7 +129,7 @@ def build():
                     lines.append(f'function nonios:class/stash {{slot:"{it["slot"]}"}}')
                     lines.append(f"loot replace entity @s {it['slot']} loot {table}")
                 else:
-                    lines.append(f"loot give @s loot {table}")
+                    lines.append(f'function nonios:gear/loot {{table:"{table}"}}')
                 if not basic:
                     _uses(cid, key, it, comp, hooks)
             name = f"{g}/equip" + (f"_l{lvl}" if lvl else "")
@@ -196,8 +198,10 @@ def build():
                         f"execute if items entity @s player.cursor {slot_match(tag)} run return 0",
                         f"execute if items entity @s player.crafting.* {slot_match(tag)} run return 0",
                         f'kill @e[type=item,nbt={{Item:{{components:{{"minecraft:custom_data":{{nx_item:"{tag}"}}}}}}}}]',
-                        f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}",
-                        f"loot give @s loot {table}"])
+                        *([f"# used up (consumable): back into the hand that used it",
+                           f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}"]
+                          if "minecraft:consumable" in item_components(cid, c, key, it) else []),
+                        f'function nonios:gear/loot {{table:"{table}"}}'])
             fn(f"{g}/check", lines)
             disp["check"].append(f"execute if score @s nx.class matches {n} run return run function nonios:{g}/check")
 

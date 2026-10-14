@@ -1,0 +1,2701 @@
+{
+ "_doc": [
+  "Demo-only stress catalog (shop3): ~300 extra items in nested categories. Built into demos/shop3/datapack/data/demo/function/catalog_stress.mcfunction",
+  "by: python tools/build_shop.py --extra demos/shop3/stress.json --out demos/shop3/datapack/data/demo/function/catalog_stress.mcfunction"
+ ],
+ "sections": [
+  {
+   "name": "Colours",
+   "icon": "block/red_wool",
+   "line": "Every colour of the rainbow. And brown.",
+   "sub": [
+    {
+     "name": "Wool",
+     "icon": "block/red_wool",
+     "items": [
+      {
+       "name": "White Wool",
+       "id": "minecraft:white_wool",
+       "icon": "block/white_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Light Gray Wool",
+       "id": "minecraft:light_gray_wool",
+       "icon": "block/light_gray_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Gray Wool",
+       "id": "minecraft:gray_wool",
+       "icon": "block/gray_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Black Wool",
+       "id": "minecraft:black_wool",
+       "icon": "block/black_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Brown Wool",
+       "id": "minecraft:brown_wool",
+       "icon": "block/brown_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Red Wool",
+       "id": "minecraft:red_wool",
+       "icon": "block/red_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Orange Wool",
+       "id": "minecraft:orange_wool",
+       "icon": "block/orange_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Yellow Wool",
+       "id": "minecraft:yellow_wool",
+       "icon": "block/yellow_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Lime Wool",
+       "id": "minecraft:lime_wool",
+       "icon": "block/lime_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Green Wool",
+       "id": "minecraft:green_wool",
+       "icon": "block/green_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Cyan Wool",
+       "id": "minecraft:cyan_wool",
+       "icon": "block/cyan_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Light Blue Wool",
+       "id": "minecraft:light_blue_wool",
+       "icon": "block/light_blue_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Blue Wool",
+       "id": "minecraft:blue_wool",
+       "icon": "block/blue_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Purple Wool",
+       "id": "minecraft:purple_wool",
+       "icon": "block/purple_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Magenta Wool",
+       "id": "minecraft:magenta_wool",
+       "icon": "block/magenta_wool",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Pink Wool",
+       "id": "minecraft:pink_wool",
+       "icon": "block/pink_wool",
+       "count": 8,
+       "price": 2
+      }
+     ]
+    },
+    {
+     "name": "Concrete",
+     "icon": "block/red_concrete",
+     "items": [
+      {
+       "name": "White Concrete",
+       "id": "minecraft:white_concrete",
+       "icon": "block/white_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Light Gray Concrete",
+       "id": "minecraft:light_gray_concrete",
+       "icon": "block/light_gray_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Gray Concrete",
+       "id": "minecraft:gray_concrete",
+       "icon": "block/gray_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Black Concrete",
+       "id": "minecraft:black_concrete",
+       "icon": "block/black_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Brown Concrete",
+       "id": "minecraft:brown_concrete",
+       "icon": "block/brown_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Red Concrete",
+       "id": "minecraft:red_concrete",
+       "icon": "block/red_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Orange Concrete",
+       "id": "minecraft:orange_concrete",
+       "icon": "block/orange_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Yellow Concrete",
+       "id": "minecraft:yellow_concrete",
+       "icon": "block/yellow_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Lime Concrete",
+       "id": "minecraft:lime_concrete",
+       "icon": "block/lime_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Green Concrete",
+       "id": "minecraft:green_concrete",
+       "icon": "block/green_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Cyan Concrete",
+       "id": "minecraft:cyan_concrete",
+       "icon": "block/cyan_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Light Blue Concrete",
+       "id": "minecraft:light_blue_concrete",
+       "icon": "block/light_blue_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Blue Concrete",
+       "id": "minecraft:blue_concrete",
+       "icon": "block/blue_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Purple Concrete",
+       "id": "minecraft:purple_concrete",
+       "icon": "block/purple_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Magenta Concrete",
+       "id": "minecraft:magenta_concrete",
+       "icon": "block/magenta_concrete",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Pink Concrete",
+       "id": "minecraft:pink_concrete",
+       "icon": "block/pink_concrete",
+       "count": 8,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Concrete Powder",
+     "icon": "block/red_concrete_powder",
+     "items": [
+      {
+       "name": "White Concrete Powder",
+       "id": "minecraft:white_concrete_powder",
+       "icon": "block/white_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Light Gray Concrete Powder",
+       "id": "minecraft:light_gray_concrete_powder",
+       "icon": "block/light_gray_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Gray Concrete Powder",
+       "id": "minecraft:gray_concrete_powder",
+       "icon": "block/gray_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Black Concrete Powder",
+       "id": "minecraft:black_concrete_powder",
+       "icon": "block/black_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Brown Concrete Powder",
+       "id": "minecraft:brown_concrete_powder",
+       "icon": "block/brown_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Red Concrete Powder",
+       "id": "minecraft:red_concrete_powder",
+       "icon": "block/red_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Orange Concrete Powder",
+       "id": "minecraft:orange_concrete_powder",
+       "icon": "block/orange_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Yellow Concrete Powder",
+       "id": "minecraft:yellow_concrete_powder",
+       "icon": "block/yellow_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Lime Concrete Powder",
+       "id": "minecraft:lime_concrete_powder",
+       "icon": "block/lime_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Green Concrete Powder",
+       "id": "minecraft:green_concrete_powder",
+       "icon": "block/green_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Cyan Concrete Powder",
+       "id": "minecraft:cyan_concrete_powder",
+       "icon": "block/cyan_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Light Blue Concrete Powder",
+       "id": "minecraft:light_blue_concrete_powder",
+       "icon": "block/light_blue_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Blue Concrete Powder",
+       "id": "minecraft:blue_concrete_powder",
+       "icon": "block/blue_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Purple Concrete Powder",
+       "id": "minecraft:purple_concrete_powder",
+       "icon": "block/purple_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Magenta Concrete Powder",
+       "id": "minecraft:magenta_concrete_powder",
+       "icon": "block/magenta_concrete_powder",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Pink Concrete Powder",
+       "id": "minecraft:pink_concrete_powder",
+       "icon": "block/pink_concrete_powder",
+       "count": 8,
+       "price": 2
+      }
+     ]
+    },
+    {
+     "name": "Terracotta",
+     "icon": "block/red_terracotta",
+     "items": [
+      {
+       "name": "White Terracotta",
+       "id": "minecraft:white_terracotta",
+       "icon": "block/white_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Light Gray Terracotta",
+       "id": "minecraft:light_gray_terracotta",
+       "icon": "block/light_gray_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Gray Terracotta",
+       "id": "minecraft:gray_terracotta",
+       "icon": "block/gray_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Black Terracotta",
+       "id": "minecraft:black_terracotta",
+       "icon": "block/black_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Brown Terracotta",
+       "id": "minecraft:brown_terracotta",
+       "icon": "block/brown_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Red Terracotta",
+       "id": "minecraft:red_terracotta",
+       "icon": "block/red_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Orange Terracotta",
+       "id": "minecraft:orange_terracotta",
+       "icon": "block/orange_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Yellow Terracotta",
+       "id": "minecraft:yellow_terracotta",
+       "icon": "block/yellow_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Lime Terracotta",
+       "id": "minecraft:lime_terracotta",
+       "icon": "block/lime_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Green Terracotta",
+       "id": "minecraft:green_terracotta",
+       "icon": "block/green_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Cyan Terracotta",
+       "id": "minecraft:cyan_terracotta",
+       "icon": "block/cyan_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Light Blue Terracotta",
+       "id": "minecraft:light_blue_terracotta",
+       "icon": "block/light_blue_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Blue Terracotta",
+       "id": "minecraft:blue_terracotta",
+       "icon": "block/blue_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Purple Terracotta",
+       "id": "minecraft:purple_terracotta",
+       "icon": "block/purple_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Magenta Terracotta",
+       "id": "minecraft:magenta_terracotta",
+       "icon": "block/magenta_terracotta",
+       "count": 8,
+       "price": 3
+      },
+      {
+       "name": "Pink Terracotta",
+       "id": "minecraft:pink_terracotta",
+       "icon": "block/pink_terracotta",
+       "count": 8,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Glazed Terracotta",
+     "icon": "block/red_glazed_terracotta",
+     "items": [
+      {
+       "name": "White Glazed Terracotta",
+       "id": "minecraft:white_glazed_terracotta",
+       "icon": "block/white_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Light Gray Glazed Terracotta",
+       "id": "minecraft:light_gray_glazed_terracotta",
+       "icon": "block/light_gray_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Gray Glazed Terracotta",
+       "id": "minecraft:gray_glazed_terracotta",
+       "icon": "block/gray_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Black Glazed Terracotta",
+       "id": "minecraft:black_glazed_terracotta",
+       "icon": "block/black_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Brown Glazed Terracotta",
+       "id": "minecraft:brown_glazed_terracotta",
+       "icon": "block/brown_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Red Glazed Terracotta",
+       "id": "minecraft:red_glazed_terracotta",
+       "icon": "block/red_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Orange Glazed Terracotta",
+       "id": "minecraft:orange_glazed_terracotta",
+       "icon": "block/orange_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Yellow Glazed Terracotta",
+       "id": "minecraft:yellow_glazed_terracotta",
+       "icon": "block/yellow_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Lime Glazed Terracotta",
+       "id": "minecraft:lime_glazed_terracotta",
+       "icon": "block/lime_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Green Glazed Terracotta",
+       "id": "minecraft:green_glazed_terracotta",
+       "icon": "block/green_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Cyan Glazed Terracotta",
+       "id": "minecraft:cyan_glazed_terracotta",
+       "icon": "block/cyan_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Light Blue Glazed Terracotta",
+       "id": "minecraft:light_blue_glazed_terracotta",
+       "icon": "block/light_blue_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Blue Glazed Terracotta",
+       "id": "minecraft:blue_glazed_terracotta",
+       "icon": "block/blue_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Purple Glazed Terracotta",
+       "id": "minecraft:purple_glazed_terracotta",
+       "icon": "block/purple_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Magenta Glazed Terracotta",
+       "id": "minecraft:magenta_glazed_terracotta",
+       "icon": "block/magenta_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Pink Glazed Terracotta",
+       "id": "minecraft:pink_glazed_terracotta",
+       "icon": "block/pink_glazed_terracotta",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Stained Glass",
+     "icon": "block/red_stained_glass",
+     "items": [
+      {
+       "name": "White Stained Glass",
+       "id": "minecraft:white_stained_glass",
+       "icon": "block/white_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Light Gray Stained Glass",
+       "id": "minecraft:light_gray_stained_glass",
+       "icon": "block/light_gray_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Gray Stained Glass",
+       "id": "minecraft:gray_stained_glass",
+       "icon": "block/gray_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Black Stained Glass",
+       "id": "minecraft:black_stained_glass",
+       "icon": "block/black_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Brown Stained Glass",
+       "id": "minecraft:brown_stained_glass",
+       "icon": "block/brown_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Red Stained Glass",
+       "id": "minecraft:red_stained_glass",
+       "icon": "block/red_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Orange Stained Glass",
+       "id": "minecraft:orange_stained_glass",
+       "icon": "block/orange_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Yellow Stained Glass",
+       "id": "minecraft:yellow_stained_glass",
+       "icon": "block/yellow_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Lime Stained Glass",
+       "id": "minecraft:lime_stained_glass",
+       "icon": "block/lime_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Green Stained Glass",
+       "id": "minecraft:green_stained_glass",
+       "icon": "block/green_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Cyan Stained Glass",
+       "id": "minecraft:cyan_stained_glass",
+       "icon": "block/cyan_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Light Blue Stained Glass",
+       "id": "minecraft:light_blue_stained_glass",
+       "icon": "block/light_blue_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Blue Stained Glass",
+       "id": "minecraft:blue_stained_glass",
+       "icon": "block/blue_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Purple Stained Glass",
+       "id": "minecraft:purple_stained_glass",
+       "icon": "block/purple_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Magenta Stained Glass",
+       "id": "minecraft:magenta_stained_glass",
+       "icon": "block/magenta_stained_glass",
+       "count": 8,
+       "price": 4
+      },
+      {
+       "name": "Pink Stained Glass",
+       "id": "minecraft:pink_stained_glass",
+       "icon": "block/pink_stained_glass",
+       "count": 8,
+       "price": 4
+      }
+     ]
+    },
+    {
+     "name": "Stained Glass Pane",
+     "icon": "block/red_stained_glass",
+     "items": [
+      {
+       "name": "White Stained Glass Pane",
+       "id": "minecraft:white_stained_glass_pane",
+       "icon": "block/white_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Light Gray Stained Glass Pane",
+       "id": "minecraft:light_gray_stained_glass_pane",
+       "icon": "block/light_gray_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Gray Stained Glass Pane",
+       "id": "minecraft:gray_stained_glass_pane",
+       "icon": "block/gray_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Black Stained Glass Pane",
+       "id": "minecraft:black_stained_glass_pane",
+       "icon": "block/black_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Brown Stained Glass Pane",
+       "id": "minecraft:brown_stained_glass_pane",
+       "icon": "block/brown_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Red Stained Glass Pane",
+       "id": "minecraft:red_stained_glass_pane",
+       "icon": "block/red_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Orange Stained Glass Pane",
+       "id": "minecraft:orange_stained_glass_pane",
+       "icon": "block/orange_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Yellow Stained Glass Pane",
+       "id": "minecraft:yellow_stained_glass_pane",
+       "icon": "block/yellow_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Lime Stained Glass Pane",
+       "id": "minecraft:lime_stained_glass_pane",
+       "icon": "block/lime_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Green Stained Glass Pane",
+       "id": "minecraft:green_stained_glass_pane",
+       "icon": "block/green_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Cyan Stained Glass Pane",
+       "id": "minecraft:cyan_stained_glass_pane",
+       "icon": "block/cyan_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Light Blue Stained Glass Pane",
+       "id": "minecraft:light_blue_stained_glass_pane",
+       "icon": "block/light_blue_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Blue Stained Glass Pane",
+       "id": "minecraft:blue_stained_glass_pane",
+       "icon": "block/blue_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Purple Stained Glass Pane",
+       "id": "minecraft:purple_stained_glass_pane",
+       "icon": "block/purple_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Magenta Stained Glass Pane",
+       "id": "minecraft:magenta_stained_glass_pane",
+       "icon": "block/magenta_stained_glass",
+       "count": 16,
+       "price": 4
+      },
+      {
+       "name": "Pink Stained Glass Pane",
+       "id": "minecraft:pink_stained_glass_pane",
+       "icon": "block/pink_stained_glass",
+       "count": 16,
+       "price": 4
+      }
+     ]
+    },
+    {
+     "name": "Carpet",
+     "icon": "block/red_wool",
+     "items": [
+      {
+       "name": "White Carpet",
+       "id": "minecraft:white_carpet",
+       "icon": "block/white_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Light Gray Carpet",
+       "id": "minecraft:light_gray_carpet",
+       "icon": "block/light_gray_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Gray Carpet",
+       "id": "minecraft:gray_carpet",
+       "icon": "block/gray_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Black Carpet",
+       "id": "minecraft:black_carpet",
+       "icon": "block/black_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Brown Carpet",
+       "id": "minecraft:brown_carpet",
+       "icon": "block/brown_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Red Carpet",
+       "id": "minecraft:red_carpet",
+       "icon": "block/red_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Orange Carpet",
+       "id": "minecraft:orange_carpet",
+       "icon": "block/orange_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Yellow Carpet",
+       "id": "minecraft:yellow_carpet",
+       "icon": "block/yellow_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Lime Carpet",
+       "id": "minecraft:lime_carpet",
+       "icon": "block/lime_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Green Carpet",
+       "id": "minecraft:green_carpet",
+       "icon": "block/green_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Cyan Carpet",
+       "id": "minecraft:cyan_carpet",
+       "icon": "block/cyan_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Light Blue Carpet",
+       "id": "minecraft:light_blue_carpet",
+       "icon": "block/light_blue_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Blue Carpet",
+       "id": "minecraft:blue_carpet",
+       "icon": "block/blue_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Purple Carpet",
+       "id": "minecraft:purple_carpet",
+       "icon": "block/purple_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Magenta Carpet",
+       "id": "minecraft:magenta_carpet",
+       "icon": "block/magenta_wool",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Pink Carpet",
+       "id": "minecraft:pink_carpet",
+       "icon": "block/pink_wool",
+       "count": 16,
+       "price": 2
+      }
+     ]
+    },
+    {
+     "name": "Candle",
+     "icon": "item/red_candle",
+     "items": [
+      {
+       "name": "White Candle",
+       "id": "minecraft:white_candle",
+       "icon": "item/white_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Light Gray Candle",
+       "id": "minecraft:light_gray_candle",
+       "icon": "item/light_gray_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Gray Candle",
+       "id": "minecraft:gray_candle",
+       "icon": "item/gray_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Black Candle",
+       "id": "minecraft:black_candle",
+       "icon": "item/black_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Brown Candle",
+       "id": "minecraft:brown_candle",
+       "icon": "item/brown_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Red Candle",
+       "id": "minecraft:red_candle",
+       "icon": "item/red_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Orange Candle",
+       "id": "minecraft:orange_candle",
+       "icon": "item/orange_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Yellow Candle",
+       "id": "minecraft:yellow_candle",
+       "icon": "item/yellow_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Lime Candle",
+       "id": "minecraft:lime_candle",
+       "icon": "item/lime_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Green Candle",
+       "id": "minecraft:green_candle",
+       "icon": "item/green_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Cyan Candle",
+       "id": "minecraft:cyan_candle",
+       "icon": "item/cyan_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Light Blue Candle",
+       "id": "minecraft:light_blue_candle",
+       "icon": "item/light_blue_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Blue Candle",
+       "id": "minecraft:blue_candle",
+       "icon": "item/blue_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Purple Candle",
+       "id": "minecraft:purple_candle",
+       "icon": "item/purple_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Magenta Candle",
+       "id": "minecraft:magenta_candle",
+       "icon": "item/magenta_candle",
+       "count": 4,
+       "price": 3
+      },
+      {
+       "name": "Pink Candle",
+       "id": "minecraft:pink_candle",
+       "icon": "item/pink_candle",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Bed",
+     "icon": "block/red_wool",
+     "items": [
+      {
+       "name": "White Bed",
+       "id": "minecraft:white_bed",
+       "icon": "block/white_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Light Gray Bed",
+       "id": "minecraft:light_gray_bed",
+       "icon": "block/light_gray_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Gray Bed",
+       "id": "minecraft:gray_bed",
+       "icon": "block/gray_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Black Bed",
+       "id": "minecraft:black_bed",
+       "icon": "block/black_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Brown Bed",
+       "id": "minecraft:brown_bed",
+       "icon": "block/brown_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Red Bed",
+       "id": "minecraft:red_bed",
+       "icon": "block/red_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Orange Bed",
+       "id": "minecraft:orange_bed",
+       "icon": "block/orange_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Yellow Bed",
+       "id": "minecraft:yellow_bed",
+       "icon": "block/yellow_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Lime Bed",
+       "id": "minecraft:lime_bed",
+       "icon": "block/lime_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Green Bed",
+       "id": "minecraft:green_bed",
+       "icon": "block/green_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Cyan Bed",
+       "id": "minecraft:cyan_bed",
+       "icon": "block/cyan_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Light Blue Bed",
+       "id": "minecraft:light_blue_bed",
+       "icon": "block/light_blue_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Blue Bed",
+       "id": "minecraft:blue_bed",
+       "icon": "block/blue_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Purple Bed",
+       "id": "minecraft:purple_bed",
+       "icon": "block/purple_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Magenta Bed",
+       "id": "minecraft:magenta_bed",
+       "icon": "block/magenta_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Pink Bed",
+       "id": "minecraft:pink_bed",
+       "icon": "block/pink_wool",
+       "count": 1,
+       "price": 6
+      }
+     ]
+    },
+    {
+     "name": "Banner",
+     "icon": "block/red_wool",
+     "items": [
+      {
+       "name": "White Banner",
+       "id": "minecraft:white_banner",
+       "icon": "block/white_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Light Gray Banner",
+       "id": "minecraft:light_gray_banner",
+       "icon": "block/light_gray_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Gray Banner",
+       "id": "minecraft:gray_banner",
+       "icon": "block/gray_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Black Banner",
+       "id": "minecraft:black_banner",
+       "icon": "block/black_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Brown Banner",
+       "id": "minecraft:brown_banner",
+       "icon": "block/brown_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Red Banner",
+       "id": "minecraft:red_banner",
+       "icon": "block/red_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Orange Banner",
+       "id": "minecraft:orange_banner",
+       "icon": "block/orange_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Yellow Banner",
+       "id": "minecraft:yellow_banner",
+       "icon": "block/yellow_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Lime Banner",
+       "id": "minecraft:lime_banner",
+       "icon": "block/lime_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Green Banner",
+       "id": "minecraft:green_banner",
+       "icon": "block/green_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Cyan Banner",
+       "id": "minecraft:cyan_banner",
+       "icon": "block/cyan_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Light Blue Banner",
+       "id": "minecraft:light_blue_banner",
+       "icon": "block/light_blue_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Blue Banner",
+       "id": "minecraft:blue_banner",
+       "icon": "block/blue_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Purple Banner",
+       "id": "minecraft:purple_banner",
+       "icon": "block/purple_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Magenta Banner",
+       "id": "minecraft:magenta_banner",
+       "icon": "block/magenta_wool",
+       "count": 1,
+       "price": 6
+      },
+      {
+       "name": "Pink Banner",
+       "id": "minecraft:pink_banner",
+       "icon": "block/pink_wool",
+       "count": 1,
+       "price": 6
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Wood",
+   "icon": "block/oak_planks",
+   "line": "Fresh from the forest.",
+   "sub": [
+    {
+     "name": "Oak",
+     "icon": "block/oak_planks",
+     "items": [
+      {
+       "name": "Oak Log",
+       "id": "minecraft:oak_log",
+       "icon": "block/oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Oak Planks",
+       "id": "minecraft:oak_planks",
+       "icon": "block/oak_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Oak Stairs",
+       "id": "minecraft:oak_stairs",
+       "icon": "block/oak_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Oak Slab",
+       "id": "minecraft:oak_slab",
+       "icon": "block/oak_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Oak Fence",
+       "id": "minecraft:oak_fence",
+       "icon": "block/oak_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Oak Fence Gate",
+       "id": "minecraft:oak_fence_gate",
+       "icon": "block/oak_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Oak Door",
+       "id": "minecraft:oak_door",
+       "icon": "block/oak_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Oak Trapdoor",
+       "id": "minecraft:oak_trapdoor",
+       "icon": "block/oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Oak Button",
+       "id": "minecraft:oak_button",
+       "icon": "block/oak_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Oak Pressure Plate",
+       "id": "minecraft:oak_pressure_plate",
+       "icon": "block/oak_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Oak Sign",
+       "id": "minecraft:oak_sign",
+       "icon": "block/oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Oak Hanging Sign",
+       "id": "minecraft:oak_hanging_sign",
+       "icon": "block/oak_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Spruce",
+     "icon": "block/spruce_planks",
+     "items": [
+      {
+       "name": "Spruce Log",
+       "id": "minecraft:spruce_log",
+       "icon": "block/spruce_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Spruce Planks",
+       "id": "minecraft:spruce_planks",
+       "icon": "block/spruce_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Spruce Stairs",
+       "id": "minecraft:spruce_stairs",
+       "icon": "block/spruce_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Spruce Slab",
+       "id": "minecraft:spruce_slab",
+       "icon": "block/spruce_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Spruce Fence",
+       "id": "minecraft:spruce_fence",
+       "icon": "block/spruce_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Spruce Fence Gate",
+       "id": "minecraft:spruce_fence_gate",
+       "icon": "block/spruce_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Spruce Door",
+       "id": "minecraft:spruce_door",
+       "icon": "block/spruce_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Spruce Trapdoor",
+       "id": "minecraft:spruce_trapdoor",
+       "icon": "block/spruce_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Spruce Button",
+       "id": "minecraft:spruce_button",
+       "icon": "block/spruce_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Spruce Pressure Plate",
+       "id": "minecraft:spruce_pressure_plate",
+       "icon": "block/spruce_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Spruce Sign",
+       "id": "minecraft:spruce_sign",
+       "icon": "block/spruce_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Spruce Hanging Sign",
+       "id": "minecraft:spruce_hanging_sign",
+       "icon": "block/spruce_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Birch",
+     "icon": "block/birch_planks",
+     "items": [
+      {
+       "name": "Birch Log",
+       "id": "minecraft:birch_log",
+       "icon": "block/birch_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Birch Planks",
+       "id": "minecraft:birch_planks",
+       "icon": "block/birch_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Birch Stairs",
+       "id": "minecraft:birch_stairs",
+       "icon": "block/birch_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Birch Slab",
+       "id": "minecraft:birch_slab",
+       "icon": "block/birch_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Birch Fence",
+       "id": "minecraft:birch_fence",
+       "icon": "block/birch_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Birch Fence Gate",
+       "id": "minecraft:birch_fence_gate",
+       "icon": "block/birch_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Birch Door",
+       "id": "minecraft:birch_door",
+       "icon": "block/birch_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Birch Trapdoor",
+       "id": "minecraft:birch_trapdoor",
+       "icon": "block/birch_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Birch Button",
+       "id": "minecraft:birch_button",
+       "icon": "block/birch_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Birch Pressure Plate",
+       "id": "minecraft:birch_pressure_plate",
+       "icon": "block/birch_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Birch Sign",
+       "id": "minecraft:birch_sign",
+       "icon": "block/birch_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Birch Hanging Sign",
+       "id": "minecraft:birch_hanging_sign",
+       "icon": "block/birch_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Jungle",
+     "icon": "block/jungle_planks",
+     "items": [
+      {
+       "name": "Jungle Log",
+       "id": "minecraft:jungle_log",
+       "icon": "block/jungle_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Jungle Planks",
+       "id": "minecraft:jungle_planks",
+       "icon": "block/jungle_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Jungle Stairs",
+       "id": "minecraft:jungle_stairs",
+       "icon": "block/jungle_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Jungle Slab",
+       "id": "minecraft:jungle_slab",
+       "icon": "block/jungle_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Jungle Fence",
+       "id": "minecraft:jungle_fence",
+       "icon": "block/jungle_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Jungle Fence Gate",
+       "id": "minecraft:jungle_fence_gate",
+       "icon": "block/jungle_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Jungle Door",
+       "id": "minecraft:jungle_door",
+       "icon": "block/jungle_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Jungle Trapdoor",
+       "id": "minecraft:jungle_trapdoor",
+       "icon": "block/jungle_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Jungle Button",
+       "id": "minecraft:jungle_button",
+       "icon": "block/jungle_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Jungle Pressure Plate",
+       "id": "minecraft:jungle_pressure_plate",
+       "icon": "block/jungle_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Jungle Sign",
+       "id": "minecraft:jungle_sign",
+       "icon": "block/jungle_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Jungle Hanging Sign",
+       "id": "minecraft:jungle_hanging_sign",
+       "icon": "block/jungle_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Acacia",
+     "icon": "block/acacia_planks",
+     "items": [
+      {
+       "name": "Acacia Log",
+       "id": "minecraft:acacia_log",
+       "icon": "block/acacia_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Acacia Planks",
+       "id": "minecraft:acacia_planks",
+       "icon": "block/acacia_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Acacia Stairs",
+       "id": "minecraft:acacia_stairs",
+       "icon": "block/acacia_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Acacia Slab",
+       "id": "minecraft:acacia_slab",
+       "icon": "block/acacia_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Acacia Fence",
+       "id": "minecraft:acacia_fence",
+       "icon": "block/acacia_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Acacia Fence Gate",
+       "id": "minecraft:acacia_fence_gate",
+       "icon": "block/acacia_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Acacia Door",
+       "id": "minecraft:acacia_door",
+       "icon": "block/acacia_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Acacia Trapdoor",
+       "id": "minecraft:acacia_trapdoor",
+       "icon": "block/acacia_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Acacia Button",
+       "id": "minecraft:acacia_button",
+       "icon": "block/acacia_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Acacia Pressure Plate",
+       "id": "minecraft:acacia_pressure_plate",
+       "icon": "block/acacia_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Acacia Sign",
+       "id": "minecraft:acacia_sign",
+       "icon": "block/acacia_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Acacia Hanging Sign",
+       "id": "minecraft:acacia_hanging_sign",
+       "icon": "block/acacia_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Dark Oak",
+     "icon": "block/dark_oak_planks",
+     "items": [
+      {
+       "name": "Dark Oak Log",
+       "id": "minecraft:dark_oak_log",
+       "icon": "block/dark_oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Planks",
+       "id": "minecraft:dark_oak_planks",
+       "icon": "block/dark_oak_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Stairs",
+       "id": "minecraft:dark_oak_stairs",
+       "icon": "block/dark_oak_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Slab",
+       "id": "minecraft:dark_oak_slab",
+       "icon": "block/dark_oak_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Fence",
+       "id": "minecraft:dark_oak_fence",
+       "icon": "block/dark_oak_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Fence Gate",
+       "id": "minecraft:dark_oak_fence_gate",
+       "icon": "block/dark_oak_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Door",
+       "id": "minecraft:dark_oak_door",
+       "icon": "block/dark_oak_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Trapdoor",
+       "id": "minecraft:dark_oak_trapdoor",
+       "icon": "block/dark_oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Button",
+       "id": "minecraft:dark_oak_button",
+       "icon": "block/dark_oak_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Dark Oak Pressure Plate",
+       "id": "minecraft:dark_oak_pressure_plate",
+       "icon": "block/dark_oak_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Dark Oak Sign",
+       "id": "minecraft:dark_oak_sign",
+       "icon": "block/dark_oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Dark Oak Hanging Sign",
+       "id": "minecraft:dark_oak_hanging_sign",
+       "icon": "block/dark_oak_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Mangrove",
+     "icon": "block/mangrove_planks",
+     "items": [
+      {
+       "name": "Mangrove Log",
+       "id": "minecraft:mangrove_log",
+       "icon": "block/mangrove_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Planks",
+       "id": "minecraft:mangrove_planks",
+       "icon": "block/mangrove_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Stairs",
+       "id": "minecraft:mangrove_stairs",
+       "icon": "block/mangrove_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Slab",
+       "id": "minecraft:mangrove_slab",
+       "icon": "block/mangrove_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Fence",
+       "id": "minecraft:mangrove_fence",
+       "icon": "block/mangrove_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Fence Gate",
+       "id": "minecraft:mangrove_fence_gate",
+       "icon": "block/mangrove_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Door",
+       "id": "minecraft:mangrove_door",
+       "icon": "block/mangrove_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Trapdoor",
+       "id": "minecraft:mangrove_trapdoor",
+       "icon": "block/mangrove_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Button",
+       "id": "minecraft:mangrove_button",
+       "icon": "block/mangrove_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Mangrove Pressure Plate",
+       "id": "minecraft:mangrove_pressure_plate",
+       "icon": "block/mangrove_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Mangrove Sign",
+       "id": "minecraft:mangrove_sign",
+       "icon": "block/mangrove_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Mangrove Hanging Sign",
+       "id": "minecraft:mangrove_hanging_sign",
+       "icon": "block/mangrove_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Cherry",
+     "icon": "block/cherry_planks",
+     "items": [
+      {
+       "name": "Cherry Log",
+       "id": "minecraft:cherry_log",
+       "icon": "block/cherry_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Cherry Planks",
+       "id": "minecraft:cherry_planks",
+       "icon": "block/cherry_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Cherry Stairs",
+       "id": "minecraft:cherry_stairs",
+       "icon": "block/cherry_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Cherry Slab",
+       "id": "minecraft:cherry_slab",
+       "icon": "block/cherry_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Cherry Fence",
+       "id": "minecraft:cherry_fence",
+       "icon": "block/cherry_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Cherry Fence Gate",
+       "id": "minecraft:cherry_fence_gate",
+       "icon": "block/cherry_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Cherry Door",
+       "id": "minecraft:cherry_door",
+       "icon": "block/cherry_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Cherry Trapdoor",
+       "id": "minecraft:cherry_trapdoor",
+       "icon": "block/cherry_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Cherry Button",
+       "id": "minecraft:cherry_button",
+       "icon": "block/cherry_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Cherry Pressure Plate",
+       "id": "minecraft:cherry_pressure_plate",
+       "icon": "block/cherry_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Cherry Sign",
+       "id": "minecraft:cherry_sign",
+       "icon": "block/cherry_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Cherry Hanging Sign",
+       "id": "minecraft:cherry_hanging_sign",
+       "icon": "block/cherry_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Pale Oak",
+     "icon": "block/pale_oak_planks",
+     "items": [
+      {
+       "name": "Pale Oak Log",
+       "id": "minecraft:pale_oak_log",
+       "icon": "block/pale_oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Planks",
+       "id": "minecraft:pale_oak_planks",
+       "icon": "block/pale_oak_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Stairs",
+       "id": "minecraft:pale_oak_stairs",
+       "icon": "block/pale_oak_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Slab",
+       "id": "minecraft:pale_oak_slab",
+       "icon": "block/pale_oak_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Fence",
+       "id": "minecraft:pale_oak_fence",
+       "icon": "block/pale_oak_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Fence Gate",
+       "id": "minecraft:pale_oak_fence_gate",
+       "icon": "block/pale_oak_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Door",
+       "id": "minecraft:pale_oak_door",
+       "icon": "block/pale_oak_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Trapdoor",
+       "id": "minecraft:pale_oak_trapdoor",
+       "icon": "block/pale_oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Button",
+       "id": "minecraft:pale_oak_button",
+       "icon": "block/pale_oak_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Pale Oak Pressure Plate",
+       "id": "minecraft:pale_oak_pressure_plate",
+       "icon": "block/pale_oak_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Pale Oak Sign",
+       "id": "minecraft:pale_oak_sign",
+       "icon": "block/pale_oak_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Pale Oak Hanging Sign",
+       "id": "minecraft:pale_oak_hanging_sign",
+       "icon": "block/pale_oak_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Crimson",
+     "icon": "block/crimson_planks",
+     "items": [
+      {
+       "name": "Crimson Stem",
+       "id": "minecraft:crimson_stem",
+       "icon": "block/crimson_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Crimson Planks",
+       "id": "minecraft:crimson_planks",
+       "icon": "block/crimson_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Crimson Stairs",
+       "id": "minecraft:crimson_stairs",
+       "icon": "block/crimson_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Crimson Slab",
+       "id": "minecraft:crimson_slab",
+       "icon": "block/crimson_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Crimson Fence",
+       "id": "minecraft:crimson_fence",
+       "icon": "block/crimson_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Crimson Fence Gate",
+       "id": "minecraft:crimson_fence_gate",
+       "icon": "block/crimson_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Crimson Door",
+       "id": "minecraft:crimson_door",
+       "icon": "block/crimson_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Crimson Trapdoor",
+       "id": "minecraft:crimson_trapdoor",
+       "icon": "block/crimson_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Crimson Button",
+       "id": "minecraft:crimson_button",
+       "icon": "block/crimson_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Crimson Pressure Plate",
+       "id": "minecraft:crimson_pressure_plate",
+       "icon": "block/crimson_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Crimson Sign",
+       "id": "minecraft:crimson_sign",
+       "icon": "block/crimson_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Crimson Hanging Sign",
+       "id": "minecraft:crimson_hanging_sign",
+       "icon": "block/crimson_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Warped",
+     "icon": "block/warped_planks",
+     "items": [
+      {
+       "name": "Warped Stem",
+       "id": "minecraft:warped_stem",
+       "icon": "block/warped_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Warped Planks",
+       "id": "minecraft:warped_planks",
+       "icon": "block/warped_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Warped Stairs",
+       "id": "minecraft:warped_stairs",
+       "icon": "block/warped_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Warped Slab",
+       "id": "minecraft:warped_slab",
+       "icon": "block/warped_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Warped Fence",
+       "id": "minecraft:warped_fence",
+       "icon": "block/warped_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Warped Fence Gate",
+       "id": "minecraft:warped_fence_gate",
+       "icon": "block/warped_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Warped Door",
+       "id": "minecraft:warped_door",
+       "icon": "block/warped_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Warped Trapdoor",
+       "id": "minecraft:warped_trapdoor",
+       "icon": "block/warped_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Warped Button",
+       "id": "minecraft:warped_button",
+       "icon": "block/warped_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Warped Pressure Plate",
+       "id": "minecraft:warped_pressure_plate",
+       "icon": "block/warped_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Warped Sign",
+       "id": "minecraft:warped_sign",
+       "icon": "block/warped_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Warped Hanging Sign",
+       "id": "minecraft:warped_hanging_sign",
+       "icon": "block/warped_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    },
+    {
+     "name": "Bamboo",
+     "icon": "block/bamboo_planks",
+     "items": [
+      {
+       "name": "Bamboo Block",
+       "id": "minecraft:bamboo_block",
+       "icon": "block/bamboo_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Planks",
+       "id": "minecraft:bamboo_planks",
+       "icon": "block/bamboo_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Stairs",
+       "id": "minecraft:bamboo_stairs",
+       "icon": "block/bamboo_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Slab",
+       "id": "minecraft:bamboo_slab",
+       "icon": "block/bamboo_planks",
+       "count": 16,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Fence",
+       "id": "minecraft:bamboo_fence",
+       "icon": "block/bamboo_planks",
+       "count": 8,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Fence Gate",
+       "id": "minecraft:bamboo_fence_gate",
+       "icon": "block/bamboo_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Door",
+       "id": "minecraft:bamboo_door",
+       "icon": "block/bamboo_planks",
+       "count": 2,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Trapdoor",
+       "id": "minecraft:bamboo_trapdoor",
+       "icon": "block/bamboo_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Button",
+       "id": "minecraft:bamboo_button",
+       "icon": "block/bamboo_planks",
+       "count": 8,
+       "price": 1
+      },
+      {
+       "name": "Bamboo Pressure Plate",
+       "id": "minecraft:bamboo_pressure_plate",
+       "icon": "block/bamboo_planks",
+       "count": 4,
+       "price": 1
+      },
+      {
+       "name": "Bamboo Sign",
+       "id": "minecraft:bamboo_sign",
+       "icon": "block/bamboo_planks",
+       "count": 4,
+       "price": 2
+      },
+      {
+       "name": "Bamboo Hanging Sign",
+       "id": "minecraft:bamboo_hanging_sign",
+       "icon": "block/bamboo_planks",
+       "count": 4,
+       "price": 3
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Stone",
+   "icon": "block/stone_bricks",
+   "line": "Heavy, but I carry it for you.",
+   "items": [
+    {
+     "name": "Stone",
+     "id": "minecraft:stone",
+     "icon": "block/stone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Cobblestone",
+     "id": "minecraft:cobblestone",
+     "icon": "block/cobblestone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Mossy Cobblestone",
+     "id": "minecraft:mossy_cobblestone",
+     "icon": "block/mossy_cobblestone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Smooth Stone",
+     "id": "minecraft:smooth_stone",
+     "icon": "block/smooth_stone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Stone Bricks",
+     "id": "minecraft:stone_bricks",
+     "icon": "block/stone_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Mossy Stone Bricks",
+     "id": "minecraft:mossy_stone_bricks",
+     "icon": "block/mossy_stone_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Cracked Stone Bricks",
+     "id": "minecraft:cracked_stone_bricks",
+     "icon": "block/cracked_stone_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Chiseled Stone Bricks",
+     "id": "minecraft:chiseled_stone_bricks",
+     "icon": "block/chiseled_stone_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Granite",
+     "id": "minecraft:granite",
+     "icon": "block/granite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Granite",
+     "id": "minecraft:polished_granite",
+     "icon": "block/polished_granite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Diorite",
+     "id": "minecraft:diorite",
+     "icon": "block/diorite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Diorite",
+     "id": "minecraft:polished_diorite",
+     "icon": "block/polished_diorite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Andesite",
+     "id": "minecraft:andesite",
+     "icon": "block/andesite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Andesite",
+     "id": "minecraft:polished_andesite",
+     "icon": "block/polished_andesite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Deepslate",
+     "id": "minecraft:deepslate",
+     "icon": "block/deepslate",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Cobbled Deepslate",
+     "id": "minecraft:cobbled_deepslate",
+     "icon": "block/cobbled_deepslate",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Deepslate",
+     "id": "minecraft:polished_deepslate",
+     "icon": "block/polished_deepslate",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Deepslate Bricks",
+     "id": "minecraft:deepslate_bricks",
+     "icon": "block/deepslate_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Deepslate Tiles",
+     "id": "minecraft:deepslate_tiles",
+     "icon": "block/deepslate_tiles",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Tuff",
+     "id": "minecraft:tuff",
+     "icon": "block/tuff",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Tuff",
+     "id": "minecraft:polished_tuff",
+     "icon": "block/polished_tuff",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Tuff Bricks",
+     "id": "minecraft:tuff_bricks",
+     "icon": "block/tuff_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Bricks",
+     "id": "minecraft:bricks",
+     "icon": "block/bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Mud Bricks",
+     "id": "minecraft:mud_bricks",
+     "icon": "block/mud_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Sandstone",
+     "id": "minecraft:sandstone",
+     "icon": "block/sandstone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Smooth Sandstone",
+     "id": "minecraft:smooth_sandstone",
+     "icon": "block/sandstone_top",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Red Sandstone",
+     "id": "minecraft:red_sandstone",
+     "icon": "block/red_sandstone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Prismarine",
+     "id": "minecraft:prismarine",
+     "icon": "block/prismarine",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Prismarine Bricks",
+     "id": "minecraft:prismarine_bricks",
+     "icon": "block/prismarine_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Dark Prismarine",
+     "id": "minecraft:dark_prismarine",
+     "icon": "block/dark_prismarine",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Blackstone",
+     "id": "minecraft:blackstone",
+     "icon": "block/blackstone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Blackstone",
+     "id": "minecraft:polished_blackstone",
+     "icon": "block/polished_blackstone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Polished Blackstone Bricks",
+     "id": "minecraft:polished_blackstone_bricks",
+     "icon": "block/polished_blackstone_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Basalt",
+     "id": "minecraft:basalt",
+     "icon": "block/basalt_side",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "End Stone",
+     "id": "minecraft:end_stone",
+     "icon": "block/end_stone",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "End Stone Bricks",
+     "id": "minecraft:end_stone_bricks",
+     "icon": "block/end_stone_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Purpur Block",
+     "id": "minecraft:purpur_block",
+     "icon": "block/purpur_block",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Quartz Block",
+     "id": "minecraft:quartz_block",
+     "icon": "block/quartz_block_side",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Nether Bricks",
+     "id": "minecraft:nether_bricks",
+     "icon": "block/nether_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Red Nether Bricks",
+     "id": "minecraft:red_nether_bricks",
+     "icon": "block/red_nether_bricks",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Calcite",
+     "id": "minecraft:calcite",
+     "icon": "block/calcite",
+     "count": 16,
+     "price": 2
+    },
+    {
+     "name": "Dripstone Block",
+     "id": "minecraft:dripstone_block",
+     "icon": "block/dripstone_block",
+     "count": 16,
+     "price": 2
+    }
+   ]
+  }
+ ]
+}

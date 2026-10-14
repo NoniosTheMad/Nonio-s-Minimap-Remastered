@@ -1648,10 +1648,12 @@ def check_server(name, s):
     warn += [l.strip() for l in log.splitlines()
              if re.search(r"Failed to load function|Couldn't load tag|Failed to parse|Couldn't parse element", l)]
     packs = [Path(s["src"]) / "datapack"] + ([Path(s["src"]) / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
+    # all packs together: a demo pack may show buttons for a trigger the game pack enables (e.g. a generated shop catalog)
+    files = [f for pack in packs for f in list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))]
+    text = {f: re.sub(r"(?m)^\s*#.*$", "", f.read_text(errors="replace")) for f in files}  # ignore comments
     for pack in packs:
-        files = list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))
-        text = {f: re.sub(r"(?m)^\s*#.*$", "", f.read_text(errors="replace")) for f in files}  # ignore comments
-        used = {o for t in text.values() for o in re.findall(r"(?m)(?:^\s*|run |/|\")trigger ([\w.]+)", t)}
+        used = {o for f, t in text.items() if pack in f.parents
+                for o in re.findall(r"(?m)(?:^\s*|run |/|\")trigger ([\w.]+)", t)}
         for obj in used:
             # the last enable/reset of obj in a function decides whether it is triggerable between ticks
             ok = False

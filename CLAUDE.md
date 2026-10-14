@@ -121,6 +121,25 @@ Applies to every dialog: game pack, demos, devnav.
 - Prefer `columns: 2` and short labels; a Back/Close button in a fixed last position.
 - Check at **GUI scale 2** (Options → Video Settings) before handing a dialog to the user.
 
+## Gear slots (hotbar convention, #34)
+Every item the game hands out (kits, respawn kit, classes, shop, talisman, demos) goes through **`nonios:gear/give {item,count}`**
+(or `nonios:gear/loot {table}` for a one-item loot table), as the player. Gear lands in a fixed hotbar slot:
+**weapon 1, bow 2, pickaxe 3, bucket 4, other tool 5**; if that slot is taken, the first free slot outside 1-5 (hotbar 6-9, inventory,
+then the other reserved slots); no room = dropped at the feet. Anything else is a plain `/give`.
+- Categories = item tags `#nonios:gear/{weapon,bow,pickaxe,bucket,tool}`; `custom_data.nx_gear` ("weapon"/"bow"/.../"none") overrides
+  (class items on plain bases: `"gear"` in `src/classes.json`). How: an `item_display` probe (`nx.gear_probe`) holds the item,
+  `gear/category` classifies it, `item replace ... from entity <probe> contents` copies it.
+- `item` is pasted raw into the commands: pass it `with storage` when it comes from data (components may hold quotes).
+
+## Shop v3 (#32)
+`src/shop.json` (+ optional `--extra` json) -> `tools/build_shop.py` -> `shop/catalog` (storage `nonios:shop items[]`, `nodes[]`).
+Node 0 = home (categories); a section with `"sub"` becomes a menu node; item lists are split into pages of 16.
+Dialog (`shop/open`, built in storage `ui.d`, `$dialog show`): 4 columns x 120 (2 columns would be 12 rows: the grid would reach the
+bottom of the screen). Row 1 Prev | Back | Next | Again, row 2 x1 | x8 | x64 | Stack, then 16 slots padded with blanks; Close = exit
+action. Off/greyed buttons have no action. Trigger `nx.shop`: 1 home, 2 again, 3 prev, 4 next, 5 up, 6-9 mode, 10 redraw, 11-99 node,
+100+i buy items[i]. Per player: `nx.shop_sec` (node), `nx.shop_pg`, `nx.shop_qm` (mode), `nx.shop_last` (item+1), `nx.shop_lastl` (lots).
+Modes buy N lots of a bulk item (Stack = one stack's worth); a buy that doesn't fit gives what fits in empty slots and charges for that.
+
 ## 26.3 facts verified so far
 - A dialog action button without `action` parses and renders inactive (greyed). `transfer`/`tellraw`/`title` reject a UUID target ("Only players may be affected"): use `execute as <uuid> run ... @s`.
 - `/dialog show @s {inline SNBT}` parses; `/posteffect add <player> <id>` exists. Vanilla post effects: blur, creeper, entity_outline, invert, spider.
