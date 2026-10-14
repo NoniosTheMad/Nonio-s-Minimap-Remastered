@@ -4,18 +4,16 @@ data modify storage nonios:ui eco.kr set from storage nonios:config kill_reward
 data modify storage nonios:ui eco.bp set from storage nonios:config bounty_per_kill
 data modify storage nonios:ui eco.bm set from storage nonios:config bounty_min_streak
 data modify storage nonios:ui eco.bc set from storage nonios:config bounty_cap
-data modify storage nonios:ui eco.ip set from storage nonios:config interest_period
-data modify storage nonios:ui eco.ic set from storage nonios:config interest_cap
+data modify storage nonios:ui eco.ic set from storage nonios:config interest_cap_s
 data modify storage nonios:ui eco.br set from storage nonios:config bank_range
-data modify storage nonios:ui eco.ig set from storage nonios:config interest_grow
-data modify storage nonios:ui eco.im set from storage nonios:config interest_rate_max
-data modify storage nonios:ui eco.icg set from storage nonios:config interest_cap_grow
-execute store result score #r nx.eco run data get storage nonios:config interest_rate
-scoreboard players operation #rw nx.eco = #r nx.eco
-scoreboard players operation #rw nx.eco /= #10 nx.eco
-scoreboard players operation #r nx.eco %= #10 nx.eco
-execute store result storage nonios:ui eco.rw int 1 run scoreboard players get #rw nx.eco
-execute store result storage nonios:ui eco.rt int 1 run scoreboard players get #r nx.eco
+# interest start / end as "<w>.<t>%" (config in basis points), ramp in minutes
+execute store result score #r nx.eco run data get storage nonios:config interest_start
+function nonios:admin/economy/pct {k:"s"}
+execute store result score #r nx.eco run data get storage nonios:config interest_end
+function nonios:admin/economy/pct {k:"e"}
+execute store result score #r nx.eco run data get storage nonios:config interest_ramp
+scoreboard players operation #r nx.eco /= #60 nx.eco
+execute store result storage nonios:ui eco.rm int 1 run scoreboard players get #r nx.eco
 execute store result storage nonios:ui eco.t1 int 1 run data get storage nonios:config tier_bonus[1]
 execute store result storage nonios:ui eco.t2 int 1 run data get storage nonios:config tier_bonus[2]
 execute store result storage nonios:ui eco.t3 int 1 run data get storage nonios:config tier_bonus[3]
