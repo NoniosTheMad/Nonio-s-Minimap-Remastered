@@ -1,0 +1,78 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:player_head",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:profile": {
+         "properties": [
+          {
+           "name": "textures",
+           "value": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDJjM2I5OGFkYTE5OTU3ZjhkODNhN2Q0MmZhZjgxYTI5MGZhZTdkMDhkYmY2YzFmODk5MmExYWRhNDRiMzEifX19"
+          }
+         ]
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:movement_speed",
+          "id": "nonios:frog_speed",
+          "amount": 0.1,
+          "operation": "add_multiplied_base",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:armor",
+          "id": "nonios:frog_head_armor",
+          "amount": 1,
+          "operation": "add_value",
+          "slot": "head"
+         }
+        ],
+        "minecraft:enchantments": {
+         "minecraft:thorns": 3,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "cracy_frog",
+         "nx_item": "cracy_frog_head",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Cracy Frog",
+         "color": "dark_purple",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "#Useful",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Cracy Frog \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

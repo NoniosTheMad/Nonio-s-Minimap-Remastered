@@ -1,0 +1,43 @@
+{
+ "type": "minecraft:confirmation",
+ "title": {
+  "text": "Cracy Frog",
+  "color": "dark_purple"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 300,
+   "contents": [
+    {
+     "text": "Shop Keeper: ",
+     "color": "red",
+     "bold": true
+    },
+    {
+     "text": "You sure you want that?",
+     "color": "white"
+    }
+   ]
+  }
+ ],
+ "yes": {
+  "label": {
+   "text": "Yes"
+  },
+  "action": {
+   "type": "minecraft:run_command",
+   "command": "trigger nx.cls_ask set 2"
+  }
+ },
+ "no": {
+  "label": {
+   "text": "No"
+  },
+  "action": {
+   "type": "minecraft:run_command",
+   "command": "trigger nx.cls_ask set 5"
+  }
+ },
+ "pause": false
+}

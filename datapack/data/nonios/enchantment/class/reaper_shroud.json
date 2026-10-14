@@ -1,0 +1,52 @@
+{
+ "description": {
+  "text": "Shroud",
+  "color": "dark_gray"
+ },
+ "supported_items": "minecraft:jack_o_lantern",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "head"
+ ],
+ "effects": {
+  "minecraft:tick": [
+   {
+    "effect": {
+     "type": "minecraft:run_function",
+     "function": "nonios:class/reaper/aura"
+    },
+    "requirements": {
+     "type": "minecraft:all_of",
+     "terms": [
+      {
+       "type": "minecraft:random_chance",
+       "chance": 0.25
+      },
+      {
+       "type": "minecraft:inverted",
+       "term": {
+        "type": "minecraft:entity_properties",
+        "entity": "this",
+        "predicate": {
+         "minecraft:effects": {
+          "minecraft:invisibility": {}
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

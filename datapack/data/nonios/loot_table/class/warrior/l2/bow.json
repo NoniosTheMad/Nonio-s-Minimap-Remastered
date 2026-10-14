@@ -1,0 +1,43 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:bow",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:enchantments": {
+         "minecraft:power": 3,
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "warrior",
+         "nx_item": "warrior_bow",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:lore": [
+         {
+          "text": "Warrior \u00b7 basic class",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "description": {
+  "text": "Broomstick Flight",
+  "color": "light_purple"
+ },
+ "supported_items": "minecraft:stick",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "hand"
+ ],
+ "effects": {
+  "minecraft:tick": [
+   {
+    "effect": {
+     "type": "minecraft:apply_impulse",
+     "direction": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "coordinate_scale": [
+      1.0,
+      0.0,
+      1.0
+     ],
+     "magnitude": 0.22
+    },
+    "requirements": {
+     "type": "minecraft:all_of",
+     "terms": [
+      {
+       "type": "minecraft:entity_properties",
+       "entity": "this",
+       "predicate": {
+        "minecraft:movement": {
+         "horizontal_speed": {
+          "max": 8.0
+         }
+        }
+       }
+      },
+      {
+       "type": "minecraft:entity_scores",
+       "entity": "this",
+       "scores": {
+        "nx.cls_kick": {
+         "min": 1
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+}
