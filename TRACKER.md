@@ -18,14 +18,14 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge spikes into main).
 
 ## Waiting on user
-1. **Shaders (★):** server `shaders`, G → Demo: custom shaders. Try Reaper, Acid, both. Send feedback book.
+1. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
 2. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
 3. **Text-box feedback:** any server. G → Feedback, type topic + text with quotes/accents, Send. Expect "✔ noted (#N)".
 4. **Shop dialog (★):** server `shop`. Try buying. Check NPC, catalog, trigger buttons, not-enough-coins message.
 5. **Coin purse (★):** server `purse`. Mine blocks. Check coins earned, weight slowdown, drop on death, killer gets purse.
 
 ## Promised
-- Shader spikes (Reaper, Acid) — working, awaiting user test
+- Shader spikes v2 (combinable layers, 4 looks: Cinematic/Thermal/Cosmic/Monster, presets, time-of-day, materials gallery, landscape) — done (c65d643)
 - Nexus barrier v3 (vanilla destroy_stage cracks, 20% regen/min, no HP numbers, defenders-only bossbar) — done (658e2d2)
 - Shop dialog spike (data-driven catalog, trigger buttons, NPC, not-enough-coins) — done (f8fa3f8)
 - Coin purse spike (mining → coins, weight slowdown, killer takes purse, bank stub, anti-silk-touch) — done (3f09c2c)
@@ -35,7 +35,7 @@ M1 spikes done — all awaiting user tests. Next: plan M2 playable core (merge s
 - Quiet session (only checkpoints) — established
 
 ## In flight
-- **Shaders v2** (spike/shaders, feedback #14): split acid (wave/rainbow), stackable, drop Reaper (no-depth), real landscape, cosmic, monster class effect. Awaiting user test.
+(All M1 spikes complete; awaiting user tests.)
 
 ## Decisions
 | Date | Decision |
