@@ -217,12 +217,30 @@ def copy_main_world(d):
         rcon(PRESETS["main"]["port"] + 10000, "save-all flush")
     shutil.copytree(main_world, d / "world", ignore=shutil.ignore_patterns("session.lock", "datapacks"), dirs_exist_ok=True)
 
+def log4j_config():
+    """Vanilla's log4j2.xml (from the com/mojang/logging library in the server jar) + one extra logger: the DEBUG line
+    'Received custom click action <id> with payload <snbt>' (dialog dynamic/custom buttons) goes to latest.log; nothing else changes."""
+    out = STATE / "log4j2.xml"
+    z = zipfile.ZipFile(JAR)
+    lib = next(n for n in z.namelist() if re.search(r"com/mojang/logging/[^/]+/logging-[^/]+\.jar$", n))
+    xml = zipfile.ZipFile(io.BytesIO(z.read(lib))).read("log4j2.xml").decode()
+    extra = ('        <Logger name="net.minecraft.server.MinecraftServer" level="debug">\n'
+             '            <Filters>\n'
+             '                <RegexFilter regex="(?s)Received custom click action .*" onMatch="ACCEPT" onMismatch="NEUTRAL" />\n'
+             '                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY" />\n'
+             '            </Filters>\n'
+             '        </Logger>\n')
+    assert "<Root" in xml
+    STATE.mkdir(exist_ok=True)
+    out.write_text(xml.replace("        <Root", extra + "        <Root", 1))
+    return out
+
 def launch(name, s):
     d = SERVERS / name
     log = open(d / "console.log", "ab")
     flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
     p = subprocess.Popen([str(JAVA), f"-Xmx{s['mem']}", f"-Xms{s['mem']}" if name in ("main", "test") else "-Xms256M",
-                          "-XX:+UseZGC", "-jar", str(JAR), "--nogui"],
+                          "-XX:+UseZGC", f"-Dlog4j2.configurationFile={log4j_config().as_uri()}", "-jar", str(JAR), "--nogui"],
                          cwd=d, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, creationflags=flags)
     return p.pid
 
@@ -308,7 +326,8 @@ def write_devnav(reg):
         "execute as @a[scores={devnav.act=1}] run function devnav:list\n"
         "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
-        "execute as @a[scores={devnav.act=4}] run function devnav:fb_give\n"
+        "execute as @a[scores={devnav.act=4}] run dialog show @s devnav:feedback\n"
+        "execute as @a[scores={devnav.act=9}] run function devnav:fb_give\n"
         "execute as @a[scores={devnav.act=5}] run function devnav:reset_world\n"
         "execute as @a[scores={devnav.act=6}] run function devnav:inbox\n"
         "execute as @a[scores={devnav.act=7}] run dialog show @s devnav:menu\n"
@@ -396,13 +415,27 @@ def write_self_pack(name, s, d):
                           "tooltip": text("Step-by-step instructions for this server"), "action": act(8)}] if todo else []) + [
                 {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
                 {"label": text("Servers...", "aqua"), "action": act(1)},
-                {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."), "action": act(4)},
+                {"label": text("Feedback", "green"), "tooltip": text("Text box: topic + as much text as you like"), "action": act(4)},
+                {"label": text("Feedback (book)", "dark_green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."), "action": act(9)},
                 {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"), "action": act(2)},
                 {"label": "Reload datapacks", "action": act(3)}]
             + ([{"label": text("Reset this server", "red"), "tooltip": text("Fresh world: wipes everything built/broken here, restarts, brings you back (~15s)"),
                  "action": act(5)}] if resettable else []),
             "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
+    # Send = dynamic/custom: no op prompt, no quoting limits; the server logs the payload (inputs) and the daemon tails it.
+    (d / "data" / "devnav" / "dialog" / "feedback.json").write_text(json.dumps({
+        "type": "minecraft:multi_action", "title": text("Feedback for Claude", "green"), "external_title": text("Feedback"),
+        "body": [{"type": "minecraft:plain_message", "width": 300, "contents": text(
+            "Any length, any characters. Sent with context (server, position, recent log).", "gray")}],
+        "inputs": [
+            {"type": "minecraft:text", "key": "topic", "label": text("Topic"), "width": 300, "max_length": 64},
+            {"type": "minecraft:text", "key": "text", "label": text("Feedback"), "width": 300, "max_length": 4000,
+             "multiline": {"max_lines": 12, "height": 160}}],
+        "actions": [
+            {"label": text("Send", "green", bold=True), "action": {"type": "minecraft:dynamic/custom", "id": "devnav:feedback"}},
+            {"label": "Back", "action": act(7)}],
+        "columns": 2, "pause": False}, indent=1))
     if todo:  # full instructions live in a dialog, not in chat
         (d / "data" / "devnav" / "dialog" / "todo.json").write_text(json.dumps({
             "type": "minecraft:notice", "title": text("What to try here", "yellow"), "external_title": text("What to try here"),
@@ -457,8 +490,15 @@ def daemon():
             super().end_headers()
         def log_message(self, fmt, *a):
             print(time.strftime("%H:%M:%S"), "http", fmt % a, flush=True)
+    class Srv(ThreadingHTTPServer):
+        allow_reuse_address = False  # on Windows SO_REUSEADDR lets a 2nd daemon bind too -> it must fail and exit instead
     PACKS.mkdir(parents=True, exist_ok=True)
-    threading.Thread(target=ThreadingHTTPServer(("127.0.0.1", HTTP_PORT), H).serve_forever, daemon=True).start()
+    try:
+        srv = Srv(("127.0.0.1", HTTP_PORT), H)
+    except OSError:
+        print(time.strftime("%H:%M:%S"), "another daemon owns the port, exiting", flush=True)
+        return
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
     mail = Mailroom()
     while True:
         reg = load_reg()
@@ -506,7 +546,8 @@ def snbt_value(resp):
 
 CLIENT_LOG = Path(r"C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log")
 NOISE = re.compile(r"IoRegistration|ServerboundResourcePackPacket|prepare_spawn|^\s+at |logged in with entity|lost connection|"
-                   r"left the game|joined the game|RCON|Loaded [0-9]+ |Server empty for|Disconnecting|UUID of player|\[MCDEV\]|Saving|Saved")
+                   r"left the game|joined the game|RCON|Loaded [0-9]+ |Server empty for|Disconnecting|UUID of player|\[MCDEV\]|Saving|Saved|"
+                   r"Received custom click action")
 
 def feedback_context(name, s, player):
     """Indented context block appended to each feedback entry: where the user was + what just happened."""
@@ -657,13 +698,102 @@ CHAT_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/INFO\]: (?:\[Not Secure\] )?<([A-Za-
 JOIN_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/INFO\]: (?:System chat: )?([A-Za-z0-9_]{1,16}) (joined|left) the game$")
 CHAT_GROUP_SECS = 90
 
+CLICK_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/\w+\]: Received custom click action (\S+) with payload (.*)$")
+
 def parse_log_line(line):
-    """Server log line -> ('chat', player, text) | ('joined'|'left', player) | None. `say`/system lines are not chat."""
+    """Server log line -> ('chat', player, text) | ('joined'|'left', player) | ('click', id, payload_snbt) | None.
+    `say`/system lines are not chat."""
     m = CHAT_RE.match(line)
     if m:
         return ("chat", m.group(1), m.group(2))
+    m = CLICK_RE.match(line)
+    if m:
+        return ("click", m.group(1), m.group(2))
     m = JOIN_RE.match(line)
     return (m.group(2), m.group(1)) if m else None
+
+_SNBT_ESC = {"n": "\n", "t": "\t", "r": "\r", "b": "\b", "f": "\f", "s": " ", "\\": "\\", '"': '"', "'": "'"}
+
+def snbt_compound(s):
+    """Tolerant parse of a flat SNBT compound as printed by the server ({topic:"..",text:'..'}):
+    string values unescaped (\\n, \\", \\uXXXX, \\N{name}, ...), other values kept as raw text. Raises ValueError."""
+    import unicodedata
+    i, n = 0, len(s)
+    def ws():
+        nonlocal i
+        while i < n and s[i] in " \t\r\n":
+            i += 1
+    def string():
+        nonlocal i
+        q, buf = s[i], []
+        i += 1
+        while i < n:
+            c = s[i]
+            if c == "\\" and i + 1 < n:
+                e = s[i + 1]
+                if e in _SNBT_ESC:
+                    buf.append(_SNBT_ESC[e]); i += 2
+                elif e in "xuU":
+                    k = {"x": 2, "u": 4, "U": 8}[e]
+                    buf.append(chr(int(s[i + 2:i + 2 + k], 16))); i += 2 + k
+                elif e == "N" and s[i + 2:i + 3] == "{":
+                    j = s.index("}", i)
+                    buf.append(unicodedata.lookup(s[i + 3:j])); i = j + 1
+                else:
+                    buf.append(e); i += 2
+            elif c == q:
+                i += 1
+                return "".join(buf)
+            else:
+                buf.append(c); i += 1
+        raise ValueError("unterminated string")
+    def raw():  # unquoted / nested value: up to the next , or } at depth 0
+        nonlocal i
+        start, depth = i, 0
+        while i < n:
+            c = s[i]
+            if c in "\"'":
+                string()
+                continue
+            if c in "{[":
+                depth += 1
+            elif c in "}]":
+                if depth == 0:
+                    break
+                depth -= 1
+            elif c == "," and depth == 0:
+                break
+            i += 1
+        return s[start:i].strip()
+    ws()
+    if i >= n or s[i] != "{":
+        raise ValueError("not a compound")
+    i += 1
+    out = {}
+    while True:
+        ws()
+        if i < n and s[i] == "}":
+            return out
+        if i < n and s[i] in "\"'":
+            key = string()
+        else:
+            m = re.compile(r"[\w.+-]+").match(s, i)
+            if not m:
+                raise ValueError(f"bad key at {i}")
+            key, i = m.group(), m.end()
+        ws()
+        if i >= n or s[i] != ":":
+            raise ValueError(f"expected : at {i}")
+        i += 1
+        ws()
+        out[key] = string() if i < n and s[i] in "\"'" else raw()
+        ws()
+        if i < n and s[i] == ",":
+            i += 1
+        elif i < n and s[i] == "}":
+            return out
+        else:
+            raise ValueError(f"expected , or }} at {i}")
 
 class ChatGroups:
     """Consecutive chat lines of one player on one server within CHAT_GROUP_SECS = one feedback entry.
@@ -761,6 +891,25 @@ class Mailroom:
             save_inbox(fresh)
             print(time.strftime("%H:%M:%S"), f"delivered {len(ids)} message(s) on {n}", flush=True)
 
+    def dialog_feedback(self, n, s, payload, line):
+        """G > Feedback text box (dynamic/custom devnav:feedback) -> feedback entry. The log line has no player name:
+        it is whoever is online there (the user, if several)."""
+        try:
+            p = snbt_compound(payload)
+        except (ValueError, IndexError) as e:
+            print(time.strftime("%H:%M:%S"), f"feedback dialog: unparsed payload on {n} ({e}): {line}", flush=True)
+            return None
+        topic, body = (p.get("topic") or "").strip(), (p.get("text") or "").strip()
+        players = online(s)
+        player = USER if USER in players or not players else players[0]
+        if not (topic or body):
+            tell(s, player, [text("Nothing to send: the feedback box was empty.", "gray", italic=True)])
+            return None
+        fid = write_feedback(n, s, player, topic or "(no topic)", body or topic)
+        tell(s, player, [text(f"\u2714 noted (#{fid})", "gray", italic=True)])
+        return {"kind": "chat", "time": time.strftime("%Y-%m-%d %H:%M"), "server": n, "player": player, "fid": fid,
+                "text": f"[{topic}] {body}" if topic else body}
+
     def tick(self, reg):
         now = time.time()
         up = {n: s for n, s in reg.items() if s.get("status") == "up"}
@@ -775,6 +924,11 @@ class Mailroom:
                     tell(s, ev[1], [text(f"\u2714 noted (#{fid})", "gray", italic=True)])
                     said.append({"kind": "chat", "time": time.strftime("%Y-%m-%d %H:%M"), "server": n,
                                  "player": ev[1], "fid": fid, "text": ev[2]})
+                elif ev[0] == "click":
+                    if ev[1] == "devnav:feedback":
+                        e = self.dialog_feedback(n, s, ev[2], line)
+                        if e:
+                            said.append(e)
                 elif ev[0] == "joined":
                     if ev[1] == USER:
                         joins.append(n)

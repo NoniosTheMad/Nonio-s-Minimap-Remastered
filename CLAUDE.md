@@ -50,14 +50,19 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Datapacks are **junctions** into the checkout → edit + `mcdev reload <name>`. Dynamic registries (dialogs, enchantments, …) need `restart`.
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
   In-game "Refresh resource pack": queues {verb:"repack",uuid} in storage devnav:req → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
-- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": What to try here (dialog, if the server has a todo), Inbox, Servers, Feedback (book),
-  refresh pack, reload, Reset this server (ephemeral + test only). Welcome = title + one short chat line (no instruction dump in chat).
-  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack, 3 reload, 4 book, 5 reset, 6 inbox, 7 back to menu, 8 todo).
+- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": What to try here (dialog, if the server has a todo), Inbox, Servers, Feedback,
+  Feedback (book), refresh pack, reload, Reset this server (ephemeral + test only). Welcome = title + one short chat line (no instruction dump in chat).
+  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack, 3 reload, 4 feedback dialog, 5 reset, 6 inbox, 7 back to menu, 8 todo, 9 book).
 - **Feedback** (`.mcdev/feedback.log`, entries `#N ...`; read with `mcdev feedback`, `--ack`):
+  - Text box (menu → Feedback, dialog `devnav:feedback`): topic + multiline text (4000 chars); Send = `dynamic/custom` id `devnav:feedback` (no op prompt).
+    The server logs it only at DEBUG ("Received custom click action <id> with payload <snbt>"), so servers launch with
+    `-Dlog4j2.configurationFile=.mcdev/log4j2.xml` = vanilla's config (from the com/mojang/logging lib) + MinecraftServer at DEBUG with a RegexFilter
+    letting only that line through. The daemon tails it, parses the SNBT payload (`snbt_compound`), writes an entry and replies "✔ noted (#N)".
+    The line has no player name: attributed to whoever is online there. Unparseable payloads are logged raw to daemon.log.
   - Chat: every line the user types on a dev server is feedback. The daemon tails each `logs/latest.log` (`<Name> text`, opt. `[Not Secure]`),
     acks each line with a gray "✔ noted (#N)", groups lines per player+server until 90s quiet (or they leave) into one entry titled "chat".
     The open group is persisted in `.mcdev/chat_pending.json` (survives daemon restarts).
-  - Book & Quill (menu → Feedback): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
+  - Book & Quill (menu → Feedback (book)): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
     (daemon polls it over persistent RCON) → daemon drains it into the log. Both get context (branch@commit, pos, server log, client chat).
 - **Inbox** (user's mailbox): `mcdev notify "text"` (python: `notify(text)`) appends to `.mcdev/inbox.json`; the daemon tellraws undelivered mail
   (gold ✉) to NoniosTheMad on whatever server they are on, or on their next join. `mcdev feedback --resolve N [note]` notifies "Feedback #N [title] resolved: note".
@@ -68,6 +73,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Every dev server sets `gamerule send_command_feedback false` (self pack `devnav:quiet`, on load): no "Triggered [devnav.act] ..." spam from menu clicks.
   Only success feedback of commands a player runs is hidden; errors, tellraw and RCON replies are unaffected.
 - Daemon code changes need a daemon restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`) starts it again.
+  Only one daemon can run: a second one fails to bind :8800 (SO_REUSEADDR disabled) and exits.
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.
   Client jar (vanilla assets/shaders reference): `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar`.
