@@ -7,12 +7,10 @@
     {
      "type": "minecraft:item",
      "name": "minecraft:arrow",
-     "functions": [
-      {
-       "function": "minecraft:set_count",
-       "count": 4
-      }
-     ]
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": 4
+     }
     }
    ]
   },
@@ -22,12 +20,10 @@
     {
      "type": "minecraft:item",
      "name": "minecraft:iron_ingot",
-     "functions": [
-      {
-       "function": "minecraft:set_count",
-       "count": 2
-      }
-     ]
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": 2
+     }
     }
    ]
   },
@@ -37,12 +33,10 @@
     {
      "type": "minecraft:item",
      "name": "minecraft:golden_carrot",
-     "functions": [
-      {
-       "function": "minecraft:set_count",
-       "count": 2
-      }
-     ]
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": 2
+     }
     }
    ]
   },
@@ -52,12 +46,10 @@
     {
      "type": "minecraft:item",
      "name": "minecraft:gold_ingot",
-     "functions": [
-      {
-       "function": "minecraft:set_count",
-       "count": 2
-      }
-     ]
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": 2
+     }
     }
    ]
   },
@@ -67,12 +59,10 @@
     {
      "type": "minecraft:item",
      "name": "minecraft:oak_log",
-     "functions": [
-      {
-       "function": "minecraft:set_count",
-       "count": 4
-      }
-     ]
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": 4
+     }
     }
    ]
   },
@@ -109,12 +99,10 @@
     {
      "type": "minecraft:item",
      "name": "minecraft:sand",
-     "functions": [
-      {
-       "function": "minecraft:set_count",
-       "count": 2
-      }
-     ]
+     "modifier": {
+      "type": "minecraft:set_count",
+      "count": 2
+     }
     }
    ]
   },

@@ -28,7 +28,8 @@ def item_entry(name, weight=None, count=1):
     if weight is not None:
         e["weight"] = weight
     if count != 1:
-        e["functions"] = [{"function": "minecraft:set_count", "count": count}]
+        # 26.3 format: "modifier" (object or list) with "type"; the old "functions"/"function" keys are silently ignored
+        e["modifier"] = {"type": "minecraft:set_count", "count": count}
     return e
 
 
