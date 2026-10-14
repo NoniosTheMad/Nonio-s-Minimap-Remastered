@@ -47,13 +47,19 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - `python tools/mcdev.py up hub|main|test` — persistent: hub :25565 (lobby, void), main :25566 (the map, build here), test :25567 (copy of main's world).
 - `mcdev up <name> --branch feat/x --demo <demo> --desc "..."` — ephemeral server on :25570+, worktree `.worktrees/feat-x`; `mcdev down <name>` deletes it.
 - `ls`, `reload [name]`, `cmd <name> <cmd>` (RCON, port+10000), `logs <name>`, `feedback`, `restart`, `reset test`.
-- Datapacks are **junctions** into the checkout → edit + `mcdev reload <name>`. Dynamic registries (dialogs, enchantments, …) need `restart`.
+- Datapacks are **junctions** into the checkout. **Auto reload (#33, `DataWatch`)**: the daemon watches each up server's game + demo
+  datapack sources; once they change and stay quiet 5 s it `/reload`s the server (reload errors → daemon.log `WARNING`, players get a gray
+  actionbar note). If a registry-only file changed (anything under `data/<ns>/` except function, advancement, loot_table, predicate,
+  item_modifier, recipe, structure and tags of function/block/item/entity_type/fluid/game_event: so dialog, worldgen, dimension,
+  enchantment, …) or the shared devnav pack changed since the server started (`s["devnav_sig"]`; a /reload then broke the tick tag),
+  it restarts instead, like PackWatch. `mcdev reload <name>` still exists for manual use.
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
   **Auto reload (#33)**: the daemon (`PackWatch`) watches each up server's pack sources; once they change and stay quiet 5 s and the
-  zip's sha1 differs, it restarts that server (players on it: 5 s actionbar warning, parked on the hub, sent back). The hub only when empty.
-  No menu button for it any more.
-- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev" (same 5 buttons in the same places everywhere): Inbox, Servers,
-  Feedback (book), Reload datapacks, Reset this server (ephemeral + test only, greyed elsewhere; restores `.mcdev/servers/<name>/world.pristine`
+  zip's sha1 differs, it restarts that server (players on it: 1 s actionbar warning (`PACK_WARN_SECS`, user request), parked on the hub,
+  sent back). The hub only when empty. No reload buttons in the menu.
+- Every `mcdev` command (not only `up`) calls `ensure_daemon()`: a killed daemon comes back with the next `mcdev ls`.
+- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev" (same 4 buttons, 2x2, in the same places everywhere): Inbox, Servers,
+  Feedback (book), Reset this server (ephemeral + test only, greyed elsewhere; restores `.mcdev/servers/<name>/world.pristine`
   if present, else a fresh world). Welcome = title only (hub adds one "press G" line).
   **What to try here** (try.txt) is a button inside the demo's own G dialog (#34): `write_demo_dialogs` copies each dialog in the demo's
   `quick_actions` tag into the self pack (loads after `demo`, so it overrides) with that button appended; its Back returns to the demo dialog.
@@ -64,7 +70,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - **Spawn (void worlds, #27)**: `s["spawn"]` = `up --spawn "x y z [yaw]"` / `demos/<demo>/spawn.txt` / kept / default 0 64 0. Self pack `devnav:spawn_set` (on load):
   setworldspawn there, `respawn_radius 0`, forceload its chunk, 7x7 smooth stone under it if air (`keep`). On join/transfer `devnav:ground_check` runs for 2 s:
   no block anywhere in the player's column (or below the world) → `devnav:to_spawn`. Spectators skipped.
-  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack (legacy), 3 reload, 4 and 9 feedback book, 5 reset, 6 inbox, 7 back to menu,
+  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack (legacy), 3 reload (legacy), 4 and 9 feedback book, 5 reset, 6 inbox, 7 back to menu,
   8 todo, 10 archive, 11 back to the demo dialog).
 - **Feedback** (`.mcdev/feedback.log`, entries `#N ...`; read with `mcdev feedback`, `--ack`):
   - Text box (legacy, no longer in the menu, #33; the daemon still parses it): topic + multiline text; Send = `dynamic/custom` id `devnav:feedback`.
@@ -100,7 +106,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   `mcdev unarchive <name>` / `up <name>` revives it: worktree re-added from the branch (or from the commit if the branch is gone), new free port.
   `ls` lists archived ones at the bottom; idle sleep ignores them. G → Servers → "Archive (N)" (`devnav.act 10`, inline dialog in `devnav:archive`):
   click = `trigger devnav.revive set <aid>` → {verb:"revive",uuid,id} → daemon unarchives + starts + transfers (same path as wake).
-  Archived 2026-10-14: nexus, shop, purse (merged into m2/econ), fx (old posteffect probe).
+  Archived 2026-10-14: nexus, shop, purse (merged into m2/econ), fx (old posteffect probe). 2026-10-15: m4 (#51).
 - `start` waits (≤30s) until the game + RCON ports are free (bind test) before launching: fixes `restart` failing with "port in use".
 - The daemon restarts itself when `tools/mcdev.py` changes (quiet 3 s, compiles, no start/stop in flight; logged "mcdev.py changed: restarting").
   Daemons older than that commit need one manual restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`).

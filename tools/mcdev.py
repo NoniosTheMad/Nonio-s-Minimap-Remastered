@@ -6,8 +6,9 @@ branches), so editing files + `mcdev reload <name>` is enough for logic changes.
 Resource packs are zipped at start and served by the daemon's tiny HTTP server; when a
 server's pack sources change the daemon restarts it with the new pack (players hop and return).
 
-In game, press G (Quick Actions) or open the pause menu -> "Nonios Dev" to jump
-between servers, reload or leave feedback.
+Datapack sources are watched too: a change /reloads the server (or restarts it when a registry
+like dialogs/worldgen changed). In game, press G (Quick Actions) or open the pause menu ->
+"Nonios Dev" to jump between servers, read the inbox or leave feedback.
 
 Usage:
   mcdev up <name> [--branch B] [--demo D] [--desc TEXT] [--mem 2G]
@@ -576,8 +577,7 @@ def write_self_pack(name, s, d):
         {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
         {"label": text("Servers...", "aqua"), "action": act(1)},
         {"label": text("Feedback", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic. Short notes: just type in chat."), "action": act(4)},
-        {"label": "Reload datapacks", "tooltip": text("/reload here (resource packs reload by themselves when they change)"), "action": act(3)},
-        reset]
+        reset]  # 2x2; no reload button (#33): the daemon reloads datapacks and resource packs when their sources change
     if todo and not demo_dialogs:  # no demo dialog to hang the instructions on: keep them reachable here (always last)
         actions.append({"label": text("What to try here", "yellow"), "action": act(8)})
     menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"), "external_title": text("Nonios Dev"),
@@ -683,7 +683,7 @@ def daemon():
         return
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     write_devnav()  # shared pack files of this code version (servers pick them up on their next start/reload)
-    mail, idle, packs = Mailroom(), IdleWatch(), PackWatch()
+    mail, idle, packs, datas = Mailroom(), IdleWatch(), PackWatch(), DataWatch()
     me = Path(__file__)
     my_mtime, my_change = me.stat().st_mtime, None
     print(time.strftime("%H:%M:%S"), f"daemon up (idle sleep after {IDLE_SLEEP_SECS}s"
@@ -702,6 +702,10 @@ def daemon():
             packs.tick(reg)
         except Exception as e:
             print(time.strftime("%H:%M:%S"), "pack watch failed:", repr(e), flush=True)
+        try:
+            datas.tick(reg)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "datapack watch failed:", repr(e), flush=True)
         # Self-restart when mcdev.py changes (quiet for 3 s, compiles, no start/stop in flight): code fixes apply without
         # anyone having to find and kill this process.
         try:
@@ -1478,8 +1482,8 @@ class PackWatch:
                 print(time.strftime("%H:%M:%S"), f"resource pack of {n} changed, reloading it" + (f" ({', '.join(players)} online)" if players else ""), flush=True)
                 background(n, pack_reload, n, players)
 
-def pack_reload(name, players):
-    """Restart a server with its rebuilt pack; players on it hop to the hub meanwhile and come back."""
+def pack_reload(name, players, what="Resource pack"):
+    """Restart a server (rebuilt pack, re-read datapacks); players on it hop to the hub meanwhile and come back."""
     reg = sync_status(load_reg())
     s, hub = reg.get(name), reg.get("hub")
     if not s or s.get("status") != "up":
@@ -1489,7 +1493,7 @@ def pack_reload(name, players):
         return
     for i in range(PACK_WARN_SECS, 0, -1):
         for p in players:
-            actionbar(s, p, [text("Resource pack changed: reloading in ", "gray"), text(f"{i}s", "yellow")])
+            actionbar(s, p, [text(f"{what} changed: reloading in ", "gray"), text(f"{i}s", "yellow")])
         time.sleep(1 if players else 0)
     for p in players:
         rcon(s["port"] + 10000, f"execute as {p} run transfer {HOST} {hub['port']} @s")
@@ -1498,6 +1502,117 @@ def pack_reload(name, players):
     reg = load_reg()
     for p in players:
         send_back(reg, reg[name], p)
+
+# Datapack auto-reload (#33): game + demo datapack sources of each up server. Files of these kinds are re-read by /reload;
+# anything else under data/<ns>/ (dialog, worldgen, dimension, enchantment, damage_type, ... and their tags) is a
+# registry that only loads at server start -> restart. The shared devnav pack is not watched (the daemon rewrites it on every
+# start), but a /reload would load it too, and reloading a server whose devnav changed since its start broke its tick tag:
+# such a server is restarted instead.
+DATA_RELOADABLE = {"function", "advancement", "loot_table", "predicate", "item_modifier", "recipe", "structure",
+                   "tags/function", "tags/block", "tags/item", "tags/entity_type", "tags/fluid", "tags/game_event"}
+DATA_ERRORS = re.compile(r"Failed to load function|Couldn't load tag|Failed to parse|Couldn't parse element|Failed to load")
+
+def data_layers(name, s):
+    """Datapack source dirs junctioned into this server (see write_server)."""
+    src = Path(s["src"])
+    return ([src / "datapack"] if name != "hub" else []) + ([src / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
+
+def data_files(name, s):
+    """{'<layer>:<path in the pack>': (size, mtime_ns)} over the server's datapack sources."""
+    out = {}
+    for i, layer in enumerate(data_layers(name, s)):
+        if layer.exists():
+            for f in layer.rglob("*"):
+                try:
+                    if f.is_file():
+                        st = f.stat()
+                        out[f"{'game' if i == 0 and name != 'hub' else 'demo'}:{f.relative_to(layer).as_posix()}"] = (st.st_size, st.st_mtime_ns)
+                except OSError:
+                    pass
+    return out
+
+def data_needs_restart(key):
+    """'<layer>:data/<ns>/<kind>/...' -> True if /reload can't apply it (dynamic registry)."""
+    parts = key.split(":", 1)[1].split("/")
+    if parts[0] != "data" or len(parts) < 4:
+        return False  # pack.mcmeta, README, ...
+    kind = parts[2] + ("/" + parts[3] if parts[2] == "tags" and len(parts) > 4 else "")
+    return kind not in DATA_RELOADABLE
+
+def devnav_signature():
+    """Content hash of the shared devnav pack (rewritten by every start: mtimes change, content usually doesn't)."""
+    import hashlib
+    h = hashlib.sha1()
+    d = STATE / "devnav"
+    for f in sorted(d.rglob("*")) if d.exists() else []:
+        if f.is_file():
+            h.update(f.relative_to(d).as_posix().encode() + b"\0" + f.read_bytes())
+    return h.hexdigest()
+
+class DataWatch:
+    """Datapacks reload by themselves (feedback #33): when an up server's datapack sources change and stay quiet for
+    PACK_QUIET_SECS, the daemon /reloads it, or restarts it (PACK_WARN_SECS warning, players parked on the hub and sent
+    back, as for resource packs) when a registry-only file changed or devnav changed since the server started."""
+    def __init__(self):
+        self.seen, self.next_check = {}, 0  # name -> {"started", "files", "changed": set, "at"}
+
+    def tick(self, reg):
+        now = time.time()
+        if now < self.next_check:
+            return
+        self.next_check = now + PACK_CHECK_SECS
+        for n, s in reg.items():
+            if s.get("status") != "up" or n in _busy:
+                continue
+            files = data_files(n, s)
+            w = self.seen.get(n)
+            if not w or w["started"] != s.get("started"):
+                self.seen[n] = {"started": s.get("started"), "files": files, "changed": set(), "at": None}
+                continue
+            if files != w["files"]:
+                old = w["files"]
+                w["changed"] |= {k for k in old.keys() | files.keys() if old.get(k) != files.get(k)}
+                w["files"], w["at"] = files, now
+                continue
+            if w["at"] and now - w["at"] >= PACK_QUIET_SECS:
+                changed, w["changed"], w["at"] = sorted(w["changed"]), set(), None
+                regs = [k for k in changed if data_needs_restart(k)]
+                devnav = s.get("devnav_sig") != devnav_signature()
+                players = online(s)
+                why = f"{len(changed)} file(s): " + ", ".join(changed[:3]) + (" ..." if len(changed) > 3 else "")
+                if regs or devnav:
+                    print(time.strftime("%H:%M:%S"), f"datapack of {n} changed ({why}), restarting it: "
+                          + (f"registry files {', '.join(regs[:3])}" if regs else "devnav changed since its start")
+                          + (f" ({', '.join(players)} online)" if players else ""), flush=True)
+                    background(n, pack_reload, n, players, "Datapack")
+                else:
+                    print(time.strftime("%H:%M:%S"), f"datapack of {n} changed ({why}), /reload", flush=True)
+                    background(n, data_reload, n, players)
+
+def data_reload(name, players):
+    """/reload over RCON; datapack errors from the reload go to daemon.log, players get a gray actionbar note."""
+    reg = load_reg()
+    s = reg.get(name)
+    if not s or s.get("status") != "up":
+        return
+    log = SERVERS / name / "logs" / "latest.log"
+    try:
+        pos = log.stat().st_size
+    except OSError:
+        pos = 0
+    rcon(s["port"] + 10000, "reload", timeout=30)
+    time.sleep(2)  # the reload can still be logging when /reload answers
+    try:
+        with open(log, "rb") as f:
+            f.seek(pos)
+            new = f.read().decode("utf-8", "replace").splitlines()
+    except OSError:
+        new = []
+    errs = [l.strip() for l in new if DATA_ERRORS.search(l)]
+    for e in errs[:10]:
+        print(time.strftime("%H:%M:%S"), f"WARNING {name} reload:", e, flush=True)
+    for p in players:
+        actionbar(s, p, [text("Datapack reloaded", "gray")] + ([text(f" ({len(errs)} errors)", "red")] if errs else []))
 
 def sleep_server(name, started):
     reg = sync_status(load_reg())
@@ -1618,6 +1733,7 @@ def start(name, s, _reg=None, on_ready=None):
     reg = load_reg()
     reg[name] = s
     write_devnav(reg)
+    s["devnav_sig"] = devnav_signature()  # DataWatch: /reload is only safe while devnav is what this server started with
     write_server(name, s)
     harvest_feedback(name)  # then drop the old log so wait_ready can't see a stale "Done ("
     for f in (SERVERS / name / "logs" / "latest.log", SERVERS / name / ".feedback_seen"):
