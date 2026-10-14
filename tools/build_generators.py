@@ -7,8 +7,9 @@ Writes into datapack/data/nonios/:
   FIELD generators (mineable, V2 style; feedback #39):
   function/generator/grow/<team>_lvl<N>.mcfunction   one regrowth: 1 of 81 outcomes -> setblock at the generator
   loot_table/generator/jackpot_<id>.json             the V2 "chest" outcomes (the chest that grows is filled with it)
-  loot_table/generator/lucky_item.json               the lucky block's item outcome (lucky block = optional proposal)
-  function/generator/config.mcfunction               regrow delays, upgrade costs, lucky block switch (runs on load)
+  loot_table/generator/one/<team>_lvl<N>.json        single-block mode (#47): the same 81 outcomes as one loot table
+  tags/block/generator/single.json                   the single block (+ data/minecraft/loot_table/blocks/<it>.json emptied)
+  function/generator/config.mcfunction               regrow delays, upgrade costs, single-block switch (runs on load)
   CENTRE generator (shared, pot style, in the arena):
   loot_table/arena/cgen_lvl<N>.json                  item outcomes
   function/arena/cgen/roll/lvl<N>.mcfunction         one roll: coins into the pot (emerald outcomes) or loot spawn
@@ -51,7 +52,7 @@ def field(d):
     lt = OUT / "loot_table" / "generator"
     fn = OUT / "function" / "generator"
     # pot-style outputs from before feedback #39 are gone
-    for old in list(lt.glob("white_lvl*.json")) + list(lt.glob("black_lvl*.json")) + list((fn / "roll").glob("*.mcfunction")):
+    for old in list(lt.glob("white_lvl*.json")) + list(lt.glob("black_lvl*.json")) + list((fn / "roll").glob("*.mcfunction"))             + list(lt.glob("lucky_item.json")):
         old.unlink()
     if (fn / "roll").is_dir() and not any((fn / "roll").iterdir()):
         (fn / "roll").rmdir()
@@ -81,19 +82,63 @@ def field(d):
                 lines.append(f"execute if score #r nx.gen matches {lo}..{hi} run return run setblock ~ ~ ~ {block}\n")
                 lo = hi + 1
             write(fn / "grow" / f"{team}_lvl{lvl}.mcfunction", "".join(lines))
-    L = d["lucky"]
-    write(lt / "lucky_item.json", json.dumps({"type": "minecraft:chest", "pools": [{"rolls": 1, "entries": [
-        item_entry(n, w, c) for n, w, c in L["items"]]}]}, indent=1) + "\n")
+    S = single(d)
     cfg = [HEADER, "# Runs on load. Per-level values are copied onto a generator when its level changes.\n",
            f"scoreboard players set #per_roll nx.gen {d['players_per_roll']}\n"]
     for lvl, v in d["levels"].items():
         cfg += [f"scoreboard players set #iv{lvl} nx.gen {v['regrow_ticks']}\n",
                 f"scoreboard players set #cost{lvl} nx.gen {v['upgrade_cost']}\n"]
-    cfg += ["# lucky block (proposal): default switch; the runtime switch (#lucky, generator/lucky/toggle) wins once set\n",
-            f"scoreboard players set #lucky_def nx.gen {1 if L['on'] else 0}\n",
-            f"scoreboard players set #lucky_n nx.gen {L['one_in']}\n",
-            f"data modify storage nonios:gen lucky set value {{block:\"{L['block']}\",min:{L['coins_min']},max:{L['coins_max']}}}\n"]
+    blk = S["block"].split(":")[-1]
+    cfg += ["# single-block mode (#47): default switch; the runtime switch (#single, generator/mode/toggle) wins once set\n",
+            f"scoreboard players set #single_def nx.gen {1 if S['on'] else 0}\n",
+            f"data modify storage nonios:gen single set value {{block:\"{ns(S['block'])}\"}}\n",
+            "# who mined the single block (generator/one/mined)\n",
+            f"scoreboard objectives add nx.gen_mn minecraft.mined:minecraft.{blk}\n"]
     write(fn / "config.mcfunction", "".join(cfg))
+
+
+def single(d):
+    """Single-block mode (feedback #47): per team/level, the V2 81-outcome table as one loot table (type fishing: the
+    miner's tool is the context tool, so Fortune works). An outcome whose V2 block has a purse yield (src/yields.json)
+    also drops a token (emerald with custom_data nx_yield:<block>) that generator/one/loot turns into that yield for
+    the miner (it never reaches the ground)."""
+    S = d["single"]
+    yields = json.loads((ROOT / "src" / "yields.json").read_text(encoding="utf-8"))["blocks"]
+    lt = OUT / "loot_table" / "generator" / "one"
+    for team, levels in d["tables"].items():
+        for lvl, outcomes in levels.items():
+            entries = []
+            for o in outcomes:
+                name, w = o[0], o[1]
+                if name == "coins":
+                    block, item = ns(o[3]), None
+                elif name.startswith("jackpot:"):
+                    entries.append({"type": "minecraft:loot_table", "value": f"nonios:generator/jackpot_{name[8:]}", "weight": w})
+                    continue
+                else:
+                    block = ns(o[2]) if len(o) > 2 and isinstance(o[2], str) else name
+                    item = item_entry(name)
+                    if block.endswith("_ore"):
+                        item["modifier"] = {"type": "minecraft:apply_bonus", "enchantment": "minecraft:fortune", "formula": "minecraft:ore_drops"}
+                b = block.split(":")[-1]
+                pools = []
+                if item:
+                    pools.append({"rolls": 1, "entries": [item]})
+                if b in yields:
+                    pools.append({"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:emerald", "modifier": {
+                        "type": "minecraft:set_custom_data", "tag": {"nx_yield": b}}}]})
+                if len(pools) == 1 and item:
+                    item["weight"] = w
+                    entries.append(item)
+                else:
+                    entries.append({"type": "minecraft:loot_table", "value": {"type": "minecraft:fishing", "pools": pools}, "weight": w})
+            write(lt / f"{team}_lvl{lvl}.json", json.dumps({"type": "minecraft:fishing", "pools": [{"rolls": 1, "entries": entries}]}, indent=1) + "\n")
+    blk = ns(S["block"])
+    write(OUT / "tags" / "block" / "generator" / "single.json", json.dumps({"values": [blk]}) + "\n")
+    # its own drop is the generator's loot (generator/one/mined); nothing else drops it (explosions, silk touch)
+    write(ROOT / "datapack" / "data" / "minecraft" / "loot_table" / "blocks" / (blk.split(":")[1] + ".json"),
+          json.dumps({"type": "minecraft:block", "pools": []}) + "\n")
+    return S
 
 
 def centre(d):

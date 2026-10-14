@@ -7,7 +7,8 @@ scoreboard players set #iv2 nx.gen 200
 scoreboard players set #cost2 nx.gen 200
 scoreboard players set #iv3 nx.gen 140
 scoreboard players set #cost3 nx.gen 500
-# lucky block (proposal): default switch; the runtime switch (#lucky, generator/lucky/toggle) wins once set
-scoreboard players set #lucky_def nx.gen 0
-scoreboard players set #lucky_n nx.gen 15
-data modify storage nonios:gen lucky set value {block:"minecraft:yellow_glazed_terracotta",min:4,max:10}
+# single-block mode (#47): default switch; the runtime switch (#single, generator/mode/toggle) wins once set
+scoreboard players set #single_def nx.gen 0
+data modify storage nonios:gen single set value {block:"minecraft:gilded_blackstone"}
+# who mined the single block (generator/one/mined)
+scoreboard objectives add nx.gen_mn minecraft.mined:minecraft.gilded_blackstone

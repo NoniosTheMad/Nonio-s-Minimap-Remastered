@@ -1,3 +1,3 @@
-# every tick (nonios:tick): lucky blocks that were just mined, upgrade dialog clicks
-execute as @e[type=marker,tag=nx.gen_lucky] at @s if block ~ ~ ~ #minecraft:air run function nonios:generator/lucky/burst
+# every tick (nonios:tick): single blocks that were just mined, upgrade dialog clicks
+execute as @e[type=marker,tag=nx.gen_one] at @s unless block ~ ~ ~ #nonios:generator/single run function nonios:generator/one/mined
 function nonios:generator/ui/tick
