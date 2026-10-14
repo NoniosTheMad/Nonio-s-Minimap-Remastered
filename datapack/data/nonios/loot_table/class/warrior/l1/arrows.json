@@ -1,0 +1,46 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:arrow",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:custom_data": {
+         "nx_cls": "warrior",
+         "nx_item": "warrior_arrows",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:lore": [
+         {
+          "text": "Warrior \u00b7 basic class",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      },
+      {
+       "type": "minecraft:set_count",
+       "count": 16
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

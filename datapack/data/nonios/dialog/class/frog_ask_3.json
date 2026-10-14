@@ -1,0 +1,50 @@
+{
+ "type": "minecraft:confirmation",
+ "title": {
+  "text": "Cracy Frog",
+  "color": "dark_purple"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 300,
+   "contents": [
+    {
+     "text": "Shop Keeper: ",
+     "color": "red",
+     "bold": true
+    },
+    {
+     "text": "Let me ask you one more time, you should know that even Cl4t-TP declined. Are you sure?",
+     "color": "white"
+    }
+   ]
+  }
+ ],
+ "yes": {
+  "label": {
+   "text": "Yes",
+   "color": "dark_red",
+   "strikethrough": true
+  },
+  "action": {
+   "type": "minecraft:run_command",
+   "command": "trigger nx.cls_ask set 4"
+  },
+  "tooltip": {
+   "text": "4 real? Are you stupid?"
+  }
+ },
+ "no": {
+  "label": {
+   "text": "No",
+   "color": "green",
+   "bold": true
+  },
+  "action": {
+   "type": "minecraft:run_command",
+   "command": "trigger nx.cls_ask set 7"
+  }
+ },
+ "pause": false
+}

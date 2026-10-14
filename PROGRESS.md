@@ -29,6 +29,15 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [ ] Coin purse: mined-stat → coins, weight slowdown, purse-to-killer
 - [x] Nexus barrier: `feat/nexus-barrier` (4fe02ed). Visuals: forcefield (team-tinted), hit flash/pulse, crack stages, shatter, rate-limited actionbar. Awaiting user test (texture render, size, feel, sounds).
 
+## Classes (feat/classes, server `classes` :25580, demo `classes`)
+- [x] Framework: `src/classes.json` -> `tools/build_classes.py` (loot tables, enchantments, use advancements, `class/gen/**`).
+  API `class/set {num}` / `set_id {id}` / `remove`; hooks `class/on_death` + `class/on_respawn` (for M2 game/death, `#nonios:kit/respawn`).
+  Shop tier: binding armour + vanishing, kit re-completed every second, lost on death. Basic tier: re-applied on respawn at team level `#white/#black/#solo nx.cls_lvl`.
+- [x] Reaper (lifesteal, souls + 4 s invisibility on kill, souls burst, `nonios:reaper` vision), Cracy Frog (frog legs, broom flight, tongue chaos + RIBBIT,
+  rainbow+acid vision, V2 3-step confirmation chain), Warrior placeholder basic class. Server-verified over RCON; client feel untested.
+- 26.3 facts: loot tables use `modifier` / `type` / single `condition`; `use_cooldown` only applies when a consumable finishes (item used up -> re-given next tick);
+  `use_effects {can_sprint, speed_multiplier}` removes the slow-down while using; movement predicate speeds are blocks/second.
+
 ## Inbox (done, f6fdfb8)
 - [x] Chat notifications + G → Inbox
 - [x] `mcdev notify` and `feedback --resolve`

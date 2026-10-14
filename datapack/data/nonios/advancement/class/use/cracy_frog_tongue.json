@@ -1,0 +1,19 @@
+{
+ "criteria": {
+  "use": {
+   "trigger": "minecraft:consume_item",
+   "conditions": {
+    "item": {
+     "predicates": {
+      "minecraft:custom_data": {
+       "nx_item": "cracy_frog_tongue"
+      }
+     }
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/gen/cracy_frog/used_tongue"
+ }
+}

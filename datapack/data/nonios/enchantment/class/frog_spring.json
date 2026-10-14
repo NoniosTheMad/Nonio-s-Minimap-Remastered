@@ -1,0 +1,37 @@
+{
+ "description": {
+  "text": "Frog Legs",
+  "color": "green"
+ },
+ "supported_items": "minecraft:leather_boots",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "feet"
+ ],
+ "effects": {
+  "minecraft:attributes": [
+   {
+    "id": "nonios:frog_jump",
+    "attribute": "minecraft:jump_strength",
+    "amount": 0.42,
+    "operation": "add_value"
+   },
+   {
+    "id": "nonios:frog_safe_fall",
+    "attribute": "minecraft:safe_fall_distance",
+    "amount": 12,
+    "operation": "add_value"
+   }
+  ]
+ }
+}
