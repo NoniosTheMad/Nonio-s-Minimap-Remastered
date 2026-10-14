@@ -1,0 +1,22 @@
+# Progress
+
+## Decisions
+- 2026-10-14: Version **26.3 vanilla** confirmed by user (client via CurseForge, 8 GB, Java 25). No mod loader.
+- 2026-10-14: Dev framework = `tools/mcdev.py` (see CLAUDE.md). Hub/main/test persistent + ephemeral demo servers, `/transfer` navigation.
+
+## Current phase: M0 — dev framework
+- [x] Portable JRE 25 + server 26.3 jar in `.tools/`
+- [x] git repo (`main`), .gitignore
+- [x] mcdev: up/down/ls/reload/cmd/logs/feedback/restart/reset, daemon (pack HTTP + repack), devnav menu
+- [x] hub runs on :25565
+- [ ] User validation in client: join hub, G menu, travel, refresh pack, feedback
+- [ ] First demo `posteffect-probe` (vanilla post effects via /posteffect)
+- [ ] Push to GitHub remote
+- [ ] main server world: decide fresh flat vs. imported terrain
+
+## Next (after M0)
+Resume DESIGN.md §5 milestones: M1 spikes (custom post_effect shader, shop dialog, loot-table generator), answer §6 open questions with user.
+
+## Known unknowns
+- Does `/posteffect` persist across death / relog / transfer?
+- Does dialog `run_command` with op-level commands (transfer) show a confirmation screen?

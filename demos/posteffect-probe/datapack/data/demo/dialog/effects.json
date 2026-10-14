@@ -1,0 +1,76 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: /posteffect",
+  "color": "gold"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 300,
+   "contents": {
+    "text": "Per-player vanilla post effects (26.3). Click to add; they stack. Then try: die, relog, travel and come back - do they persist?",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": "invert",
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect add @s minecraft:invert"
+   }
+  },
+  {
+   "label": "creeper",
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect add @s minecraft:creeper"
+   }
+  },
+  {
+   "label": "spider",
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect add @s minecraft:spider"
+   }
+  },
+  {
+   "label": "blur",
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect add @s minecraft:blur"
+   }
+  },
+  {
+   "label": "entity_outline",
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect add @s minecraft:entity_outline"
+   }
+  },
+  {
+   "label": {
+    "text": "list mine",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect list @s"
+   }
+  },
+  {
+   "label": {
+    "text": "clear all",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "posteffect clear @s"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

@@ -1,0 +1,4 @@
+.tools/
+.mcdev/
+.worktrees/
+__pycache__/
