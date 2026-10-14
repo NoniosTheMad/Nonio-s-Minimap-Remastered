@@ -2,11 +2,12 @@
 # Coins = nx.coins (the purse), team banks = #white / #black in nx.bank. Config: storage nonios:config (admin > Economy).
 scoreboard objectives add nx.eco dummy
 scoreboard objectives add nx.bank dummy
-# bank dialog triggers (permission 0, no op prompt): nx.bankt 1 open / 2 deposit all / 3 withdraw all,
-# nx.bankd = deposit N, nx.bankw = withdraw N (slider value via dynamic/run_command)
+# bank triggers (permission 0, no op prompt): nx.bankt 1 open the withdraw dialog / 3 withdraw all / 4 withdraw half,
+# nx.bankw = withdraw N (preset buttons). Deposits need no trigger: stepping onto your own bank pad (bank/pad/*).
 scoreboard objectives add nx.bankt trigger
-scoreboard objectives add nx.bankd trigger
 scoreboard objectives add nx.bankw trigger
+# the deposit slider is gone (bank v4, #47)
+scoreboard objectives remove nx.bankd
 # kills in a row without dying (bounty on your head); nx.tier = victim tier, owned by classes (class/gen/<id>/apply, class/strip)
 scoreboard objectives add nx.streak dummy {"text":"Streak","color":"red"}
 scoreboard objectives add nx.tier dummy
@@ -23,17 +24,20 @@ scoreboard players set #-1 nx.eco -1
 scoreboard players add #white nx.bank 0
 scoreboard players add #black nx.bank 0
 # --- config (storage nonios:config), defaults only when missing so admin changes survive /reload ---
-# interest (feedback #41): grows over the match, the reverse of the purse weight. Every interest_period seconds
-# (prep + battle) each team bank earns rate permille of itself, at most cap coins per payout (0 = no cap), where
-#   rate = min(interest_rate + interest_grow * match minutes, interest_rate_max)      (permille: 10 = 1.0%)
-#   cap  = interest_cap + interest_cap_grow * match minutes
-# Early the bank earns little (mining pays more); late a full bank pays the cap every period: steady income to fight on.
-execute unless data storage nonios:config interest_rate run data modify storage nonios:config interest_rate set value 10
-execute unless data storage nonios:config interest_grow run data modify storage nonios:config interest_grow set value 1
-execute unless data storage nonios:config interest_rate_max run data modify storage nonios:config interest_rate_max set value 50
-execute unless data storage nonios:config interest_period run data modify storage nonios:config interest_period set value 60
-execute unless data storage nonios:config interest_cap run data modify storage nonios:config interest_cap set value 50
-execute unless data storage nonios:config interest_cap_grow run data modify storage nonios:config interest_cap_grow set value 10
+# interest (bank v4, feedback #47, like V2): every second (prep + battle) each team bank earns rate of itself,
+# at most interest_cap coins per second. rate (basis points, 100 = 1%) slides linearly with the match clock:
+#   rate = interest_start + (interest_end - interest_start) * min(match seconds, interest_ramp) / interest_ramp
+# Defaults 1% -> 10% over 30 min, cap 20/s. Fractions of a coin carry over per team (#acc_<team>, 1/10000 coin).
+data remove storage nonios:config interest_rate
+data remove storage nonios:config interest_grow
+data remove storage nonios:config interest_rate_max
+data remove storage nonios:config interest_period
+data remove storage nonios:config interest_cap_grow
+execute unless data storage nonios:config interest_start run data modify storage nonios:config interest_start set value 100
+execute unless data storage nonios:config interest_end run data modify storage nonios:config interest_end set value 1000
+execute unless data storage nonios:config interest_ramp run data modify storage nonios:config interest_ramp set value 1800
+execute unless data storage nonios:config interest_cap_s run data modify storage nonios:config interest_cap_s set value 20
+data remove storage nonios:config interest_cap
 # bank: usable within bank_range blocks of your own team's vault
 execute unless data storage nonios:config bank_range run data modify storage nonios:config bank_range set value 5
 # kills: kill_reward + bounty (victim streak >= bounty_min_streak: streak * bounty_per_kill, max bounty_cap, 0 = no cap)
@@ -51,6 +55,10 @@ scoreboard objectives add nx.sb_white dummy {"text":"White bank","color":"white"
 scoreboard objectives add nx.sb_black dummy {"text":"Black bank","color":"dark_purple","bold":true}
 function nonios:economy/hud/lines {team:"white"}
 function nonios:economy/hud/lines {team:"black"}
-function nonios:bank/interest/arm
-# bank dialog: greyed-out buttons in the same places as the live ones (bank/open); no action = the client shows them inactive
-data modify storage nonios:bank off set value [{label:{text:"Deposit",color:"dark_gray"},tooltip:{text:"Your purse is empty"},width:150},{label:{text:"Deposit all",color:"dark_gray"},tooltip:{text:"Your purse is empty"},width:150},{label:{text:"Withdraw",color:"dark_gray"},tooltip:{text:"The team bank is empty"},width:150},{label:{text:"Withdraw all",color:"dark_gray"},tooltip:{text:"The team bank is empty"},width:150}]
+# interest is paid from economy/tick now; stop the old 60 s schedule loop of worlds saved before bank v4
+schedule clear nonios:bank/interest/loop
+scoreboard players set #10000 nx.eco 10000
+scoreboard players set #1000000 nx.eco 1000000
+scoreboard players set #2 nx.eco 2
+# withdraw dialog (bank/open): Half and All greyed in the same places when the bank is empty; no action = inactive
+data modify storage nonios:bank off set value [{label:{text:"Half",color:"dark_gray"},tooltip:{text:"The bank is empty"},width:150},{label:{text:"All",color:"dark_gray"},tooltip:{text:"The bank is empty"},width:150}]

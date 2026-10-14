@@ -154,3 +154,16 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - RCON-verified (no player): grow/regrow, lucky grow + break, cgen pot scaling with banks, node bonus counters + interest, announce -> go,
   every event, supply chest lands with its loot table, protection restore + drop removal, stop/reset, clean log + lint on both servers.
   Not verified with a real player: mining feel, Haste, bounty kill, gravity, dialog look.
+
+## Bank v4 (`feat/bank-v4`, server `bank4`, demo `economy`; feedback #47)
+- [x] Interest every second (V2-like): rate slides 1% -> 10% over 30 match minutes (`interest_start` 100 / `interest_end` 1000 bp,
+  `interest_ramp` 1800 s), max `interest_cap_s` 20 coins/s; fractions carried per team (1/10000 coin), capped second drops the rest.
+  Paid from `economy/tick` (no schedule loop, no chime). Sidebar rows Bank / Interest / Income +N/s ("max"). Old config keys removed on load.
+- [x] Deposit on contact: 8 gold pressure plates around each vault (`map/gen/bank`); stepping on one (edge, tag `nx.bk.on`) banks the whole
+  purse (own team, prep/battle). Cues: depositor subtitle + vault/level-up sounds + particles; team chat + chime; enemy actionbar
+  "<Team> banked N" + bell. Enemy pad = vault reject sound. Deposit slider/trigger `nx.bankd` removed.
+- [x] Withdraw: vault dialog with fixed buttons 10 | 50 / 100 | 200 / 500 | 1000 / Half | All, greyed when the bank holds less; redraws after each click.
+  Teammates get an actionbar line. Admin Economy page: start/end rate, cap per second.
+- [x] Demos: economy ("Interest: +60 s", status shows carried fractions), full (65 TP: my bank, 66 match clock +10 min), try.txt.
+- RCON-verified (husk): pad deposit + edge, enemy pad refused, presets/half/all/stale click, greyed states, ramp (1% -> 10%), cap, overflow guard,
+  60 s fast-forward, admin page, clean log + lint. Not verified with a real player: plate detection while walking, cues, dialog at GUI scale 2.
