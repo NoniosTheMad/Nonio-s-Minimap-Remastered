@@ -15,14 +15,14 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M3 economy: bank dialog, interest, kill rewards. Testing M2 playable core. Parallel: Classes (Reaper/Cracy Frog), Arena (contested nodes).
+M3 economy (in progress). M4 integration: merge generators + Emerald Dream + arena into main (loot table format fix in progress). Testing M2 + arena. Parallel: Classes end-to-end.
 
 ## Waiting on user
 1. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
-2. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
-3. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
-4. **Shop dialog (★):** server `shop`. Try buying. Check NPC, catalog, trigger buttons, not-enough-coins message.
-5. **Coin purse (★):** server `purse`. Mine blocks. Check coins earned, weight slowdown, drop on death, killer gets purse.
+2. **Arena (★):** server `arena`. G → Demo. Capture nodes (10 s alone, faster with 3+ team-mates). Watch contested freeze, payouts, weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour), Lightning Rabbit toggle. Check node captures, bossbar inside node, payouts every 30 s.
+3. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
+4. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
+5. **Shop dialog (★):** server `shop`. Try buying. Check NPC, catalog, trigger buttons, not-enough-coins message.
 
 ## Promised
 - Shader spikes v2 (combinable layers, 4 looks: Cinematic/Thermal/Cosmic/Monster, presets, time-of-day, materials gallery, landscape) — done (c65d643)
@@ -36,11 +36,12 @@ M3 economy: bank dialog, interest, kill rewards. Testing M2 playable core. Paral
 - Generators spike (V2.0 level structure reuse via `/place template`, coin pot, data-driven via src/generators.json, loot table from V2's 81-outcome dispenser odds) — done (855e046)
 - Emerald Dream spike (custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point, V2 lore recovered) — done (6729ef0)
 - M2 playable core (feat/m2-core, merged to main 051fbcc): barrier + shop + purse + teams (white/black) + phases (lobby/prep/battle/end) + admin panel + keep_inventory ON + respawn + last life→spectator + win check + stats + placeholder map with reset. Server m2 ★. Awaiting user test.
+- Arena spike (f765a48, feat/arena, server arena ★): capture nodes (10 s alone, 3+ team-mates faster; contested frozen), payouts via hook (every 30 s), weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour, first at 3 min), Lightning Rabbit toggle (V2 return). Awaiting user test.
 
 ## In flight
 - M3 economy (feat/economy): Bank dialog, interest, kill rewards. In progress.
 - Classes (feat/classes): Class framework + Reaper + Cracy Frog end-to-end implementation.
-- Arena (feat/arena): Contested nodes, timed events, lightning toggle.
+- M4 integration (feat/m4-integration): Merge generators + Emerald Dream + arena into main. Loot table format fix in progress (26.3 incompatible functions→modifiers).
 
 ## Decisions
 | Date | Decision |
@@ -78,6 +79,16 @@ M3 economy: bank dialog, interest, kill rewards. Testing M2 playable core. Paral
 5. **Quantity picker:** support buying multiple items per dialog (2x Diamond Sword) or single-item only?
 
 ## Questions for when user returns
+**Arena** (spike done f765a48; from coordinator notes, with suggested defaults):
+1. **Capture time:** [suggested: 10 s alone; faster with 3+ team-mates]. How long to capture a node solo vs. with team-mates?
+2. **Contested behaviour:** [suggested: freeze]. When both teams are in a node, what happens — frozen, no progress, or other?
+3. **Payout interval:** [suggested: every 30 s]. How often are coins/resources awarded for held nodes?
+4. **Payout method:** [suggested: loot drops]. Payouts as loot drops (on ground) or to team bank?
+5. **Lightning Rabbit:** [suggested: yes, 100 HP]. Bring back V2 Lightning Rabbit mob? Should it have a health cap?
+6. **Events schedule:** [suggested: first at 3 min, then every 5 min]. When do weighted events start, then repeat?
+7. **Node forceloading:** [suggested: yes]. Should nodes stay loaded even when no players are near? For chunk loading purposes?
+8. **Portal + central block:** [suggested: yes, later]. Bring back V2 random-entry arena portals + regrowing central block. When?
+
 **M2/M3 core** (from M2 merge, with built/suggested defaults):
 1. **Bank withdrawal mechanic:** How do players withdraw coins? [built: M3 now; dialog pending].
 2. **Keep inventory + respawn kit hook:** keep_inventory ON; classes may add custom kits. Hook wired? [to do].
@@ -118,9 +129,10 @@ M3 economy: bank dialog, interest, kill rewards. Testing M2 playable core. Paral
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
-| 10-14 | **M3 economy started** (feat/economy): bank dialog, interest, kill rewards. M2 merged to main, built, awaiting user test. Parallel: Classes, Arena, M3 core. |
+| 10-14 | **M4 integration started** (feat/m4-integration): Merge generators + Emerald Dream + arena into main. Loot table format fix in progress (26.3 incompatible functions→modifiers). Eight Arena design questions for user (capture time/contested/payouts/drops vs bank/lightning/events/forceload/portals). |
+| 10-14 | **Arena spike done** (f765a48, feat/arena, server arena ★): capture nodes (10 s solo, 3+ faster; contested frozen), payouts every 30 s via hook (suggested loot drops), weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour; first at 3 min then every 5), Lightning Rabbit toggle (V2 return, 100 HP). Eight design questions for user. |
+| 10-14 | **M3 economy started** (feat/economy): bank dialog, interest, kill rewards. M2 merged to main, built, awaiting user test. Parallel: Classes, M4 integration. |
 | 10-14 | **M2 playable core merged** (051fbcc, feat/m2-core → main): barrier + shop + purse + teams (white/black) + phases (lobby/prep/battle/end) + admin panel (/function nonios:admin) + keep_inventory ON + respawn + last life→spectator + win check + stats + placeholder map with reset. Server m2 ★. Awaiting user test. 11 design questions. |
-| 10-14 | **Arena started** (feat/arena): contested nodes, timed events, lightning toggle. Parallel: M2 core, Classes, both spikes (Generators, Emerald Dream) done. |
 | 10-14 | **Emerald Dream spike done** (6729ef0, feat/emerald-dream, server dream ★): custom dimension with floating islands, random arrivals ±3000, 10 regrowing veins, 5 s sneak-exit, saved return point. V2 lore recovered (Shop Keeper, Emerald Talisman, Crazy Frog chain). Seven design questions for user (shared/void/jump/regrow/value/range/mobs). |
 | 10-14 | **Classes started** (feat/classes): class framework + Reaper + Cracy Frog end-to-end. M5 milestone now in progress; spikes ongoing (M2 core, Arena). |
 | 10-14 | **Generators spike done** (855e046, feat/generators, server gens ★): V2 level structure reuse via `/place template`, emerald outcomes → coin pot (right-click collect), rolls scale team size, data-driven via src/generators.json, loot from V2's 81-outcome dispenser. Six design questions for user (coins/drops/raids/costs/fortune/protection). |

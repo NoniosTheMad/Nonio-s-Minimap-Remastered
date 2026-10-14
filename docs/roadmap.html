@@ -82,6 +82,7 @@ a{color:var(--accent)}
     <h2 id="you-h">Waiting on you</h2>
     <ol>
       <li><b>M2 playable core (★):</b> server <b>m2</b> (solo test w/ dummies). <kbd>G</kbd> → <b>Demo: M2 playable core</b> (first-time chooser). <b>Test steps:</b> pick your team → start the match → kill the dummies → destroy enemy Nexus → return to lobby. Check: all phases (prep/battle/end), respawn, last-life spectator, stats, map reset.</li>
+      <li><b>Arena (★):</b> server <b>arena</b>. <kbd>G</kbd> → Demo. Capture nodes (10 s alone, faster with 3+ team-mates). Check: contested freeze, bossbar in node, payouts every 30 s, weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour), Lightning Rabbit toggle. Eight design questions on this page.</li>
       <li><b>Nexus barrier (★):</b> server <b>nexus</b>. Read cracks from 10–20 blocks (vanilla textures). Check hit actionbar text.</li>
       <li><b>Shop dialog (★):</b> server <b>shop</b>. Try buying items. Check NPC, catalog, trigger buttons, and insufficient coins message.</li>
       <li><b>Coin purse (★):</b> server <b>purse</b>. Mine blocks. Check coins earned, weight slowdown, and purse dropping to killer on death.</li>
@@ -175,6 +176,14 @@ a{color:var(--accent)}
         <dt>M2/M3: Map reset cycle</dt><dd>Fresh copy pulled at each return to lobby. Correct? (Suggested: yes.)</dd>
         <dt>M2/M3: Prep lockdown</dt><dd>Barrier plane + 1 Hz pushback keeps teams confined during prep. Physics OK? (Built.)</dd>
         <dt>M2/M3: Emerald block cost</dt><dd>Placing one costs 100 coins to prevent infinite farms. Correct? (Suggested: yes.)</dd>
+        <dt><b>Arena:</b> Capture time</dt><dd>Suggested: 10 s solo, faster with 3+ team-mates. How long to capture a contested node?</dd>
+        <dt>Arena: Contested behaviour</dt><dd>Suggested: freeze. When both teams are in a node, what happens — frozen, no progress, or other?</dd>
+        <dt>Arena: Payout interval</dt><dd>Suggested: every 30 s. How often are coins/resources awarded for held nodes?</dd>
+        <dt>Arena: Payout method</dt><dd>Suggested: loot drops (on ground). Payouts as drops or to team bank?</dd>
+        <dt>Arena: Lightning Rabbit</dt><dd>Suggested: yes, 100 HP. Bring back V2 Lightning Rabbit mob during events? Health cap?</dd>
+        <dt>Arena: Events schedule</dt><dd>Suggested: first at 3 min, then every 5 min. When do weighted events start, then repeat?</dd>
+        <dt>Arena: Node forceloading</dt><dd>Suggested: yes. Should nodes stay loaded even when no players are near?</dd>
+        <dt>Arena: Portals + central block</dt><dd>Suggested: yes, later. Bring back V2 random-entry arena portals + regrowing central block. When?</dd>
         <dt>Respawn gear vs keepInventory</dt><dd>Reconcile with class kits in M2: keep inventory but bank + reward to killer?</dd>
         <dt>Main world</dt><dd>Start from a fresh flat world or import V2 terrain. Decide before the M6 build.</dd>
         <dt>Shop: full catalog?</dt><dd>Real catalog (per team/phase?) or test data for now?</dd>
@@ -200,9 +209,10 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
+      <li><time>10-14</time><b>M4 integration started:</b> feat/m4-integration. Merge generators + Emerald Dream + arena into main. Loot table format fix in progress (26.3 incompatible functions→modifiers). Eight Arena design questions.</li>
+      <li><time>10-14</time><b>Arena spike done:</b> f765a48 (feat/arena, server arena ★). Capture nodes (10 s solo, 3+ faster; contested frozen), payouts every 30 s, weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour; first at 3 min then 5 min), Lightning Rabbit toggle (V2 return, 100 HP). Eight design questions queued.</li>
       <li><time>10-14</time><b>M3 economy started:</b> feat/economy. Bank dialog, interest, kill rewards. M2 merged to main, built, awaiting your test (server m2 ★). 11 design questions on this page.</li>
       <li><time>10-14</time><b>M2 playable core merged:</b> 051fbcc (feat/m2-core → main). Barrier + shop + purse merged. Teams (white/black), phases (lobby/prep/battle/end), admin panel (/function nonios:admin), keep_inventory ON, respawn, last-life spectator, win check, stats, placeholder map with reset. Solo test w/ dummies.</li>
-      <li><time>10-14</time><b>Arena started:</b> feat/arena. Contested nodes, timed events, lightning toggle.</li>
       <li><time>10-14</time><b>Emerald Dream spike done:</b> custom dimension with floating islands, random arrivals (±3000), 10 regrowing veins, 5 s sneak-exit, saved return point. Lore from V2 recovered. Seven design questions queued.</li>
       <li><time>10-14</time><b>Generators spike done:</b> V2 level structures via /place, coin pot (right-click), team-scaled rolls, data-driven. Six design questions queued.</li>
       <li><time>10-14</time><b>Classes framework started:</b> feat/classes. Reaper and Cracy Frog end-to-end implementation underway.</li>
