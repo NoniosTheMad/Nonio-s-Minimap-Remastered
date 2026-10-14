@@ -1386,8 +1386,8 @@ _busy = set()  # servers a daemon thread is stopping/starting (repack, reset, wa
 
 def background(name, fn, *args):
     import threading
+    _busy.add(name)  # now, not in the thread: a watcher ticking right after this must already see it busy
     def run():
-        _busy.add(name)
         try:
             fn(*args)
         except BaseException as e:  # start() reports failures with sys.exit
@@ -1429,7 +1429,7 @@ class IdleWatch:
                 self.seen.pop(n)
                 background(n, sleep_server, n, s.get("started"))
 
-PACK_CHECK_SECS, PACK_QUIET_SECS, PACK_WARN_SECS = 3, 5, 5
+PACK_CHECK_SECS, PACK_QUIET_SECS, PACK_WARN_SECS = 3, 5, 1  # warning: 1 s (user request)
 
 def pack_signature(s):
     """Cheap change detector for a server's resource pack sources (paths, sizes, mtimes)."""
@@ -1909,6 +1909,8 @@ def main():
     a = p.parse_args()
     for st in (sys.stdout, sys.stderr):  # cp1252 consoles: don't crash on RCON replies with symbols
         st.reconfigure(errors="backslashreplace")
+    if a.cmd != "_daemon":  # any command brings the daemon back (feedback, inbox, idle sleep, pack/datapack watch)
+        ensure_daemon()
     a.f(a)
 
 if __name__ == "__main__":
