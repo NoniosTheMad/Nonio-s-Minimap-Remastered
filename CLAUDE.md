@@ -9,7 +9,7 @@ Read this first, then `PROGRESS.md` (live state / next steps) and `DESIGN.md` (g
   Don't move to 26.4 (Vulkan default, shader pipeline churn) without the user's say-so.
 - No mods, no command blocks. Datapack functions + resource pack + `/posteffect` shaders. Namespace `nonios:`, scoreboard prefix `nx.`.
 - Keep the original objective: two teams, own build fields, contested arena, destroy enemy Nexus (obsidian) to win.
-- User = Nonios (MC name **NoniosTheMad**, uuid e5e9dc0e-ef3c-41ca-b943-08ddfb204f02), Spanish speaker, prefers concise replies.
+- User = Nonios (MC name **NoniosTheMad**, uuid e5e9dc0e-ef3c-41ca-b943-08ddfb204f02), Spanish speaker, pronouns they/them, prefers concise replies.
   Remote: https://github.com/NoniosTheMad/Nonio-s-Minimap-Remastered
 - Context compacts at ~256k tokens: keep `PROGRESS.md` current after every meaningful step.
 

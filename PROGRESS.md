@@ -29,5 +29,18 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [ ] Coin purse: mined-stat → coins, weight slowdown, purse-to-killer
 - [x] Nexus barrier: `feat/nexus-barrier` (4fe02ed). Visuals: forcefield (team-tinted), hit flash/pulse, crack stages, shatter, rate-limited actionbar. Awaiting user test (texture render, size, feel, sounds).
 
-## Framework (in flight)
-- [ ] Chat replay on rejoin (inbox agent, to be added to storage devnav:fb replay)
+## Inbox (done, f6fdfb8)
+- [x] Chat notifications + G → Inbox
+- [x] `mcdev notify` and `feedback --resolve`
+- [x] Chat = feedback (grouped)
+- [x] Persistent "recent" thread replay on join
+- [x] Instructions moved to G → "What to try here"
+
+## Inbox follow-up (in flight)
+- [ ] Multiline text-box feedback dialog (via logged dialog custom action)
+- [ ] Hide "Triggered [...]" chat noise
+- [ ] No double replay on rejoin
+
+## Backlog ideas (user feedback, not commitments)
+- Healer-class vision shader (M5): HP visualization (infrared-like), hearts >20 glow (log-scaled)
+- RTX-like shaders (M5): advanced ray tracing effects (reference: https://www.youtube.com/watch?v=AdTxrggo8e8)

@@ -24,14 +24,14 @@ M1 spikes — validating tech before building the game on it.
 ## Promised
 - Shader spikes (Reaper, Acid) — working, awaiting user test
 - Nexus barrier visuals (forcefield, hit flash, crack stages, shatter, actionbar) — done (4fe02ed)
-- Chat replay on rejoin — in progress (inbox agent)
-- In-game inbox (chat feedback via Book & Quill + storage devnav:req) — done
+- In-game inbox (G → Inbox; chat notifications; chat = feedback grouped; persistent "recent" thread replay on join; `mcdev notify` and `feedback --resolve`) — done (f6fdfb8)
+- Inbox follow-up (multiline feedback dialog, hide chat noise, no double replay) — in progress (inbox agent)
 - Roadmap kept current (docs/roadmap.html) — synced with this file
 - Quiet session (only checkpoints) — established
 
 ## In flight
 - **Server:** `shaders` :25571 (branch `spike/shaders`). Reaper (depth+luma edges), Acid (hue/UV). Awaiting user test in client.
-- **Main branch:** inbox agent (chat replay on rejoin, finishing framework work).
+- **Inbox follow-up agent:** multiline text-box feedback dialog (logged custom action), hide "Triggered" chat noise, no double replay on rejoin.
 
 ## Decisions
 | Date | Decision |
@@ -48,15 +48,21 @@ M1 spikes — validating tech before building the game on it.
 | 2026-10-14 | **Roadmap (docs/roadmap.html):** user's single overview. Published; kept in sync. Frame messages: Done / Waiting on you / Next. |
 | 2026-10-14 | **Dialog op-command confirmation:** Op-level commands in `run_command` buttons prompt the player. Always use `/trigger` for non-op actions (permission 0, no prompt). |
 | 2026-10-14 | **Status source (lead + user):** TRACKER.md is the single high-level overview. PROGRESS.md → technical notes only (after inbox agent finishes). |
+| 2026-10-14 | **User pronouns:** they/them in all docs. |
 
 ## Open questions
 1. **Main world:** fresh flat or import V2 terrain? Decide before M6 build.
 2. **Respawn gear vs keepInventory:** draft idea (user 2026-10-14): keep inventory, but bank + reward to killer. Reconcile with class kits in M2.
 3. **`/posteffect` persistence:** does it survive death, relog, transfer?
 
+## Backlog ideas (from user feedback, not commitments)
+- **Shader: healer-class vision (M5):** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
+- **Shader: RTX-like effects (M5):** ref https://www.youtube.com/watch?v=AdTxrggo8e8 (advanced ray tracing style shaders for high-end clients).
+
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | In-game inbox done (f6fdfb8): G → Inbox, chat notifications, chat = feedback (grouped), persistent "recent" thread replay on join, mcdev notify/feedback --resolve, instructions in G → "What to try here". |
 | 10-14 | Nexus barrier visuals done (4fe02ed): forcefield texture (team-tinted), hit flash/pulse, crack stages (50%/25%), shatter on break, rate-limited actionbar. Awaiting user texture check. |
 | 10-14 | Feedback = Book & Quill (G menu → Feedback): any length, signed, context (branch@commit, pos, server log, client chat) captured. |
 | 10-14 | G menu: ★ marks servers waiting for review; "Reset this server" (ephemeral/test) wipes world, restarts, sends back. |
