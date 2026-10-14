@@ -1,4 +1,3 @@
-scoreboard players enable @a demo.nx
 execute as @a[tag=!demo.init] run function demo:init
 execute as @a[scores={demo.nx=1}] run function demo:join {team:"black"}
 execute as @a[scores={demo.nx=2}] run function demo:join {team:"white"}
@@ -9,3 +8,4 @@ execute if entity @a[scores={demo.nx=6}] run function demo:say {m:"Max HP 1000 (
 execute if entity @a[scores={demo.nx=7}] run function demo:say {m:"Max HP 200 (applies on Reset)",cmd:"scoreboard players set #barrier_max nx.const 200"}
 execute as @a[scores={demo.nx=8}] run function demo:gear
 scoreboard players reset @a demo.nx
+scoreboard players enable @a demo.nx
