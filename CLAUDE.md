@@ -50,9 +50,21 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Datapacks are **junctions** into the checkout → edit + `mcdev reload <name>`. Dynamic registries (dialogs, enchantments, …) need `restart`.
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
   In-game "Refresh resource pack": queues {verb:"repack",uuid} in storage devnav:req → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
-- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": server list (`/transfer`), refresh pack, reload, feedback, Reset this server (ephemeral + test only: wipe world, restart, send back).
-  Feedback = Book & Quill (menu → Feedback): signing it fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox
-  → request queued in storage devnav:req (no chat; daemon polls it over persistent RCON) → daemon drains storage via RCON into `.mcdev/feedback.log` with context (branch@commit, pos, server log, client chat).
+- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": What to try here (dialog, if the server has a todo), Inbox, Servers, Feedback (book),
+  refresh pack, reload, Reset this server (ephemeral + test only). Welcome = title + one short chat line (no instruction dump in chat).
+  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack, 3 reload, 4 book, 5 reset, 6 inbox, 7 back to menu, 8 todo).
+- **Feedback** (`.mcdev/feedback.log`, entries `#N ...`; read with `mcdev feedback`, `--ack`):
+  - Chat: every line the user types on a dev server is feedback. The daemon tails each `logs/latest.log` (`<Name> text`, opt. `[Not Secure]`),
+    acks each line with a gray "✔ noted (#N)", groups lines per player+server until 90s quiet (or they leave) into one entry titled "chat".
+    The open group is persisted in `.mcdev/chat_pending.json` (survives daemon restarts).
+  - Book & Quill (menu → Feedback): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
+    (daemon polls it over persistent RCON) → daemon drains it into the log. Both get context (branch@commit, pos, server log, client chat).
+- **Inbox** (user's mailbox): `mcdev notify "text"` (python: `notify(text)`) appends to `.mcdev/inbox.json`; the daemon tellraws undelivered mail
+  (gold ✉) to NoniosTheMad on whatever server he is on, or on his next join. `mcdev feedback --resolve N [note]` notifies "Feedback #N [title] resolved: note".
+  `mcdev up` of a NEW demo/branch server notifies automatically. G → Inbox shows the last 20: the daemon builds the dialog as a compound in
+  storage `devnav:ui d` over RCON (chunked, RCON packets cap ~1.4 KB) on change and after each server start; `devnav:inbox` shows it via `$dialog show @s $(d)`.
+  `.mcdev/thread.json` (mail + the user's chat lines, max 200) is replayed dimmed (last 8, one line each) on every join, since the client wipes chat on reconnect.
+- Daemon code changes need a daemon restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`) starts it again.
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.
   Client jar (vanilla assets/shaders reference): `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar`.

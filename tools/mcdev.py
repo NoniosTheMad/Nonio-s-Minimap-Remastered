@@ -19,7 +19,9 @@ Usage:
   mcdev reload [name|all]             /reload datapacks via RCON
   mcdev cmd <name> <command...>       run a console command via RCON
   mcdev logs <name> [-n 40]
-  mcdev feedback [--all] [--ack]      inbox of feedback sent from the in-game menu
+  mcdev feedback [--all] [--ack]      feedback sent from the game (book or chat), entries numbered #N
+  mcdev feedback --resolve N [note]   tell the user (in-game inbox) that feedback #N is resolved
+  mcdev notify "text"                 message the user's in-game inbox (G > Inbox; delivered in chat when online)
   mcdev nav                           regenerate the in-game server list
   mcdev review <name> [--done]        star/unstar a server as waiting for the user's review
 """
@@ -39,10 +41,12 @@ STATE = ROOT / ".mcdev"
 SERVERS = STATE / "servers"
 REG = STATE / "registry.json"
 FEEDBACK = STATE / "feedback.log"
+INBOX = STATE / "inbox.json"
 WORKTREES = ROOT / ".worktrees"
 HOST = "localhost"
 HTTP_PORT = 8800
 OPS = [{"uuid": "e5e9dc0e-ef3c-41ca-b943-08ddfb204f02", "name": "NoniosTheMad", "level": 4, "bypassesPlayerLimit": True}]
+USER = OPS[0]["name"]
 DATA_FORMAT, RES_FORMAT = 121, 97
 
 PRESETS = {
@@ -306,7 +310,15 @@ def write_devnav(reg):
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
         "execute as @a[scores={devnav.act=4}] run function devnav:fb_give\n"
         "execute as @a[scores={devnav.act=5}] run function devnav:reset_world\n"
+        "execute as @a[scores={devnav.act=6}] run function devnav:inbox\n"
+        "execute as @a[scores={devnav.act=7}] run dialog show @s devnav:menu\n"
+        "execute as @a[scores={devnav.act=8}] run function devnav:todo\n"
         "scoreboard players reset @a[scores={devnav.act=1..}] devnav.act\n")
+    # Inbox: the daemon keeps the whole dialog (a compound) in storage devnav:ui d; a macro shows it inline.
+    (fn / "inbox.mcfunction").write_text(
+        'execute unless data storage devnav:ui d run tellraw @s {"text":"[dev] Inbox not ready yet (daemon down?)","color":"gray"}\n'
+        "execute if data storage devnav:ui d run function devnav:inbox_show with storage devnav:ui\n")
+    (fn / "inbox_show.mcfunction").write_text("$dialog show @s $(d)\n")
     (fn / "go.mcfunction").write_text(
         "execute store result storage devnav:tmp port int 1 run scoreboard players get @s devnav.go\n"
         "scoreboard players reset @s devnav.go\nfunction devnav:go_port with storage devnav:tmp\n")
@@ -347,11 +359,11 @@ def write_self_pack(name, s, d):
         "title @s times 5 50 15",
         f"title @s subtitle {json.dumps(text(where, 'gray'))}",
         f"title @s title {json.dumps(text(name, 'gold'))}",
-        "tellraw @s " + json.dumps([text("[dev] ", "dark_gray"), text("Press ", "gray"), text("G", "yellow"),
+        "tellraw @s " + json.dumps([text("[dev] ", "dark_gray"), text("Instructions: press ", "gray"), text("G", "yellow"),
+                                    text(" \u2192 ", "gray"), text("What to try here", "yellow")] if s.get("todo") else
+                                   [text("[dev] ", "dark_gray"), text("Press ", "gray"), text("G", "yellow"),
                                     text(" (Quick Actions) or ", "gray"), text("Esc > Nonios Dev", "yellow"), text(" to travel.", "gray")]),
-    ] + ([
-        "tellraw @s " + json.dumps([text("\nWhat to try here:\n", "yellow", bold=True), text(s["todo"], "white")]),
-    ] if s.get("todo") else [])
+    ]
     if name == "hub":
         welcome += ["fill -8 63 -8 8 63 8 minecraft:polished_blackstone keep", "tp @s 0.5 64 0.5", "function devnav:rules"]
     elif void:
@@ -368,25 +380,33 @@ def write_self_pack(name, s, d):
     (fn / "reset_world.mcfunction").write_text(  # daemon wipes the world, restarts, sends you back
         f'data modify storage devnav:req q append value {{verb:"resetworld"}}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\ntransfer {HOST} {hub_port} @s\n' if resettable else
         'tellraw @s {"text":"[dev] Only demo/branch servers (and test) can be reset from here.","color":"red"}\n')
+    def act(n):
+        return {"type": "minecraft:run_command", "command": f"trigger devnav.act set {n}"}
+    todo = s.get("todo")
     menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"),
             "external_title": text("Nonios Dev"),
             "body": [{"type": "minecraft:plain_message", "width": 300, "contents": [
                 text("You are on ", "gray"), text(name, "yellow", bold=True), text(f"  ({where})\n", "gray"),
-                text(s["desc"] or "", "white")]}]
-            + ([{"type": "minecraft:plain_message", "width": 310, "contents": [
-                text("What to try here:\n", "yellow", bold=True), text(s["todo"], "white")]}] if s.get("todo") else []),
-            "actions": [
-                {"label": text("Servers...", "aqua"), "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 1"}},
-                {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"),
-                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 2"}},
-                {"label": "Reload datapacks", "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 3"}},
-                {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."),
-                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 4"}}]
+                text((s["desc"] or "") + "\n", "white"),
+                text("Type in chat = feedback (grouped, sent to Claude).", "gray", italic=True)]}],
+            "actions": ([{"label": text("\u25b6 What to try here", "yellow", bold=True),
+                          "tooltip": text("Step-by-step instructions for this server"), "action": act(8)}] if todo else []) + [
+                {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
+                {"label": text("Servers...", "aqua"), "action": act(1)},
+                {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."), "action": act(4)},
+                {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"), "action": act(2)},
+                {"label": "Reload datapacks", "action": act(3)}]
             + ([{"label": text("Reset this server", "red"), "tooltip": text("Fresh world: wipes everything built/broken here, restarts, brings you back (~15s)"),
-                 "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 5"}}]
-               if resettable else []),
+                 "action": act(5)}] if resettable else []),
             "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
+    if todo:  # full instructions live in a dialog, not in chat
+        (d / "data" / "devnav" / "dialog" / "todo.json").write_text(json.dumps({
+            "type": "minecraft:notice", "title": text("What to try here", "yellow"), "external_title": text("What to try here"),
+            "body": [{"type": "minecraft:plain_message", "width": 310, "contents": text(todo, "white")}],
+            "action": {"label": "Back", "action": act(7)}, "pause": False}, indent=1))
+    (fn / "todo.mcfunction").write_text("dialog show @s devnav:todo\n" if todo else
+                                        'tellraw @s {"text":"[dev] No instructions for this server.","color":"gray"}\n')
 
 def refresh_nav(reg):
     write_devnav(reg)
@@ -436,8 +456,14 @@ def daemon():
             print(time.strftime("%H:%M:%S"), "http", fmt % a, flush=True)
     PACKS.mkdir(parents=True, exist_ok=True)
     threading.Thread(target=ThreadingHTTPServer(("127.0.0.1", HTTP_PORT), H).serve_forever, daemon=True).start()
+    mail = Mailroom()
     while True:
-        for n, s in load_reg().items():
+        reg = load_reg()
+        try:
+            mail.tick(reg)
+        except Exception as e:  # never let the daemon die on mail/chat handling
+            print(time.strftime("%H:%M:%S"), "mail tick failed:", repr(e), flush=True)
+        for n, s in reg.items():
             if s.get("status") != "up":
                 continue
             try:
@@ -524,11 +550,263 @@ def pull_feedback(name, s):
             pages.append(snbt_value(r))
             i += 1
         rcon(port, "data remove storage devnav:fb inbox[0]")
-        body = "\n\n".join(pages).strip().replace("\n", "\n    ")
-        with open(FEEDBACK, "a", encoding="utf-8") as f:
-            f.write(f"{time.strftime('%Y-%m-%d %H:%M')} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
-                    + feedback_context(name, s, player))
-        print(time.strftime("%H:%M:%S"), f"feedback from {player} on {name}: {title}", flush=True)
+        fid = write_feedback(name, s, player, title, "\n\n".join(pages))
+        tell(s, player, [text(f"\u2714 feedback saved (#{fid})", "gray", italic=True)])
+
+def fb_max_id():
+    """Highest feedback id in the log; numbers old entries (#N prefix) in place, line count unchanged."""
+    if not FEEDBACK.exists():
+        return 0
+    lines, n, changed = FEEDBACK.read_text().splitlines(True), 0, False
+    for i, l in enumerate(lines):
+        m = re.match(r"#(\d+) ", l)
+        if m:
+            n = max(n, int(m.group(1)))
+        elif re.match(r"\d{4}-\d\d-\d\d \d\d:\d\d ", l):
+            n += 1
+            lines[i], changed = f"#{n} {l}", True
+    if changed:
+        FEEDBACK.write_text("".join(lines))
+    return n
+
+_fb_last = [0]
+def alloc_fb_id():
+    """Next feedback id (daemon-only; chat groups reserve theirs before they are written)."""
+    _fb_last[0] = max(_fb_last[0], fb_max_id()) + 1
+    return _fb_last[0]
+
+def write_feedback(name, s, player, title, body, fid=None):
+    fid = fid or alloc_fb_id()
+    body = body.strip().replace("\n", "\n    ")
+    with open(FEEDBACK, "a", encoding="utf-8") as f:
+        f.write(f"#{fid} {time.strftime('%Y-%m-%d %H:%M')} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
+                + feedback_context(name, s, player))
+    print(time.strftime("%H:%M:%S"), f"feedback #{fid} from {player} on {name}: {title}", flush=True)
+    return fid
+
+def tell(s, player, comps):
+    try:
+        rcon(s["port"] + 10000, f"tellraw {player} {json.dumps(comps)}")
+    except (OSError, RuntimeError):
+        pass
+
+
+# ---------------------------------------------------------------- inbox + chat feedback
+# inbox.json   messages to the user {id,time,text,delivered} (written by `notify`, delivery flags by the daemon)
+# thread.json  the conversation (mail + the user's chat feedback lines), replayed dimmed on every join; daemon-only
+# chat_pending.json  chat lines not yet grouped into a feedback entry (survives daemon restarts)
+THREAD, CHAT_PENDING = STATE / "thread.json", STATE / "chat_pending.json"
+THREAD_MAX, REPLAY_N = 200, 8
+
+def load_json(p, default):
+    try:
+        return json.loads(p.read_text())
+    except (OSError, ValueError):
+        return default
+
+def save_json(p, v):
+    STATE.mkdir(exist_ok=True)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(v, indent=1, ensure_ascii=False))
+    os.replace(tmp, p)
+
+def load_inbox():
+    return load_json(INBOX, [])
+
+def save_inbox(msgs):
+    save_json(INBOX, msgs)
+
+def notify(msg):
+    """Queue a message for the user's in-game inbox; the daemon delivers it in chat when they are online."""
+    msgs = load_inbox()
+    m = {"id": max((x["id"] for x in msgs), default=0) + 1, "time": time.strftime("%Y-%m-%d %H:%M"), "text": msg, "delivered": False}
+    save_inbox(msgs + [m])
+    ensure_daemon()
+    return m
+
+def chunks(t, n=200):  # RCON packets are capped (~1.4 KB), so long text goes in pieces
+    return [t[i:i + n] for i in range(0, len(t), n)] or [""]
+
+def short_time(t):
+    return t[11:] if t[:10] == time.strftime("%Y-%m-%d") else t[5:]
+
+def mail_lines(m):
+    c = chunks(m["text"])
+    return [[text("\u2709 ", "gold"), text(short_time(m["time"]) + " ", "dark_gray"), text(c[0], "white")]] + [[text(x, "white")] for x in c[1:]]
+
+def inbox_commands(msgs, limit=20):
+    """RCON commands that build the inbox dialog in storage devnav:ui d (built in t, then swapped in)."""
+    shown = list(reversed(msgs))[:limit]
+    head = {"type": "minecraft:notice", "title": text("\u2709 Inbox", "gold"), "external_title": text("Inbox"),
+            "body": [{"type": "minecraft:plain_message", "width": 300, "contents": text(
+                f"{len(shown)} of {len(msgs)} messages, newest first." if msgs else "No messages yet.", "gray")}],
+            "action": {"label": "Back", "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 7"}}, "pause": False}
+    cmds = [f"data modify storage devnav:ui t set value {snbt(head)}"]
+    for m in shown:
+        c = chunks(m["text"])
+        cmds.append("data modify storage devnav:ui t.body append value " + snbt(
+            {"type": "minecraft:plain_message", "width": 300,
+             "contents": [text(m["time"][5:] + "  ", "dark_gray"), text(c[0], "white")]}))
+        cmds += [f"data modify storage devnav:ui t.body[-1].contents append value {snbt(text(x, 'white'))}" for x in c[1:]]
+    return cmds + ["data modify storage devnav:ui d set from storage devnav:ui t", "data remove storage devnav:ui t"]
+
+CHAT_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/INFO\]: (?:\[Not Secure\] )?<([A-Za-z0-9_]{1,16})> (.*)$")
+JOIN_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/INFO\]: (?:System chat: )?([A-Za-z0-9_]{1,16}) (joined|left) the game$")
+CHAT_GROUP_SECS = 90
+
+def parse_log_line(line):
+    """Server log line -> ('chat', player, text) | ('joined'|'left', player) | None. `say`/system lines are not chat."""
+    m = CHAT_RE.match(line)
+    if m:
+        return ("chat", m.group(1), m.group(2))
+    m = JOIN_RE.match(line)
+    return (m.group(2), m.group(1)) if m else None
+
+class ChatGroups:
+    """Consecutive chat lines of one player on one server within CHAT_GROUP_SECS = one feedback entry.
+    Persisted to chat_pending.json so a daemon restart doesn't lose half-typed feedback."""
+    def __init__(self, path=None):
+        self.path, self.g = path, {}
+        if path:
+            for e in load_json(path, []):
+                self.g[(e["server"], e["player"])] = {k: e[k] for k in ("id", "s", "lines", "last")}
+    def save(self):
+        if self.path:
+            save_json(self.path, [dict(server=k[0], player=k[1], **g) for k, g in self.g.items()])
+    def max_id(self):
+        return max((g["id"] for g in self.g.values()), default=0)
+    def add(self, server, s, player, line, now, alloc):
+        g = self.g.get((server, player))
+        if not g:
+            g = self.g[(server, player)] = {"id": alloc(), "s": s, "lines": []}
+        g["lines"].append(line)
+        g["last"] = now
+        self.save()
+        return g["id"]
+    def due(self, now, force=()):
+        """Groups to write now (quiet for CHAT_GROUP_SECS, forced, or stale ones left from a previous daemon run)."""
+        out = [(k[0], k[1], g) for k, g in self.g.items() if now - g["last"] >= CHAT_GROUP_SECS or k in force]
+        return out
+    def done(self, server, player):  # only after the entry is written
+        del self.g[(server, player)]
+        self.save()
+
+def trunc(t, n=120):
+    t = " ".join(t.split())
+    return t if len(t) <= n else t[:n - 1] + "\u2026"
+
+def replay_lines(thread, skip_mail=(), n=REPLAY_N):
+    """Last n thread entries, dimmed, one line each (the client wipes chat on every reconnect)."""
+    rec = [e for e in thread if not (e["kind"] == "mail" and e.get("mail") in skip_mail)][-n:]
+    out = [[text("\u2014 recent \u2014", "dark_gray")]] if rec else []
+    for e in rec:
+        hm = short_time(e["time"])
+        if e["kind"] == "mail":
+            out.append([text(f"\u2709 {hm} ", "dark_gray"), text(trunc(e["text"]), "gray")])
+        else:
+            out.append([text(f"{hm} you@{e.get('server')}: ", "dark_gray"), text(trunc(e["text"]), "gray"),
+                        text(f" \u2714#{e.get('fid')}", "dark_gray")])
+    return out
+
+class Mailroom:
+    """Daemon side of inbox + chat feedback: tails server logs, groups chat, delivers mail, keeps the inbox dialog
+    current, and keeps the thread (mail + chat feedback) that is replayed on every join."""
+    def __init__(self):
+        self.tails, self.pushed, self.groups = {}, {}, ChatGroups(CHAT_PENDING)
+        _fb_last[0] = max(_fb_last[0], self.groups.max_id())  # ids already promised by "noted (#N)"
+        self.next_try, self.last_pending = 0, None
+        self.mirrored = {e.get("mail") for e in load_json(THREAD, []) if e["kind"] == "mail"}
+
+    def thread_add(self, entries):
+        if entries:
+            save_json(THREAD, (load_json(THREAD, []) + entries)[-THREAD_MAX:])
+
+    def read_new(self, n, s):
+        p = SERVERS / n / "logs" / "latest.log"
+        try:
+            size = p.stat().st_size
+        except OSError:
+            return []
+        t = self.tails.get(n)
+        if t is None:  # first sight (daemon start): only new lines count
+            self.tails[n] = [size, s.get("started")]
+            return []
+        if t[1] != s.get("started") or size < t[0]:  # restarted -> fresh log
+            t[:] = [0, s.get("started")]
+        if size == t[0]:
+            return []
+        with open(p, "rb") as f:
+            f.seek(t[0])
+            data = f.read()
+        end = data.rfind(b"\n") + 1
+        t[0] += end
+        return data[:end].decode("utf-8", "replace").splitlines()
+
+    def deliver(self, n, s, pending, replay):
+        """Send (dimmed recent thread +) undelivered mail in full colour to the user on server n."""
+        lines = replay_lines(load_json(THREAD, []), {m["id"] for m in pending}) if replay else []
+        for m in pending:
+            lines += mail_lines(m)
+        for comps in lines:
+            tell(s, USER, comps)
+        if pending:
+            ids = {m["id"] for m in pending}
+            fresh = load_inbox()
+            for m in fresh:
+                if m["id"] in ids:
+                    m["delivered"] = True
+            save_inbox(fresh)
+            print(time.strftime("%H:%M:%S"), f"delivered {len(ids)} message(s) on {n}", flush=True)
+
+    def tick(self, reg):
+        now = time.time()
+        up = {n: s for n, s in reg.items() if s.get("status") == "up"}
+        joins, left, said = [], set(), []
+        for n, s in up.items():
+            for line in self.read_new(n, s):
+                ev = parse_log_line(line)
+                if not ev:
+                    continue
+                if ev[0] == "chat":
+                    fid = self.groups.add(n, s, ev[1], ev[2], now, alloc_fb_id)
+                    tell(s, ev[1], [text(f"\u2714 noted (#{fid})", "gray", italic=True)])
+                    said.append({"kind": "chat", "time": time.strftime("%Y-%m-%d %H:%M"), "server": n,
+                                 "player": ev[1], "fid": fid, "text": ev[2]})
+                elif ev[0] == "joined":
+                    if ev[1] == USER:
+                        joins.append(n)
+                else:
+                    left.add((n, ev[1]))
+        for n, player, g in self.groups.due(now, left):
+            write_feedback(n, g["s"], player, "chat", "\n".join(g["lines"]), fid=g["id"])
+            self.groups.done(n, player)
+        msgs = load_inbox()
+        new_mail = [m for m in msgs if m["id"] not in self.mirrored]
+        self.thread_add([{"kind": "mail", "time": m["time"], "mail": m["id"], "text": m["text"]} for m in new_mail] + said)
+        self.mirrored |= {m["id"] for m in new_mail}
+        sig = json.dumps([(m["id"], m["time"], m["text"]) for m in msgs[-20:]])
+        for n, s in up.items():  # inbox dialog: on change and after every (re)start
+            key = (sig, s.get("started"))
+            if self.pushed.get(n) != key:
+                try:
+                    for c in inbox_commands(msgs):
+                        rcon(s["port"] + 10000, c, timeout=2)
+                    self.pushed[n] = key
+                except (OSError, RuntimeError):
+                    pass
+        pending = [m for m in msgs if not m.get("delivered")]
+        if joins:  # every join (incl. transfers): replay the thread, then any new mail
+            for n in joins:
+                self.deliver(n, up[n], pending, replay=True)
+                pending = []
+            return
+        ids = [m["id"] for m in pending]
+        if pending and (ids != self.last_pending or now >= self.next_try):
+            self.last_pending, self.next_try = ids, now + 15
+            for n, s in up.items():
+                if USER in online(s):
+                    self.deliver(n, s, pending, replay=False)
+                    break
 
 def repack(name, player):
     """Player was sent to the hub; rebuild the pack, restart if it changed, send them back."""
@@ -603,6 +881,8 @@ def cmd_up(a):
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
     t = start(name, s)
     print(f"{name} up on {HOST}:{port} ({t:.0f}s)  branch={branch}" + (f" demo={s['demo']}" if s['demo'] else ""))
+    if name not in reg and not s["persistent"]:  # brand-new demo/branch server (not a restart)
+        notify(f"New dev server {name}: {s['desc'] or s['branch']}")
 
 def start(name, s, _reg=None):
     ensure_daemon()
@@ -754,7 +1034,17 @@ def harvest_feedback(name):
     return []
 
 def cmd_feedback(a):
-    """Inbox: prints entries not yet acknowledged; --all for history, --ack marks them read."""
+    """Inbox: prints entries not yet acknowledged; --all for history, --ack marks them read; --resolve N tells the user."""
+    if a.resolve is not None:
+        fb_max_id()  # make sure old entries carry ids
+        lines = FEEDBACK.read_text().splitlines() if FEEDBACK.exists() else []
+        m = next((m for l in lines if (m := re.match(rf"#{a.resolve} \S+ \S+ \S+ \(.*?\) \[.*?\] (.*?):?$", l))), None)
+        if not m:
+            sys.exit(f"no feedback #{a.resolve}")
+        note = " ".join(a.note)
+        msg = notify(f"Feedback #{a.resolve} [{m.group(1)}] resolved" + (f": {note}" if note else ""))
+        print("inbox:", msg["text"])
+        return
     if not FEEDBACK.exists():
         print("(no feedback yet)")
         return
@@ -781,10 +1071,15 @@ def main():
     r = sp.add_parser("reload"); r.add_argument("name", nargs="?"); r.set_defaults(f=cmd_reload)
     c = sp.add_parser("cmd"); c.add_argument("name"); c.add_argument("command", nargs="+"); c.set_defaults(f=cmd_cmd)
     l = sp.add_parser("logs"); l.add_argument("name"); l.add_argument("-n", type=int, default=40); l.set_defaults(f=cmd_logs)
-    fb = sp.add_parser("feedback"); fb.add_argument("--all", action="store_true"); fb.add_argument("--ack", action="store_true"); fb.set_defaults(f=cmd_feedback)
+    fb = sp.add_parser("feedback"); fb.add_argument("--all", action="store_true"); fb.add_argument("--ack", action="store_true")
+    fb.add_argument("--resolve", type=int, metavar="N"); fb.add_argument("note", nargs="*"); fb.set_defaults(f=cmd_feedback)
+    nt = sp.add_parser("notify", help="message the user's in-game inbox"); nt.add_argument("text", nargs="+")
+    nt.set_defaults(f=lambda a: print("inbox #%d queued" % notify(" ".join(a.text))["id"]))
     sp.add_parser("nav").set_defaults(f=lambda a: refresh_nav(sync_status(load_reg())))
     sp.add_parser("_daemon").set_defaults(f=lambda a: daemon())
     a = p.parse_args()
+    for st in (sys.stdout, sys.stderr):  # cp1252 consoles: don't crash on RCON replies with symbols
+        st.reconfigure(errors="backslashreplace")
     a.f(a)
 
 if __name__ == "__main__":
