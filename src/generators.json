@@ -11,7 +11,7 @@
   "  ['coins', weight, emeralds, block] = an emerald ore / block outcome (pays through the purse when mined);",
   "  ['jackpot:<id>', weight] = a chest filled with jackpots.<id>.",
   "levels.<n>.regrow_ticks = delay before a mined block grows back (sped up by team size: x(1 + (players-1)/players_per_roll)).",
-  "lucky = optional lucky block (off by default): 1 regrowth in one_in becomes a lucky block that rolls coins / an item / a trap.",
+  "single = optional single-block mode (feedback #47): one block type that rolls the same odds as a loot table when mined.",
   "CENTRE generator (shared, in the arena, pot style): see centre._doc."
  ],
  "players_per_roll": 4,
@@ -30,55 +30,18 @@
   }
  },
  "_levels_doc": "upgrade_cost = coins to reach this level (V2 signs: 75 built Lv1, 200 -> Lv2, 500 -> Lv3).",
- "lucky": {
-  "_doc": "Proposal (off by default; runtime switch: function nonios:generator/lucky/toggle). The lucky block replaces 1 regrowth in one_in. Mined: coins 8/20 (a burst of coins+ emeralds), item 7/20 (items below), trap 5/20 (silverfish / cobweb + poison / launch).",
+ "single": {
+  "_doc": [
+   "Single-block variant (feedback #47), a config switch next to the multi-block V2 generator.",
+   "on = default mode (false = V2 blocks). Runtime switch: function nonios:generator/mode/toggle (#single nx.gen).",
+   "Every regrowth is the same block (mined with a pickaxe, no tool swapping). Mined, it rolls the same V2 table",
+   "(tables.<team>.<lvl>, same 1-of-81 odds) as a loot table: generator/one/<team>_lvl<N> (type fishing, so Fortune",
+   "on the pickaxe applies to ore drops). Outcomes whose V2 block is in src/yields.json also pay that block's yield",
+   "through the purse, exactly as if it had been mined (emerald ore 5, emerald block 20, coal 0.1, ...). No traps.",
+   "block: any block nobody else uses; its own vanilla loot table is emptied."
+  ],
   "on": false,
-  "one_in": 15,
-  "block": "minecraft:yellow_glazed_terracotta",
-  "coins_min": 4,
-  "coins_max": 10,
-  "items": [
-   [
-    "minecraft:golden_apple",
-    4,
-    1
-   ],
-   [
-    "minecraft:ender_pearl",
-    4,
-    2
-   ],
-   [
-    "minecraft:arrow",
-    4,
-    16
-   ],
-   [
-    "minecraft:tnt",
-    3,
-    2
-   ],
-   [
-    "minecraft:cobweb",
-    3,
-    4
-   ],
-   [
-    "minecraft:diamond",
-    3,
-    2
-   ],
-   [
-    "minecraft:enchanted_golden_apple",
-    1,
-    1
-   ],
-   [
-    "minecraft:totem_of_undying",
-    1,
-    1
-   ]
-  ]
+  "block": "minecraft:gilded_blackstone"
  },
  "jackpots": {
   "chest_a": {

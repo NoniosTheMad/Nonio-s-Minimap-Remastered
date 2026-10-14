@@ -9,7 +9,7 @@ execute as @a[scores={demo.ar3=7}] run function demo:fast
 execute as @a[scores={demo.ar3=8}] run function demo:tp_gen
 execute as @a[scores={demo.ar3=9}] at @s run function demo:grow
 execute as @a[scores={demo.ar3=10}] at @s run function demo:gen_up
-execute as @a[scores={demo.ar3=11}] run function demo:lucky
+execute as @a[scores={demo.ar3=11}] run function demo:genmode
 execute as @a[scores={demo.ar3=12}] run function demo:tp_cgen
 execute as @a[scores={demo.ar3=13}] run function demo:bank {n:1000}
 execute as @a[scores={demo.ar3=14}] run function demo:bank0
@@ -21,5 +21,10 @@ execute as @a[scores={demo.ar3=19}] run function demo:say {m:"Random event annou
 execute as @a[scores={demo.ar3=20}] run function demo:status
 execute as @a[scores={demo.ar3=21}] at @s run function nonios:admin/rebuild
 execute as @a[scores={demo.ar3=22}] run function nonios:admin
+execute as @a[scores={demo.ar3=23}] run function demo:rkit
+execute as @a[scores={demo.ar3=24}] run function demo:tp_enemy_nexus
+execute as @a[scores={demo.ar3=25}] run function demo:hold
+execute as @a[scores={demo.ar3=26}] run function demo:hold_skip
+execute as @a[scores={demo.ar3=27}] run function demo:decay
 scoreboard players reset @a[scores={demo.ar3=1..}] demo.ar3
 scoreboard players enable @a demo.ar3

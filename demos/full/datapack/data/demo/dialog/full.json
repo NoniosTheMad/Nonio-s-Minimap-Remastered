@@ -8,7 +8,7 @@
   "type": "minecraft:plain_message",
   "width": 320,
   "contents": {
-   "text": "Solo test buttons for main: the whole match (M2 core, economy, generators, Emerald Dream, arena nodes/events, arena gates + core), every class, the V2 shop (53-55) and the team altar / spawn defense / talisman (56-64), bank (65-66). Class buttons are free; the shop sells them too.",
+   "text": "Solo test buttons for main: the whole match (M2 core, economy, generators, Emerald Dream, arena nodes/events, arena gates + core), every class, the V2 shop (53-55) and the team altar / spawn defense / talisman (56-64), bank (65-66), generators + Barrier (67-71). Class buttons are free; the shop sells them too.",
    "color": "gray"
   }
  },
@@ -798,6 +798,56 @@
    "action": {
     "type": "minecraft:run_command",
     "command": "trigger demo.full set 66"
+   }
+  },
+  {
+   "label": "Single-block generators",
+   "tooltip": {
+    "text": "On/off: one block type (gilded blackstone) with the V2 odds in its drops, vs the V2 blocks"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 67"
+   }
+  },
+  {
+   "label": "Ranged kit",
+   "tooltip": {
+    "text": "Power V bow, crossbow, trident, rockets, wind charges: shoot the enemy Barrier"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 68"
+   }
+  },
+  {
+   "label": "Centre hold: off/W/B",
+   "tooltip": {
+    "text": "Simulate a team holding the centre node: the enemy Barrier drains, ramping up"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 69"
+   }
+  },
+  {
+   "label": "Centre hold +4 min",
+   "tooltip": {
+    "text": "Skip the ramp (full rate after 5 min held)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 70"
+   }
+  },
+  {
+   "label": "Barrier minute 20",
+   "tooltip": {
+    "text": "Both Barriers start to decay: 10% of max per minute, down at minute 30"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 71"
    }
   }
  ],

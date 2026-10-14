@@ -154,6 +154,12 @@ Modes buy N lots of a bulk item (Stack = one stack's worth); a buy that doesn't 
 - Loot tables: a `group` entry offers its children as alternatives (drops one); to drop everything, one pool per item.
 - `tp` with relative yaw grows the stored rotation unbounded; use absolute yaw. Empty servers pause → `schedule` loops stop (test by calling the loop function directly).
 - 1.12 structure .nbt files load with `/place template` (auto-upgraded by DataFixer).
+- Structure templates written at DataVersion 5023 (no upgrade): palette entries are `{id, properties}` (old `Name/Properties` place nothing).
+- Dev servers run `generate-structures=false` (the map too): worldgen structures never generate; place them at runtime (`place template`).
+- Density function `y_clamped_gradient` is gone: `{type:"minecraft:gradient",axis:"y",from_coordinate,from_value,to_coordinate,to_value}`.
+- Interaction entities swallow melee before vanilla's attack-charge maths (charge unreadable) and projectiles fly through them.
+  Firework rockets / wind charges / fireballs explode on a block inside their own move: predict a move ahead. Summoned rockets need `LifeTime`.
+- `loot spawn <pos> fish <table> <pos> minecraft:air` works (air as the tool). `tick step` does nothing on a paused (empty) server: use `tick sprint N`.
 - Shared names across branches: coins = `nx.coins`, teams = `white` / `black`.
 - Worldgen: surface rules live in the `worldgen/material_rule` registry; ore veins are a `minecraft:ore_vein` material rule. Sky/fog/particles/music via `attributes` maps (`minecraft:visual/...`) on dimension_type and biome.
 - **Loot tables changed format:** `functions`/`function` → `modifier` (object or list, each with `type`); `conditions`/`condition` → one `condition` object with `type`. Old keys are silently ignored (count 1, chances always pass). Check vanilla tables in the server jar.

@@ -1,4 +1,4 @@
-# as/at the shield: #adm nx.tmp = this tick's arrow damage (nexus/arrow); shooters are tagged nx.arrow_shooter.
+# as/at the shield: #adm nx.tmp = this tick's projectile damage (nexus/proj_hit); shooters are tagged nx.arrow_shooter.
 # Same as a melee hit (nexus/hit) at 20%: HP, regen delay, flash, alert, break.
 scoreboard players operation @s nx.hp -= #adm nx.tmp
 scoreboard players operation @s nx.cd = #regen_delay nx.const

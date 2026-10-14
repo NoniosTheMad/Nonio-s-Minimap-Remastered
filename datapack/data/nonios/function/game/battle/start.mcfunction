@@ -2,6 +2,7 @@ scoreboard players set #state nx.state 2
 scoreboard players set #timer nx.state 0
 function nonios:map/walls/down
 function nonios:arena/start
+function nonios:nexus/press/start
 bossbar set nonios:phase color red
 bossbar set nonios:phase max 1
 bossbar set nonios:phase value 1

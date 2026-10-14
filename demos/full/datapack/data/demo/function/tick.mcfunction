@@ -65,5 +65,10 @@ execute as @a[scores={demo.full=63}] run function demo:guard_toggle
 execute as @a[scores={demo.full=64}] run function demo:say {m:"+3,200,000 coins",cmd:"scoreboard players add @s nx.coins 3200000"}
 execute as @a[scores={demo.full=65}] run function demo:tp_bank
 execute as @a[scores={demo.full=66}] run function demo:clock
+execute as @a[scores={demo.full=67}] run function demo:genmode
+execute as @a[scores={demo.full=68}] run function demo:rkit
+execute as @a[scores={demo.full=69}] run function demo:hold
+execute as @a[scores={demo.full=70}] run function demo:hold_skip
+execute as @a[scores={demo.full=71}] run function demo:decay
 scoreboard players reset @a[scores={demo.full=1..}] demo.full
 scoreboard players enable @a demo.full

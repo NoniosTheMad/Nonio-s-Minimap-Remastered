@@ -167,3 +167,22 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [x] Demos: economy ("Interest: +60 s", status shows carried fractions), full (65 TP: my bank, 66 match clock +10 min), try.txt.
 - RCON-verified (husk): pad deposit + edge, enemy pad refused, presets/half/all/stale click, greyed states, ramp (1% -> 10%), cap, overflow guard,
   60 s fast-forward, admin page, clean log + lint. Not verified with a real player: plate detection while walking, cues, dialog at GUI scale 2.
+
+## Generators + Barrier + Dream (`feat/gen-dream`, servers `gd3` (arena3) + `gdream` (emerald-dream); feedback #47 #48 #49)
+- [x] Single-block generator mode (`src/generators.json` `single`, off by default, `generator/mode/toggle`): gilded blackstone, V2 odds as a
+  loot table + purse yields. Replaces the lucky block (removed).
+- [x] Barrier projectiles hit geometrically (`nexus/proj`): arrows, spectral, tridents (dropped at the shell), rockets with stars,
+  wind charges, fireballs. Exploding ones look two moves ahead (they blow up on the obsidian inside their own move).
+- [x] #49 melee charge (`nexus/charge`): x(0.2 + 0.8 c^2), c = ticks since the player's last Barrier hit / 20 / attack_speed (vanilla's own
+  charge is unreadable: the interaction swallows the attack).
+- [x] #48 (`nexus/press/*`, once a second in battle): centre holder drains the enemy Barrier, max HP x `#press_pm` 120 per mille/min x r^2,
+  r = hold / `#press_ramp` 300 s (30 s hold = 1% rate, 5 min = full 12%/min); losing the node resets. Drain blocks regen like a hit.
+  From battle minute `#decay_min` 20 the ceiling `nx.hp_cap` drops `#decay_pm` 100 per mille/min (untouched = broken at 30).
+  There was no timed barrier disappearance in the code: the "BARRIERS BROKEN" title is the prep walls dropping.
+- [x] Richer dream: more veins (16 in 11), raw emerald 3%, crystal vein, lapis/diamond/emerald clusters, crystal spires, lamps, amethyst,
+  firefly bushes, wildflowers, azaleas, lichen; parrots/frogs/bats; spore/firefly/glow particles. Ruins (shrine/well/arch) with loot,
+  placed at runtime (`dream/ruin/*`, `tools/build_dream.py`).
+- [x] Demos: arena3 11 single-block, 23-27 (ranged kit, tp enemy Nexus, centre hold sim, hold +4 min, minute-20 decay); full 67-71; try.txt.
+- RCON-verified: every projectile type (miss at 1.5 off-centre), rocket fix, brief hold 33 s = 0.25 HP, full hold 2 HP/s, decay 100/min and
+  break at cap 0, charge maths (no non-player entity has attack_speed, so not run end-to-end), ruin chest loot, clean logs + lint.
+  Not verified with a real player: melee spam vs full swing, demo dialogs at GUI scale 2.
