@@ -60,10 +60,13 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   - Book & Quill (menu → Feedback): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
     (daemon polls it over persistent RCON) → daemon drains it into the log. Both get context (branch@commit, pos, server log, client chat).
 - **Inbox** (user's mailbox): `mcdev notify "text"` (python: `notify(text)`) appends to `.mcdev/inbox.json`; the daemon tellraws undelivered mail
-  (gold ✉) to NoniosTheMad on whatever server he is on, or on his next join. `mcdev feedback --resolve N [note]` notifies "Feedback #N [title] resolved: note".
+  (gold ✉) to NoniosTheMad on whatever server they are on, or on their next join. `mcdev feedback --resolve N [note]` notifies "Feedback #N [title] resolved: note".
   `mcdev up` of a NEW demo/branch server notifies automatically. G → Inbox shows the last 20: the daemon builds the dialog as a compound in
   storage `devnav:ui d` over RCON (chunked, RCON packets cap ~1.4 KB) on change and after each server start; `devnav:inbox` shows it via `$dialog show @s $(d)`.
-  `.mcdev/thread.json` (mail + the user's chat lines, max 200) is replayed dimmed (last 8, one line each) on every join, since the client wipes chat on reconnect.
+  `.mcdev/thread.json` (mail + the user's chat lines, max 200) is replayed dimmed (last 8, one line each) on every join, since the client wipes chat on reconnect
+  (skipped if a replay went to them <60s ago, e.g. the hub park during `restart`).
+- Every dev server sets `gamerule send_command_feedback false` (self pack `devnav:quiet`, on load): no "Triggered [devnav.act] ..." spam from menu clicks.
+  Only success feedback of commands a player runs is hidden; errors, tellraw and RCON replies are unaffected.
 - Daemon code changes need a daemon restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`) starts it again.
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.

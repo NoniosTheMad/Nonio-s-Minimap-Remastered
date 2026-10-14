@@ -373,8 +373,11 @@ def write_self_pack(name, s, d):
     (fn / "welcome.mcfunction").write_text("\n".join(welcome) + "\n")
     tags = d / "data" / "minecraft" / "tags" / "function"
     tags.mkdir(parents=True)
-    (tags / "load.json").write_text(json.dumps({"values": ["devnav:load"]}))
+    (tags / "load.json").write_text(json.dumps({"values": ["devnav:load", "devnav:quiet"]}))
     (tags / "tick.json").write_text(json.dumps({"values": ["devnav:tick"]}))
+    # Menu clicks are /trigger -> "Triggered [devnav.act] ..." in chat. Hides only players' command success feedback
+    # (errors, tellraw and RCON replies still show). Own file: a bad gamerule name only breaks this one.
+    (fn / "quiet.mcfunction").write_text("gamerule send_command_feedback false\n")
     (fn / "fb_notify.mcfunction").write_text('data modify storage devnav:req q append value {verb:"feedback"}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\n')
     resettable = not s["persistent"] or name == "test"
     (fn / "reset_world.mcfunction").write_text(  # daemon wipes the world, restarts, sends you back
@@ -596,7 +599,7 @@ def tell(s, player, comps):
 # thread.json  the conversation (mail + the user's chat feedback lines), replayed dimmed on every join; daemon-only
 # chat_pending.json  chat lines not yet grouped into a feedback entry (survives daemon restarts)
 THREAD, CHAT_PENDING = STATE / "thread.json", STATE / "chat_pending.json"
-THREAD_MAX, REPLAY_N = 200, 8
+THREAD_MAX, REPLAY_N, REPLAY_GAP = 200, 8, 60
 
 def load_json(p, default):
     try:
@@ -714,7 +717,7 @@ class Mailroom:
     def __init__(self):
         self.tails, self.pushed, self.groups = {}, {}, ChatGroups(CHAT_PENDING)
         _fb_last[0] = max(_fb_last[0], self.groups.max_id())  # ids already promised by "noted (#N)"
-        self.next_try, self.last_pending = 0, None
+        self.next_try, self.last_pending, self.replayed = 0, None, 0
         self.mirrored = {e.get("mail") for e in load_json(THREAD, []) if e["kind"] == "mail"}
 
     def thread_add(self, entries):
@@ -797,7 +800,9 @@ class Mailroom:
         pending = [m for m in msgs if not m.get("delivered")]
         if joins:  # every join (incl. transfers): replay the thread, then any new mail
             for n in joins:
-                self.deliver(n, up[n], pending, replay=True)
+                replay = now - self.replayed >= REPLAY_GAP  # restart = hub park + return: replay once
+                self.replayed = now if replay else self.replayed
+                self.deliver(n, up[n], pending, replay=replay)
                 pending = []
             return
         ids = [m["id"] for m in pending]
