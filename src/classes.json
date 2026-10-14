@@ -7,6 +7,7 @@
     "items: slot = armor.head|armor.chest|armor.legs|armor.feet|weapon.offhand (equipped, old item returned to you)",
     "       or 'supply' (shop classes: a plain kit consumable given once on apply, no class tags: blocks, food, spare tools, starting arrows).",
     "       or 'inventory' (given; must stay with the owner: dropped copies are deleted and it comes back).",
+    "       gear = hotbar convention override for plain bases (weapon|bow|pickaxe|bucket|tool|none -> custom_data nx_gear, nonios:gear/category).",
     "       components = raw 26.3 item components (JSON form). name/lore are text components; custom_data and the",
     "       class tags are added by the generator. Vanilla look via item_model until we have textures.",
     "lost_msg: shop classes only, shown on death. vision: post effects (resource pack) in stacking order; added on apply, removed on death / class change, re-added on rejoin.",
@@ -979,6 +980,7 @@
         },
         "scythe": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:stick",
           "name": {
             "text": "Reaper's Scyce",
@@ -1322,6 +1324,7 @@
         },
         "claws": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:flint",
           "name": {
             "text": "Monstruous Claws",
@@ -1583,6 +1586,7 @@
         },
         "whip": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:blaze_rod",
           "name": {
             "text": "Balrog's Whip",
@@ -1807,6 +1811,7 @@
         },
         "broom": {
           "slot": "inventory",
+          "gear": "tool",
           "id": "minecraft:stick",
           "name": {
             "text": "Magic Broom",
@@ -1852,6 +1857,7 @@
         },
         "tongue": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:slime_ball",
           "name": {
             "text": "Frog Tongue",

@@ -4,9 +4,9 @@ function nonios:class/strip
 scoreboard players set @s nx.class 5
 function nonios:class/gen/miner/equip
 # kit supplies (plain items, given once)
-loot give @s loot nonios:class/miner/torches
-loot give @s loot nonios:class/miner/cobblestone
-loot give @s loot nonios:class/miner/beef
+function nonios:gear/loot {table:"nonios:class/miner/torches"}
+function nonios:gear/loot {table:"nonios:class/miner/cobblestone"}
+function nonios:gear/loot {table:"nonios:class/miner/beef"}
 scoreboard players set @s nx.tier 0
 function nonios:class/gen/miner/vision
 tellraw @s [{"text":"✦ You are now a ","color":"gray"},{"text":"Miner","color":"gold"},{"text":" (lost on death)","color":"dark_gray"}]

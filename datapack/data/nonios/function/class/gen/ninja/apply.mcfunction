@@ -4,8 +4,8 @@ function nonios:class/strip
 scoreboard players set @s nx.class 7
 function nonios:class/gen/ninja/equip
 # kit supplies (plain items, given once)
-loot give @s loot nonios:class/ninja/pickaxe
-loot give @s loot nonios:class/ninja/beef
+function nonios:gear/loot {table:"nonios:class/ninja/pickaxe"}
+function nonios:gear/loot {table:"nonios:class/ninja/beef"}
 scoreboard players set @s nx.tier 1
 function nonios:class/gen/ninja/vision
 tellraw @s [{"text":"✦ You are now a ","color":"gray"},{"text":"Ninja","color":"aqua"},{"text":" (lost on death)","color":"dark_gray"}]

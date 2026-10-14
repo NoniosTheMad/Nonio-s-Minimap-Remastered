@@ -1,0 +1,1 @@
+$data modify storage nonios:shop ui.d.actions append value {label:[{type:"object",atlas:"$(atlas)",sprite:"$(sprite)"},{text:" $(label)$(qt) ",color:"$(ncol)"},{text:"$(pt)",color:"$(pcol)"}],tooltip:[{text:"$(label)$(qt)\n",color:"$(ncol)"},{text:"$(unit)",color:"gray"},{text:"$(blurb)",color:"dark_gray",italic:true},{text:"$(tip)",color:"red"}],width:120}

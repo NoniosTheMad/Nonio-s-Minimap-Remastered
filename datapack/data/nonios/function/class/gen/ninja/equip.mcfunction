@@ -2,5 +2,5 @@
 # ninja: equipment (old armour/offhand goes back to the inventory)
 function nonios:class/stash {slot:"armor.feet"}
 loot replace entity @s armor.feet loot nonios:class/ninja/feet
-loot give @s loot nonios:class/ninja/blade
-loot give @s loot nonios:class/ninja/genjutsu
+function nonios:gear/loot {table:"nonios:class/ninja/blade"}
+function nonios:gear/loot {table:"nonios:class/ninja/genjutsu"}

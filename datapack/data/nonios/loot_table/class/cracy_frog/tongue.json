@@ -48,7 +48,8 @@
         "minecraft:custom_data": {
          "nx_cls": "cracy_frog",
          "nx_item": "cracy_frog_tongue",
-         "nx_cls_item": true
+         "nx_cls_item": true,
+         "nx_gear": "weapon"
         },
         "minecraft:unbreakable": {},
         "minecraft:custom_name": {
