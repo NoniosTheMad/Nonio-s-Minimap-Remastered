@@ -88,6 +88,19 @@ M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog i
 5. **Cracy Frog free:** [suggested: yes, behind 3 questions]. Free class after passing the lore confirmation chain?
 6. **Custom textures:** [suggested: later]. Custom skins for Reaper + Frog to be added post-launch?
 
+**V2 shop classes** (feat/classes-v2, server `classes2`; built with these defaults):
+1. **Monster price:** [built: 1800]. V2 sold the whole Monster kit for 300 and the head alone ("Monster Skull") for 1800. Which?
+2. **Balrog power:** [built: 300 HP, armour 20/20, whip +14 dmg, no x3 attack]. V2 also tripled all damage. Too much or too little for 10000?
+3. **Balrog curse:** [built: enemies only, Wither II until death/milk]. V2 cursed everyone (team-mates too) with Wither III.
+4. **Potions -> reusable flasks:** [built: Ironskin 15 s / 60 s cd, Pulverizer 8 s / 45 s cd, Genjutsu 5 s / 20 s cd]. V2 gave 1-3 one-shot potions. Keep flasks?
+5. **Berserker armour:** [built: axe in hand zeroes armour via attributes, armour comes back when you switch]. V2 deleted all armour for good.
+6. **Ninja armour:** [built: other armour pops back into the inventory; sandals invisible; +40% speed]. V2 deleted it and doubled speed.
+7. **Archer extras:** [built: quiver refills to 16 (1 per 3 s), arrow hits make the target glow 6 s]. New, not in V2. Keep?
+8. **Kit supplies:** [built: tools/blocks/food given once as normal items, not re-given]. OK?
+9. **Monster numbers:** [built: +30% speed (V2 +100%), claws at sword speed, 15% bigger]. OK?
+10. **Monster head skin:** [built: EnzziGaming skin by name, resolved online]. Keep that skin or pick another?
+11. **Invisible players glow:** [not ported]. V2 made every invisible non-Ninja/Reaper glow. Bring back?
+
 **M3 Economy** (merged f584840; from coordinator notes, with suggested defaults):
 1. **Interest rate:** [suggested: 2%/60 s; V2 was 0.5%]. How fast should vault interest accrue?
 2. **Any teammate can withdraw all:** [suggested: yes, announced]. Teammates can access and fully withdraw from shared vault?

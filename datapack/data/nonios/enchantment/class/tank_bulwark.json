@@ -1,0 +1,43 @@
+{
+ "description": {
+  "text": "Bulwark",
+  "color": "dark_aqua"
+ },
+ "supported_items": "minecraft:iron_chestplate",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "chest"
+ ],
+ "effects": {
+  "minecraft:attributes": [
+   {
+    "id": "nonios:tank_hp",
+    "attribute": "minecraft:max_health",
+    "amount": 4,
+    "operation": "add_value"
+   },
+   {
+    "id": "nonios:tank_kb",
+    "attribute": "minecraft:knockback_resistance",
+    "amount": 0.4,
+    "operation": "add_value"
+   },
+   {
+    "id": "nonios:tank_slow",
+    "attribute": "minecraft:movement_speed",
+    "amount": -0.05,
+    "operation": "add_multiplied_base"
+   }
+  ]
+ }
+}

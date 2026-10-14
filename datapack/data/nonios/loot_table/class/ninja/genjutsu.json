@@ -1,0 +1,103 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:paper",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:item_model": "minecraft:potion",
+        "minecraft:max_stack_size": 1,
+        "minecraft:potion_contents": {
+         "custom_color": 16773299
+        },
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:potion_contents",
+          "minecraft:unbreakable"
+         ]
+        },
+        "minecraft:use_effects": {
+         "can_sprint": true,
+         "speed_multiplier": 1.0
+        },
+        "minecraft:consumable": {
+         "consume_seconds": 0.4,
+         "animation": "drink",
+         "sound": "minecraft:entity.witch.drink",
+         "has_consume_particles": false
+        },
+        "minecraft:use_cooldown": {
+         "seconds": 20,
+         "cooldown_group": "nonios:ninja_genjutsu"
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "ninja",
+         "nx_item": "ninja_genjutsu",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Genjutsu Booster",
+         "color": "yellow",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Only for real ninjas",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Drink: invisible + Speed IV 5s",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Refills in 20s",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Ninja \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ]
+       }
+      },
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:use_cooldown": {
+         "seconds": 20,
+         "cooldown_group": "nonios:ninja_genjutsu_alt"
+        }
+       },
+       "condition": {
+        "type": "minecraft:entity_scores",
+        "entity": "this",
+        "scores": {
+         "nx.cls_cdalt": {
+          "min": 1
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

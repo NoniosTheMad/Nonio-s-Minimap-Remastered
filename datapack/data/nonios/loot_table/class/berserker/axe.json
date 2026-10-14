@@ -1,0 +1,108 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:stone_axe",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:enchantments": {
+         "minecraft:sharpness": 2,
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:weapon": {
+         "item_damage_per_attack": 0
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:attack_damage",
+          "id": "minecraft:base_attack_damage",
+          "amount": 10,
+          "operation": "add_value",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:attack_speed",
+          "id": "minecraft:base_attack_speed",
+          "amount": -3.1,
+          "operation": "add_value",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:knockback_resistance",
+          "id": "nonios:berserk_kb",
+          "amount": 1,
+          "operation": "add_value",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:movement_speed",
+          "id": "nonios:berserk_speed",
+          "amount": 0.2,
+          "operation": "add_multiplied_base",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:armor",
+          "id": "nonios:berserk_bare",
+          "amount": -1,
+          "operation": "add_multiplied_total",
+          "slot": "mainhand"
+         },
+         {
+          "type": "minecraft:armor_toughness",
+          "id": "nonios:berserk_bare_t",
+          "amount": -1,
+          "operation": "add_multiplied_total",
+          "slot": "mainhand"
+         }
+        ],
+        "minecraft:custom_data": {
+         "nx_cls": "berserker",
+         "nx_item": "berserker_axe",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Berserker's BattleAxe",
+         "color": "red",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Your uncontrollable fury makes you strip",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "In hand: armour 0, fast, no knockback, regenerating",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Berserker \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

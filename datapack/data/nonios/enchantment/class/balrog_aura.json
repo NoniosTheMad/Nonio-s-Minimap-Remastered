@@ -1,0 +1,35 @@
+{
+ "description": {
+  "text": "Shadow and Flame",
+  "color": "gold"
+ },
+ "supported_items": "minecraft:player_head",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "head"
+ ],
+ "effects": {
+  "minecraft:tick": [
+   {
+    "effect": {
+     "type": "minecraft:run_function",
+     "function": "nonios:class/balrog/aura"
+    },
+    "requirements": {
+     "type": "minecraft:random_chance",
+     "chance": 0.5
+    }
+   }
+  ]
+ }
+}

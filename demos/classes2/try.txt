@@ -1,0 +1,19 @@
+The V2 shop classes, rebuilt for 26.3. Buttons: G > "Demo: Classes II" (the M5 buttons + 7 class buttons + mobs at the bottom).
+"Target dummies (3)" = still enemy husks; "Mob wave" = husks, vindicators, a pillager that fight back; "Clear mobs" removes them.
+"Reset class cooldowns" makes every flask ready again. "Class status" shows your class number (4-10 are the new ones).
+1. Archer (50): chainmail, Hunter's Bow, stone sword, tools, sandstone, carrots. Shoot a target: it glows 6 s.
+   Quiver: below 16 arrows you get 1 back every 3 s.
+2. Miner (80): gray leather, Miner's Pickaxe (efficiency II), torches, cobblestone. Permanent night vision, mines a bit faster.
+   Drink the Block Pulverizer (right-click): haste III + glowing 8 s, then 45 s cooldown.
+3. Tank (100): iron armour, shield, iron sword/tools, +2 hearts, 40% knockback resistance, a little slower.
+   Lesser Ironskin flask: Resistance II + Regeneration 15 s, 60 s cooldown.
+4. Ninja (100): invisible Chunin Sandals only (fast, step up full blocks, frost walker, no fall damage up to ~7 blocks).
+   Put on any other armour: it pops back into your inventory. Genjutsu Booster: invisible + Speed IV 5 s, 20 s cooldown.
+5. Berserker (120): one Battle Axe. While it is in your hand: your armour counts for nothing, but you are faster, hit very hard,
+   take no knockback and regenerate. Switch away and the armour works again.
+6. Monster (1800): skull head, bigger, +10 hearts, faster, claws. Always hungry. Kill a mob/player: devour (heal, strength, speed, food).
+7. Balrog (10000): huge, 150 hearts, slow, cannot jump; walk into a wall to climb it. Whip with long reach, fire and knockback.
+   Leaves a dark trail: enemies standing in it get a wither curse until they die or drink milk (husks are undead = immune; use vindicators).
+Buying: "Start match", "+1000 coins" (as often as needed), go to your shop: the 7 classes are listed (Archer 50 ... Balrog 10000).
+Every class is lost on death; armour is locked on (binding).
+Feedback: does each one feel like V2's class? Prices, numbers, the Balrog's power, the Ninja's armour rule.

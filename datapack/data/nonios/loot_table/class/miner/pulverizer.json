@@ -1,0 +1,103 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:paper",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:item_model": "minecraft:potion",
+        "minecraft:max_stack_size": 1,
+        "minecraft:potion_contents": {
+         "custom_color": 6094840
+        },
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:potion_contents",
+          "minecraft:unbreakable"
+         ]
+        },
+        "minecraft:use_effects": {
+         "can_sprint": true,
+         "speed_multiplier": 1.0
+        },
+        "minecraft:consumable": {
+         "consume_seconds": 0.8,
+         "animation": "drink",
+         "sound": "minecraft:entity.generic.drink",
+         "has_consume_particles": false
+        },
+        "minecraft:use_cooldown": {
+         "seconds": 45,
+         "cooldown_group": "nonios:miner_pulverizer"
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "miner",
+         "nx_item": "miner_pulverizer",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Block Pulverizer",
+         "color": "yellow",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Still a prototype",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Drink: Haste III 8s (you glow)",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Refills in 45s",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Miner \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ]
+       }
+      },
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:use_cooldown": {
+         "seconds": 45,
+         "cooldown_group": "nonios:miner_pulverizer_alt"
+        }
+       },
+       "condition": {
+        "type": "minecraft:entity_scores",
+        "entity": "this",
+        "scores": {
+         "nx.cls_cdalt": {
+          "min": 1
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,128 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:player_head",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:profile": {
+         "properties": [
+          {
+           "name": "textures",
+           "value": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjc5ZjZkNmExYjEyYzI4MjE5MGVkOGJhMzUxZjM1ZWIxY2YzODlkNWI5YmI3ZDBhNDNhNWYzMTgyYjhiZWE3In19fQ=="
+          }
+         ]
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:max_health",
+          "id": "nonios:balrog_hp",
+          "amount": 280,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:movement_speed",
+          "id": "nonios:balrog_slow",
+          "amount": -0.4,
+          "operation": "add_multiplied_base",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:armor",
+          "id": "nonios:balrog_armor",
+          "amount": 20,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:armor_toughness",
+          "id": "nonios:balrog_tough",
+          "amount": 20,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:knockback_resistance",
+          "id": "nonios:balrog_kb",
+          "amount": 1,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:attack_knockback",
+          "id": "nonios:balrog_push",
+          "amount": 1,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:scale",
+          "id": "nonios:balrog_size",
+          "amount": 0.5,
+          "operation": "add_value",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:jump_strength",
+          "id": "nonios:balrog_nojump",
+          "amount": -1,
+          "operation": "add_multiplied_total",
+          "slot": "head"
+         },
+         {
+          "type": "minecraft:step_height",
+          "id": "nonios:balrog_step",
+          "amount": 1.0,
+          "operation": "add_value",
+          "slot": "head"
+         }
+        ],
+        "minecraft:enchantments": {
+         "nonios:class/balrog_aura": 1,
+         "minecraft:thorns": 5,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "balrog",
+         "nx_item": "balrog_head",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Balrog",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "A Demon of Shadow and Fire from the Ancient times",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Balrog \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
