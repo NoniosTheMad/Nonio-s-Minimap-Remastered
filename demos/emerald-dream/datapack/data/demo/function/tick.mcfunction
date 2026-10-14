@@ -1,7 +1,6 @@
 execute as @a[tag=!demo.init] run function demo:init
 execute as @a at @s if dimension minecraft:overworld if block ~ ~-0.3 ~ minecraft:end_portal_frame unless entity @s[tag=demo.portal_cd] run function demo:portal
 execute as @a[tag=demo.portal_cd] at @s if dimension minecraft:overworld unless block ~ ~-0.3 ~ minecraft:end_portal_frame run tag @s remove demo.portal_cd
-execute as @a run function demo:coins
 execute if score #t demo.c matches 0 run particle minecraft:portal 6.5 64.2 0.5 0.4 0.3 0.4 0.3 6
 execute if score #t demo.c matches 0 run particle minecraft:happy_villager 6.5 64.5 0.5 0.6 0.4 0.6 0 1
 scoreboard players add #t demo.c 1

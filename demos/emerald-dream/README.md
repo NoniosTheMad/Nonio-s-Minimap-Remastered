@@ -19,4 +19,4 @@ Game code: `datapack/data/nonios/` -> `dimension/`, `dimension_type/`, `worldgen
   `function nonios:dream/force_exit` wakes instantly. Dying there just forgets the saved spot.
 - Hooks: `#nonios:dream/gate`, `#nonios:dream/on_enter`, `#nonios:dream/on_exit` (storage `nonios:dream reason`: arrived/woke/forced/lost), `#nonios:dream/fallback_return`.
 - Config: fake players in `nx.dream` (set in `dream/load` only when missing): `#channel_ticks #regrow_ticks #range #veins #vein_r #ttl #land_min_y`.
-Demo only: coin stub (mined stats -> `nx.coins`), portal pad, sidebar.
+Demo only: portal pad, sidebar (coins come from the game pack purse, which pays mined ores).
