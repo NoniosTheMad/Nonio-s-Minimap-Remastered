@@ -1,0 +1,6 @@
+You are an attacker (survival) with swords + pickaxe.
+1. Hit the blue glass shell around the obsidian: the bossbar drops (diamond sword ~70 of 1000).
+2. Try mining the obsidian first: you can't while the shield is up.
+3. Break the barrier to 0: shield vanishes; mine the obsidian = NEXUS DESTROYED.
+4. G > "Demo: Nexus Barrier": become defender (alerts), reset, regen x20, HP 200 for quick tests.
+Feedback: hit damage, regen speed, bar visibility, alert feel.
