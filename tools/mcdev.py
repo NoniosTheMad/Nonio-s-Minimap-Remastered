@@ -575,7 +575,7 @@ def write_self_pack(name, s, d):
     actions = [
         {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
         {"label": text("Servers...", "aqua"), "action": act(1)},
-        {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic. Short notes: just type in chat."), "action": act(4)},
+        {"label": text("Feedback", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic. Short notes: just type in chat."), "action": act(4)},
         {"label": "Reload datapacks", "tooltip": text("/reload here (resource packs reload by themselves when they change)"), "action": act(3)},
         reset]
     if todo and not demo_dialogs:  # no demo dialog to hang the instructions on: keep them reachable here (always last)
