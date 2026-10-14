@@ -15,4 +15,4 @@ scoreboard players operation #k nx.cls_tmp %= #6 nx.cls_tmp
 execute if score #k nx.cls_tmp matches 0 run scoreboard players set @s nx.cls_kick 1
 particle minecraft:happy_villager ~ ~0.2 ~ 0.3 0.1 0.3 0 1
 execute if predicate nonios:class/coin run particle minecraft:witch ~ ~0.4 ~ 0.3 0.1 0.3 0 1
-title @s actionbar [{"text":"🧹 ","color":"light_purple"},{"score":{"name":"@s","objective":"nx.cls_fuel"},"color":"light_purple"},{"text":"/60  look up to climb, down to glide","color":"gray"}]
+title @s actionbar [{"text":"🧹 ","color":"light_purple"},{"score":{"name":"@s","objective":"nx.cls_fuel"},"color":"light_purple"},{"text":"/60","color":"gray"}]

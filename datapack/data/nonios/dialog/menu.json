@@ -1,7 +1,7 @@
 {
   "type": "minecraft:multi_action",
   "title": {"text": "Nonios's Map", "color": "gold", "bold": true},
-  "body": {"type": "minecraft:plain_message", "width": 300, "contents": {"text": "Two teams, two fields, one arena. Break the enemy Barrier, then mine their Nexus (obsidian). Shop: the villager at your base.", "color": "gray"}},
+  "body": {"type": "minecraft:plain_message", "width": 300, "contents": {"text": "Two teams, two fields, one arena.", "color": "gray"}},
   "actions": [
     {"label": {"text": "Choose team", "color": "green"}, "action": {"type": "minecraft:run_command", "command": "trigger nx.team set 1"}},
     {"label": {"text": "Admin panel", "color": "gold"}, "tooltip": {"text": "Ops: run /function nonios:admin once to unlock it"}, "action": {"type": "minecraft:run_command", "command": "trigger nx.admin set 1"}}

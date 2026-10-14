@@ -33,9 +33,9 @@ execute store result bossbar nonios:phase max run data get storage nonios:config
 bossbar set nonios:phase color yellow
 bossbar set nonios:phase visible true
 title @a times 10 60 20
-title @a subtitle {"text":"Mine, build, buy. The walls drop when the timer ends.","color":"gray"}
+title @a subtitle {"text":"The walls hold. For now.","color":"gray"}
 title @a title {"text":"PREPARATION","color":"yellow","bold":true}
 execute as @a at @s run playsound minecraft:block.beacon.activate master @s ~ ~ ~ 1 1
-tellraw @a [{"text":"Match #","color":"gold"},{"score":{"name":"#match","objective":"nx.state"},"color":"gold"},{"text":" started. Shop: the villager at your base. Bank: the vault on the gold pad (right-click). Coins: mine ores.","color":"gold"}]
+tellraw @a [{"text":"Match #","color":"gold"},{"score":{"name":"#match","objective":"nx.state"},"color":"gold"},{"text":" started.","color":"gold"}]
 execute if score #timer nx.state matches ..0 run return run function nonios:game/battle/start
 function nonios:game/prep/second

@@ -16,5 +16,8 @@ execute if score @s nx.gen_lvl matches 2 run scoreboard players operation #cost 
 execute store result storage nonios:gen ui.cost int 1 run scoreboard players get #cost nx.gen
 scoreboard players operation #nl nx.gen = @s nx.gen_lvl
 execute store result storage nonios:gen ui.next int 1 run scoreboard players add #nl nx.gen 1
+scoreboard players operation #need nx.gen = #cost nx.gen
+scoreboard players operation #need nx.gen -= @p[tag=nx.gen_clicker] nx.coins
+execute store result storage nonios:gen ui.need int 1 run scoreboard players get #need nx.gen
 execute if score @p[tag=nx.gen_clicker] nx.coins < #cost nx.gen as @p[tag=nx.gen_clicker] run return run function nonios:generator/ui/show_poor with storage nonios:gen ui
 execute as @p[tag=nx.gen_clicker] run function nonios:generator/ui/show with storage nonios:gen ui
