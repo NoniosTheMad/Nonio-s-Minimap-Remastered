@@ -161,3 +161,10 @@ def _stair_shape(props, nb, kinds, pal):
         if (d2 in ("north", "south")) != (f in ("north", "south")) and can_take(d2):
             return "inner_left" if d2 == CCW[f] else "inner_right"
     return "straight"
+
+
+def sturdy(scene):
+    """Bool grid: full-cube blocks (what vines, torches, ladders and wall connections can attach to)."""
+    b = bank()
+    ok = np.array([b.is_occluder(p) and not bs.name_of(p).endswith("_leaves") for p in scene.palette])
+    return ok[scene.idx]

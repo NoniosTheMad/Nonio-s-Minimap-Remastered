@@ -102,7 +102,7 @@ def place(scene: Scene, server, at, include_air=True, tile=64, log=print):
     try:
         for name, (tx, _, tz), n in tiles:
             r = srv.cmd(f"place template voxel:{name} {at[0] + tx} {at[1]} {at[2] + tz}")
-            if not r.startswith("Loaded template"):
+            if "Loaded template" not in r:
                 errors.append(f"{name}: {r.strip()}")
     finally:
         _forceload(srv, x0, z0, x1, z1, False)
@@ -158,3 +158,20 @@ def pull(server, p0, p1, name="pulled", log=print):
     s = anvil.read_box(srv.world, p0, p1, name=name)
     log(f"[voxel] pulled {s.shape} from {server} {list(p0)}..{list(p1)} ({r.strip()})")
     return s
+
+
+def snapshot_pristine(server, log=print):
+    """Copy the live world to world.pristine (what mcdev's "Reset this server" restores). Saving is paused meanwhile."""
+    import shutil
+    srv = Server(server)
+    dst = srv.dir / "world.pristine"
+    srv.cmd("save-off")
+    try:
+        srv.cmd("save-all flush")
+        time.sleep(0.5)
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(srv.world, dst, ignore=shutil.ignore_patterns("session.lock"))
+    finally:
+        srv.cmd("save-on")
+    log(f"[voxel] snapshot {dst}")

@@ -25,12 +25,12 @@ R_OUT, R_IN = 6.6, 4.4           # tower radii (13 wide, 2-thick wall)
 T_TOP = TB + 32                  # intact rim height (west side); the east side is broken down
 FLOORS = (TB + 9, TB + 19)
 
-ROCK = Gradient("y", [(9, "blackstone"),
-                      (14, Mix({"cobbled_deepslate": 3, "blackstone": 1})),
-                      (19, Mix({"cobbled_deepslate": 2, "deepslate": 2})),
-                      (25, Mix({"tuff": 4, "deepslate": 1})),
-                      (31, Mix({"tuff": 3, "andesite": 2})),
-                      (99, Mix({"andesite": 3, "tuff": 1, "stone": 1}))],
+ROCK = Gradient("y", [(4, "blackstone"),
+                      (8, Mix({"cobbled_deepslate": 3, "blackstone": 1})),
+                      (12, Mix({"deepslate": 2, "tuff": 2})),
+                      (17, Mix({"tuff": 4, "andesite": 1})),
+                      (23, Mix({"tuff": 3, "andesite": 2, "stone": 1})),
+                      (99, Mix({"andesite": 3, "tuff": 1, "stone": 2}))],
                 jitter=3.5, jitter_scale=7, seed=SEED)
 
 
@@ -106,7 +106,7 @@ def soil(s):
         sub[x, max(0, y - d):y, z] = True
     sub &= solid
     s.fill(sub, Noise([(-0.3, "rooted_dirt"), (0.4, "dirt"), (1, "coarse_dirt")], scale=5, seed=SEED + 10))
-    s.fill(top, Noise([(-0.45, "moss_block"), (0.5, "grass_block"), (0.75, "coarse_dirt"), (1, "grass_block")], scale=7, seed=SEED + 11))
+    s.fill(top, Noise([(-0.45, "moss_block"), (0.62, "grass_block"), (0.7, "coarse_dirt"), (1, "grass_block")], scale=7, seed=SEED + 11))
     return hm
 
 
@@ -121,8 +121,9 @@ def tower(s):
     outer = r <= R_OUT + flare
     inner = r <= R_IN
     # ruined top: high on the west, broken down to the east, noisy edge
-    cut = T_TOP - 9 * np.clip((dx + 2) / 9, 0, 1) - 2.5 * (noise.fbm(x, 0, z, scale=3, octaves=2, seed=SEED + 20) + 0.6) \
-          + 1.5 * noise.fbm(ang * 6, y, 0, scale=2, octaves=1, seed=SEED + 21)
+    ca, sa = np.cos(ang), np.sin(ang)
+    cut = (T_TOP - 11 * np.clip((dx + 1) / 8, 0, 1) - 2.2 * noise.fbm(ca * 2, sa * 2, 0.0, scale=0.8, octaves=2, seed=SEED + 20)
+           - 1.0 * (noise.hash01(np.floor(x), 0, np.floor(z), seed=SEED + 21) > 0.7))
     shaft = (y >= TB - 4) & (y < cut)
     wall = outer & ~inner & shaft
     # breach on the east face, rubble spills from it
@@ -243,10 +244,12 @@ def curtain_wall(s, hm):
             px, pz = int(q[0]), int(q[1])
             if not (0 <= px < W and 0 <= pz < D):
                 continue
-            g = s.surface("solid")[px, pz] if i == 0 else hm_local(s, px, pz)
+            g = int(hm[px, pz])
+            if w == -1:
+                gc = int(hm[int(p[0]), int(p[1])])  # ground on the centre line keeps the top continuous
             if g < 0:
                 continue
-            top = g + int(round(height))
+            top = max(g + 2, gc + int(round(height)))
             col = range(max(0, g - 2), top + 1)
             for yy in col:
                 if s.idx[px, yy, pz] == 0 or yy <= g:
@@ -293,15 +296,16 @@ def rubble(s):
         g = hm_local(s, px, pz)
         if g < 0 or g + 1 >= H:
             continue
-        if s.palette[s.idx[px, g, pz]].split("[")[0].endswith(("slab", "stairs", "wall", "carpet", "grass", "fern", "lantern", "chain")):
+        if s.palette[s.idx[px, g, pz]].split("[")[0].endswith(("slab", "stairs", "wall", "carpet", "grass", "fern", "lantern", "iron_chain")):
             continue
         s.set(px, g + 1, pz, frags[rng.integers(len(frags))])
 
 
 def vines(s):
     """Vines hanging down steep rock and tower faces, from ledges and under overhangs."""
+    from tools.voxel.connect import sturdy
     rng = np.random.default_rng(SEED + 1)
-    solid = s.solid()
+    solid = sturdy(s)  # vines only survive on full faces
     air = s.match("air")
     X, Y, Z = s.shape
     dirs = {"north": (0, -1), "south": (0, 1), "west": (-1, 0), "east": (1, 0)}
@@ -329,6 +333,12 @@ def vines(s):
             s.idx[x, yy, z] = vine_ids.setdefault(st, s.id(st))
 
 
+def moss_on_rock(s):
+    """Moss sheets on upward-facing rock where it is flattish (clusters, not speckle)."""
+    rock = s.match(["minecraft:tuff", "minecraft:andesite", "minecraft:stone", "minecraft:deepslate"])
+    s.fill(rock, Gradient("up", [(0.5, None), (2, Noise([(-0.15, "moss_block"), (1, None)], scale=5, seed=SEED + 73))]))
+
+
 def greenery(s):
     s.decorate("grass_block", Mix({"short_grass": 6, "fern": 2, "tall_grass[half=lower]": 0, "poppy": 0.2, "cornflower": 0.2}), chance=0.32, seed=SEED + 70)
     s.decorate("moss_block", Mix({"moss_carpet": 3, "short_grass": 1}), chance=0.35, seed=SEED + 71)
@@ -344,12 +354,43 @@ def greenery(s):
         s.fill(bush, Mix({"azalea_leaves[persistent=true]": 3, "flowering_azalea_leaves[persistent=true]": 1}, seed=i), replace="air")
 
 
+PATH_END = int(TZ + R_OUT + 1) + (TB - 13) + 2
+
+
+def path(s):
+    """A stair path cut into the crag from the south meadow up to the door: 3 wide, headroom, wall rail on the east."""
+    zf = int(TZ + R_OUT + 1)
+    x0 = int(TX) - 1
+    y = TB - 1
+    z = zf
+    body = np.zeros(s.shape, bool)
+    while y > 0 and z < D - 1:
+        landing = z <= zf + 1
+        g = max(hm_local(s, xx, z) for xx in range(x0, x0 + 4))
+        for xx in range(x0, x0 + 4):
+            body[xx, max(0, y - 4):y + 1, z] = True
+            s.idx[xx, max(0, y - 4):y + 1, z] = s.id("stone_bricks")
+            s.idx[xx, y + 1:min(H, y + 5), z] = 0
+        for xx in range(x0, x0 + 3):
+            s.set(xx, y + 1, z, "polished_andesite_slab" if landing else "stone_brick_stairs[facing=north]")
+        s.set(x0 + 3, y + 1, z, "mossy_stone_brick_wall" if z % 3 else "stone_brick_wall")
+        if g <= y - 1 and not landing:
+            pass
+        if g >= y and not landing:
+            break
+        z += 1
+        if not landing:
+            y -= 1
+    s.fill(body & s.match("minecraft:stone_bricks"),
+           Gradient("depth", [(1, Mix({"stone_bricks": 3, "mossy_stone_bricks": 2})), (99, Mix({"cobbled_deepslate": 2, "tuff": 1}))]))
+
+
 def lights(s):
     """Hanging lantern at the door on a dark oak bracket; a soul lantern glow inside; lanterns on the curtain wall."""
     zf = int(TZ + R_OUT + 0.6)
     bx = int(TX + 2.5)
     s.set(bx, TB + 5, zf + 1, "dark_oak_fence")
-    s.set(bx, TB + 4, zf + 1, "chain[axis=y]")
+    s.set(bx, TB + 4, zf + 1, "iron_chain[axis=y]")
     s.set(bx, TB + 3, zf + 1, "lantern[hanging=true]")
     s.set(int(TX) - 2, TB, int(TZ) + 1, "campfire[lit=false]")
     s.set(int(TX) + 1, FLOORS[0] + 1, int(TZ) - 2, "lantern")
@@ -357,10 +398,17 @@ def lights(s):
 
 def markers(s, hm):
     def ground(x, z):
-        return [x, hm_local(s, x, z) + 1, z]
-    s.mark("spawn_white", ground(14, 50), look_at=[TX, TB + 10, TZ])
-    s.mark("spawn_black", ground(60, 70), look_at=[TX, TB + 10, TZ])
-    s.mark("cam_door", ground(int(TX) + 3, int(TZ) + 16), look_at=[TX, TB + 4, TZ])
+        """Nearest column with ground (spiral search), standing on top of it."""
+        for rad in range(0, 20):
+            for ddx in range(-rad, rad + 1):
+                for ddz in range(-rad, rad + 1):
+                    xx, zz = x + ddx, z + ddz
+                    if max(abs(ddx), abs(ddz)) == rad and 0 <= xx < W and 0 <= zz < D and hm[xx, zz] > 0:
+                        return [xx, hm_local(s, xx, zz) + 1, zz]
+        raise ValueError("no ground near", x, z)
+    s.mark("spawn_white", ground(12, 46), look_at=[TX, TB + 10, TZ])
+    s.mark("spawn_black", ground(62, 22), look_at=[TX, TB + 10, TZ])
+    s.mark("cam_path", ground(int(TX) + 11, PATH_END + 7), look_at=[TX, TB + 3, TZ + R_OUT])
     s.meta["origin"] = list(ORIGIN)
 
 
@@ -376,8 +424,10 @@ def build():
     trim(s, wall)
     curtain_wall(s, hm)
     rubble(s)
+    moss_on_rock(s)
     greenery(s)
     vines(s)
+    path(s)
     lights(s)
     markers(s, hm)
     return s

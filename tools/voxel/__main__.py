@@ -4,7 +4,7 @@
   render  SCENE [--only iso,top,eye] [--size 1280x800] [--no-shadows]   PNG views + sheet.png
   view    SCENE                                  self-contained three.js viewer.html (orbit camera)
   export  SCENE [--out DIR] [--tile 64] [--no-air]                        structure .nbt tiles
-  place   SCENE --server NAME [--at X Y Z] [--no-air] [--verify N]        place over RCON (+ execute-if-block sample)
+  place   SCENE --server NAME [--at X Y Z] [--no-air] [--verify N] [--pristine]      place over RCON (+ execute-if-block sample)
   verify  SCENE --server NAME [--at X Y Z] [-n N]
   pull    --server NAME (--box X0 Y0 Z0 X1 Y1 Z1 | --scene SCENE) [--out F.npz]
   diff    SCENE (--server NAME [--at X Y Z] | --against F.npz|F.nbt) [--patch] [--no-render] [--strict]
@@ -101,6 +101,7 @@ def main(argv=None):
     a.add_argument("--no-air", action="store_true")
     a = sub.add_parser("place"); a.add_argument("scene"); a.add_argument("--server", required=True)
     a.add_argument("--at", nargs=3, type=int); a.add_argument("--no-air", action="store_true"); a.add_argument("--verify", type=int, default=100)
+    a.add_argument("--pristine", action="store_true", help="then snapshot the world as world.pristine (Reset this server restores it)")
     a = sub.add_parser("verify"); a.add_argument("scene"); a.add_argument("--server", required=True)
     a.add_argument("--at", nargs=3, type=int); a.add_argument("-n", type=int, default=300)
     a = sub.add_parser("pull"); a.add_argument("--server", required=True); a.add_argument("--box", nargs=6, type=int)
@@ -131,7 +132,7 @@ def main(argv=None):
         print(s)
         print("bounds (non-air):", s.bounds())
         from .blockstate import short
-        for st, k in sorted(s.counts().items(), key=lambda kv: -kv[1])[:40]:
+        for st, k in s.counts()[:40]:
             print(f"  {k:8d}  {short(st) if st != 'minecraft:structure_void' else st}")
         print("markers:", json.dumps(s.markers))
         print("meta:", json.dumps({k: v for k, v in s.meta.items() if k != "source"}))
@@ -163,6 +164,8 @@ def main(argv=None):
         rec, err = server.place(s, args.server, at, include_air=not args.no_air)
         if args.verify:
             server.verify(s, args.server, at, n=args.verify)
+        if args.pristine:
+            server.snapshot_pristine(args.server)
         if err:
             sys.exit(1)
     elif args.cmd == "verify":
