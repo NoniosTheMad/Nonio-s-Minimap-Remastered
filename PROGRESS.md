@@ -27,4 +27,7 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - [~] Shaders: `spike/shaders` (server `shaders` :25571) — nonios:reaper (depth+luma edges), nonios:reaper_luma, nonios:acid. Compiles with shaderc; awaiting user test in client. Depth input unproven.
 - [ ] Shop dialog buying one item (trigger-based)
 - [ ] Coin purse: mined-stat → coins, weight slowdown, purse-to-killer
-- [~] Nexus barrier: `feat/nexus-barrier` (server `nexus` :25572). Spawn/regen/break verified via RCON; hit detection (interaction `on attacker`) awaiting user test.
+- [x] Nexus barrier: `feat/nexus-barrier` (4fe02ed). Visuals: forcefield (team-tinted), hit flash/pulse, crack stages, shatter, rate-limited actionbar. Awaiting user test (texture render, size, feel, sounds).
+
+## Framework (in flight)
+- [ ] Chat replay on rejoin (inbox agent, to be added to storage devnav:fb replay)
