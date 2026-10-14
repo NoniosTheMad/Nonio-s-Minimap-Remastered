@@ -6,7 +6,11 @@
         "small": {},
         "mid": {},
         "large": {},
-        "aura": {}
+        "code": {},
+        "aura": {},
+        "gloom": {},
+        "gglow": {},
+        "gneb": {}
     },
     "passes": [
         {
@@ -293,7 +297,7 @@
         },
         {
             "vertex_shader": "minecraft:core/screenquad",
-            "fragment_shader": "nonios:post/cosmic_aura",
+            "fragment_shader": "nonios:post/cosmic_code",
             "inputs": [
                 {
                     "sampler_name": "In",
@@ -305,9 +309,208 @@
                     "use_depth_buffer": true
                 }
             ],
+            "output": "code",
+            "uniforms": {
+                "CodeConfig": [
+                    {
+                        "name": "DepthReversed",
+                        "type": "float",
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "code",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 4.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
             "output": "aura",
             "uniforms": {
-                "AuraConfig": [
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 4.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "aura",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "aura",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "aura",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "aura",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 24.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "nonios:post/cosmic_gloom",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Depth",
+                    "target": "minecraft:main",
+                    "use_depth_buffer": true
+                }
+            ],
+            "output": "gloom",
+            "uniforms": {
+                "StarConfig": [
                     {
                         "name": "StarGain",
                         "type": "float",
@@ -337,8 +540,7 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "aura",
-                    "bilinear": true
+                    "target": "gloom"
                 }
             ],
             "output": "tmp",
@@ -366,11 +568,10 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "tmp",
-                    "bilinear": true
+                    "target": "tmp"
                 }
             ],
-            "output": "aura",
+            "output": "gglow",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -395,8 +596,7 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "aura",
-                    "bilinear": true
+                    "target": "gglow"
                 }
             ],
             "output": "tmp",
@@ -424,11 +624,10 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "tmp",
-                    "bilinear": true
+                    "target": "tmp"
                 }
             ],
-            "output": "aura",
+            "output": "gneb",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -453,8 +652,7 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "aura",
-                    "bilinear": true
+                    "target": "gneb"
                 }
             ],
             "output": "tmp",
@@ -482,11 +680,10 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "tmp",
-                    "bilinear": true
+                    "target": "tmp"
                 }
             ],
-            "output": "aura",
+            "output": "gneb",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -515,28 +712,39 @@
                 },
                 {
                     "sampler_name": "Light",
-                    "target": "light",
-                    "bilinear": true
+                    "target": "light"
                 },
                 {
                     "sampler_name": "Small",
-                    "target": "small",
-                    "bilinear": true
+                    "target": "small"
                 },
                 {
                     "sampler_name": "Mid",
-                    "target": "mid",
-                    "bilinear": true
+                    "target": "mid"
                 },
                 {
                     "sampler_name": "Large",
-                    "target": "large",
-                    "bilinear": true
+                    "target": "large"
                 },
                 {
                     "sampler_name": "Aura",
-                    "target": "aura",
-                    "bilinear": true
+                    "target": "aura"
+                },
+                {
+                    "sampler_name": "Code",
+                    "target": "code"
+                },
+                {
+                    "sampler_name": "Gloom",
+                    "target": "gloom"
+                },
+                {
+                    "sampler_name": "GGlow",
+                    "target": "gglow"
+                },
+                {
+                    "sampler_name": "GNeb",
+                    "target": "gneb"
                 },
                 {
                     "sampler_name": "Depth",
@@ -690,7 +898,7 @@
                     {
                         "name": "AuraStrength",
                         "type": "float",
-                        "value": 0.5
+                        "value": 0.35
                     },
                     {
                         "name": "AuraSpill",
@@ -716,6 +924,31 @@
                         "name": "MoonCorona",
                         "type": "float",
                         "value": 0.6
+                    },
+                    {
+                        "name": "GloomStars",
+                        "type": "float",
+                        "value": 1.2
+                    },
+                    {
+                        "name": "GloomGlow",
+                        "type": "float",
+                        "value": 3.0
+                    },
+                    {
+                        "name": "GloomSpike",
+                        "type": "float",
+                        "value": 0.9
+                    },
+                    {
+                        "name": "GloomSpikeLength",
+                        "type": "float",
+                        "value": 14.0
+                    },
+                    {
+                        "name": "GloomTwinkle",
+                        "type": "float",
+                        "value": 0.25
                     },
                     {
                         "name": "DepthReversed",

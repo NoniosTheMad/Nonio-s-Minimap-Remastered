@@ -1,4 +1,5 @@
 #version 330
+#include <minecraft:nonios_mark.glsl>
 // shaderlab test scene: a small Minecraft-like voxel world, ray-marched (DDA).
 // Outputs colour (with the demo overlay's invisible low-bit markers, like the real game) and a
 // reversed-Z depth (d = Near / viewZ, sky = 0), the same format the pack's post shaders read.
@@ -113,7 +114,7 @@ vec3 skyCode(vec3 dir) {
         float lvl = 1.0 + floor(hash13(cell + 12.1) * 2.99);
         star = (length(g - p) < 0.42 ? lvl : 0.0) * up;
     }
-    return vec3(floor(a * 3.0 + 0.5), floor(b * 3.0 + 0.5), star);
+    return nonios_sky_code(a, b, star, ivec2(gl_FragCoord.xy));
 }
 vec3 mark(vec3 c, vec3 code) {
     vec3 q = floor(clamp(c, 0.0, 1.0) * 255.0 + 0.5);
@@ -183,7 +184,8 @@ void main() {
     if (id == 0) {
         vec3 add;
         vec3 sky = skyColor(rd, add);
-        vec3 col = mark(sky, skyCode(rd)) + add;
+        // below the horizon the game shows the uncoded clear colour (arbitrary low bits, here 3,2,3)
+        vec3 col = (rd.y < -0.03 ? vec3(7.0, 6.0, 15.0) / 255.0 : mark(sky, skyCode(rd))) + add;
         outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
         outDepth = vec4(0.0);
         return;

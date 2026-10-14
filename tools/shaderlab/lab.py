@@ -65,7 +65,7 @@ def preprocess(src, seen=None):
                 out.append(preprocess(f.read_text(), seen))
             continue
         if line.startswith("#extension"):
-            continue
+            line = line.replace("require", "enable")
         out.append(line)
     s = "\n".join(out)
     s = re.sub(r"//[^\n]*", "", s)
@@ -81,7 +81,7 @@ def preprocess(src, seen=None):
     lines = s.splitlines()
     ver = [l for l in lines if l.startswith("#version")]
     rest = [l for l in lines if not l.startswith("#version")]
-    return "\n".join(ver[:1] + rest)
+    return "\n".join(ver[:1] + ["#extension GL_ARB_separate_shader_objects : enable"] + rest)
 
 
 class Lab:
@@ -90,7 +90,7 @@ class Lab:
         self.ctx = moderngl.create_standalone_context(require=330)
         self.vao_cache = {}
         self.progs = {}
-        self.scene = self.ctx.program(vertex_shader=VS, fragment_shader=(HERE / "scene.frag").read_text())
+        self.scene = self.ctx.program(vertex_shader=VS, fragment_shader=preprocess((HERE / "scene.frag").read_text()))
         self.main = self.ctx.texture((w, h), 4)
         self.depth = self.ctx.texture((w, h), 1, dtype="f4")
         self.scene_fbo = self.ctx.framebuffer([self.main, self.depth])
@@ -187,6 +187,9 @@ SHOTS = {
     # name: (start cam, end cam, yaw, pitch)  - a slow dolly over the trees
     "walk": ((4.5, 80.0, -30.0), (4.5, 80.5, -14.0), (0.35, 0.39), (-0.12, -0.10)),
     "high": ((0.5, 150.0, -40.0), (6.5, 150.0, -36.0), (0.30, 0.34), (-0.35, -0.33)),
+    "moon": ((0.5, 120.0, -40.0), (2.5, 120.0, -38.0), (-1.88, -1.84), (0.08, 0.10)),
+    "sun": ((-40.5, 70.0, -10.5), (-38.5, 70.3, -10.0), (1.26, 1.33), (0.20, 0.19)),
+    "treemoon": ((10.5, 71.0, -22.0), (11.5, 71.0, -21.0), (-1.95, -1.80), (0.42, 0.45)),
     "trees": ((9.5, 76.0, -24.0), (11.5, 76.0, -20.0), (0.10, 0.16), (0.05, 0.08)),
 }
 
@@ -200,6 +203,7 @@ def main():
     ap.add_argument("--secs", type=float, default=4.0)
     ap.add_argument("--size", default="640x360")
     ap.add_argument("--t0", type=float, default=0.0, help="game seconds offset")
+    ap.add_argument("--rd", type=float, default=160.0, help="render distance (blocks)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--pngs", action="store_true")
     ap.add_argument("--gif-scale", type=float, default=1.0)
@@ -214,7 +218,7 @@ def main():
         sec = a.t0 + k * a.secs
         cam = tuple(c0[j] + (c1[j] - c0[j]) * k for j in range(3))
         rot = (yaw[0] + (yaw[1] - yaw[0]) * k, pitch[0] + (pitch[1] - pitch[0]) * k)
-        lab.render_scene(cam, rot, TIMES.get(a.time, 0.0) if a.time in TIMES else float(a.time), sec)
+        lab.render_scene(cam, rot, TIMES.get(a.time, 0.0) if a.time in TIMES else float(a.time), sec, rd=a.rd)
         gt = (sec * 20.0 / 24000.0) % 1.0
         for e in effects:
             lab.run_effect(e, gt)

@@ -3,15 +3,18 @@
 
 #include <minecraft:globals.glsl>
 
-// nonios:madness v2 - the Hunger takes the mind (monster class at low HP).
+// nonios:madness v3 - the Hunger takes the mind (monster class at low HP).
 // Intensity (0..1) comes from one of ten JSONs (madness_1..10). The datapack eases the level toward
-// the HP target one step at a time, so the tunnel closes and opens gradually instead of jumping.
-//  - ink tunnel: ridged noise flowing inward from the screen edges,
-//  - tendrils: tapering fingers reaching in from the edges, writhing,
-//  - silhouettes: tall thin figures with long arms at the edge of sight, swaying, smoking away,
-//  - faces in the dark: pale hollow-eyed faces that surface only where the image is dark,
-//  - colour bleed (reds drip, channels smear) and a slow drifting warp of the whole view,
-//  - the view breathes with the monster heartbeat (same 20-tick period).
+// the HP target one step at a time, so the darkness closes and opens gradually instead of jumping.
+// v3 (#66): no figures or faces. Built in tools/shaderlab first (reference: demos/shaders/reference/monster.gif).
+//  - the tunnel is an ellipse fitted to the screen (Ellipse: 0 = circle, 1 = screen shape),
+//  - creeping darkness: the edge is a domain-warped fbm field, like ink spreading in water, with a
+//    blood-red glow where the ink meets the image,
+//  - tendrils: ridged noise in log-polar space (so they taper toward their tips and branch), crawling
+//    inward from the ink,
+//  - veins: voronoi cracks under the ink's edge that flush red with each heartbeat,
+//  - radial chromatic smear, desaturation and a red grade toward the edge; the view breathes with the
+//    heartbeat (same 20-tick period as nonios:monster) and drifts slowly.
 
 uniform sampler2D InSampler;
 
@@ -24,13 +27,14 @@ layout(std140) uniform SamplerInfo {
 
 layout(std140) uniform MadnessConfig {
     vec4 InkColor;
-    vec4 FaceColor;
+    vec4 VeinColor;
     float Intensity;
     float Tendrils;
-    float Watchers;   // silhouettes and faces
-    float Bleed;
+    float Veins;
+    float Bleed;      // chromatic smear + red grade
     float Breath;
     float Drift;      // slow drifting warp
+    float Ellipse;    // 0 circle .. 1 ellipse with the screen's aspect
 };
 
 layout(location = 0) out vec4 fragColor;
@@ -42,6 +46,12 @@ float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
+float hash3(vec3 p) {
+    p = fract(p * 0.1031);
+    p += dot(p, p.zyx + 31.32);
+    return fract((p.x + p.y) * p.z);
+}
+
 float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -50,141 +60,125 @@ float noise(vec2 p) {
                mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
 }
 
-float ridged(vec2 p) {
+float noise3(vec3 p) {
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = mix(mix(hash3(i), hash3(i + vec3(1, 0, 0)), f.x), mix(hash3(i + vec3(0, 1, 0)), hash3(i + vec3(1, 1, 0)), f.x), f.y);
+    float b = mix(mix(hash3(i + vec3(0, 0, 1)), hash3(i + vec3(1, 0, 1)), f.x), mix(hash3(i + vec3(0, 1, 1)), hash3(i + vec3(1, 1, 1)), f.x), f.y);
+    return mix(a, b, f.z);
+}
+
+float fbm(vec2 p) {
     float s = 0.0;
     float a = 0.5;
-    for (int i = 0; i < 4; i++) {
-        s += a * (1.0 - abs(noise(p) * 2.0 - 1.0));
-        p = p * 2.03 + vec2(1.7, 9.2);
+    for (int i = 0; i < 5; i++) {
+        s += a * noise(p);
+        p = mat2(1.6, 1.2, -1.2, 1.6) * p + vec2(3.1, 1.7);
         a *= 0.5;
+    }
+    return s / 0.97;
+}
+
+// ridged noise in 3D (lines where the noise crosses 0.5)
+float ridged3(vec3 p) {
+    float s = 0.0;
+    float a = 0.6;
+    for (int i = 0; i < 3; i++) {
+        float n = 1.0 - abs(noise3(p) * 2.0 - 1.0);
+        s = max(s, pow(n, 6.0) * a / 0.6);
+        p = p * 2.1 + vec3(5.2, 1.3, 2.8);
+        a *= 0.7;
     }
     return s;
 }
 
-float capsule(vec2 p, vec2 a, vec2 b, float r) {
-    vec2 pa = p - a;
-    vec2 ba = b - a;
-    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
-    return length(pa - ba * h) - r;
-}
-
-// a tall thin figure, feet at the origin, height 1
-float figure(vec2 p, float sway) {
-    p.x -= sway * p.y * p.y;
-    float d = length((p - vec2(0.0, 0.9)) * vec2(1.0, 0.85)) - 0.07;
-    d = min(d, capsule(p, vec2(0.0, 0.8), vec2(0.0, 0.42), 0.055));
-    d = min(d, capsule(p, vec2(-0.025, 0.42), vec2(-0.045, 0.0), 0.022));
-    d = min(d, capsule(p, vec2(0.025, 0.42), vec2(0.05, 0.0), 0.022));
-    // arms hang past the knees
-    d = min(d, capsule(p, vec2(-0.06, 0.76), vec2(-0.12 - sway * 0.3, 0.16), 0.016));
-    d = min(d, capsule(p, vec2(0.06, 0.76), vec2(0.11 - sway * 0.3, 0.14), 0.016));
-    return d;
-}
-
-// a pale face with hollow eyes and a long open mouth; returns (mask, shade)
-vec2 face(vec2 f, float open) {
-    float head = length(f * vec2(1.0, 0.76)) - 0.5;
-    float mask = 1.0 - smoothstep(-0.08, 0.04, head);
-    vec2 e1 = (f - vec2(-0.17, 0.08)) * vec2(1.0, 1.35);
-    vec2 e2 = (f - vec2(0.17, 0.08)) * vec2(1.0, 1.35);
-    float eyes = 1.0 - smoothstep(0.07, 0.13, min(length(e1), length(e2)));
-    vec2 m = (f - vec2(0.0, -0.27)) / vec2(0.15, 0.03 + 0.09 * open);
-    float mouth = 1.0 - smoothstep(0.7, 1.1, length(m));
-    float shade = 0.75 + 0.25 * f.y - 0.9 * max(eyes, mouth);
-    return vec2(mask, clamp(shade, 0.0, 1.0));
+// voronoi: distance to the nearest cell border (F2 - F1)
+float cracks(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float f1 = 8.0;
+    float f2 = 8.0;
+    for (int y = -1; y <= 1; y++)
+    for (int x = -1; x <= 1; x++) {
+        vec2 g = vec2(x, y);
+        vec2 o = vec2(hash(i + g), hash(i + g + 17.3));
+        float d = length(g + o - f);
+        if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) { f2 = d; }
+    }
+    return f2 - f1;
 }
 
 void main() {
     float I = clamp(Intensity, 0.0, 1.0);
-    vec2 aspect = vec2(InSize.x / InSize.y, 1.0);
-    vec2 q = (texCoord - 0.5) * aspect;
-    float r = length(q);
-    vec2 dir = q / max(r, 1e-4);
-    float t = GameTime * TAU;   // t * 1.0 = one turn per 20 min
+    float A = InSize.x / InSize.y;
+    float t = GameTime * TAU;   // one turn per 20 min
 
-    // heartbeat, same timing as nonios:monster (1200 cycles / 24000 ticks = every 20 ticks)
+    // heartbeat, same timing as nonios:monster (every 20 ticks)
     float ph = fract(GameTime * 1200.0);
     float beat = exp(-pow((ph - 0.10) * 22.0, 2.0)) + 0.6 * exp(-pow((ph - 0.32) * 22.0, 2.0));
 
-    // slow drifting warp: a low-frequency flow field that changes over ~20-40 s, stronger at the edges
-    vec2 flow = vec2(noise(q * 2.2 + vec2(t * 45.0, t * 23.0)),
-                     noise(q * 2.2 + vec2(-t * 31.0, t * 52.0) + 17.0)) - 0.5;
-    vec2 wq = q + flow * Drift * I * (0.012 + 0.03 * r * r);
-    // breathing + a slowly turning swirl toward the edges
-    float sw = r * r * I * 0.22 * sin(t * 37.0 + noise(vec2(t * 20.0, 3.0)) * 2.0);
-    vec2 rq = mat2(cos(sw), -sin(sw), sin(sw), cos(sw)) * wq;
-    rq *= 1.0 - Breath * I * 0.02 * beat;
-    vec2 uv = rq / aspect + 0.5;
+    // circle space (height units) for the image warp, tunnel space for the darkness
+    vec2 q = (texCoord - 0.5) * vec2(A, 1.0);
+    vec2 e = (texCoord - 0.5) * 2.0 * vec2(A / mix(1.0, A, Ellipse), 1.0);   // 1 = edge midpoints
+    float r = length(e);
+    float ang = atan(e.y, e.x);
 
-    // colour bleed: drips + a channel smear whose direction drifts
-    float drip = noise(vec2(uv.x * 60.0, t * 40.0)) * noise(vec2(uv.x * 13.0, 3.0 + t * 8.0));
-    vec2 dUv = vec2(0.0, drip * Bleed * I * 0.03);
-    float sa = t * 25.0 + noise(vec2(t * 15.0, 1.0)) * TAU;
-    vec2 sdir = normalize(dir + 0.6 * vec2(cos(sa), sin(sa)));
-    vec2 smear = sdir * Bleed * I * 0.006 * (0.6 + 0.4 * noise(vec2(t * 120.0, r * 8.0)));
+    // slow drifting warp + breathing
+    vec2 flow = vec2(noise(q * 2.2 + vec2(t * 45.0, t * 23.0)), noise(q * 2.2 + vec2(-t * 31.0, t * 52.0) + 17.0)) - 0.5;
+    vec2 wq = q + flow * Drift * I * (0.01 + 0.025 * r * r);
+    wq *= 1.0 - Breath * I * 0.018 * beat;
+    vec2 uv = wq / vec2(A, 1.0) + 0.5;
+
+    // radial chromatic smear, grows toward the edge
+    vec2 rad = (uv - 0.5) * Bleed * I * 0.02 * r * r;
     vec3 c;
-    c.r = texture(InSampler, uv + dUv + smear).r;
-    c.g = texture(InSampler, uv + dUv * 0.3).g;
-    c.b = texture(InSampler, uv - smear).b;
-    c = mix(c, c * vec3(1.15, 0.85, 0.85), I * 0.5);
+    c.r = texture(InSampler, uv + rad).r;
+    c.g = texture(InSampler, uv).g;
+    c.b = texture(InSampler, uv - rad).b;
+
+    // --- creeping darkness: domain-warped fbm edge (ink in water)
+    vec2 ep = e * 1.6;
+    vec2 w1 = vec2(fbm(ep + vec2(t * 18.0, -t * 11.0)), fbm(ep + vec2(5.2, 1.3) - vec2(t * 13.0, t * 16.0)));
+    float n = fbm(ep * 1.3 + w1 * 2.4 + vec2(-t * 9.0, t * 7.0));
+    float reach = mix(1.5, 0.56, pow(I, 0.8));    // where the darkness starts (tunnel radius)
+    float edge = r + (n - 0.5) * (0.35 + 0.3 * I) - reach;
+    // soft ink: a wispy outer band (fbm detail) before the solid black
+    float wisp = fbm(ep * 3.1 - w1 * 1.7 + vec2(t * 21.0, 0.0));
+    float ink = smoothstep(-0.12, 0.3, edge + (wisp - 0.5) * 0.18);
+    ink = ink * ink * (3.0 - 2.0 * ink);
+    float rim = exp(-pow((edge + 0.06) / 0.09, 2.0));
+
+    // --- tendrils: ridged noise in log-polar space, seamless in angle, crawling inward
+    float lr = log(max(r, 0.02));
+    vec3 tp = vec3(cos(ang) * 2.2, sin(ang) * 2.2, lr * 3.2 + t * 40.0) + vec3(w1 * 0.7, 0.0);
+    float rid = ridged3(tp);
+    float tipR = reach - mix(0.15, 0.45, I) * Tendrils;     // tendrils reach this far inside the tunnel
+    float along = clamp((r - tipR) / max(reach - tipR, 0.05), 0.0, 1.0);   // 0 at the tips, 1 at the ink
+    float th = mix(0.97, 0.55, along * along);               // thinner toward the tips
+    float tend = smoothstep(th, th + 0.04, rid) * step(tipR, r) * Tendrils;
+    ink = max(ink, tend);
+
+    // --- veins: cracks just inside the ink edge, flushing red with each beat
+    vec2 vp = e * 5.0 + w1 * 1.5;
+    float cr = cracks(vp);
+    float vein = (1.0 - smoothstep(0.015, 0.05, cr)) * smoothstep(-0.18, 0.0, edge) * (1.0 - smoothstep(0.1, 0.3, edge));
+    vein *= Veins * (0.15 + 0.85 * beat) * smoothstep(0.15, 0.5, I) * 0.7;
+
+    // --- grade: desaturate + red toward the edge
     float lum = dot(c, Luma);
+    float toward = smoothstep(reach - 0.6, reach, r) * I;
+    c = mix(c, vec3(lum) * vec3(1.1, 0.62, 0.58), toward * Bleed * 0.8);
+    c = mix(c, c * vec3(1.12, 0.88, 0.88), I * 0.4);
 
-    // ink tunnel
-    float rid = ridged(dir * 3.0 + vec2(r * 4.0 - t * 30.0, t * 7.0));
-    float reach = mix(0.95, 0.38, I * Tendrils);
-    float ink = smoothstep(reach + 0.05, reach + 0.32, r + rid * 0.28 * (0.6 + 0.4 * I));
-    ink = max(ink, smoothstep(0.55, 0.95, rid) * smoothstep(reach - 0.05, reach + 0.25, r) * 0.8);
-
-    // tendrils: tapering fingers from the edge, writhing (more and longer with intensity)
-    float ang = atan(q.y, q.x);
-    for (int i = 0; i < 6; i++) {
-        float fi = float(i);
-        float h = hash(vec2(fi, 4.7));
-        if (h > 0.2 + 0.8 * I * Tendrils) continue;
-        float tip = mix(0.9, 0.32, I * Tendrils) + 0.07 * sin(t * (11.0 + fi * 3.0) + h * TAU);
-        float a0 = fi / 6.0 * TAU + h * 0.8 + 0.25 * sin(t * 6.0 + fi);
-        float a = a0 + 0.22 * sin(r * 9.0 - t * (40.0 + h * 30.0) + fi * 2.0) * (r - tip);
-        float da = abs(mod(ang - a + 3.14159, TAU) - 3.14159) * r;
-        float w = 0.035 * clamp((r - tip) / 0.35, 0.0, 1.0);
-        ink = max(ink, (1.0 - smoothstep(w * 0.5, w, da)) * step(tip, r));
-    }
-    vec3 col = mix(c, InkColor.rgb, clamp(ink, 0.0, 1.0));
-
-    // silhouettes / faces: 3 slots, a new set every 120 ticks (200 cycles / 24000)
-    float slotT = GameTime * 200.0;
-    float slot = floor(slotT);
-    float life = smoothstep(0.0, 0.35, fract(slotT)) * (1.0 - smoothstep(0.65, 1.0, fract(slotT)));
-    for (int i = 0; i < 3; i++) {
-        float fi = float(i);
-        float h = hash(vec2(slot, fi * 7.3));
-        if (h > I * Watchers) continue;
-        float kind = hash(vec2(slot * 0.37, fi + 2.0));
-        float side = hash(vec2(slot * 1.3, fi)) < 0.5 ? -1.0 : 1.0;
-        if (kind < 0.55) {
-            // a figure standing at the edge of sight
-            float x = side * mix(0.48, 0.8, hash(vec2(fi, slot * 0.7))) * aspect.x;
-            float ht = mix(0.32, 0.55, hash(vec2(slot, fi + 9.0)));
-            vec2 p = (q - vec2(x, mix(-0.32, -0.12, hash(vec2(fi + 3.0, slot))))) / ht;
-            float sway = 0.12 * sin(t * (9.0 + fi * 4.0) + h * TAU);
-            float d = figure(p, sway) * ht;
-            d += (noise(p * 18.0 + vec2(0.0, t * 60.0)) - 0.5) * 0.012;
-            float m = 1.0 - smoothstep(-0.004, 0.006, d);
-            col = mix(col, InkColor.rgb, m * life * 0.9);
-        } else {
-            // a face surfacing where it is dark
-            vec2 c0 = vec2(side * mix(0.15, 0.6, hash(vec2(fi, slot * 0.9))) * aspect.x,
-                           mix(-0.3, 0.3, hash(vec2(slot, fi + 5.0))));
-            float sz = mix(0.12, 0.22, hash(vec2(fi + 1.0, slot * 1.7)));
-            vec2 f = (q - c0) / sz;
-            f.x += 0.04 * sin(f.y * 6.0 + t * 30.0);
-            vec2 fm = face(f, 0.5 + 0.5 * sin(t * 18.0 + h * TAU));
-            float dark = 1.0 - smoothstep(0.05, 0.25, lum);
-            float mottle = 0.8 + 0.4 * noise(f * 9.0 + 3.0);
-            col = mix(col, FaceColor.rgb * fm.y * mottle, fm.x * dark * life * 0.45 * (0.5 + 0.5 * I));
-        }
-    }
+    vec3 col = c;
+    col = mix(col, col * vec3(1.3, 0.5, 0.45) + VeinColor.rgb * 0.12, rim * (0.5 + 0.3 * beat) * smoothstep(0.0, 0.3, I));
+    // in the dark the ink's edge still breathes a faint blood glow, so the tunnel reads at night
+    col += VeinColor.rgb * rim * (1.0 - smoothstep(0.02, 0.2, lum)) * (0.08 + 0.12 * beat) * smoothstep(0.0, 0.3, I);
+    col = mix(col, InkColor.rgb, clamp(ink, 0.0, 1.0));
+    col = mix(col, VeinColor.rgb * 1.2, clamp(vein, 0.0, 1.0) * (1.0 - tend));
 
     // the whole frame darkens slightly with each beat at high madness
-    col *= 1.0 - 0.25 * I * beat;
+    col *= 1.0 - 0.22 * I * beat;
     fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }

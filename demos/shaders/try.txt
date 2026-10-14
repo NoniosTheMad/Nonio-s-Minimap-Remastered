@@ -2,9 +2,9 @@
 2. Thermal (redone): Midnight, near torches, lava, mobs. Smooth warmth around them; floors and far land stay dark.
 3. Cinematic (redone): Noon and Dusk. Bars, soft glow on bright things, grain.
 4. Alien = the old Thermal (HP-coloured heat signatures).
-5. Cosmic: Midnight, look at the moon through trees (halo), then at open sky (nebula, stars).
+5. Cosmic: Midnight, look at the moon through treetops (the old gloom is back), then at open sky and below the horizon (should be clean).
 6. Planet: open land, look at the horizon and the clouds. Turn around; no tearing.
 7. Angel: daylight on a meadow. Motes rise from the ground and flowers; god rays from the sky.
 8. Monster (sound on, survival): HP test, Hurt me 3-4 times fast. The tunnel closes over ~2 s, opens slowly as you heal. Each hit = a heartbeat.
-9. Monster at low HP: watch the edges for figures; faces in dark corners.
+9. Monster at low HP: the edges close in (an oval tunnel); ink and thorny tendrils creep in with your heartbeat.
 Feedback: what is too strong / too weak.

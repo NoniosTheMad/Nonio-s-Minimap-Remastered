@@ -34,4 +34,34 @@ float nonios_block_heat(vec3 tex, float blockLight) {
     return lit * max(warm, white * 0.85);
 }
 
+// Sky code (sky.fsh -> Cosmic), self-checking so that pixels nobody coded can't decode as stars:
+//   R bits = nebula field A 0..3 (ordered dither), G bit 0 = nebula field B 0/1 (ordered dither),
+//   G bit 1 = check bit = parity of the other five bits XOR a per-pixel key, B bits = star 0..3.
+// Anything else in the sky (the clear/fog colour below the horizon, the moon and sun blended on top,
+// the sunrise fan) fails the check on about half its pixels; Cosmic only trusts a pixel whose whole
+// neighbourhood passes (cosmic_code.fsh).
+int nonios_key(ivec2 p) {
+    uint h = uint(p.x) * 1973u + uint(p.y) * 9277u + 7u;
+    h ^= h >> 7u;
+    h *= 0x2c1b3c6du;
+    h ^= h >> 12u;
+    return int((h >> 3u) & 1u);
+}
+
+float nonios_bayer(ivec2 p) {
+    int x = p.x & 3, y = p.y & 3;
+    int b = ((x ^ y) & 1) * 8 + (y & 1) * 4 + ((x ^ y) & 2) + ((y >> 1) & 1);
+    return (float(b) + 0.5) / 16.0;
+}
+
+// a, b = nebula fields 0..1, star = 0..3, p = pixel. Returns the low-bit code (0..3 per channel).
+vec3 nonios_sky_code(float a, float b, float star, ivec2 p) {
+    float th = nonios_bayer(p);
+    int na = int(clamp(floor(a * 3.0 + th), 0.0, 3.0));
+    int nb = b > th ? 1 : 0;
+    int st = int(star);
+    int chk = nonios_key(p) ^ (na & 1) ^ (na >> 1) ^ nb ^ (st & 1) ^ (st >> 1);
+    return vec3(float(na), float(nb + 2 * chk), float(st));
+}
+
 #endif

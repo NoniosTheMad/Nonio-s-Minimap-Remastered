@@ -15,13 +15,23 @@
 // v4 (#55): + the v2 aura (moon behind leaves: violet -> teal glow around the tree, on the sky and on
 // the leaves themselves), + a real night sky: a nebula and a star field fixed to the sky (decoded from
 // the code the demo overlay sky.fsh hides in the sky colour), + a stronger moon with a corona.
+// v5 (#64): the sky code is decoded by cosmic_code.fsh, which drops every pixel whose check bits fail
+// (v4 read stars out of the clear colour below the horizon and out of the moon texture). The treetop gloom
+// is the FIRST Cosmic's (v2) again, term for term: its star pass (cosmic_gloom.fsh), 4 px glow x3 with a
+// slow twinkle, 14 px cross spikes, and the violet -> teal nebula from the 24 px blur (x40 gain), on the sky
+// and spilled on the ground at the v2 strengths. It replaces the v4 re-creation (aura), which only had the
+// nebula term.
 
 uniform sampler2D InSampler;
 uniform sampler2D LightSampler;
 uniform sampler2D SmallSampler;
 uniform sampler2D MidSampler;
 uniform sampler2D LargeSampler;
-uniform sampler2D AuraSampler;
+uniform sampler2D AuraSampler;    // blurred sky code: g, b = nebula fields
+uniform sampler2D CodeSampler;    // validated sky code: r = star level / 3
+uniform sampler2D GloomSampler;   // v2 star pass
+uniform sampler2D GGlowSampler;   // its 4 px blur
+uniform sampler2D GNebSampler;    // its 24 px blur
 uniform sampler2D DepthSampler;
 
 layout(location = 0) in vec2 texCoord;
@@ -34,8 +44,8 @@ layout(std140) uniform SamplerInfo {
 layout(std140) uniform CosmicConfig {
     vec4 SpaceColor;       // deep-space sky tint at night
     vec4 ShadowColor;      // cool lift in dark terrain
-    vec4 AuraA;            // v2 aura: sparse colour
-    vec4 AuraB;            // v2 aura: dense colour
+    vec4 AuraA;            // v2 gloom nebula: sparse colour (v2 NebulaA)
+    vec4 AuraB;            // v2 gloom nebula: dense colour (v2 NebulaB)
     vec4 NebColA;          // sky nebula field A
     vec4 NebColB;          // sky nebula field B
     vec4 StarColor;
@@ -53,12 +63,17 @@ layout(std140) uniform CosmicConfig {
     float ShadowLift;
     float SpaceStrength;
     float AuraGain;        // v2 NebulaGain (40)
-    float AuraStrength;    // on the sky
-    float AuraSpill;       // on terrain / leaves
+    float AuraStrength;    // v2 NebulaStrength (0.35)
+    float AuraSpill;       // v2 Spill (0.35)
     float NebStrength;
     float StarStrength;
     float StarSpike;       // pixels
     float MoonCorona;
+    float GloomStars;      // v2 StarBoost (1.2)
+    float GloomGlow;       // v2 GlowStrength (3.0)
+    float GloomSpike;      // v2 SpikeStrength (0.9)
+    float GloomSpikeLength;// v2 SpikeLength (14 px)
+    float GloomTwinkle;    // v2 Twinkle (0.25)
     float DepthReversed;
 };
 
@@ -91,13 +106,10 @@ float noise(vec2 p) {
                mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
 }
 
-// star level 0..3 from the sky code (blue channel, two lowest bits)
+// star level 0..3 from the validated sky code
 float starAt(ivec2 p) {
-    ivec2 sz = ivec2(InSize) - 1;
-    p = clamp(p, ivec2(0), sz);
-    float d = texelFetch(DepthSampler, p, 0).r;
-    if (mix(1.0 - d, d, DepthReversed) >= 1e-6) return 0.0;   // geometry carries other codes
-    return float(int(floor(texelFetch(InSampler, p, 0).b * 255.0 + 0.5)) & 3);
+    p = clamp(p, ivec2(0), ivec2(InSize) - 1);
+    return floor(texelFetch(CodeSampler, p, 0).r * 3.0 + 0.5);
 }
 
 void main() {
@@ -156,13 +168,26 @@ void main() {
     vec3 ground = c * (1.0 + large * Spill) + halo + glint;
     ground += ShadowColor.rgb * ShadowLift * (1.0 - smoothstep(0.0, 0.4, l));
 
-    // --- v2 aura: density of leaf gaps / stars around the moon, coloured violet -> teal
-    vec4 aura = texture(AuraSampler, texCoord);
-    float n = aura.r * AuraGain;
+    // --- the v2 gloom (first Cosmic, c65d643), same terms and strengths
+    vec4 gStars = texture(GloomSampler, texCoord);
+    vec3 gGlow = texture(GGlowSampler, texCoord).rgb;
+    vec3 gNeb = texture(GNebSampler, texCoord).rgb;
+    vec3 gSpikes = vec3(0.0);
+    for (int i = 1; i <= 12; i++) {
+        float k = float(i) / 12.0;
+        vec2 o = vec2(k * GloomSpikeLength) * px;
+        float w = (1.0 - k) * (1.0 - k);
+        gSpikes += (texture(GloomSampler, texCoord + vec2(o.x, 0.0)).rgb + texture(GloomSampler, texCoord - vec2(o.x, 0.0)).rgb
+                  + texture(GloomSampler, texCoord + vec2(0.0, o.y)).rgb + texture(GloomSampler, texCoord - vec2(0.0, o.y)).rgb) * w;
+    }
+    gSpikes /= 6.0;
+    float gTw = 1.0 + GloomTwinkle * sin(GameTime * TAU * 600.0);
+    float n = dot(gNeb, Luma) * AuraGain;
     vec3 auraCol = mix(AuraA.rgb, AuraB.rgb, smoothstep(0.3, 2.0, n)) * smoothstep(0.0, 1.0, n);
-    auraCol *= shimmer;
-    skyCol += auraCol * AuraStrength;
-    ground += auraCol * AuraSpill;
+    vec3 gLight = gStars.rgb * GloomStars + gGlow * GloomGlow * gTw + gSpikes * GloomSpike;
+    skyCol += gLight + auraCol * AuraStrength;
+    ground += auraCol * AuraStrength * AuraSpill + gGlow * GloomGlow * AuraSpill;
+    vec4 aura = texture(AuraSampler, texCoord);
 
     // --- night sky: nebula + star field (sky code, fixed to world directions)
     float night = dark * sky;

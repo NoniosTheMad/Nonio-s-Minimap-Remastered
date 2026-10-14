@@ -3,9 +3,10 @@
 
 #include <minecraft:fog.glsl>
 #include <minecraft:dynamictransforms.glsl>
+#include <minecraft:nonios_mark.glsl>
 
 // nonios: vanilla sky + an invisible code for the Cosmic post effect (two lowest bits per channel,
-// at most 3/255): R = nebula field A, G = nebula field B, B = star (0..3). The fields are functions of
+// at most 3/255): nebula fields A, B and stars, with a check bit (see nonios_sky_code in nonios_mark.glsl). The fields are functions of
 // the world direction, so the nebula and the stars Cosmic paints from them stay fixed in the sky as you
 // turn. Players without Cosmic see the vanilla sky.
 
@@ -56,7 +57,7 @@ void main() {
         star = (d < 0.42 ? lvl : 0.0) * up;
     }
 
-    vec3 code = vec3(floor(a * 3.0 + 0.5), floor(b * 3.0 + 0.5), star);
+    vec3 code = nonios_sky_code(a, b, star, ivec2(gl_FragCoord.xy));
     vec3 q = floor(clamp(fragColor.rgb, 0.0, 1.0) * 255.0 + 0.5);
     fragColor.rgb = (q - mod(q, 4.0) + code) / 255.0;
 }
