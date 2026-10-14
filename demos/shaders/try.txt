@@ -1,6 +1,6 @@
 1. Press G, pick "Demo: custom shaders". Each row starts with its name (LOOK, MIX IN, WORLD, REMOVE). Click to combine; Esc closes.
 2. Row 1 = Look (one at a time). Try Cinematic at Noon and Dusk ("Time, gallery" button).
-3. Cosmic: set Midnight, look up at the stars.
+3. Cosmic: set Midnight, stand among torches / lava, then look at the moon through trees.
 4. Monster: walk to the patients near the house.
 5. Thermal: "HP test" button. Patients glow by HP; F5 to see yourself; Hurt (survival) / +20 / +40 hearts.
 6. Acid (WORLD row): the world itself bends; walk to a hill and look at the distance. Wobble is the old screen wave.

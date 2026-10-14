@@ -1,10 +1,11 @@
 {
     "targets": {
         "swap": {},
-        "stars": {},
+        "light": {},
         "tmp": {},
-        "glow": {},
-        "neb": {}
+        "small": {},
+        "mid": {},
+        "large": {}
     },
     "passes": [
         {
@@ -21,23 +22,33 @@
                     "use_depth_buffer": true
                 }
             ],
-            "output": "stars",
+            "output": "light",
             "uniforms": {
-                "StarConfig": [
+                "LightConfig": [
                     {
-                        "name": "StarGain",
+                        "name": "ContrastGain",
                         "type": "float",
-                        "value": 4.0
+                        "value": 1.4
                     },
                     {
-                        "name": "DarkSky",
+                        "name": "ContrastKnee",
                         "type": "float",
-                        "value": 0.3
+                        "value": 0.35
                     },
                     {
                         "name": "BrightStart",
                         "type": "float",
-                        "value": 0.75
+                        "value": 0.7
+                    },
+                    {
+                        "name": "RimGain",
+                        "type": "float",
+                        "value": 1.2
+                    },
+                    {
+                        "name": "SkyBoost",
+                        "type": "float",
+                        "value": 1.3
                     },
                     {
                         "name": "DepthReversed",
@@ -53,7 +64,7 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "stars",
+                    "target": "light",
                     "bilinear": true
                 }
             ],
@@ -71,7 +82,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 4.0
+                        "value": 3.0
                     }
                 ]
             }
@@ -86,7 +97,7 @@
                     "bilinear": true
                 }
             ],
-            "output": "glow",
+            "output": "small",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -100,7 +111,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 4.0
+                        "value": 3.0
                     }
                 ]
             }
@@ -111,7 +122,7 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "glow",
+                    "target": "small",
                     "bilinear": true
                 }
             ],
@@ -129,7 +140,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 24.0
+                        "value": 10.0
                     }
                 ]
             }
@@ -144,7 +155,7 @@
                     "bilinear": true
                 }
             ],
-            "output": "neb",
+            "output": "mid",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -158,7 +169,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 24.0
+                        "value": 10.0
                     }
                 ]
             }
@@ -169,7 +180,7 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "neb",
+                    "target": "mid",
                     "bilinear": true
                 }
             ],
@@ -187,7 +198,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 24.0
+                        "value": 28.0
                     }
                 ]
             }
@@ -202,7 +213,7 @@
                     "bilinear": true
                 }
             ],
-            "output": "neb",
+            "output": "large",
             "uniforms": {
                 "BlurConfig": [
                     {
@@ -216,7 +227,65 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 24.0
+                        "value": 28.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "large",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 28.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "large",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 28.0
                     }
                 ]
             }
@@ -230,17 +299,23 @@
                     "target": "minecraft:main"
                 },
                 {
-                    "sampler_name": "Stars",
-                    "target": "stars"
-                },
-                {
-                    "sampler_name": "Glow",
-                    "target": "glow",
+                    "sampler_name": "Light",
+                    "target": "light",
                     "bilinear": true
                 },
                 {
-                    "sampler_name": "Nebula",
-                    "target": "neb",
+                    "sampler_name": "Small",
+                    "target": "small",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Mid",
+                    "target": "mid",
+                    "bilinear": true
+                },
+                {
+                    "sampler_name": "Large",
+                    "target": "large",
                     "bilinear": true
                 },
                 {
@@ -253,79 +328,89 @@
             "uniforms": {
                 "CosmicConfig": [
                     {
-                        "name": "StarLight",
+                        "name": "SpaceColor",
                         "type": "vec4",
                         "value": [
-                            0.35,
+                            0.55,
                             0.45,
-                            0.85,
+                            1.0,
                             1.0
                         ]
                     },
                     {
-                        "name": "NebulaA",
+                        "name": "ShadowColor",
                         "type": "vec4",
                         "value": [
-                            0.45,
-                            0.15,
-                            0.75,
+                            0.3,
+                            0.4,
+                            0.9,
                             1.0
                         ]
                     },
                     {
-                        "name": "NebulaB",
-                        "type": "vec4",
-                        "value": [
-                            0.1,
-                            0.75,
-                            0.85,
-                            1.0
-                        ]
-                    },
-                    {
-                        "name": "StarBoost",
+                        "name": "SmallStrength",
                         "type": "float",
-                        "value": 1.2
+                        "value": 1.1
                     },
                     {
-                        "name": "GlowStrength",
+                        "name": "MidStrength",
                         "type": "float",
-                        "value": 3.0
+                        "value": 1.6
                     },
                     {
-                        "name": "SpikeStrength",
+                        "name": "LargeStrength",
+                        "type": "float",
+                        "value": 1.3
+                    },
+                    {
+                        "name": "MidHue",
                         "type": "float",
                         "value": 0.9
                     },
                     {
-                        "name": "SpikeLength",
+                        "name": "LargeHue",
                         "type": "float",
-                        "value": 14.0
+                        "value": -1.6
                     },
                     {
-                        "name": "NebulaGain",
+                        "name": "HueDrift",
                         "type": "float",
-                        "value": 40.0
+                        "value": 0.5
                     },
                     {
-                        "name": "NebulaStrength",
+                        "name": "Saturation",
                         "type": "float",
-                        "value": 0.35
+                        "value": 1.5
+                    },
+                    {
+                        "name": "Shimmer",
+                        "type": "float",
+                        "value": 0.45
+                    },
+                    {
+                        "name": "SparkleStrength",
+                        "type": "float",
+                        "value": 1.2
+                    },
+                    {
+                        "name": "SparkleLength",
+                        "type": "float",
+                        "value": 16.0
                     },
                     {
                         "name": "Spill",
                         "type": "float",
-                        "value": 0.35
+                        "value": 1.4
                     },
                     {
                         "name": "ShadowLift",
                         "type": "float",
-                        "value": 0.12
+                        "value": 0.1
                     },
                     {
-                        "name": "Twinkle",
+                        "name": "SpaceStrength",
                         "type": "float",
-                        "value": 0.25
+                        "value": 0.6
                     },
                     {
                         "name": "DepthReversed",

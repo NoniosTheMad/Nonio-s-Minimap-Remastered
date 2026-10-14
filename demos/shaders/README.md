@@ -27,9 +27,16 @@ pointless (e.g. reaper + comic). Post effects are client state, so the stack is 
   If rays look like they point the wrong way, flip `RayOrigin.y` (1.3 -> -0.3).
 - `thermal`: angel infrared vision. Cold ironbow world, heat edges, glowing heat signatures that pulse faster when
   the target is weaker. Signature colour = HP bracket (see below).
-- `cosmic`: stars get a glow, four-point spikes and violet/teal nebulae that grow out of star clusters (all derived from
-  the visible sky, so they stay locked to it as you turn). Terrain gets starlight spill and a cool lift in the shadows,
-  so nights stay playable. Best at Midnight on a clear sky; during the day it is a mild grade + sun glow.
+- `cosmic` (v3, "magical light"): every light glows. Pass 1 finds lights by **local contrast** (pixel brighter than
+  its ring of neighbours, as a ratio, so it fires at night and stays calm in daylight) + very bright pixels + a rim on
+  sky pixels that touch geometry. These bloom at three scales with their own colours: a tight halo in the light's own
+  colour, a violet/magenta aura, and a large teal/blue spill that also lights nearby terrain. The hue shifts drift
+  slowly, the halos shimmer (animated noise), and small sharp lights sparkle with 4+4-point glints. At night the sky
+  gets a deep-space grade and the large scale reads as nebula gloom; shadows get a cool lift so it stays playable.
+  Best with many lights (torches, lanterns, lava, glowstone) and with the moon behind trees.
+  Where the v2 "aura" came from: the old star pass treated any sky pixel brighter than its neighbours as a star. Next to
+  a bright moon, every gap between dark leaves passed that test, and the blur passes spread that cluster into a coloured
+  gloom around the tree. v3 does it on purpose and for every light, not only the sky.
 - `monster` ("Hunger" vision, my pick for the monster class): blood-red monochrome, sight fades to murk past
   ~28 blocks (`Range`), near silhouettes get hot rims (prey stand out), barrel warp + colour split, and a
   double-thump heartbeat that pulses the vignette. Meant to feel predatory, not to give information.
