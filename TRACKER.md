@@ -10,17 +10,17 @@ Remaster the Nonios's Map game (Java 26.3 vanilla) with datapack, resource pack,
 | M1 | ✓ Done | Spikes: `/posteffect` shaders, Nexus barrier, shop dialog, coin purse (awaiting user tests) |
 | M2 | ★ Your test | Playable core: teams, phases, respawn, win screen, reset (built, merged to main) |
 | M3 | ★ Your test | Economy: bank dialog, interest, kill rewards (built, merged to main) |
-| M4 | → Now | Progression: generators, Emerald Dream, arena (integrating into main) |
-| M5 | — | Classes: Reaper and Cracy Frog end-to-end, then roster |
+| M4 | ✓ Done | Progression: generators, Emerald Dream, arena (merged to main 28e83b7); demo server m4 ★ |
+| M5 | → Now | Classes: Reaper and Cracy Frog into match, roster (feat/m5-classes, emerald-block exploit fix) |
 | M6 | — | Map & polish: new build, sounds, textures, balance, playtests |
 
 ## Current focus
-M4 integration: merge generators + Emerald Dream + arena into main (features built, loot table fix done). Testing M2 + M3 + arena. Classes done (pending M4 integration). Server archive started (nexus/shop/purse/fx).
+M5 classes into match (feat/m5-classes, server m5): wiring Reaper + Cracy Frog into match logic, fixing emerald-block coin exploit. M4 merged to main (28e83b7): generators (one per field, 3 levels, 200/500 upgrades), arena (3 nodes, battle-phase only), Emerald Dream (1000-coin portal unlock, shared dimension). Testing M2 + M3 + M4.
 
 ## Waiting on user
-1. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
-2. **M3 economy (★):** server `econ`. G → Demo or go to team base vault. Test: deposit/withdraw coins with sliders, check interest (+2%/60 s, capped 50, overflow carried), kill rewards (+10 base, +10×streak from 3+ kills max 150, +20/+90/+190 tier bonus), admin economy page. Check: own team's vault only, teammates can see/withdraw all, interest during prep.
-3. **Arena (★):** server `arena`. G → Demo. Capture nodes (10 s alone, faster with 3+ team-mates). Watch contested freeze, payouts, weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour), Lightning Rabbit toggle. Check node captures, bossbar inside node, payouts every 30 s.
+1. **M4 progression (★):** server `m4` (generators + arena + Emerald Dream). Join: G → Demo or explore. Test: build generators (sneak-click to upgrade Lv1→Lv2→Lv3; upgrades cost 200/500 coins from purse), capture arena nodes (3 active in battle; watch contested freeze, payouts, events), unlock Emerald Dream (1000-coin team portal on pad, shared dimension). Check: generator placement, upgrade discovery, arena events, Dream exits (sneak 5s), field costs, admin panel (dream_cost TBD).
+2. **M2 playable core (★):** server `m2` (solo test w/ dummies). Join: G → Demo: M2 playable core (first-time chooser). Steps: pick team → start match → kill the dummies → destroy enemy Nexus. Check: all phases (prep/battle/end), respawn, spectator on last life, stats, placeholder map reset on return to lobby.
+3. **M3 economy (★):** server `econ`. G → Demo or go to team base vault. Test: deposit/withdraw coins with sliders, check interest (+2%/60 s, capped 50, overflow carried), kill rewards (+10 base, +10×streak from 3+ kills max 150, +20/+90/+190 tier bonus), admin economy page. Check: own team's vault only, teammates can see/withdraw all, interest during prep.
 4. **Shaders v2 (★):** server `shaders`. Refresh pack (G → Refresh resource pack), then G → Demo: custom shaders. Check: god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.
 5. **Nexus barrier (★):** server `nexus`. Read cracks 10–20 blocks (vanilla textures). Check hit actionbar text.
 
@@ -39,9 +39,10 @@ M4 integration: merge generators + Emerald Dream + arena into main (features bui
 - Arena spike (f765a48, feat/arena, server arena ★): capture nodes (10 s alone, 3+ team-mates faster; contested frozen), payouts via hook (every 30 s), weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour, first at 3 min), Lightning Rabbit toggle (V2 return). Awaiting user test.
 - M3 economy (feat/economy, merged to main f584840): bank dialog at vault on team pad (deposit/withdraw sliders + all buttons), interest 2%/60 s capped 50 (overflow carried as V2), kill rewards (+10 base, +10×streak from 3+ max 150, +20/+90/+190 tier bonus), admin economy page. Server econ ★. Awaiting user test.
 - Classes (6d87e5a, feat/classes, server classes ★): Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, invisibility 4 s after kill, HP −10 armour +6) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain word-for-word, frog vision permanent). Shop kits lost on death, basic at team level. Not merged yet; wired into match after M4 integration.
+- M4 progression (28e83b7, feat/m4-integration → main): Generators (one per field, 3 levels, team-wide upgrades 200/500 coins from purse, anyone can collect pot, emerald outcomes → coin pot), Arena (3 nodes in battle phase, 10 s solo capture, contested frozen, payouts every 30 s, weighted events), Emerald Dream (shared dimension, 1000-coin team portal unlock on pad, 10 regrowing veins per visit). Demo server m4 ★. Ready for user test. Eight design questions queued.
 
 ## In flight
-- M4 integration (feat/m4-integration): Merge generators + Emerald Dream + arena into main. Loot table format fix done (08e04dd), generator loot updated to 26.3 compatible format. Generators, Emerald Dream, arena to be integrated after M4.
+- M5 classes into match (feat/m5-classes, server m5): Wiring Reaper + Cracy Frog class framework into match logic. Fixing emerald-block coin exploit. Shaders feedback #18: separate Layers and Presets sections in UI, move "No Effect" resets out of effect rows.
 
 ## Decisions
 | Date | Decision |
@@ -136,7 +137,15 @@ M4 integration: merge generators + Emerald Dream + arena into main (features bui
 12. **Arrival range:** [suggested: ±3000 blocks]. Smaller for guaranteed team meetings, or larger for separation?
 13. **Dream mob danger:** [suggested: endermen + allays]. What creatures make the dream risky vs. just a farm?
 
-(More questions will accumulate from M2 core, Classes, and Arena research.)
+**M4 Progression** (merged 28e83b7; from coordinator notes, with current implementation):
+1. **Generator pot collection:** [current: anyone can collect any generator's coins; only owning team upgrades]. Enemy raid incentive or restrict to owner?
+2. **Upgrade + portal payment:** [current: from purse only, not bank]. Bank-vs-purse for big purchases (portal 1000, upgrades 200/500)?
+3. **Pad entry after payment:** [current: direct entry, no dialog]. After paying portal cost, team enters Dream directly or show confirmation?
+4. **Arena lightning toggle:** [current: off by default]. Should Lightning Rabbit event start with battle or stay off?
+5. **Dream vein reset:** [current: veins not reset between matches]. Reset veins on each Dream visit or keep per-match state?
+6. **Admin panel dream_cost:** [noted: not yet in admin UI]. Should dream_cost (emerald block value) be admin-tunable?
+7. **Generator upgrade discovery:** [current: sneak-click to upgrade, no in-game hint]. Is sneak-upgrade action discoverable enough without tutorial?
+8. **Generator + pad placement:** [noted: placeholder]. Final placement on actual map to be decided in M6.
 
 ## Backlog ideas (deferred, not commitments — shader work paused after M1 v2 + feedback #14, resumes after M2; M5 classes may pull specific shaders earlier)
 - **Shader: healer-class vision:** angel-class post effect showing all players' total HP (infrared-like). Hearts >20 glow "as if to burst" (log-scaled).
@@ -146,6 +155,9 @@ M4 integration: merge generators + Emerald Dream + arena into main (features bui
 ## Log (recent ~30 lines)
 | Date | Event |
 |------|-------|
+| 10-14 | **M4 progression merged** (28e83b7, feat/m4-integration → main): Generators (one per field, 3 levels, upgrades 200/500 coins from purse, anyone collects pot), Arena (3 nodes active in battle, 10 s solo capture, contested frozen, payouts 30 s), Emerald Dream (shared, 1000-coin team portal on pad, 10 veins per visit ±3000). Demo server m4 ★. Eight design questions queued (pot collection, payment source, pad entry, lightning toggle, vein reset, admin panel, upgrade discovery, placement). |
+| 10-14 | **M5 classes into match started** (feat/m5-classes, server m5): Wiring Reaper + Cracy Frog from framework into match logic. Fixing emerald-block coin exploit. |
+| 10-14 | **Shaders feedback #18** (forwarded): Separate Layers and Presets sections in UI, move "No Effect" resets out of effect rows. |
 | 10-14 | **M4 integration in progress** (feat/m4-integration): Merging generators + Emerald Dream + arena into main. Loot table format fix done (08e04dd, 26.3 compatible modifiers). Portal unlock cost 1000 coins, arena nodes in match mode. User testing M2 + M3 in parallel. |
 | 10-14 | **M3 economy merged** (f584840, feat/economy → main): Bank dialog at vault on team pad (deposit/withdraw sliders + all buttons, own vault only). Interest 2%/60 s capped 50 (overflow V2-style). Kill rewards: +10 base, +10×streak (3+ max 150), +20/+90/+190 tier bonus. Admin economy page. Seven design questions for user. Server econ ★. |
 | 10-14 | **M4 integration started** (feat/m4-integration): Merge generators + Emerald Dream + arena into main. Loot table format fix in progress (26.3 incompatible functions→modifiers). Eight Arena design questions for user (capture time/contested/payouts/drops vs bank/lightning/events/forceload/portals). |

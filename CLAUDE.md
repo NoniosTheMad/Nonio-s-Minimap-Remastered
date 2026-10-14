@@ -64,6 +64,9 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
     The open group is persisted in `.mcdev/chat_pending.json` (survives daemon restarts).
   - Book & Quill (menu → Feedback (book)): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
     (daemon polls it over persistent RCON) → daemon drains it into the log. Both get context (branch@commit, pos, server log, client chat).
+  - Screenshots (F2): the daemon polls the client's `screenshots\` every 2s (files older than the daemon are ignored), copies each new PNG to
+    `.mcdev/screenshots/<N>.png`, acks "📷 noted (#N)" and after 60s writes entry "screenshot" (image path first, + the user's chat lines within ±60s,
+    with their #ids). Server = last "Connecting to localhost, <port>" in the client log, else wherever the user is online. **Open the image and look for bugs.**
 - **Inbox** (user's mailbox): `mcdev notify "text"` (python: `notify(text)`) appends to `.mcdev/inbox.json`; the daemon tellraws undelivered mail
   (gold ✉) to NoniosTheMad on whatever server they are on, or on their next join. `mcdev feedback --resolve N [note]` notifies "Feedback #N [title] resolved: note".
   `mcdev up` of a NEW demo/branch server notifies automatically. G → Inbox shows the last 20: the daemon builds the dialog as a compound in

@@ -678,7 +678,7 @@ def feedback_context(name, s, player):
         pass
     def tail(path, n):
         try:
-            lines = Path(path).read_text(errors="replace").splitlines()[-400:]
+            lines = Path(path).read_text(encoding="utf-8", errors="replace").splitlines()[-400:]
         except OSError:
             return []
         done = max((i for i, l in enumerate(lines) if "Done (" in l), default=-1)  # skip startup chatter
@@ -733,12 +733,12 @@ def alloc_fb_id():
     _fb_last[0] = max(_fb_last[0], fb_max_id()) + 1
     return _fb_last[0]
 
-def write_feedback(name, s, player, title, body, fid=None):
+def write_feedback(name, s, player, title, body, fid=None, ctx=None, when=None):
     fid = fid or alloc_fb_id()
     body = body.strip().replace("\n", "\n    ")
     with open(FEEDBACK, "a", encoding="utf-8") as f:
-        f.write(f"#{fid} {time.strftime('%Y-%m-%d %H:%M')} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
-                + feedback_context(name, s, player))
+        f.write(f"#{fid} {time.strftime('%Y-%m-%d %H:%M', time.localtime(when))} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
+                + (feedback_context(name, s, player) if ctx is None else ctx))
     print(time.strftime("%H:%M:%S"), f"feedback #{fid} from {player} on {name}: {title}", flush=True)
     return fid
 
@@ -813,6 +813,30 @@ JOIN_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/INFO\]: (?:System chat: )?([A-Za-z0-
 CHAT_GROUP_SECS = 90
 
 CLICK_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/\w+\]: Received custom click action (\S+) with payload (.*)$")
+
+# screenshots (F2) in the client instance -> feedback entries; copies kept in .mcdev/screenshots/<N>.png
+SHOT_DIR = CLIENT_LOG.parent.parent / "screenshots"
+SHOT_COPIES, SHOTS_PENDING = STATE / "screenshots", STATE / "shots_pending.json"
+SHOT_POLL_SECS, SHOT_CHAT_SECS = 2, 60
+CONNECT_RE = re.compile(r"Connecting to [\w.-]+, (\d+)")
+
+def client_server(reg):
+    """Dev server the client is on: the last 'Connecting to localhost, <port>' in the client log if the user is
+    online there, else any up server with the user online, else the logged one."""
+    up = {n: s for n, s in reg.items() if s.get("status") == "up"}
+    port = None
+    try:
+        with open(CLIENT_LOG, "rb") as f:
+            f.seek(0, 2)
+            f.seek(max(0, f.tell() - 500_000))
+            hits = CONNECT_RE.findall(f.read().decode("utf-8", "replace"))
+        port = int(hits[-1]) if hits else None
+    except OSError:
+        pass
+    logged = next((n for n, s in up.items() if s["port"] == port), None)
+    if logged and USER in online(up[logged]):
+        return logged
+    return next((n for n, s in up.items() if n != logged and USER in online(s)), logged)
 
 def parse_log_line(line):
     """Server log line -> ('chat', player, text) | ('joined'|'left', player) | ('click', id, payload_snbt) | None.
@@ -963,6 +987,67 @@ class Mailroom:
         _fb_last[0] = max(_fb_last[0], self.groups.max_id())  # ids already promised by "noted (#N)"
         self.next_try, self.last_pending, self.replayed = 0, None, 0
         self.mirrored = {e.get("mail") for e in load_json(THREAD, []) if e["kind"] == "mail"}
+        # screenshots: files older than the daemon are ignored; an entry waits SHOT_CHAT_SECS to pick up nearby chat
+        self.shot_start, self.shot_next, self.shot_size, self.shot_done = time.time(), 0, {}, set()
+        self.shots = load_json(SHOTS_PENDING, [])
+        _fb_last[0] = max([_fb_last[0]] + [x["id"] for x in self.shots])
+        self.recent_chat = []  # [time, server, fid, text] of the user's recent feedback lines
+
+    def shot_tick(self, reg, now):
+        if now >= self.shot_next:
+            self.shot_next = now + SHOT_POLL_SECS
+            try:
+                SHOT_DIR.mkdir(parents=True, exist_ok=True)
+                files = sorted(SHOT_DIR.glob("*.png"))
+            except OSError:
+                files = []
+            for p in files:
+                if p.name in self.shot_done:
+                    continue
+                try:
+                    st = p.stat()
+                except OSError:
+                    continue
+                t = max(st.st_mtime, st.st_ctime)  # ctime = creation on Windows (a copied file keeps its mtime)
+                if t < self.shot_start:
+                    self.shot_done.add(p.name)
+                elif st.st_size and self.shot_size.get(p.name) == st.st_size:  # same size two polls running = written
+                    self.shot_done.add(p.name)
+                    try:
+                        self.new_shot(reg, p, t)
+                    except OSError as e:  # e.g. still locked: retry next poll
+                        self.shot_done.discard(p.name)
+                        print(time.strftime("%H:%M:%S"), f"screenshot {p.name} failed, retrying: {e!r}", flush=True)
+                else:
+                    self.shot_size[p.name] = st.st_size
+        self.recent_chat = [c for c in self.recent_chat if now - c[0] < 5 * SHOT_CHAT_SECS]
+        for sh in [x for x in self.shots if now - x["t"] >= SHOT_CHAT_SECS]:
+            chat = [c for c in self.recent_chat if abs(c[0] - sh["t"]) <= SHOT_CHAT_SECS]
+            body = f"image: {sh['path']}\n(original: {sh['orig']})"
+            if chat:
+                body += "\nchat within 60s:\n" + "\n".join(f"  ({c[1]} #{c[2]}) {c[3]}" for c in chat)
+            write_feedback(sh["server"], {"branch": sh["branch"]}, USER, "screenshot", body, fid=sh["id"], ctx=sh["ctx"], when=sh["t"])
+            self.shots.remove(sh)
+            save_json(SHOTS_PENDING, self.shots)
+
+    def new_shot(self, reg, p, t):
+        """New PNG in the client's screenshots folder: id + copy + context now (position at shot time), entry later."""
+        import shutil
+        n = client_server(reg)
+        s = reg.get(n) if n else None
+        fid = alloc_fb_id()
+        SHOT_COPIES.mkdir(parents=True, exist_ok=True)
+        copy = SHOT_COPIES / f"{fid}.png"
+        shutil.copyfile(p, copy)
+        ctx = feedback_context(n, s, USER) if s else "  | (user not on any dev server)\n"
+        if s:
+            tell(s, USER, [text(f"\U0001F4F7 noted (#{fid})" + (" (test)" if p.name.startswith("mcdev-test") else ""), "gray", italic=True)])
+        self.shots.append({"id": fid, "t": t, "server": n or "?", "branch": s.get("branch") if s else None,
+                           "path": str(copy), "orig": str(p), "ctx": ctx})
+        save_json(SHOTS_PENDING, self.shots)
+        self.thread_add([{"kind": "chat", "time": time.strftime("%Y-%m-%d %H:%M"), "server": n or "?", "player": USER,
+                          "fid": fid, "text": "\U0001F4F7 screenshot"}])
+        print(time.strftime("%H:%M:%S"), f"screenshot #{fid} on {n}: {p.name}", flush=True)
 
     def thread_add(self, entries):
         if entries:
@@ -1048,6 +1133,8 @@ class Mailroom:
                         joins.append(n)
                 else:
                     left.add((n, ev[1]))
+        self.recent_chat += [[now, e["server"], e["fid"], e["text"]] for e in said if e["player"] == USER]
+        self.shot_tick(reg, now)
         for n, player, g in self.groups.due(now, left):
             write_feedback(n, g["s"], player, "chat", "\n".join(g["lines"]), fid=g["id"])
             self.groups.done(n, player)

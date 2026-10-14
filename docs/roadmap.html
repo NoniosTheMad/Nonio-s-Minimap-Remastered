@@ -81,6 +81,7 @@ a{color:var(--accent)}
   <section class="you" aria-labelledby="you-h">
     <h2 id="you-h">Waiting on you</h2>
     <ol>
+      <li><b>M4 progression (★):</b> server <b>m4</b> (generators + arena + Emerald Dream). Join: <kbd>G</kbd> → Demo or explore your field. <b>Test steps:</b> sneak-click your team's generator to upgrade (Lv1→Lv2 at 200 coins, Lv2→Lv3 at 500); capture arena nodes during battle (watch contested freeze + payouts); unlock Emerald Dream on your pad (1000-coin team cost). Check: generator placement and upgrades, arena nodes (3 active in battle), Dream portal (shared dimension, exits by sneak 5s), field costs, admin panel. Eight design questions on this page.</li>
       <li><b>M2 playable core (★):</b> server <b>m2</b> (solo test w/ dummies). <kbd>G</kbd> → <b>Demo: M2 playable core</b> (first-time chooser). <b>Test steps:</b> pick your team → start the match → kill the dummies → destroy enemy Nexus → return to lobby. Check: all phases (prep/battle/end), respawn, last-life spectator, stats, map reset.</li>
       <li><b>M3 economy (★):</b> server <b>econ</b>. Visit team base vault or <kbd>G</kbd> → Demo. Test: deposit/withdraw coins with sliders, all-button; check interest (+2%/60 s capped 50, overflow carried); kill rewards (+10 base, +10×streak from 3+, max 150, +20/+90/+190 tier); admin page. Check: own vault only, teammates see/withdraw, interest during prep. Seven design questions on this page.</li>
       <li><b>Arena (★):</b> server <b>arena</b>. <kbd>G</kbd> → Demo. Capture nodes (10 s alone, faster with 3+ team-mates). Check: contested freeze, bossbar in node, payouts every 30 s, weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour), Lightning Rabbit toggle. Eight design questions on this page.</li>
@@ -98,8 +99,8 @@ a{color:var(--accent)}
       <li class="done"><span class="id">M1</span><span class="nm">Spikes</span><span class="bar"></span></li>
       <li class="wait"><span class="id">M2 · test</span><span class="nm">Playable core</span><span class="bar"></span></li>
       <li class="wait"><span class="id">M3 · test</span><span class="nm">Economy</span><span class="bar"></span></li>
-      <li class="now"><span class="id">M4 · now</span><span class="nm">Progression</span><span class="bar"></span></li>
-      <li><span class="id">M5</span><span class="nm">Classes</span><span class="bar"></span></li>
+      <li class="done"><span class="id">M4 · test</span><span class="nm">Progression</span><span class="bar"></span></li>
+      <li class="now"><span class="id">M5 · now</span><span class="nm">Classes</span><span class="bar"></span></li>
       <li><span class="id">M6</span><span class="nm">Map &amp; polish</span><span class="bar"></span></li>
     </ol>
   </section>
@@ -129,16 +130,21 @@ a{color:var(--accent)}
   </section>
 
   <section aria-labelledby="m3-h">
-    <h2 id="m3-h">M3 · Economy (in progress)</h2>
-    <p style="color:var(--muted)">Bank dialog, interest accrual, kill rewards. Generators and Emerald Dream integrating as part of M4 progression.</p>
+    <h2 id="m3-h">M3 · Economy (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">Bank dialog, interest accrual, kill rewards. All merged to main.</p>
+  </section>
+
+  <section aria-labelledby="m4-h">
+    <h2 id="m4-h">M4 · Progression (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">Generators per field (3 levels, team-wide upgrades), arena nodes (battle-phase capture), Emerald Dream (shared dimension, team portal). All merged to main (28e83b7). Demo server m4 (★).</p>
   </section>
 
   <section aria-labelledby="ahead-h">
     <h2 id="ahead-h">What each milestone delivers</h2>
     <dl>
       <dt>M3 · Economy</dt><dd>Coins and their weight, the bank, kill rewards and the full shop.</dd>
-      <dt>M4 · Progression &amp; Arena</dt><dd>Field upgrades, generators, arena events, and the Emerald Dream dimension.</dd>
-      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders. Reaper (200 coins, 4 s post-kill invisibility, −10 HP +6 armour) and Cracy Frog (free after 3-question chain, permanent frog vision) built and awaiting M4 integration.</dd>
+      <dt>M4 · Progression</dt><dd>Generators (one per field, Lv1/2/3 upgrades at 200/500 coins), arena (3 nodes in battle phase), Emerald Dream (shared dimension, 1000-coin team unlock). Anyone can collect generator pots; only owner team upgrades. Built and ready for test.</dd>
+      <dt>M5 · Classes</dt><dd>Reaper and Cracy Frog integrated into match. Basic classes picked on respawn and upgraded team-wide; one-time shop classes with custom tools. Fixing emerald-block exploit. In progress.</dd>
       <dt>M6 · Map &amp; polish</dt><dd>The new map build, sounds, textures, balance and playtests.</dd>
     </dl>
   </section>
@@ -183,6 +189,14 @@ a{color:var(--accent)}
         <dt>M2/M3: Map reset cycle</dt><dd>Fresh copy pulled at each return to lobby. Correct? (Suggested: yes.)</dd>
         <dt>M2/M3: Prep lockdown</dt><dd>Barrier plane + 1 Hz pushback keeps teams confined during prep. Physics OK? (Built.)</dd>
         <dt>M2/M3: Emerald block cost</dt><dd>Placing one costs 100 coins to prevent infinite farms. Correct? (Suggested: yes.)</dd>
+        <dt><b>M4 Progression:</b> Generator pot collection</dt><dd>Current: anyone can collect any generator's coins; only owning team upgrades. Enemy raid incentive or restrict to owner?</dd>
+        <dt>M4: Upgrade + portal payment</dt><dd>Current: from purse only, not bank. Bank-vs-purse for big purchases (portal 1000, upgrades 200/500)?</dd>
+        <dt>M4: Pad entry after payment</dt><dd>Current: direct entry, no dialog. After paying portal cost, team enters Dream directly or show confirmation?</dd>
+        <dt>M4: Arena lightning toggle</dt><dd>Current: off by default. Should Lightning Rabbit event start with battle or stay off?</dd>
+        <dt>M4: Dream vein reset</dt><dd>Current: veins not reset between matches. Reset veins on each Dream visit or keep per-match state?</dd>
+        <dt>M4: Admin panel dream_cost</dt><dd>Noted: not yet in admin UI. Should dream_cost (emerald block value) be admin-tunable?</dd>
+        <dt>M4: Generator upgrade discovery</dt><dd>Current: sneak-click to upgrade, no in-game hint. Is sneak-upgrade action discoverable enough without tutorial?</dd>
+        <dt>M4: Generator + pad placement</dt><dd>Noted: placeholder. Final placement on actual map to be decided in M6.</dd>
         <dt><b>Arena:</b> Capture time</dt><dd>Suggested: 10 s solo, faster with 3+ team-mates. How long to capture a contested node?</dd>
         <dt>Arena: Contested behaviour</dt><dd>Suggested: freeze. When both teams are in a node, what happens — frozen, no progress, or other?</dd>
         <dt>Arena: Payout interval</dt><dd>Suggested: every 30 s. How often are coins/resources awarded for held nodes?</dd>
@@ -222,6 +236,9 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
+      <li><time>10-14</time><b>M4 progression merged:</b> 28e83b7 (feat/m4-integration → main). Generators (one per field, Lv1/2/3, upgrades 200/500 coins from purse, anyone collects pot), Arena (3 nodes active in battle, 10 s solo capture, contested frozen, payouts 30 s), Emerald Dream (shared, 1000-coin team portal on pad, 10 veins per visit). Demo server m4 ★. Eight design questions queued (pot collection, payment source, pad entry, lightning toggle, vein reset, admin panel, upgrade discovery, placement).</li>
+      <li><time>10-14</time><b>M5 classes into match started:</b> feat/m5-classes (server m5). Wiring Reaper + Cracy Frog framework into match logic. Fixing emerald-block coin exploit.</li>
+      <li><time>10-14</time><b>Shaders feedback #18:</b> Separate Layers and Presets sections in UI, move "No Effect" resets out of effect rows.</li>
       <li><time>10-14</time><b>Classes framework done:</b> 6d87e5a (feat/classes, server classes ★). Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, 4 s invisibility after kill, −10 HP +6 armour) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain, frog vision permanent). Not merged yet; wired into match after M4 integration. Six design questions queued.</li>
       <li><time>10-14</time><b>User feedback #15:</b> Attacker barrier text now just "⛨ Nexus Barrier" (no tutorial lines). User loved the cracks. Rule added: "In-game text stays terse and diegetic."</li>
       <li><time>10-14</time><b>Server archive started:</b> G → Servers → Archive; archiving nexus/shop/purse/fx servers.</li>
