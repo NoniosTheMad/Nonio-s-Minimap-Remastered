@@ -1,0 +1,113 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:spectral_arrow",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": 16
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:gold_block",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:golden_carrot",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": 6
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:oak_log",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": 16
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:golden_apple",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:diamond_block"
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_block",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:chest"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+$execute as @e[type=text_display,tag=nx.gen_holo,distance=..2.5,limit=1] run data modify entity @s text set value {text:"$(name) generator",color:"$(col)",extra:[{text:"\nLv $(lvl)",color:"yellow",bold:true},{text:" · $(next)",color:"gray",bold:false}]}

@@ -1,0 +1,40 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:cobblestone",
+     "weight": 36
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:netherrack",
+     "weight": 18
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:raw_gold",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:diamond",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_block",
+     "weight": 4
+    },
+    {
+     "type": "minecraft:loot_table",
+     "value": "nonios:generator/jackpot_chest_a",
+     "weight": 2
+    }
+   ]
+  }
+ ]
+}
