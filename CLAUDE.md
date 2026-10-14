@@ -90,3 +90,5 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   in dialogs (permission 0, no prompt) and do the privileged work in a tick function. Never `reset @a obj` after enabling it in the same tick (re-locks it); reset only triggerers, or enable last.
 - Empty servers pause (pause-when-empty-seconds=120): `/reload` applies but load functions run only on unpause. After 10 min empty mcdev stops them (idle sleep).
 - Harmless server noise on transfer: netty `IoRegistration` NPE and `ServerboundResourcePackPacket ... prepare_spawn` error.
+- Advancement/predicate format changed: conditions use `"type": "minecraft:entity_properties"`; entity predicate keys are namespaced (`"minecraft:entity_type"`, `"minecraft:nbt"`, `"minecraft:flags"`) and `entity` takes one object, not a list. The old format stops the server at startup.
+- Item icons in text components: `{type:"object",atlas:"minecraft:items",sprite:"minecraft:item/bread"}`.

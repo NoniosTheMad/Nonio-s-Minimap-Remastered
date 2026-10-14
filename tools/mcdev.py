@@ -1202,7 +1202,7 @@ def check_server(name, s):
     packs = [Path(s["src"]) / "datapack"] + ([Path(s["src"]) / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
     for pack in packs:
         files = list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))
-        text = {f: f.read_text(errors="replace") for f in files}
+        text = {f: re.sub(r"(?m)^\s*#.*$", "", f.read_text(errors="replace")) for f in files}  # ignore comments
         used = {o for t in text.values() for o in re.findall(r"trigger ([\w.]+)", t)}
         for obj in used:
             # the last enable/reset of obj in a function decides whether it is triggerable between ticks
