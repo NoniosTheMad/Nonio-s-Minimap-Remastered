@@ -97,3 +97,4 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - 1.12 structure .nbt files load with `/place template` (auto-upgraded by DataFixer).
 - Shared names across branches: coins = `nx.coins`, teams = `white` / `black`.
 - Worldgen: surface rules live in the `worldgen/material_rule` registry; ore veins are a `minecraft:ore_vein` material rule. Sky/fog/particles/music via `attributes` maps (`minecraft:visual/...`) on dimension_type and biome.
+- **Loot tables changed format:** `functions`/`function` → `modifier` (object or list, each with `type`); `conditions`/`condition` → one `condition` object with `type`. Old keys are silently ignored (count 1, chances always pass). Check vanilla tables in the server jar.
