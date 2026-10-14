@@ -33,6 +33,14 @@ _wt, _rt = Path.write_text, Path.read_text
 Path.write_text = lambda self, data, encoding="utf-8", **k: _wt(self, data, encoding=encoding, **k)
 Path.read_text = lambda self, encoding="utf-8", **k: _rt(self, encoding=encoding, **k)
 
+# The daemon has no console, so every console child (tasklist, git, taskkill, ...) would pop up its own
+# window and steal focus from the game. Default every child process to no window.
+if os.name == "nt":
+    _popen_init = subprocess.Popen.__init__
+    def _popen_no_window(self, *a, creationflags=0, **k):
+        _popen_init(self, *a, creationflags=creationflags | subprocess.CREATE_NO_WINDOW, **k)
+    subprocess.Popen.__init__ = _popen_no_window
+
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / ".tools"
 JAVA = TOOLS / "jre25" / "bin" / "java.exe"
@@ -55,6 +63,11 @@ PRESETS = {
     "test": dict(port=25567, mem="3G", desc="Copy of main + everything merged.", persistent=True, world="copy-main"),
 }
 EPHEMERAL_PORTS = range(25570, 25600)
+# Idle sleep: the daemon stops a server (not hub) that has had nobody online for IDLE_SLEEP_SECS -> status "sleeping";
+# G > Servers wakes it. Test-only overrides (read once at daemon start): MCDEV_IDLE_SECS, MCDEV_IDLE_ONLY=name,name.
+IDLE_SLEEP_SECS = int(os.environ.get("MCDEV_IDLE_SECS") or 600)
+IDLE_ONLY = {x for x in os.environ.get("MCDEV_IDLE_ONLY", "").split(",") if x}
+IDLE_CHECK_SECS = 15
 VOID = '{"layers":[{"block":"minecraft:air","height":1}],"biome":"minecraft:the_void"}'
 FLAT = '{"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:stone","height":3},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains"}'
 
@@ -265,16 +278,22 @@ def text(t, color=None, **kw):
     return c
 
 def nav_dialog(reg):
-    live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: (not kv[1].get("review"), kv[1]["port"])) if s.get("status") == "up"]
+    live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: (not kv[1].get("review"), kv[1]["port"]))
+            if s.get("status") in ("up", "sleeping")]
     actions = []
     for n, s in live:
-        label = ([text("\u2605 ", "yellow")] if s.get("review") else []) + \
-                [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['desc'] or s['branch']}", "gray")]
-        tip = f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "") + (f"\n\n{s['todo']}" if s.get("todo") else "")
+        asleep = s["status"] == "sleeping"
+        label = ([text("\u2605 ", "yellow")] if s.get("review") else []) + (
+            [text(n, "dark_gray", bold=True), text("  (asleep, ~10s)", "dark_gray", italic=True)] if asleep else
+            [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['desc'] or s['branch']}", "gray")])
+        tip = (f"Asleep (nobody on it for a while). Click to start it; you're sent there when it's up.\n\n{s['desc'] or ''}\n" if asleep else "") \
+            + f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "") + (f"\n\n{s['todo']}" if s.get("todo") else "")
         actions.append({"label": label, "tooltip": text(tip), "width": 310,
-                        "action": {"type": "minecraft:run_command", "command": f"trigger devnav.go set {s['port']}"}})
+                        "action": {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}})
+    n_up = sum(s["status"] == "up" for _, s in live)
+    summary = f"{n_up} running" + (f", {len(live) - n_up} asleep" if len(live) > n_up else "")
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
-            "body": [{"type": "minecraft:plain_message", "contents": text(f"{len(live)} running. \u2605 = waiting for your review. Hover a server to see what to try.", "gray"), "width": 300}],
+            "body": [{"type": "minecraft:plain_message", "contents": text(f"{summary}. \u2605 = waiting for your review. Hover a server to see what to try.", "gray"), "width": 300}],
             "actions": actions or [{"label": "(none)", "action": {"type": "minecraft:run_command", "command": "help"}}],
             "columns": 1, "pause": False}
 
@@ -319,10 +338,12 @@ def write_devnav(reg):
     # Dialog buttons only use /trigger (permission 0 -> no "run this command?" prompt);
     # the privileged part (transfer, reload, ...) runs here at function permission level.
     (fn / "nav_load.mcfunction").write_text(
-        "scoreboard objectives add devnav.go trigger\nscoreboard objectives add devnav.act trigger\n")
+        "scoreboard objectives add devnav.go trigger\nscoreboard objectives add devnav.act trigger\n"
+        "scoreboard objectives add devnav.wake trigger\n")
     (fn / "nav_tick.mcfunction").write_text(
-        "scoreboard players enable @a devnav.go\nscoreboard players enable @a devnav.act\n"
+        "scoreboard players enable @a devnav.go\nscoreboard players enable @a devnav.act\nscoreboard players enable @a devnav.wake\n"
         "execute as @a[scores={devnav.go=1..}] run function devnav:go\n"
+        "execute as @a[scores={devnav.wake=1..}] run function devnav:wake\n"
         "execute as @a[scores={devnav.act=1}] run function devnav:list\n"
         "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
@@ -342,6 +363,15 @@ def write_devnav(reg):
         "execute store result storage devnav:tmp port int 1 run scoreboard players get @s devnav.go\n"
         "scoreboard players reset @s devnav.go\nfunction devnav:go_port with storage devnav:tmp\n")
     (fn / "go_port.mcfunction").write_text(f"$transfer {HOST} $(port) @s\n")
+    # Sleeping server: queue {verb:"wake",uuid,port}; the daemon starts it and transfers you when it's up (you stay here meanwhile).
+    (fn / "wake.mcfunction").write_text(
+        "".join(f"execute if score @s devnav.wake matches {s['port']} run tellraw @s "
+                + json.dumps([text("[dev] ", "dark_gray"), text(f"Waking {n}… ", "yellow"), text("(~10s, you'll be sent there)", "gray")]) + "\n"
+                for n, s in reg.items() if s.get("status") == "sleeping")
+        + 'data modify storage devnav:req q append value {verb:"wake"}\n'
+          "data modify storage devnav:req q[-1].uuid set from entity @s UUID\n"
+          "execute store result storage devnav:req q[-1].port int 1 run scoreboard players get @s devnav.wake\n"
+          "scoreboard players reset @s devnav.wake\n")
     ftags = d / "data" / "minecraft" / "tags" / "function"
     ftags.mkdir(parents=True, exist_ok=True)
     (ftags / "load.json").write_text(json.dumps({"values": ["devnav:nav_load"]}))
@@ -499,13 +529,19 @@ def daemon():
         print(time.strftime("%H:%M:%S"), "another daemon owns the port, exiting", flush=True)
         return
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    mail = Mailroom()
+    mail, idle = Mailroom(), IdleWatch()
+    print(time.strftime("%H:%M:%S"), f"daemon up (idle sleep after {IDLE_SLEEP_SECS}s"
+          + (f", only {sorted(IDLE_ONLY)}" if IDLE_ONLY else "") + ")", flush=True)
     while True:
         reg = load_reg()
         try:
             mail.tick(reg)
         except Exception as e:  # never let the daemon die on mail/chat handling
             print(time.strftime("%H:%M:%S"), "mail tick failed:", repr(e), flush=True)
+        try:
+            idle.tick(reg)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "idle tick failed:", repr(e), flush=True)
         for n, s in reg.items():
             if s.get("status") != "up":
                 continue
@@ -516,13 +552,22 @@ def daemon():
             if "contents: [{" not in r:
                 continue
             rcon(s["port"] + 10000, "data remove storage devnav:req q")
-            for verb, ints in re.findall(r'verb: "(\w+)"(?:, uuid: \[I; ([-\d, ]+)\])?', r):
+            for req in re.findall(r"\{[^{}]*\}", r):  # key order in the printed SNBT is not stable
+                verb = (re.search(r'verb: "(\w+)"', req) or [None, None])[1]
+                ints = (re.search(r"uuid: \[I; ([-\d, ]+)\]", req) or [None, None])[1]
+                port = (re.search(r"port: (\d+)", req) or [None, None])[1]
                 player = uuid_str(ints) if ints else None
-                print(time.strftime("%H:%M:%S"), "request", n, verb, player, flush=True)
+                print(time.strftime("%H:%M:%S"), "request", n, verb, player, port or "", flush=True)
                 if verb == "repack":
-                    threading.Thread(target=repack, args=(n, player), daemon=True).start()
+                    background(n, repack, n, player)
                 elif verb == "resetworld":
-                    threading.Thread(target=reset_world, args=(n, player), daemon=True).start()
+                    background(n, reset_world, n, player)
+                elif verb == "wake" and port:
+                    target = next((m for m, x in reg.items() if x["port"] == int(port)), None)
+                    if target:
+                        background(target, wake, target, player)
+                    else:
+                        tell(s, player, [text("[dev] No server on that port any more.", "red")])
                 elif verb == "feedback":
                     try:
                         pull_feedback(n, s)
@@ -992,16 +1037,100 @@ def reset_world(name, player):
     start(name, s, reg)
     send_back(reg, s, player)
 
-def send_back(reg, s, player):
-    hub = reg.get("hub", {})
+def send_back(reg, s, player, anywhere=False):
+    """Transfer player to server s once they are on the hub (or, with anywhere, on any other up server)."""
+    froms = [x for n, x in reg.items() if x.get("status") == "up" and x["port"] != s["port"]] if anywhere else [reg.get("hub", {})]
     for _ in range(60):  # wait until the player has landed on the hub
-        try:
-            if player and "passed" in rcon(hub["port"] + 10000, f"execute if entity {player}"):
-                rcon(hub["port"] + 10000, f"transfer {HOST} {s['port']} {player}")
-                return
-        except (OSError, KeyError):
-            pass
+        for src in froms:
+            try:
+                if player and "passed" in rcon(src["port"] + 10000, f"execute if entity {player}"):
+                    rcon(src["port"] + 10000, f"transfer {HOST} {s['port']} {player}")
+                    return True
+            except (OSError, KeyError, RuntimeError):
+                pass
         time.sleep(0.5)
+    return False
+
+# ---------------------------------------------------------------- idle sleep / wake
+_busy = set()  # servers a daemon thread is stopping/starting (repack, reset, wake, sleep): the idle watch leaves them alone
+
+def background(name, fn, *args):
+    import threading
+    def run():
+        _busy.add(name)
+        try:
+            fn(*args)
+        except BaseException as e:  # start() reports failures with sys.exit
+            print(time.strftime("%H:%M:%S"), f"{fn.__name__} {name} failed: {e!r}", flush=True)
+        finally:
+            _busy.discard(name)
+    threading.Thread(target=run, daemon=True).start()
+
+def player_count(s):
+    """Players online via RCON `list`, or None if the server can't be asked (starting, hung)."""
+    try:
+        return int(re.search(r"There are (\d+)", rcon(s["port"] + 10000, "list", timeout=2)).group(1))
+    except (OSError, RuntimeError, AttributeError):
+        return None
+
+class IdleWatch:
+    """Stops servers (never the hub) that have had nobody online for IDLE_SLEEP_SECS; they become status "sleeping"."""
+    def __init__(self):
+        self.seen, self.next_check = {}, 0  # name -> (started, last time someone was online / it came up / daemon start)
+
+    def tick(self, reg):
+        now = time.time()
+        if now < self.next_check:
+            return
+        self.next_check = now + IDLE_CHECK_SECS
+        for n, s in reg.items():
+            if n == "hub" or s.get("status") != "up" or n in _busy or (IDLE_ONLY and n not in IDLE_ONLY):
+                continue
+            started, last = self.seen.get(n, (None, 0))
+            if started != s.get("started"):
+                self.seen[n] = (s.get("started"), now)
+                continue
+            count = player_count(s)
+            if count:
+                self.seen[n] = (started, now)
+            elif count == 0 and now - last >= IDLE_SLEEP_SECS:
+                print(time.strftime("%H:%M:%S"), f"{n} empty for {now - last:.0f}s, putting it to sleep", flush=True)
+                self.seen.pop(n)
+                background(n, sleep_server, n, s.get("started"))
+
+def sleep_server(name, started):
+    reg = sync_status(load_reg())
+    s = reg.get(name)
+    if not s or s.get("status") != "up" or s.get("started") != started:  # restarted/stopped meanwhile
+        return
+    stop(name, s)
+    reg = load_reg()  # stop() can take a while; keep other servers' changes
+    if reg.get(name, {}).get("started") == started:
+        reg[name]["status"] = "sleeping"
+        save_reg(reg)
+    refresh_nav(sync_status(reg))
+    print(time.strftime("%H:%M:%S"), f"{name} asleep", flush=True)
+
+def wake(name, player):
+    """G > Servers on a sleeping server: start it with its saved settings, then send the player there from wherever they are."""
+    reg = sync_status(load_reg())
+    s = reg[name]
+    if s.get("status") != "up":
+        print(time.strftime("%H:%M:%S"), f"waking {name}", flush=True)
+        try:
+            start(name, s)
+        except BaseException as e:
+            reason = str(e) if isinstance(e, SystemExit) else repr(e)
+            fresh = load_reg()
+            if name in fresh and fresh[name].get("status") == "up" and not pid_alive(fresh[name].get("pid")):
+                fresh[name]["status"] = "sleeping"
+                save_reg(fresh)
+                refresh_nav(sync_status(fresh))
+            notify(f"Couldn't wake {name}: {reason}")
+            raise
+        reg = load_reg()
+    if player and not send_back(reg, reg[name], player, anywhere=True):
+        print(time.strftime("%H:%M:%S"), f"{name} is up but {player} wasn't found to transfer", flush=True)
 
 def ensure_daemon():
     STATE.mkdir(exist_ok=True)
@@ -1026,14 +1155,14 @@ def cmd_up(a):
         print(f"{name} already up on :{reg[name]['port']}")
         return
     preset = PRESETS.get(name, {})
-    used = {s["port"] for s in reg.values() if s.get("status") == "up" or s.get("persistent")}
+    used = {s["port"] for s in reg.values() if s.get("status") in ("up", "sleeping") or s.get("persistent")}
     port = preset.get("port") or (reg.get(name, {}).get("port") if name in reg else None) or next(p for p in EPHEMERAL_PORTS if p not in used)
     branch = a.branch or reg.get(name, {}).get("branch") or "main"
     src = source_for(branch)
     if a.demo and not (src / "demos" / a.demo / "datapack").exists():
         sys.exit(f"no demos/{a.demo}/datapack in {src}")
     s = dict(port=port, branch=branch, src=str(src), demo=a.demo or reg.get(name, {}).get("demo"),
-             mem=a.mem or preset.get("mem", "1536M"), persistent=preset.get("persistent", False),
+             mem=a.mem or preset.get("mem") or reg.get(name, {}).get("mem", "1536M"), persistent=preset.get("persistent", False),
              world=preset.get("world", "void"),
              desc=a.desc or preset.get("desc") or reg.get(name, {}).get("desc", ""))
     s["todo"] = a.todo or read_todo(src, s["demo"]) or reg.get(name, {}).get("todo", "")
@@ -1167,10 +1296,11 @@ def cmd_reset(a):
 def cmd_ls(a):
     reg = sync_status(load_reg())
     save_reg(reg)
-    print(f"{'name':<22}{'state':<7}{'addr':<17}{'branch':<22}{'demo':<16}desc")
+    print(f"{'name':<22}{'state':<10}{'addr':<17}{'branch':<22}{'demo':<16}desc")
     for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"]):
-        print(f"{n:<22}{s['status']:<7}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
-    print(f"pack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})")
+        print(f"{n:<22}{s['status'] + ('*' if s.get('review') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+    print(f"pack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})"
+          f"   * = awaiting review; sleeping = stopped after {IDLE_SLEEP_SECS // 60} min empty, `mcdev up <name>` or G > Servers wakes it")
 
 def targets(name):
     reg = sync_status(load_reg())

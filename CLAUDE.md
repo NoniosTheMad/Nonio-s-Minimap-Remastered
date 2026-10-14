@@ -72,6 +72,10 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   (skipped if a replay went to them <60s ago, e.g. the hub park during `restart`).
 - Every dev server sets `gamerule send_command_feedback false` (self pack `devnav:quiet`, on load): no "Triggered [devnav.act] ..." spam from menu clicks.
   Only success feedback of commands a player runs is hidden; errors, tellraw and RCON replies are unaffected.
+- **Idle sleep**: the daemon checks `list` over RCON every 15s; a server (never `hub`) empty for `IDLE_SLEEP_SECS` (10 min) is stopped
+  and marked `status: "sleeping"` (kept in `ls` and G → Servers, dimmed "(asleep, ~10s)", ★ kept). Clicking it = `trigger devnav.wake set <port>`
+  → {verb:"wake",uuid,port} in devnav:req → daemon starts it with its saved settings and transfers the player from wherever they are.
+  `mcdev up <name>` also wakes it. Inbox only hears about failed wakes. Test overrides (read at daemon start): env `MCDEV_IDLE_SECS`, `MCDEV_IDLE_ONLY=fx,..`.
 - Daemon code changes need a daemon restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`) starts it again.
   Only one daemon can run: a second one fails to bind :8800 (SO_REUSEADDR disabled) and exits.
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
@@ -84,5 +88,5 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Server needs a resource-pack sha1, else client caches by URL.
 - Dialog `run_command` buttons whose command needs op show a "run this command?" confirmation. **Always use `/trigger <obj> set N`**
   in dialogs (permission 0, no prompt) and do the privileged work in a tick function. Never `reset @a obj` after enabling it in the same tick (re-locks it); reset only triggerers, or enable last.
-- Empty servers pause (pause-when-empty-seconds=120): `/reload` applies but load functions run only on unpause.
+- Empty servers pause (pause-when-empty-seconds=120): `/reload` applies but load functions run only on unpause. After 10 min empty mcdev stops them (idle sleep).
 - Harmless server noise on transfer: netty `IoRegistration` NPE and `ServerboundResourcePackPacket ... prepare_spawn` error.
