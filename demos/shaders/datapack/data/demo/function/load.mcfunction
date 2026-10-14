@@ -1,6 +1,7 @@
 scoreboard objectives add demo.fx trigger
 scoreboard objectives add demo.left minecraft.custom:minecraft.leave_game
 scoreboard objectives add demo.st dummy
+scoreboard objectives add demo.pre dummy
 scoreboard objectives add demo.look dummy
 scoreboard objectives add demo.col dummy
 scoreboard objectives add demo.line dummy

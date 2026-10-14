@@ -13,7 +13,8 @@ Custom per-player post effects from the game resource pack (`resourcepack/assets
 | Lines      | ink, neon | 3rd |
 | Distortion | acid | last (so it bends everything else) |
 
-Presets only set layers (`demo:fx/preset`): **Cracy Frog** = acid + rainbow (the old Acid), **Comic book** = comic + ink,
+Presets only set layers; a "No X" button while a preset is on removes the whole preset, and clicking an
+active effect again turns it off. The current stack stays on the action bar. Presets only set layers (`demo:fx/preset`): **Cracy Frog** = acid + rainbow (the old Acid), **Comic book** = comic + ink,
 **Angel** = thermal, **Neon Reaper** = reaper + neon, **Star trip** = cosmic + acid. Any combination works; some are
 pointless (e.g. reaper + comic). Post effects are client state, so the stack is re-applied when a player rejoins.
 

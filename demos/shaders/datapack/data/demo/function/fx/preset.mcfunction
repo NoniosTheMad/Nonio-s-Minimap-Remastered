@@ -3,6 +3,8 @@ scoreboard players set @s demo.look 0
 scoreboard players set @s demo.col 0
 scoreboard players set @s demo.line 0
 scoreboard players set @s demo.dist 0
+scoreboard players operation @s demo.pre = @s demo.fx
+execute if score @s demo.fx matches 49 run scoreboard players set @s demo.pre 0
 # 41 Cracy Frog
 execute if score @s demo.fx matches 41 run scoreboard players set @s demo.col 11
 execute if score @s demo.fx matches 41 run scoreboard players set @s demo.dist 31
