@@ -49,16 +49,25 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - `ls`, `reload [name]`, `cmd <name> <cmd>` (RCON, port+10000), `logs <name>`, `feedback`, `restart`, `reset test`.
 - Datapacks are **junctions** into the checkout → edit + `mcdev reload <name>`. Dynamic registries (dialogs, enchantments, …) need `restart`.
 - Resource packs: zipped deterministically at start into `.mcdev/packs/<name>.zip`, served on :8800 by the daemon with sha1.
-  In-game "Refresh resource pack": queues {verb:"repack",uuid} in storage devnav:req → hop to hub → daemon rebuilds, restarts server if sha changed, transfers player back.
-- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev": What to try here (dialog, if the server has a todo), Inbox, Servers, Feedback,
-  Feedback (book), refresh pack, reload, Reset this server (ephemeral + test only; restores `.mcdev/servers/<name>/world.pristine` if present, else a fresh world). Welcome = title + one short chat line (no instruction dump in chat).
-  G → Servers rows are all `[★] name (running|asleep, ~10s)`; tooltip = desc, branch/demo, try.txt step headlines (`todo_summary`, ≤5). Full text only in that server's "What to try here".
+  **Auto reload (#33)**: the daemon (`PackWatch`) watches each up server's pack sources; once they change and stay quiet 5 s and the
+  zip's sha1 differs, it restarts that server (players on it: 5 s actionbar warning, parked on the hub, sent back). The hub only when empty.
+  No menu button for it any more.
+- In-game menu: G (Quick Actions) / pause menu → "Nonios Dev" (same 5 buttons in the same places everywhere): Inbox, Servers,
+  Feedback (book), Reload datapacks, Reset this server (ephemeral + test only, greyed elsewhere; restores `.mcdev/servers/<name>/world.pristine`
+  if present, else a fresh world). Welcome = title only (hub adds one "press G" line).
+  **What to try here** (try.txt) is a button inside the demo's own G dialog (#34): `write_demo_dialogs` copies each dialog in the demo's
+  `quick_actions` tag into the self pack (loads after `demo`, so it overrides) with that button appended; its Back returns to the demo dialog.
+  Demo authors: nothing to do, just keep the demo dialog a `multi_action` listed in the demo's quick_actions tag.
+  G → Servers rows are all `[★] name (running|asleep, ~10s)`; tooltip ≤6 lines of ≤34 chars (`tip_lines`): desc, branch/demo, step headlines.
+  G → Servers / Archive are built by the daemon in storage `devnav:ui nav|arch` (`dialog_commands`, one RCON command per button) on every
+  registry change and after each start, shown by `$dialog show @s $(nav)`. Nothing is /reloaded when a server sleeps/wakes.
 - **Spawn (void worlds, #27)**: `s["spawn"]` = `up --spawn "x y z [yaw]"` / `demos/<demo>/spawn.txt` / kept / default 0 64 0. Self pack `devnav:spawn_set` (on load):
   setworldspawn there, `respawn_radius 0`, forceload its chunk, 7x7 smooth stone under it if air (`keep`). On join/transfer `devnav:ground_check` runs for 2 s:
   no block anywhere in the player's column (or below the world) → `devnav:to_spawn`. Spectators skipped.
-  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack, 3 reload, 4 feedback dialog, 5 reset, 6 inbox, 7 back to menu, 8 todo, 9 book).
+  Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack (legacy), 3 reload, 4 and 9 feedback book, 5 reset, 6 inbox, 7 back to menu,
+  8 todo, 10 archive, 11 back to the demo dialog).
 - **Feedback** (`.mcdev/feedback.log`, entries `#N ...`; read with `mcdev feedback`, `--ack`):
-  - Text box (menu → Feedback, dialog `devnav:feedback`): topic + multiline text (4000 chars); Send = `dynamic/custom` id `devnav:feedback` (no op prompt).
+  - Text box (legacy, no longer in the menu, #33; the daemon still parses it): topic + multiline text; Send = `dynamic/custom` id `devnav:feedback`.
     The server logs it only at DEBUG ("Received custom click action <id> with payload <snbt>"), so servers launch with
     `-Dlog4j2.configurationFile=.mcdev/log4j2.xml` = vanilla's config (from the com/mojang/logging lib) + MinecraftServer at DEBUG with a RegexFilter
     letting only that line through. The daemon tails it, parses the SNBT payload (`snbt_compound`), writes an entry and replies "✔ noted (#N)".
@@ -66,7 +75,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   - Chat: every line the user types on a dev server is feedback. The daemon tails each `logs/latest.log` (`<Name> text`, opt. `[Not Secure]`),
     acks each line with a gray "✔ noted (#N)", groups lines per player+server until 90s quiet (or they leave) into one entry titled "chat".
     The open group is persisted in `.mcdev/chat_pending.json` (survives daemon restarts).
-  - Book & Quill (menu → Feedback (book)): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
+  - Book & Quill (menu → Feedback (book), the only menu feedback): signing fires advancement devnav:fb_signed → book copied to storage devnav:fb inbox → request queued in storage devnav:req
     (daemon polls it over persistent RCON) → daemon drains it into the log. Both get context (branch@commit, pos, server log, client chat).
   - Screenshots (F2): the daemon polls the client's `screenshots\` every 2s (files older than the daemon are ignored), copies each new PNG to
     `.mcdev/screenshots/<N>.png`, acks "📷 noted (#N)" and after 60s writes entry "screenshot" (image path first, + the user's chat lines within ±60s,
@@ -81,7 +90,10 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   Only success feedback of commands a player runs is hidden; errors, tellraw and RCON replies are unaffected.
 - **Idle sleep**: the daemon checks `list` over RCON every 15s; a server (never `hub`) empty for `IDLE_SLEEP_SECS` (10 min) is stopped
   and marked `status: "sleeping"` (kept in `ls` and G → Servers, dimmed "(asleep, ~10s)", ★ kept). Clicking it = `trigger devnav.wake set <port>`
-  → {verb:"wake",uuid,port} in devnav:req → daemon starts it with its saved settings and transfers the player from wherever they are.
+  → {verb:"wake",uuid,port} in devnav:req → daemon starts it with its saved settings; meanwhile an actionbar countdown (`countdown`, estimate =
+  the server's last `boot_secs`) shows wherever the player is, and `start(on_ready=...)` transfers them the moment "Done" appears.
+  **Player targets from the daemon are UUIDs: always `execute as <uuid> run <cmd> @s`** (`transfer`/`tellraw`/`title` take player-only
+  selectors and reject a UUID at parse time; that silently broke every wake transfer until 2026-10-14, #30/#36). `send_back` confirms arrival.
   `mcdev up <name>` also wakes it. Inbox only hears about failed wakes. Test overrides (read at daemon start): env `MCDEV_IDLE_SECS`, `MCDEV_IDLE_ONLY=fx,..`.
 - **Archive** (old tests; don't keep every server open): `mcdev archive <name> [--note ".."]` stops it, keeps `.mcdev/servers/<name>` (world),
   records `archive: {date, note, commit, port, aid}`, pins the commit as `refs/mcdev/archive/<name>`, clears ★, sets `status: "archived"`, `port: 0` (freed).
@@ -90,13 +102,27 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   click = `trigger devnav.revive set <aid>` → {verb:"revive",uuid,id} → daemon unarchives + starts + transfers (same path as wake).
   Archived 2026-10-14: nexus, shop, purse (merged into m2/econ), fx (old posteffect probe).
 - `start` waits (≤30s) until the game + RCON ports are free (bind test) before launching: fixes `restart` failing with "port in use".
-- Daemon code changes need a daemon restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`) starts it again.
+- The daemon restarts itself when `tools/mcdev.py` changes (quiet 3 s, compiles, no start/stop in flight; logged "mcdev.py changed: restarting").
+  Daemons older than that commit need one manual restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`).
+  Running servers keep the old devnav functions/menus until their next start (dialogs are a registry).
   Only one daemon can run: a second one fails to bind :8800 (SO_REUSEADDR disabled) and exits.
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
 - Client log (to trace what the user does): `C:\Users\danir\curseforge\minecraft\Instances\Nonios's Map Remastered\logs\latest.log`.
   Client jar (vanilla assets/shaders reference): `C:\Users\danir\curseforge\minecraft\Install\versions\26.3\26.3.jar`.
 
+## Dialog UI rules (project-wide, user feedback #41/#44, 2026-10-14)
+The user plays at a GUI scale below default; dialogs that put text at the very top and buttons at the very bottom are hard to use.
+Applies to every dialog: game pack, demos, devnav.
+- **Compact**: body text short (1-2 lines) so it sits right above the buttons. Long explanations go in a button's `tooltip`, a separate
+  "What to try here"/info dialog, or try.txt; never a paragraph above the controls. Numbers the player needs (balance, cost) go in the body or the button label.
+- **Buttons never move**: the same dialog always has the same buttons in the same order and positions, whatever the state.
+- **Unavailable = greyed, not gone**: omit the button's `action` (the client renders it inactive), grey label (`dark_gray`), and a `tooltip` that says why
+  ("Need 50 coins", "Only during preparation"). Never drop or reorder buttons to hide an action.
+- Prefer `columns: 2` and short labels; a Back/Close button in a fixed last position.
+- Check at **GUI scale 2** (Options → Video Settings) before handing a dialog to the user.
+
 ## 26.3 facts verified so far
+- A dialog action button without `action` parses and renders inactive (greyed). `transfer`/`tellraw`/`title` reject a UUID target ("Only players may be affected"): use `execute as <uuid> run ... @s`.
 - `/dialog show @s {inline SNBT}` parses; `/posteffect add <player> <id>` exists. Vanilla post effects: blur, creeper, entity_outline, invert, spider.
 - Gamerules are snake_case (`advance_time`, `spawn_mobs`, …). `/transfer` needs op 3; servers need `accepts-transfers=true`.
 - Server needs a resource-pack sha1, else client caches by URL.
