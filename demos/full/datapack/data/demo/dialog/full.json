@@ -8,7 +8,7 @@
   "type": "minecraft:plain_message",
   "width": 320,
   "contents": {
-   "text": "Solo test buttons for main: the whole match (M2 core, economy, generators, Emerald Dream, arena nodes/events, arena gates + core), every class, the V2 shop (53-55) and the team altar / spawn defense / talisman (56-64). Class buttons are free; the shop sells them too.",
+   "text": "Solo test buttons for main: the whole match (M2 core, economy, generators, Emerald Dream, arena nodes/events, arena gates + core), every class, the V2 shop (53-55) and the team altar / spawn defense / talisman (56-64), bank (65-66). Class buttons are free; the shop sells them too.",
    "color": "gray"
   }
  },
@@ -775,6 +775,29 @@
    },
    "tooltip": {
     "text": "For the Dragon Skull"
+   }
+  },
+  {
+   "label": "TP: my bank",
+   "tooltip": {
+    "text": "Next to the pad: step on a gold plate to bank your purse, right-click the vault to withdraw"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 65"
+   }
+  },
+  {
+   "label": {
+    "text": "Match clock +10 min",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Interest and coin weight jump as if 10 minutes passed"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 66"
    }
   }
  ],

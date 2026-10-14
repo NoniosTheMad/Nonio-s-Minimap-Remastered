@@ -1,5 +1,4 @@
-# one interest payout for both team banks (also the demo's "fast-forward interest"); terms from economy/rate
+# one interest second for both team banks (economy/tick once a second in prep + battle; also the demo's "Pay interest now")
 function nonios:economy/rate
 function nonios:bank/interest/team {team:"white"}
 function nonios:bank/interest/team {team:"black"}
-function nonios:economy/hud/second

@@ -26,3 +26,16 @@ Economy v3 (feat/econ-v3, feedback #35 #36 #41):
   No chat: team sidebar `economy/hud` (objectives nx.sb_white / nx.sb_black on sidebar.team.white / .dark_purple, fixed number formats).
 - Bank dialog: fixed layout, greyed buttons (`storage nonios:bank off`, no action). Altar hologram icons: plain list root (no inherited tint).
 - Demo buttons 16 ore wall + pickaxes, 17 match clock +5 min (#t0 nx.eco -= 6000), 18 status readout, 19 altar + offering blocks.
+
+Bank v4 (feat/bank-v4, feedback #47; replaces the bank dialog sliders and the 60 s interest loop above):
+- Deposit = contact: `map/gen/bank` puts 8 `light_weighted_pressure_plate`s around the vault. `bank/pad/tick` (every tick from
+  `economy/tick`) fires `bank/pad/enter` once when a player steps onto a plate within 2.6 of a `nx.bank_zone` marker (tag `nx.bk.on`
+  until they step off). Own team + prep/battle -> `bank/pad/deposit`: whole purse to the bank; depositor subtitle + sounds + particles,
+  team chat line + chime, enemy team actionbar "<Team> banked N" + bell. Other team's pad: vault reject sound.
+- Withdraw = vault dialog (`bank/open`): body purse / bank / interest; fixed buttons 10 50 100 200 500 1000 (`nx.bankw set N`),
+  Half (`nx.bankt 4`), All (`nx.bankt 3`); greyed (no action, tooltip) when the bank holds less. A stale click larger than the bank is refused.
+  Teammates get an actionbar line. Trigger `nx.bankd` removed.
+- Interest: paid every second from `economy/tick` (prep + battle). `economy/rate`: rate (basis points) = interest_start +
+  (interest_end - interest_start) * min(match s, interest_ramp) / interest_ramp (100 -> 1000 over 1800 s), cap interest_cap_s (20) coins/s.
+  Fractions carried in `#acc_<team> nx.eco` (1/10000 coin); a capped second drops its remainder. No sound. Sidebar rows Bank / Interest / Income.
+- Demo: "Interest: +60 s" pays 60 seconds at once; Status shows the carried fractions.

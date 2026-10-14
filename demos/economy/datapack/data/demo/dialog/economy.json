@@ -86,7 +86,7 @@
         "color": "aqua"
       },
       "tooltip": {
-        "text": "Money scale and interest jump as if 5 minutes passed"
+        "text": "Coin weight and interest jump as if 5 minutes passed"
       },
       "width": 150,
       "action": {
@@ -96,11 +96,11 @@
     },
     {
       "label": {
-        "text": "Pay interest now",
+        "text": "Interest: +60 s",
         "color": "aqua"
       },
       "tooltip": {
-        "text": "One interest payout to both team banks"
+        "text": "Pays one minute of interest at once (60 payouts)"
       },
       "width": 150,
       "action": {
@@ -114,12 +114,15 @@
       "action": {
         "type": "minecraft:run_command",
         "command": "trigger demo.ec set 7"
+      },
+      "tooltip": {
+        "text": "Next to the pad: step on a gold plate to bank, right-click the vault to withdraw"
       }
     },
     {
       "label": "Go to the enemy bank",
       "tooltip": {
-        "text": "Its vault refuses you"
+        "text": "Its pad and vault refuse you"
       },
       "width": 150,
       "action": {
