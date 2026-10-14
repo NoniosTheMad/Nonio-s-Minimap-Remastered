@@ -1,0 +1,154 @@
+<title>Nonios's Map Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --ground:#F4F3F7; --surface:#FFFFFF; --ink:#1D1925; --muted:#686274; --line:#E1DDE8;
+  --accent:#5A3E9E; --accent-soft:#ECE6F8;
+  --done:#2D7D52; --done-soft:#E3F2EA; --wait:#A86F05; --wait-soft:#FBF0D9; --todo:#8D879A;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#14111A; --surface:#1D1925; --ink:#ECE8F3; --muted:#A39CB0; --line:#2F2A39;
+    --accent:#A98EEB; --accent-soft:#2A2240;
+    --done:#5CC28B; --done-soft:#17291F; --wait:#E8B04A; --wait-soft:#2E2412; --todo:#7C7589;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#14111A; --surface:#1D1925; --ink:#ECE8F3; --muted:#A39CB0; --line:#2F2A39;
+  --accent:#A98EEB; --accent-soft:#2A2240;
+  --done:#5CC28B; --done-soft:#17291F; --wait:#E8B04A; --wait-soft:#2E2412; --todo:#7C7589;
+}
+body{background:var(--ground);color:var(--ink);font:15px/1.55 var(--body);padding-inline:16px;padding-block:28px 56px}
+.wrap{max-width:880px;margin:0 auto;display:grid;gap:36px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(28px,5vw,40px);font-weight:800;line-height:1.1}
+h2{font-size:20px;font-weight:600}
+p{margin:0;max-width:65ch}
+.label{font:500 11px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+header{display:grid;gap:10px}
+header p{color:var(--muted)}
+.updated{font-family:var(--mono);font-size:12px;color:var(--muted)}
+section{display:grid;gap:14px}
+
+/* waiting on you: the one lifted object */
+.you{background:var(--wait-soft);border:1px solid color-mix(in srgb,var(--wait) 35%,transparent);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
+.you h2{color:var(--wait)}
+.you ol{margin:0;padding-left:20px;display:grid;gap:8px}
+.you b{font-weight:600}
+kbd{font:500 12px var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+/* milestone track */
+.track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.track li{display:grid;gap:6px;align-content:start}
+.bar{height:6px;border-radius:3px;background:var(--line)}
+.done .bar{background:var(--done)} .now .bar{background:linear-gradient(90deg,var(--accent) 40%,var(--line) 40%)}
+.track .id{font:500 12px var(--mono);color:var(--muted)}
+.track .nm{font-weight:600;font-size:13px;line-height:1.3}
+.now .id{color:var(--accent)} .done .id{color:var(--done)}
+@media (max-width:640px){.track{grid-template-columns:1fr}.track li{grid-template-columns:44px 1fr;align-items:center}.track .bar{grid-column:1/-1;order:3}}
+
+/* current milestone items */
+.items{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.items li{display:grid;grid-template-columns:118px 1fr;gap:4px 16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.items .what{font-weight:600}
+.items .why{color:var(--muted);grid-column:2;font-size:14px}
+.pill{justify-self:start;align-self:start;font:500 11px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:5px 8px;border-radius:999px;white-space:nowrap}
+.p-done{background:var(--done-soft);color:var(--done)} .p-wait{background:var(--wait-soft);color:var(--wait)}
+.p-now{background:var(--accent-soft);color:var(--accent)} .p-todo{background:transparent;color:var(--todo);border:1px solid var(--line)}
+@media (max-width:520px){.items li{grid-template-columns:1fr}.items .why{grid-column:1}}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:700px){.cols{grid-template-columns:1fr}}
+dl{margin:0;display:grid;gap:10px}
+dt{font-weight:600} dd{margin:0;color:var(--muted);font-size:14px}
+.log{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+.log time{font:500 12px var(--mono);color:var(--muted);margin-right:8px}
+a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">Remaster · Minecraft Java 26.3 · vanilla</span>
+    <h1>Nonios's Map Roadmap</h1>
+    <p>Two teams, each with its own field and a Nexus of obsidian; a contested arena in between. Destroy the enemy Nexus to win. Every system rebuilt for 26.3: datapack, resource pack and shaders, no mods.</p>
+    <span class="updated">Updated 2026-10-14 · source of truth: PROGRESS.md in the repo</span>
+  </header>
+
+  <section class="you" aria-labelledby="you-h">
+    <h2 id="you-h">Waiting on you</h2>
+    <ol>
+      <li><b>Shaders:</b> go to server <b>shaders</b>, press <kbd>G</kbd> → <b>Demo: custom shaders</b>, then try Reaper, Acid, and both together. Send a feedback book on how they look.</li>
+      <li><b>Nothing else right now.</b> The Nexus barrier comes back to you once it has visuals.</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="ms-h">
+    <span class="label" id="ms-h">Milestones</span>
+    <ol class="track">
+      <li class="done"><span class="id">M0</span><span class="nm">Dev framework</span><span class="bar"></span></li>
+      <li class="now"><span class="id">M1 · now</span><span class="nm">Spikes</span><span class="bar"></span></li>
+      <li><span class="id">M2</span><span class="nm">Playable core</span><span class="bar"></span></li>
+      <li><span class="id">M3</span><span class="nm">Economy</span><span class="bar"></span></li>
+      <li><span class="id">M4</span><span class="nm">Progression &amp; Arena</span><span class="bar"></span></li>
+      <li><span class="id">M5</span><span class="nm">Classes</span><span class="bar"></span></li>
+      <li><span class="id">M6</span><span class="nm">Map &amp; polish</span><span class="bar"></span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="m1-h">
+    <h2 id="m1-h">M1 · Spikes</h2>
+    <p style="color:var(--muted)">Small proofs that the risky parts work in vanilla 26.3 before we build the game on them.</p>
+    <ul class="items">
+      <li><span class="pill p-done">Done</span><span class="what">Vanilla post effects (/posteffect)</span><span class="why">Server fx. Effects apply per player and stack.</span></li>
+      <li><span class="pill p-wait">Your test</span><span class="what">Custom shaders: Reaper and Acid</span><span class="why">Server shaders. Built and compiling; not yet seen in your client.</span></li>
+      <li><span class="pill p-now">Now</span><span class="what">Nexus barrier visuals</span><span class="why">Breaking the barrier works. It needs to look like a barrier (a worldborder-style shimmer, a flash on hit) so new players understand why the obsidian won't break.</span></li>
+      <li><span class="pill p-todo">Next</span><span class="what">Shop dialog</span><span class="why">Buy one item from an in-game menu, with no command prompts.</span></li>
+      <li><span class="pill p-todo">Next</span><span class="what">Coin purse</span><span class="why">Mining earns coins; carrying them slows you down; when you die, your purse goes to your killer.</span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="ahead-h">
+    <h2 id="ahead-h">What each milestone delivers</h2>
+    <dl>
+      <dt>M2 · Playable core</dt><dd>Teams, match phases, the Nexus with its barrier, respawn, a win screen and a map reset. The first real match.</dd>
+      <dt>M3 · Economy</dt><dd>Coins and their weight, the bank, kill rewards and the full shop.</dd>
+      <dt>M4 · Progression &amp; Arena</dt><dd>Field upgrades, generators, arena events, and the Emerald Dream dimension.</dd>
+      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders.</dd>
+      <dt>M6 · Map &amp; polish</dt><dd>The new map build, sounds, textures, balance and playtests.</dd>
+    </dl>
+  </section>
+
+  <div class="cols">
+    <section aria-labelledby="dec-h">
+      <h2 id="dec-h">Decided</h2>
+      <dl>
+        <dt>Nexus</dt><dd>A barrier with a health bar protects the obsidian. It regenerates about 5% a minute unless it's fully destroyed.</dd>
+        <dt>Scale</dt><dd>Typical matches run 2v2 to 5v5, and it holds up to 20 per team.</dd>
+        <dt>Coins</dt><dd>Carrying coins slows you; dying gives your purse to the killer; the bank is safe.</dd>
+        <dt>Emerald Dream</dt><dd>Its own dimension; you leave by sneaking for a few seconds.</dd>
+        <dt>Map &amp; tone</dt><dd>A new map, keeping the legacy humour and lore.</dd>
+      </dl>
+    </section>
+    <section aria-labelledby="open-h">
+      <h2 id="open-h">Still open</h2>
+      <dl>
+        <dt>Respawn gear vs keepInventory</dt><dd>Your idea: keep the inventory, but the bank and the reward go to the killer. Needs to be reconciled with class kits in M2.</dd>
+        <dt>Main world</dt><dd>Start from a fresh flat world or import terrain. Decide before the M6 build.</dd>
+      </dl>
+    </section>
+  </div>
+
+  <section aria-labelledby="log-h">
+    <h2 id="log-h">Recent changes</h2>
+    <ul class="log">
+      <li><time>10-14</time>Feedback is now a Book &amp; Quill: any length or characters, sent quietly with full context.</li>
+      <li><time>10-14</time>G menu: ★ marks servers waiting for your review; "Reset this server" gives a fresh demo world.</li>
+      <li><time>10-14</time>Demo buttons fixed, and every server checks for that kind of bug when it starts.</li>
+      <li><time>10-14</time>Dev framework done: hub, main, test and demo servers, switching in-game, resource packs.</li>
+    </ul>
+  </section>
+</div>

@@ -21,6 +21,14 @@ Read this first, then `PROGRESS.md` (live state / next steps) and `DESIGN.md` (g
 - **Monitoring is quiet**: only watch new feedback + crashes/function-load errors (`Failed to load function`,
   `Exception in server tick`, OOM). Never stream joins/transfers/http noise. Arm a monitor only while the user is testing.
 - Don't react mid-task to routine events; batch them into the next checkpoint. Record outcomes in PROGRESS.md.
+- **Keep the user's view readable (user request 2026-10-14):**
+  - Roadmap page = the user's single overview: `docs/roadmap.html`, published at https://claude.ai/artifact/4WajBmJQ4aNWKq1LYBnxMM.
+    Update it and republish (same file path, or pass that URL from a new session) at every checkpoint. Keep it in sync with PROGRESS.md.
+  - Implementation work (features, demos, framework fixes) runs in **background subagents** in their own worktree/branch.
+    This session only specs, reviews diffs, merges and talks to the user. No streams of tool calls here.
+  - **No live monitors.** Check feedback and crash lines at checkpoints only (`mcdev feedback`, grep the logs).
+  - Message the user only at checkpoints, in this format: **Done** / **Waiting on you** (exact in-game steps) / **Next**, plus the roadmap link. A few lines.
+  - When the user writes mid-task: answer briefly, then continue.
 
 ## Layout
 ```
