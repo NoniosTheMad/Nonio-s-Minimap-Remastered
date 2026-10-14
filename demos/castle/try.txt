@@ -1,0 +1,5 @@
+Castle: written as code (scenes/castle.py), rendered, then placed here. Judge it as a build.
+1. G > "Castle": teleports (gate, hall, library, chapel, cellar, wall-walk, keep top). Walk it: spiral stair in the copper turret, ladders in the towers.
+2. Feedback: type in chat (each line is noted), or F2 screenshot + a chat line. What looks wrong, fake, empty or ugly?
+3. Or fix it yourself in Creative, then say "pull" in chat: the agent diffs your edits against the code.
+"Reset this server" (G > Nonios Dev) restores the castle as placed.
