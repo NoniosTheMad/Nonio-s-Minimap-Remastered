@@ -1,0 +1,295 @@
+{
+ "_doc": [
+  "Resource generators: source of truth. Run `python tools/build_generators.py` after editing.",
+  "Outputs: data/nonios/loot_table/generator/<team>_lvl<N>.json (+ jackpot_*), function/generator/config.mcfunction.",
+  "Odds come from V2.0 (1.12): each drop rolls 1 of 81 equally likely outcomes (two 9-slot dispensers).",
+  "  type roll: cobblestone 4/9 -> 'common', log 2/9 -> 'mid', apple 1/9 -> 'rare', lapis 2/9 -> ore roll",
+  "  ore roll:  coal 3/9 -> 'ore1', iron 3/9 -> 'ore2', gold 2/9 -> 'ore3', diamond 1/9 -> 'ore4'",
+  "  so per 81: common 36, mid 18, rare 9, ore1 6, ore2 6, ore3 4, ore4 2.",
+  "In V2 the outcome was a block that regenerated on the generator when mined; here we drop what mining it gives",
+  "(no fortune). Emerald ore / emerald block outcomes become coins in the generator's pot instead of items.",
+  "weight = outcomes out of 81. 'coins' = emeralds credited to the pot (x emerald_coins each)."
+ ],
+ "emerald_coins": 5,
+ "players_per_roll": 4,
+ "item_cap": 16,
+ "levels": {
+  "1": {
+   "interval_ticks": 200,
+   "pot_cap": 50,
+   "core": "minecraft:iron_ingot",
+   "upgrade_cost": 75
+  },
+  "2": {
+   "interval_ticks": 160,
+   "pot_cap": 150,
+   "core": "minecraft:diamond",
+   "upgrade_cost": 200
+  },
+  "3": {
+   "interval_ticks": 120,
+   "pot_cap": 500,
+   "core": "minecraft:emerald",
+   "upgrade_cost": 500
+  }
+ },
+ "_levels_doc": "upgrade_cost = coins the V2 sign charged to reach this level (75 built lvl1, 200 -> lvl2, 500 -> lvl3).",
+ "jackpots": {
+  "chest_a": {
+   "_from": "V2 lvl2 chest (both teams); its emerald block is not modelled",
+   "items": {
+    "minecraft:oak_log": 8,
+    "minecraft:iron_ingot": 6,
+    "minecraft:cooked_beef": 7,
+    "minecraft:golden_carrot": 2,
+    "minecraft:cobblestone": 8,
+    "minecraft:gold_ingot": 8,
+    "minecraft:chest": 1
+   }
+  },
+  "chest_b": {
+   "_from": "V2 white lvl3 chest",
+   "items": {
+    "minecraft:spectral_arrow": 16,
+    "minecraft:gold_block": 2,
+    "minecraft:golden_carrot": 6,
+    "minecraft:oak_log": 16,
+    "minecraft:golden_apple": 2,
+    "minecraft:diamond_block": 1,
+    "minecraft:iron_block": 2,
+    "minecraft:chest": 1
+   }
+  },
+  "chest_c": {
+   "_from": "V2 black lvl3 chest",
+   "items": {
+    "minecraft:arrow": 4,
+    "minecraft:iron_ingot": 2,
+    "minecraft:golden_carrot": 2,
+    "minecraft:gold_ingot": 2,
+    "minecraft:oak_log": 4,
+    "minecraft:redstone": 1,
+    "minecraft:lapis_lazuli": 1,
+    "minecraft:glowstone_dust": 1,
+    "minecraft:sand": 2,
+    "minecraft:golden_apple": 1,
+    "minecraft:chest": 1
+   }
+  }
+ },
+ "tables": {
+  "white": {
+   "1": [
+    [
+     "minecraft:cobblestone",
+     36,
+     "stone"
+    ],
+    [
+     "minecraft:oak_log",
+     18
+    ],
+    [
+     "minecraft:hay_block",
+     9
+    ],
+    [
+     "minecraft:coal",
+     6,
+     "coal_ore"
+    ],
+    [
+     "minecraft:raw_iron",
+     6,
+     "iron_ore"
+    ],
+    [
+     "coins",
+     4,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     2
+    ]
+   ],
+   "2": [
+    [
+     "minecraft:cobblestone",
+     36,
+     "stone"
+    ],
+    [
+     "minecraft:sandstone",
+     18
+    ],
+    [
+     "coins",
+     9,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:raw_gold",
+     6,
+     "gold_ore"
+    ],
+    [
+     "minecraft:diamond",
+     6,
+     "diamond_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     4
+    ],
+    [
+     "jackpot:chest_a",
+     2
+    ]
+   ],
+   "3": [
+    [
+     "coins",
+     36,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:diamond",
+     18,
+     "diamond_ore"
+    ],
+    [
+     "coins",
+     9,
+     9,
+     "emerald_block"
+    ],
+    [
+     "minecraft:iron_block",
+     6
+    ],
+    [
+     "minecraft:gold_block",
+     6
+    ],
+    [
+     "minecraft:diamond_block",
+     4
+    ],
+    [
+     "jackpot:chest_b",
+     2
+    ]
+   ]
+  },
+  "black": {
+   "1": [
+    [
+     "minecraft:cobblestone",
+     36
+    ],
+    [
+     "minecraft:oak_log",
+     18
+    ],
+    [
+     "minecraft:hay_block",
+     9
+    ],
+    [
+     "minecraft:coal",
+     6,
+     "coal_ore"
+    ],
+    [
+     "minecraft:raw_iron",
+     6,
+     "iron_ore"
+    ],
+    [
+     "coins",
+     4,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     2
+    ]
+   ],
+   "2": [
+    [
+     "minecraft:cobblestone",
+     36,
+     "stone"
+    ],
+    [
+     "minecraft:netherrack",
+     18
+    ],
+    [
+     "coins",
+     9,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:raw_gold",
+     6,
+     "gold_ore"
+    ],
+    [
+     "minecraft:diamond",
+     6,
+     "diamond_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     4
+    ],
+    [
+     "jackpot:chest_a",
+     2
+    ]
+   ],
+   "3": [
+    [
+     "coins",
+     36,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:diamond",
+     18,
+     "diamond_ore"
+    ],
+    [
+     "coins",
+     9,
+     9,
+     "emerald_block"
+    ],
+    [
+     "minecraft:iron_block",
+     6
+    ],
+    [
+     "minecraft:gold_block",
+     6
+    ],
+    [
+     "minecraft:diamond_block",
+     4
+    ],
+    [
+     "jackpot:chest_c",
+     2
+    ]
+   ]
+  }
+ }
+}

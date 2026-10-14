@@ -5,3 +5,5 @@ $execute positioned 0 0 0 run function nonios:map/gen/mine with storage nonios:m
 $function nonios:map/gen/bank with storage nonios:map $(t).bank
 $function nonios:shop/spawn_npc with storage nonios:map $(t).shop
 $function nonios:map/gen/label with storage nonios:map $(t).label
+$function nonios:map/gen/generator with storage nonios:map $(t).gen
+$function nonios:map/gen/dream_pad with storage nonios:map $(t).dream

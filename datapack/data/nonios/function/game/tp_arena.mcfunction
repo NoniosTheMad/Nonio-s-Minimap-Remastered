@@ -1,1 +1,1 @@
-$tp @s $(cx) $(cy) $(cz)
+$execute in minecraft:overworld run tp @s $(cx) $(cy) $(cz)

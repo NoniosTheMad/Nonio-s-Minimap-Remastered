@@ -7,3 +7,7 @@ function nonios:shop/load
 function nonios:purse/load
 function nonios:game/load
 function nonios:economy/load
+function nonios:generator/load
+function nonios:dream/load
+function nonios:arena/load
+function nonios:portal/load

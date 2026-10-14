@@ -1,0 +1,5 @@
+# as a player: print every node and the arena timers
+tag @s add nx.ar_ask
+tellraw @s [{text:"[arena] ",color:"aqua"},{text:"on ",color:"gray"},{score:{name:"#on",objective:"nx.arena"},color:"yellow"},{text:" | speed x",color:"gray"},{score:{name:"#speed",objective:"nx.arena"},color:"yellow"},{text:" | payout x",color:"gray"},{score:{name:"#mult",objective:"nx.arena"},color:"yellow"},{text:" | next event in ",color:"gray"},{score:{name:"#ev_t",objective:"nx.arena"},color:"yellow"},{text:" ticks | lightning ",color:"gray"},{score:{name:"#lt_on",objective:"nx.arena"},color:"yellow"}]
+execute as @e[type=marker,tag=nx.node] run tellraw @a[tag=nx.ar_ask] [{text:"  ",color:"gray"},{entity:"@s",nbt:"data.name",color:"yellow"},{text:": owner ",color:"gray"},{score:{name:"@s",objective:"nx.ar_own"},color:"white"},{text:" (0 none, 1 white, 2 black), progress ",color:"gray"},{score:{name:"@s",objective:"nx.ar_cap"},color:"white"},{text:", payout in ",color:"gray"},{score:{name:"@s",objective:"nx.ar_t"},color:"white"},{text:" ticks",color:"gray"}]
+tag @s remove nx.ar_ask

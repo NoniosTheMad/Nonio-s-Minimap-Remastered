@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:sequence",
+ "sequence": [
+  {
+   "type": "minecraft:ore_vein",
+   "density": "nonios:dream/emerald_vein",
+   "filler_block": "minecraft:calcite",
+   "filler_gap": "minecraft:overworld/ore_vein/gap",
+   "ore_block": "minecraft:emerald_ore",
+   "raw_ore_block": "minecraft:emerald_block",
+   "raw_ore_chance": 0.01,
+   "richness": "minecraft:overworld/ore_vein/richness"
+  },
+  {"type": "minecraft:condition", "if_true": "minecraft:on_floor", "then_run": {"type": "minecraft:block", "result_state": "minecraft:grass_block"}},
+  {"type": "minecraft:condition", "if_true": "minecraft:under_floor", "then_run": {"type": "minecraft:block", "result_state": "minecraft:dirt"}},
+  {"type": "minecraft:condition", "if_true": "minecraft:on_ceiling", "then_run": {"type": "minecraft:block", "result_state": "minecraft:moss_block"}}
+ ]
+}

@@ -18,6 +18,8 @@ kill @e[type=husk,tag=nx.dummy]
 function nonios:nexus/spawn with storage nonios:map white.nexus
 function nonios:nexus/spawn with storage nonios:map black.nexus
 function nonios:map/walls/up
+execute as @a[tag=nx.in_dream] run function nonios:dream/force_exit
+function nonios:game/reset_world
 execute as @a[team=white] run function nonios:game/enter {team:"white"}
 execute as @a[team=black] run function nonios:game/enter {team:"black"}
 execute as @a[team=] run function nonios:game/spectate

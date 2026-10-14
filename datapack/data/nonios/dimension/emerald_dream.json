@@ -1,0 +1,8 @@
+{
+ "type": "nonios:emerald_dream",
+ "generator": {
+  "type": "minecraft:noise",
+  "biome_source": {"type": "minecraft:fixed", "biome": "nonios:emerald_dream"},
+  "settings": "nonios:emerald_dream"
+ }
+}
