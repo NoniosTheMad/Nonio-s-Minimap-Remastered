@@ -225,7 +225,7 @@ Remaster/
 
 1. **Nexus = Barrier + Obsidian.** The obsidian block is the final target (mine it to win/eliminate). It is protected by a
    **Barrier** with HP shown as a team **bossbar** (visible to the defending team — warns of infiltration). While the barrier
-   is up the obsidian can't be mined. Barrier regenerates **~5% per minute** unless fully destroyed (then stays down).
+   is up the obsidian can't be mined. Barrier regenerates **~20% per minute** unless fully destroyed (then stays down).
    Purpose: sneaking in with few players is not an instant win.
 2. **Scale:** no hard player cap (no per-player command blocks). Design target up to **20 per team**; typical games **2v2–5v5**.
    Field size / generators must scale with team size.

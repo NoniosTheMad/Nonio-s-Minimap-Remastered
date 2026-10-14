@@ -47,7 +47,7 @@
   },
   {
    "label": {
-    "text": "Regen x1 (5%/min)",
+    "text": "Regen x1 (20%/min)",
     "color": "gray"
    },
    "action": {

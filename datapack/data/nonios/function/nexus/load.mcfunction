@@ -29,7 +29,7 @@ bossbar set nonios:barrier_black style notched_10
 execute unless score #barrier_max nx.const matches 1.. run scoreboard players set #barrier_max nx.const 1000
 execute unless score #regen_mult nx.const matches 1.. run scoreboard players set #regen_mult nx.const 1
 execute unless score #regen_delay nx.const matches 0.. run scoreboard players set #regen_delay nx.const 200
-scoreboard players set #regen_unit nx.const 24000
+scoreboard players set #regen_unit nx.const 6000
 scoreboard players set #100 nx.const 100
 scoreboard players set #5 nx.const 5
 scoreboard players set #-1 nx.const -1
