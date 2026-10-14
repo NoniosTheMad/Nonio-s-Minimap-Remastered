@@ -27,12 +27,17 @@
                     {
                         "name": "EntityHeat",
                         "type": "float",
-                        "value": 0.62
+                        "value": 0.7
                     },
                     {
-                        "name": "ColdLuma",
+                        "name": "Near",
                         "type": "float",
-                        "value": 0.12
+                        "value": 0.05
+                    },
+                    {
+                        "name": "HandDist",
+                        "type": "float",
+                        "value": 0.9
                     },
                     {
                         "name": "DepthReversed",
@@ -66,7 +71,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 5.0
+                        "value": 6.0
                     }
                 ]
             }
@@ -95,7 +100,7 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 5.0
+                        "value": 6.0
                     }
                 ]
             }
@@ -124,7 +129,65 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 16.0
+                        "value": 6.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "glow",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 6.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "glow",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 22.0
                     }
                 ]
             }
@@ -153,7 +216,65 @@
                     {
                         "name": "Radius",
                         "type": "float",
-                        "value": 16.0
+                        "value": 22.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "wide",
+                    "bilinear": true
+                }
+            ],
+            "output": "tmp",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 22.0
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/box_blur",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "tmp",
+                    "bilinear": true
+                }
+            ],
+            "output": "wide",
+            "uniforms": {
+                "BlurConfig": [
+                    {
+                        "name": "BlurDir",
+                        "type": "vec2",
+                        "value": [
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    {
+                        "name": "Radius",
+                        "type": "float",
+                        "value": 22.0
                     }
                 ]
             }
@@ -164,7 +285,8 @@
             "inputs": [
                 {
                     "sampler_name": "In",
-                    "target": "minecraft:main"
+                    "target": "minecraft:main",
+                    "bilinear": true
                 },
                 {
                     "sampler_name": "Heat",
@@ -190,64 +312,64 @@
             "uniforms": {
                 "ThermalConfig": [
                     {
-                        "name": "ColdDark",
-                        "type": "vec4",
-                        "value": [
-                            0.012,
-                            0.01,
-                            0.05,
-                            1.0
-                        ]
-                    },
-                    {
-                        "name": "ColdLight",
-                        "type": "vec4",
-                        "value": [
-                            0.2,
-                            0.1,
-                            0.46,
-                            1.0
-                        ]
-                    },
-                    {
-                        "name": "EdgeColor",
-                        "type": "vec4",
-                        "value": [
-                            0.18,
-                            0.22,
-                            0.6,
-                            1.0
-                        ]
-                    },
-                    {
-                        "name": "ColdGamma",
+                        "name": "AmbientBase",
                         "type": "float",
-                        "value": 0.75
+                        "value": 0.07
                     },
                     {
-                        "name": "HeatStart",
+                        "name": "AmbientRange",
                         "type": "float",
-                        "value": 0.12
+                        "value": 0.2
                     },
                     {
-                        "name": "GlowStrength",
+                        "name": "Detail",
                         "type": "float",
-                        "value": 0.9
-                    },
-                    {
-                        "name": "WideStrength",
-                        "type": "float",
-                        "value": 0.55
+                        "value": 0.45
                     },
                     {
                         "name": "EdgeStrength",
                         "type": "float",
-                        "value": 0.6
+                        "value": 0.035
                     },
                     {
-                        "name": "Grain",
+                        "name": "FarCool",
                         "type": "float",
-                        "value": 0.035
+                        "value": 0.35
+                    },
+                    {
+                        "name": "GlowStrength",
+                        "type": "float",
+                        "value": 0.4
+                    },
+                    {
+                        "name": "WideStrength",
+                        "type": "float",
+                        "value": 0.3
+                    },
+                    {
+                        "name": "SkyTemp",
+                        "type": "float",
+                        "value": 0.03
+                    },
+                    {
+                        "name": "HandTemp",
+                        "type": "float",
+                        "value": 0.2
+                    },
+                    {
+                        "name": "Noise",
+                        "type": "float",
+                        "value": 0.012
+                    },
+                    {
+                        "name": "Vignette",
+                        "type": "float",
+                        "value": 0.25
+                    },
+                    {
+                        "name": "Near",
+                        "type": "float",
+                        "value": 0.05
                     },
                     {
                         "name": "DepthReversed",

@@ -51,7 +51,7 @@
                 "command": "trigger demo.fx set 2"
             },
             "tooltip": {
-                "text": "Bloom, god rays, depth haze, filmic tone map, warm grade (the RTX feel)"
+                "text": "Film look: letterbox, soft halation, gentle teal-orange grade, grain"
             }
         },
         {
@@ -65,7 +65,7 @@
                 "command": "trigger demo.fx set 3"
             },
             "tooltip": {
-                "text": "Heat vision. Creatures, lava, fire and lights glow white-hot; the cold world sinks into dark blue"
+                "text": "Infrared camera (ironbow). Creatures, lava, fire and lights glow; warmth fades around them; the cold world is dark"
             }
         },
         {

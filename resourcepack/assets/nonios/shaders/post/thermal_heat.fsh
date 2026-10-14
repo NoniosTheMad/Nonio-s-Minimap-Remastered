@@ -1,16 +1,16 @@
 #version 330
 #extension GL_ARB_separate_shader_objects : require
 
-// nonios:thermal, pass 1 - read the heat markers the shaders-demo core shaders hide in the two lowest
-// bits of every colour channel (see include/nonios_mark.glsl):
-//   entity   tag 1,0,1  -> warm-blooded (every entity body, incl. your hand), emissive layers hottest
-//   terrain  tag 0,1,0  -> heat 0..7 from block light + texture (lava, fire, torch flames, glowstone,
-//                          magma, lanterns are hot; blocks next to a light are warm)
+// nonios:thermal, pass 1 - find the heat SOURCES from the markers the shaders-demo core shaders hide in
+// the two lowest bits of every colour channel (see include/nonios_mark.glsl):
+//   entity   tag 1,0,1  -> warm-blooded body (emissive layers hotter)
+//   terrain  tag 0,1,0  -> heat 0..7, non-zero only on light-emitting blocks (lava, fire, torch, glowstone...)
 //   particle tag 1,1,0  -> heat 0..7 (flames)
-// Blended surfaces (water, glass, clouds, shadows) carry no valid code: they read as cold.
-// A pixel is trusted only if enough neighbours carry the same tag (and a similar heat), so random
-// low bits from blended pixels don't speckle.
-// Out: r = heat 0..1, g = hot mask (bloom source), b = entity, a = 1.
+// Nothing else is hot here: warmth around a source comes from blurring this mask (later passes).
+// A pixel counts only if most neighbours carry the same tag, and a hot block pixel must also be bright on
+// screen (emitters always are), so stray low bits can't speckle. The hand / held item (closer than
+// HandDist blocks) is masked out and later drawn neutral.
+// Out: r = source heat 0..1, g = same (bloom source), b = hand mask, a = 1.
 
 uniform sampler2D InSampler;
 uniform sampler2D DepthSampler;
@@ -23,8 +23,9 @@ layout(std140) uniform SamplerInfo {
 };
 
 layout(std140) uniform HeatConfig {
-    float EntityHeat;     // base heat of an entity body (0..1)
-    float ColdLuma;       // how much brightness warms unmarked surfaces
+    float EntityHeat;     // body heat (0..1)
+    float Near;           // camera near plane in blocks
+    float HandDist;       // closer than this (blocks) = hand / held item
     float DepthReversed;
 };
 
@@ -59,8 +60,19 @@ void main() {
     float l = dot(c, Luma);
 
     float d = texelFetch(DepthSampler, p, 0).r;
-    float far = mix(1.0 - d, d, DepthReversed);
-    bool sky = far < 1e-6;
+    float z = mix(1.0 - d, d, DepthReversed);
+    bool sky = z < 1e-6;
+    float dist = Near / max(z, 1e-6);
+    if (!sky && dist < HandDist) {
+        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+        return;
+    }
+    if (sky) {
+        // the sun is hot, the moon is not (it is grey-blue, the sun is warm)
+        float sun = smoothstep(0.88, 1.0, l) * smoothstep(0.08, 0.2, c.r - c.b);
+        fragColor = vec4(sun * 0.9, sun * 0.9, 0.0, 1.0);
+        return;
+    }
 
     ivec3 q0 = codeAt(p);
     int t0 = tagOf(q0);
@@ -71,21 +83,17 @@ void main() {
             if (x == 0 && y == 0) continue;
             ivec3 q = codeAt(p + ivec2(x, y));
             if (tagOf(q) != t0) continue;
-            if (t0 == 1 || abs(heatOf(q) - h0) <= 1) agree++;
+            if (t0 == 1 || abs(heatOf(q) - h0) <= 2) agree++;
         }
     }
 
-    float heat;
-    float entity = 0.0;
-    if (sky) {
-        heat = smoothstep(0.9, 1.0, l) * 0.9;                        // the sun disc
-    } else if (t0 == 1 && agree >= 3) {
-        entity = 1.0;
-        heat = h0 == 7 ? 1.0 : EntityHeat + (1.0 - EntityHeat) * l;  // eyes / glowing layers hottest
-    } else if ((t0 == 2 && agree >= 4) || (t0 == 3 && agree >= 3)) {
-        heat = float(h0) / 7.0;
-    } else {
-        heat = l * ColdLuma;                                          // water, glass, clouds: cold
+    float heat = 0.0;
+    if (t0 == 1 && agree >= 4) {
+        heat = h0 == 7 ? 0.95 : EntityHeat + 0.12 * l;
+    } else if (t0 == 2 && agree >= 5 && h0 >= 3) {
+        heat = (0.55 + 0.45 * float(h0) / 7.0) * smoothstep(0.3, 0.55, l);
+    } else if (t0 == 3 && agree >= 3 && h0 >= 3) {
+        heat = (0.55 + 0.45 * float(h0) / 7.0) * smoothstep(0.3, 0.55, l);
     }
-    fragColor = vec4(heat, smoothstep(0.45, 0.95, heat), entity, 1.0);
+    fragColor = vec4(heat, heat, 0.0, 1.0);
 }

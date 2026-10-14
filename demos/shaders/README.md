@@ -23,17 +23,27 @@ pointless (e.g. reaper + comic). Post effects are client state, so the stack is 
 
 ## Effects
 - `reaper`: black world, white outlines (depth edges + faint luma Sobel). Unchanged from v1. `reaper_luma` is removed.
-- `cinematic` (the "RTX" feel): soft-knee bloom (4 blur passes), god rays from bright sky (radial march toward
-  `RayOrigin` = above the screen top), depth haze, ACES tone map, warm/cool split toning, vignette, grain.
-  It is screen-space only: rays come from bright sky *visible on screen*, there is no real light position.
-  If rays look like they point the wrong way, flip `RayOrigin.y` (1.3 -> -0.3).
-- `thermal` (v2, #54): real heat vision. Hot things glow white/yellow/red (living entities, lava, fire, magma, torches,
-  lamps, glowing particles, the sun); the cold world is dark blue/violet with faint depth edges. Heat is not guessed
-  from colour on screen: the demo overlay's core shaders write an invisible **marker** into every opaque pixel (see
-  "Markers" below) and `thermal_heat.fsh` decodes it (entity = hot body, terrain/particle = a 0..7 heat level from the
-  block light at that spot and how warm the texture is). Two blurs (5 and 16 px) make the glow and the wide bloom.
-  Limits: blended things (water, glass, stained glass, clouds, translucent particles) carry no marker and read as
-  cold; block entities (chests, signs, beds) use the entity shaders and read as hot; the held item reads cold.
+- `cinematic` (v2, #62, rebuilt): a restrained film look. v1 was broken because it ran an ACES tone map on an image
+  that is already display-ready (whites went grey, the frame murky), fanned fake god rays from a fixed point above the
+  screen whatever the sun was doing, and washed distant terrain into grey haze with a seam at the sky. v2: highlight
+  **halation** (bright pass blurred twice, red-orange, screen blend, plus a little neutral bloom), a gentle **S-curve**
+  that keeps white white with slightly lifted blacks, a subtle **teal-shadow / warm-highlight** split tone, slightly
+  less saturation in the shadows, a soft **vignette**, mid-tone weighted **grain** and **letterbox** bars for 2.39:1
+  (at least 7 % per side on screens wider than that). `cine_bright`/`cine_rays` are still used by Angel.
+- `thermal` (v3, #61): a FLIR-style infrared camera with the **ironbow** palette (black, indigo, purple, magenta, orange,
+  yellow, white; reference: FLIR/ironbow descriptions and footage). Everything becomes one continuous temperature T,
+  coloured through one smooth palette:
+  - **sources only** are hot: living entities (orange-yellow), light-emitting blocks (lava, fire, torches, glowstone,
+    lanterns...) and flames (white). Pass 1 (`thermal_heat.fsh`) finds them from the overlay markers (see "Markers");
+    a block counts only on its own faces (block light >= 14) with a bright warm or white texture, and only if it is
+    bright on screen, so lit floors, far terrain and stray bits stay cold (v2 painted the block-light bands and speckled).
+  - **warmth around a source** = the source mask blurred at two sizes (6 px and 22 px, two box passes each), added
+    with soft compression: smooth falloff, no bands.
+  - **cold world**: scene brightness mapped into a narrow dark band, soft local detail, very faint depth edges, cooling
+    with distance; sky coldest; the sun is hot, the moon not.
+  - **hand / held item** (closer than 0.9 blocks) is neutral. Sensor noise and lens falloff are added before the palette.
+  Limits: blended things (water, glass, clouds) read as cold; block entities (chests, signs, beds) are drawn as
+  entities and read as warm; magma blocks and redstone torches emit too little light to count.
 - `alien` (#54, the old Thermal, renamed): cold ironbow world, heat edges, glowing HP-coloured signatures that pulse
   faster when the target is weaker (HP tags, see below).
 - `cosmic` (v4, #55): every light glows (v3: local-contrast light finder, three bloom scales with drifting hues,
@@ -120,7 +130,7 @@ Limits / trade-offs:
 `include/nonios_mark.glsl`: every opaque pixel drawn by the overlay's `terrain`, `entity` and `particle` shaders gets its
 lowest 2 bits per channel set (at most 3/255, invisible). Bit 0 is a tag (entity R1 G0 B1, terrain 0 1 0, particle 1 1 0),
 bit 1 carries data: entity 000 (or 111 on emissive layers like spider eyes), terrain/particle a heat level 0..7
-(block light near a light source x texture warmth, plus a little ambient block light). Sky pixels carry the Cosmic
+(non-zero only on light-emitting blocks and flames: block light >= 14 on the face x a bright warm/white texture). Sky pixels carry the Cosmic
 nebula/star code instead. Post shaders decode with a 3x3 neighbour vote. Blended pixels (water, glass, clouds) are not
 marked. The overlay is loaded for everyone on the demo server, but the marks change nothing visible.
 

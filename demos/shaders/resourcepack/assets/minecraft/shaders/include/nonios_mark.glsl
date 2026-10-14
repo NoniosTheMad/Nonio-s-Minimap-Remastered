@@ -20,14 +20,18 @@ vec3 nonios_heat_bits(float heat) {
 }
 
 // heat of a block surface: blockLight = 0..1 block light at the face, tex = raw texture colour.
-// Light sources (lava, fire, torch flame, glowstone, magma, lanterns: warm, bright textures under
-// full block light) are hot; the blocks around a light are warm; everything else is cold.
+// Only the emitters themselves are hot: a light-emitting block's own faces sit at block light >= 14
+// (lava, fire, torches, glowstone, lanterns, shroomlight...), and its texture is bright and warm
+// (or near-white, like a torch flame core). Blocks merely lit by a torch get 13 or less: cold.
+// Ordinary terrain gets no heat at all (warmth around a source is done in screen space by the
+// post effect, smoothly), so far terrain can't speckle.
 float nonios_block_heat(vec3 tex, float blockLight) {
     float mx = max(tex.r, max(tex.g, tex.b));
-    float warm = clamp((tex.r - tex.b) * 2.2, 0.0, 1.0) * smoothstep(0.45, 0.8, mx);
-    float source = smoothstep(0.78, 0.93, blockLight) * warm;
-    float ambient = smoothstep(0.45, 1.0, blockLight) * 0.5;
-    return max(ambient, source);
+    float mn = min(tex.r, min(tex.g, tex.b));
+    float lit = smoothstep(0.89, 0.92, blockLight);
+    float warm = smoothstep(0.2, 0.45, tex.r - tex.b) * smoothstep(0.72, 0.9, mx);
+    float white = smoothstep(0.86, 0.96, mn);
+    return lit * max(warm, white * 0.85);
 }
 
 #endif
