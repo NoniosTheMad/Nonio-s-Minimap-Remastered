@@ -76,6 +76,13 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   and marked `status: "sleeping"` (kept in `ls` and G → Servers, dimmed "(asleep, ~10s)", ★ kept). Clicking it = `trigger devnav.wake set <port>`
   → {verb:"wake",uuid,port} in devnav:req → daemon starts it with its saved settings and transfers the player from wherever they are.
   `mcdev up <name>` also wakes it. Inbox only hears about failed wakes. Test overrides (read at daemon start): env `MCDEV_IDLE_SECS`, `MCDEV_IDLE_ONLY=fx,..`.
+- **Archive** (old tests; don't keep every server open): `mcdev archive <name> [--note ".."]` stops it, keeps `.mcdev/servers/<name>` (world),
+  records `archive: {date, note, commit, port, aid}`, pins the commit as `refs/mcdev/archive/<name>`, clears ★, sets `status: "archived"`, `port: 0` (freed).
+  `mcdev unarchive <name>` / `up <name>` revives it: worktree re-added from the branch (or from the commit if the branch is gone), new free port.
+  `ls` lists archived ones at the bottom; idle sleep ignores them. G → Servers → "Archive (N)" (`devnav.act 10`, inline dialog in `devnav:archive`):
+  click = `trigger devnav.revive set <aid>` → {verb:"revive",uuid,id} → daemon unarchives + starts + transfers (same path as wake).
+  Archived 2026-10-14: nexus, shop, purse (merged into m2/econ), fx (old posteffect probe).
+- `start` waits (≤30s) until the game + RCON ports are free (bind test) before launching: fixes `restart` failing with "port in use".
 - Daemon code changes need a daemon restart: kill the python process whose command line has `mcdev.py _daemon`, then `mcdev up/restart/notify` (or `ensure_daemon()`) starts it again.
   Only one daemon can run: a second one fails to bind :8800 (SO_REUSEADDR disabled) and exits.
   `start` runs `check_server`: warns on datapack load errors and trigger objectives never left enabled (enable AFTER `reset @a`).
@@ -99,3 +106,5 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Worldgen: surface rules live in the `worldgen/material_rule` registry; ore veins are a `minecraft:ore_vein` material rule. Sky/fog/particles/music via `attributes` maps (`minecraft:visual/...`) on dimension_type and biome.
 - **Loot tables changed format:** `functions`/`function` → `modifier` (object or list, each with `type`); `conditions`/`condition` → one `condition` object with `type`. Old keys are silently ignored (count 1, chances always pass). Check vanilla tables in the server jar.
 - `block_display.block_state` = `{id:"minecraft:vault",properties:{...}}` or a plain id string; the old `{Name,Properties}` only WARNs and renders air.
+- `use_cooldown` applies only when a consumable finishes (item consumed) → give the item back next tick. `minecraft:use_effects {can_sprint, speed_multiplier}` removes the use slowdown. `minecraft:movement` predicate speeds are blocks/s.
+- In-game text stays terse and diegetic (user feedback #15): no instructions/tutorial lines in the game pack; those go in try.txt / demo dialogs.

@@ -24,6 +24,8 @@ Usage:
   mcdev notify "text"                 message the user's in-game inbox (G > Inbox; delivered in chat when online)
   mcdev nav                           regenerate the in-game server list
   mcdev review <name> [--done]        star/unstar a server as waiting for the user's review
+  mcdev archive <name> [--note TEXT]  stop it, keep world + branch@commit, free its port (G > Servers > Archive revives it)
+  mcdev unarchive <name>              revive (same as `up <name>`): recreates the worktree if needed, new port
 """
 import argparse, io, json, os, re, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
 from pathlib import Path
@@ -97,6 +99,30 @@ def port_open(port):
     with socket.socket() as s:
         s.settimeout(0.3)
         return s.connect_ex(("127.0.0.1", port)) == 0
+
+def port_busy(port):
+    """Someone listens on / still holds the port (a bind test catches a dying server that no longer accepts)."""
+    if port_open(port):
+        return True
+    with socket.socket() as s:
+        try:
+            s.bind(("0.0.0.0", port))
+            return False
+        except OSError:
+            return True
+
+def wait_ports_free(name, port, timeout=30):
+    """A stopped server can hold its ports for a few seconds after its process exits; starting earlier fails with 'port in use'."""
+    t0 = time.time()
+    while port_busy(port) or port_busy(port + 10000):
+        if time.time() - t0 > timeout:
+            sys.exit(f"{name}: port {port} or {port + 10000} still in use after {timeout}s")
+        time.sleep(0.5)
+
+def free_port(reg, name=None):
+    """First ephemeral port not reserved by another (non-archived) server and not in use."""
+    used = {s["port"] for n, s in reg.items() if n != name and s.get("status") != "archived"}
+    return next(p for p in EPHEMERAL_PORTS if p not in used and not port_busy(p) and not port_busy(p + 10000))
 
 
 # ---------------------------------------------------------------- rcon
@@ -292,9 +318,32 @@ def nav_dialog(reg):
                         "action": {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}})
     n_up = sum(s["status"] == "up" for _, s in live)
     summary = f"{n_up} running" + (f", {len(live) - n_up} asleep" if len(live) > n_up else "")
+    n_arch = sum(s.get("status") == "archived" for s in reg.values())
+    if n_arch:
+        actions.append({"label": text(f"Archive ({n_arch})", "dark_gray"), "tooltip": text("Old tests, stopped. Click one there to revive it."),
+                        "width": 310, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 10"}})
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
             "body": [{"type": "minecraft:plain_message", "contents": text(f"{summary}. \u2605 = waiting for your review. Hover a server to see what to try.", "gray"), "width": 300}],
             "actions": actions or [{"label": "(none)", "action": {"type": "minecraft:run_command", "command": "help"}}],
+            "columns": 1, "pause": False}
+
+def archived(reg):
+    """Archived servers, most recently archived first."""
+    return sorted(((n, s) for n, s in reg.items() if s.get("status") == "archived"), key=lambda kv: kv[1]["archive"]["date"], reverse=True)
+
+def archive_dialog(reg):
+    actions = []
+    for n, s in archived(reg):
+        ar = s["archive"]
+        tip = (f"{s['desc'] or ''}\n\n" + (f"Note: {ar['note']}\n" if ar.get("note") else "") + f"Archived {ar['date']}\n"
+               f"{s['branch']} @ {(ar.get('commit') or '?')[:7]}" + (f" / demo {s['demo']}" if s.get("demo") else "") + "\n\nClick to revive it (~15s) and go there.")
+        actions.append({"label": [text(n, "gray", bold=True), text(f"  {ar['date'][5:10]}", "dark_gray"),
+                                  text(f"  {trunc(ar.get('note') or s['desc'] or s['branch'], 40)}", "dark_gray", italic=bool(ar.get("note")))],
+                        "tooltip": text(tip), "width": 310,
+                        "action": {"type": "minecraft:run_command", "command": f"trigger devnav.revive set {ar['aid']}"}})
+    return {"type": "minecraft:multi_action", "title": text("Archive", "gray"),
+            "body": [{"type": "minecraft:plain_message", "contents": text(f"{len(actions)} archived. Hover for the note; click to revive.", "gray"), "width": 300}],
+            "actions": actions + [{"label": "Back", "width": 310, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 1"}}],
             "columns": 1, "pause": False}
 
 def snbt(v):
@@ -315,6 +364,7 @@ def write_devnav(reg):
     fn.mkdir(parents=True, exist_ok=True)
     (d / "pack.mcmeta").write_text(json.dumps({"pack": {"description": "mcdev navigation", "min_format": DATA_FORMAT, "max_format": DATA_FORMAT}}))
     (fn / "list.mcfunction").write_text(f"dialog show @s {snbt(nav_dialog(reg))}\n")
+    (fn / "archive.mcfunction").write_text(f"dialog show @s {snbt(archive_dialog(reg))}\n")
     # Feedback = a tagged Book & Quill. Signing it queues the book content in storage and pings the
     # daemon, which pulls the pages over RCON (no quoting/length/newline limits, unlike dialog text + say).
     (fn / "fb_give.mcfunction").write_text(
@@ -339,11 +389,14 @@ def write_devnav(reg):
     # the privileged part (transfer, reload, ...) runs here at function permission level.
     (fn / "nav_load.mcfunction").write_text(
         "scoreboard objectives add devnav.go trigger\nscoreboard objectives add devnav.act trigger\n"
-        "scoreboard objectives add devnav.wake trigger\n")
+        "scoreboard objectives add devnav.wake trigger\nscoreboard objectives add devnav.revive trigger\n")
     (fn / "nav_tick.mcfunction").write_text(
         "scoreboard players enable @a devnav.go\nscoreboard players enable @a devnav.act\nscoreboard players enable @a devnav.wake\n"
+        "scoreboard players enable @a devnav.revive\n"
         "execute as @a[scores={devnav.go=1..}] run function devnav:go\n"
         "execute as @a[scores={devnav.wake=1..}] run function devnav:wake\n"
+        "execute as @a[scores={devnav.revive=1..}] run function devnav:revive\n"
+        "execute as @a[scores={devnav.act=10}] run function devnav:archive\n"
         "execute as @a[scores={devnav.act=1}] run function devnav:list\n"
         "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
@@ -372,6 +425,15 @@ def write_devnav(reg):
           "data modify storage devnav:req q[-1].uuid set from entity @s UUID\n"
           "execute store result storage devnav:req q[-1].port int 1 run scoreboard players get @s devnav.wake\n"
           "scoreboard players reset @s devnav.wake\n")
+    # Archived server: queue {verb:"revive",uuid,id}; the daemon un-archives it (worktree, new port), starts it and transfers you.
+    (fn / "revive.mcfunction").write_text(
+        "".join(f"execute if score @s devnav.revive matches {s['archive']['aid']} run tellraw @s "
+                + json.dumps([text("[dev] ", "dark_gray"), text(f"Reviving {n}\u2026 ", "yellow"), text("(~15s, you'll be sent there)", "gray")]) + "\n"
+                for n, s in archived(reg))
+        + 'data modify storage devnav:req q append value {verb:"revive"}\n'
+          "data modify storage devnav:req q[-1].uuid set from entity @s UUID\n"
+          "execute store result storage devnav:req q[-1].id int 1 run scoreboard players get @s devnav.revive\n"
+          "scoreboard players reset @s devnav.revive\n")
     ftags = d / "data" / "minecraft" / "tags" / "function"
     ftags.mkdir(parents=True, exist_ok=True)
     (ftags / "load.json").write_text(json.dumps({"values": ["devnav:nav_load"]}))
@@ -556,8 +618,9 @@ def daemon():
                 verb = (re.search(r'verb: "(\w+)"', req) or [None, None])[1]
                 ints = (re.search(r"uuid: \[I; ([-\d, ]+)\]", req) or [None, None])[1]
                 port = (re.search(r"port: (\d+)", req) or [None, None])[1]
+                aid = (re.search(r"\bid: (\d+)", req) or [None, None])[1]
                 player = uuid_str(ints) if ints else None
-                print(time.strftime("%H:%M:%S"), "request", n, verb, player, port or "", flush=True)
+                print(time.strftime("%H:%M:%S"), "request", n, verb, player, port or aid or "", flush=True)
                 if verb == "repack":
                     background(n, repack, n, player)
                 elif verb == "resetworld":
@@ -568,6 +631,12 @@ def daemon():
                         background(target, wake, target, player)
                     else:
                         tell(s, player, [text("[dev] No server on that port any more.", "red")])
+                elif verb == "revive" and aid:
+                    target = next((m for m, x in reg.items() if x.get("status") == "archived" and x["archive"].get("aid") == int(aid)), None)
+                    if target:
+                        background(target, wake, target, player)
+                    else:
+                        tell(s, player, [text("[dev] That server is no longer archived.", "red")])
                 elif verb == "feedback":
                     try:
                         pull_feedback(n, s)
@@ -1087,6 +1156,7 @@ class IdleWatch:
             return
         self.next_check = now + IDLE_CHECK_SECS
         for n, s in reg.items():
+            # only "up" servers: archived/sleeping/down ones are ignored
             if n == "hub" or s.get("status") != "up" or n in _busy or (IDLE_ONLY and n not in IDLE_ONLY):
                 continue
             started, last = self.seen.get(n, (None, 0))
@@ -1108,7 +1178,7 @@ def sleep_server(name, started):
         return
     stop(name, s)
     reg = load_reg()  # stop() can take a while; keep other servers' changes
-    if reg.get(name, {}).get("started") == started:
+    if reg.get(name, {}).get("started") == started and reg[name].get("status") != "archived":
         reg[name]["status"] = "sleeping"
         save_reg(reg)
     refresh_nav(sync_status(reg))
@@ -1119,8 +1189,10 @@ def wake(name, player):
     reg = sync_status(load_reg())
     s = reg[name]
     if s.get("status") != "up":
-        print(time.strftime("%H:%M:%S"), f"waking {name}", flush=True)
+        print(time.strftime("%H:%M:%S"), f"{'reviving' if s.get('status') == 'archived' else 'waking'} {name}", flush=True)
         try:
+            if s.get("status") == "archived":
+                s = unarchive(name)
             start(name, s)
         except BaseException as e:
             reason = str(e) if isinstance(e, SystemExit) else repr(e)
@@ -1157,9 +1229,11 @@ def cmd_up(a):
     if name in reg and reg[name].get("status") == "up":
         print(f"{name} already up on :{reg[name]['port']}")
         return
+    if reg.get(name, {}).get("status") == "archived":
+        unarchive(name)
+        reg = sync_status(load_reg())
     preset = PRESETS.get(name, {})
-    used = {s["port"] for s in reg.values() if s.get("status") in ("up", "sleeping") or s.get("persistent")}
-    port = preset.get("port") or (reg.get(name, {}).get("port") if name in reg else None) or next(p for p in EPHEMERAL_PORTS if p not in used)
+    port = preset.get("port") or reg.get(name, {}).get("port") or free_port(reg, name)
     branch = a.branch or reg.get(name, {}).get("branch") or "main"
     src = source_for(branch)
     if a.demo and not (src / "demos" / a.demo / "datapack").exists():
@@ -1170,6 +1244,8 @@ def cmd_up(a):
              desc=a.desc or preset.get("desc") or reg.get(name, {}).get("desc", ""))
     s["todo"] = a.todo or read_todo(src, s["demo"]) or reg.get(name, {}).get("todo", "")
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
+    if reg.get(name, {}).get("archive"):  # note + id survive revive/re-archive
+        s["archive"] = reg[name]["archive"]
     t = start(name, s)
     print(f"{name} up on {HOST}:{port} ({t:.0f}s)  branch={branch}" + (f" demo={s['demo']}" if s['demo'] else ""))
     if name not in reg and not s["persistent"]:  # brand-new demo/branch server (not a restart)
@@ -1185,6 +1261,7 @@ def start(name, s, _reg=None):
     harvest_feedback(name)  # then drop the old log so wait_ready can't see a stale "Done ("
     for f in (SERVERS / name / "logs" / "latest.log", SERVERS / name / ".feedback_seen"):
         f.unlink(missing_ok=True)
+    wait_ports_free(name, s["port"])
     s.update(pid=launch(name, s), started=time.time(), status="up")
     reg = load_reg()
     reg[name] = s
@@ -1285,6 +1362,69 @@ def cmd_restart(a):
                 break
             time.sleep(0.5)
 
+def restore_source(s):
+    """Checkout for an archived server: its worktree, else re-added from the branch, else from the recorded commit."""
+    branch = s["branch"]
+    if branch in (None, "main"):
+        return ROOT
+    wt = WORKTREES / branch.replace("/", "-")
+    if wt.exists():
+        return wt
+    commit = s.get("archive", {}).get("commit")
+    if git("rev-parse", "--verify", "--quiet", branch).returncode == 0:
+        r = git("worktree", "add", str(wt), branch)
+    elif commit:
+        r = git("worktree", "add", "-b", branch, str(wt), commit)
+    else:
+        sys.exit(f"branch {branch} is gone and no commit was recorded")
+    if r.returncode:
+        sys.exit(r.stderr)
+    return wt
+
+def unarchive(name):
+    """Archived -> down, with a checkout and a fresh port; the caller starts it. Keeps s["archive"] (note, aid) for next time."""
+    reg = sync_status(load_reg())
+    s = reg[name]
+    s["src"] = str(restore_source(s))
+    s["port"] = free_port(reg, name)
+    s["status"] = "down"
+    save_reg(reg)
+    print(time.strftime("%H:%M:%S"), f"unarchived {name} -> :{s['port']} ({s['src']})", flush=True)
+    return s
+
+def cmd_archive(a):
+    reg = sync_status(load_reg())
+    s = reg.get(a.name)
+    if not s:
+        sys.exit(f"unknown server {a.name}")
+    if s["persistent"]:
+        sys.exit(f"{a.name} is persistent (hub/main/test), not archivable")
+    if s.get("status") != "archived":
+        stop(a.name, s)
+    src = Path(s["src"])
+    head = git("rev-parse", "HEAD", cwd=src) if src.exists() else git("rev-parse", "--verify", "--quiet", s["branch"])
+    commit = head.stdout.strip() or s.get("archive", {}).get("commit")
+    if commit:  # a ref keeps the commit alive even if the branch is deleted later
+        git("update-ref", f"refs/mcdev/archive/{a.name}", commit)
+    if src.exists() and src != ROOT and git("status", "--porcelain", "--untracked-files=no", cwd=src).stdout.strip():
+        print(f"WARNING: {src} has uncommitted changes; they are lost if the worktree is removed")
+    reg = load_reg()  # stop() can take a while
+    prev = reg[a.name].get("archive", {})
+    aid = prev.get("aid") or 1 + max((x.get("archive", {}).get("aid", 0) for x in reg.values()), default=0)
+    reg[a.name] = dict(s, status="archived", review=False, port=0,
+                       archive=dict(date=time.strftime("%Y-%m-%d %H:%M"), note=a.note or prev.get("note", ""),
+                                    commit=commit, port=s["port"] or prev.get("port"), aid=aid))
+    save_reg(reg)
+    refresh_nav(sync_status(reg))
+    print(f"{a.name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / a.name})")
+
+def cmd_unarchive(a):
+    reg = load_reg()
+    if reg.get(a.name, {}).get("status") != "archived":
+        sys.exit(f"{a.name} is not archived")
+    a.branch = a.demo = a.desc = a.mem = a.todo = None
+    cmd_up(a)
+
 def cmd_reset(a):
     if a.name != "test":
         sys.exit("only `reset test` is supported (copies main's world)")
@@ -1301,7 +1441,14 @@ def cmd_ls(a):
     save_reg(reg)
     print(f"{'name':<22}{'state':<10}{'addr':<17}{'branch':<22}{'demo':<16}desc")
     for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"]):
-        print(f"{n:<22}{s['status'] + ('*' if s.get('review') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+        if s.get("status") != "archived":
+            print(f"{n:<22}{s['status'] + ('*' if s.get('review') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+    arch = archived(reg)
+    if arch:
+        print(f"\narchived ({len(arch)}): `mcdev unarchive <name>` or G > Servers > Archive revives one")
+        for n, s in arch:
+            ar = s["archive"]
+            print(f"{n:<22}{ar['date']:<18}{s['branch'] + '@' + (ar.get('commit') or '?')[:7]:<35}{s.get('demo') or '-':<17}{ar.get('note') or s['desc']}")
     print(f"pack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})"
           f"   * = awaiting review; sleeping = stopped after {IDLE_SLEEP_SECS // 60} min empty, `mcdev up <name>` or G > Servers wakes it")
 
@@ -1360,6 +1507,9 @@ def main():
     for nm, f in (("restart", cmd_restart), ("reset", cmd_reset)):
         x = sp.add_parser(nm); x.add_argument("name"); x.set_defaults(f=f)
     sp.add_parser("ls").set_defaults(f=cmd_ls)
+    ar = sp.add_parser("archive", help="stop a server and keep it in the archive (port freed)")
+    ar.add_argument("name"); ar.add_argument("--note", default=""); ar.set_defaults(f=cmd_archive)
+    ua = sp.add_parser("unarchive", help="revive an archived server (= up <name>)"); ua.add_argument("name"); ua.set_defaults(f=cmd_unarchive)
     r = sp.add_parser("reload"); r.add_argument("name", nargs="?"); r.set_defaults(f=cmd_reload)
     c = sp.add_parser("cmd"); c.add_argument("name"); c.add_argument("command", nargs="+"); c.set_defaults(f=cmd_cmd)
     l = sp.add_parser("logs"); l.add_argument("name"); l.add_argument("-n", type=int, default=40); l.set_defaults(f=cmd_logs)
