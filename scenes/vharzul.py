@@ -634,8 +634,8 @@ def maw(s):
     s.fill(body, WALL)
     # the jaws: two diamond-section towers twisting outward like the Fang, prows to the front, needle tips
     for side in (-1, 1):
-        jc = (104 + side * 11.5, 0, ZF - 8)
-        s.fill(star_prism(jc, F + 18, F + 60, 4, 9.5, 6.0, 1.2, 0.6, twist_deg=-side * 25, phase_deg=90, power=1.25), WALL)
+        jc = (104 + side * 11.5, 0, ZF - 4)
+        s.fill(star_prism(jc, F + 20, F + 60, 4, 9.5, 6.0, 1.2, 0.6, twist_deg=-side * 25, phase_deg=90, power=1.25), WALL)
         for yc, off in ((F + 34, 0.9), (F + 46, 0.7)):
             tt = ((yc - (F + 18)) / 42) ** 1.25
             ro, ri = 9.5 + (1.2 - 9.5) * tt, 6.0 + (0.6 - 6.0) * tt
@@ -823,6 +823,120 @@ def rim_facade(s, r, th):
     s.fill(near & wall & ~above & (YY >= crest + 7), "polished_basalt")
 
 
+# ================================================================== P3: rooflines, spikes, collars, skyline
+def thorn(s, p0, p1, p2, r0, r1, tip_frac=0.45, base=Mix({"basalt": 2, "polished_basalt": 1}), tip=BONE, n=12):
+    """A curved spike: bezier p0->p1->p2, radius r0->r1; the last tip_frac of it in `tip`."""
+    path = bezier([p0, p1, p2], n)
+    parts = tube(path, r0, r1)
+    k = int(len(parts) * (1 - tip_frac))
+    for i, sdf in enumerate(parts):
+        s.fill(sdf, base if i < k else tip)
+
+
+def spires3(s):
+    """Three spires, three silhouettes: the Alembic (dome + flues), the Blade (pyramid + corner thorns),
+    the Bell (open belfry + twisted cinnabar needle)."""
+    tiles = Mix({"deepslate_tiles": 3, "cracked_deepslate_tiles": 1})
+    for k, a in enumerate(SPIRES):
+        x, z = pol(a, 26)
+        c = (x, 0, z)
+        if k == 0:      # Alembic (SE)
+            s.fill(shapes.cylinder(c, 5.2, DECK - 2, DECK + 26), WALL)
+            s.fill(shapes.cylinder(c, 6.2, DECK + 24, DECK + 26), "polished_blackstone_bricks")
+            s.fill(shapes.cylinder(c, 6.0, DECK + 27, DECK + 27), TRIM)
+            s.fill(shapes.ellipsoid((x, DECK + 28, z), (6.4, 9, 6.4)) & shapes.box((x - 8, DECK + 28, z - 8), (x + 9, DECK + 40, z + 9)), ROOF)
+            for j in range(3):
+                fx, fz = x + math.cos(math.radians(a + 90 + j * 120)) * 4.6, z + math.sin(math.radians(a + 90 + j * 120)) * 4.6
+                s.fill(shapes.cylinder((fx, 0, fz), 1.1, DECK + 26, DECK + 38), "polished_blackstone_bricks")
+                s.set(int(fx), DECK + 38, int(fz), "polished_blackstone_brick_wall")
+            s.fill(shapes.capsule((x, DECK + 36, z), (x, DECK + 46, z), 0.7), TRIM)
+            s.set(int(x), DECK + 47, int(z), "gold_block")
+            for y in (DECK + 6, DECK + 14):
+                s.fill(shapes.cylinder(c, 5.8, y, y), TRIM)
+        elif k == 1:    # Blade (W)
+            s.fill(star_prism(c, DECK - 2, DECK + 30, 4, 7.5, 5.0, 6.0, 4.0, twist_deg=20, phase_deg=a), WALL)
+            s.fill(star_prism(c, DECK + 28, DECK + 30, 4, 7.4, 5.0, 7.0, 4.8, twist_deg=0, phase_deg=a + 20), "polished_blackstone_bricks")
+            s.fill(star_prism(c, DECK + 31, DECK + 31, 4, 7.0, 4.8, 7.0, 4.8, phase_deg=a + 20), TRIM)
+            s.fill(star_prism(c, DECK + 32, DECK + 50, 4, 6.4, 4.2, 0.6, 0.4, phase_deg=a + 20, power=0.9), tiles)
+            for j in range(4):
+                ang = math.radians(a + 20 + j * 90)
+                p0 = (x + math.cos(ang) * 5.5, DECK + 30, z + math.sin(ang) * 5.5)
+                p1 = (x + math.cos(ang) * 8, DECK + 33, z + math.sin(ang) * 8)
+                p2 = (x + math.cos(ang) * 8.5, DECK + 38, z + math.sin(ang) * 8.5)
+                thorn(s, p0, p1, p2, 1.2, 0.45)
+            s.fill(shapes.capsule((x, DECK + 49, z), (x, DECK + 53, z), 0.5), BONE)
+        else:           # Bell (NE)
+            s.fill(star_prism(c, DECK - 2, DECK + 34, 6, 6.8, 4.8, 5.8, 4.1, twist_deg=-15, phase_deg=a), WALL)
+            ph = a - 15
+            s.fill(star_prism(c, DECK + 34, DECK + 34, 6, 6.6, 4.8, 6.6, 4.8, phase_deg=ph), TRIM)
+            s.fill(star_prism(c, DECK + 35, DECK + 43, 6, 5.8, 4.1, 5.8, 4.1, phase_deg=ph), WALL)
+            s.fill(shapes.cylinder(c, 3.2, DECK + 35, DECK + 43), "air")
+            for j in range(6):    # belfry openings in the six faces
+                ang = math.radians(ph + 30 + j * 60)
+                px, pz = x + math.cos(ang) * 4.6, z + math.sin(ang) * 4.6
+                s.fill(shapes.capsule((px, DECK + 36.5, pz), (px, DECK + 40.5, pz), 1.3), "air")
+            s.fill(star_prism(c, DECK + 44, DECK + 44, 6, 6.8, 5.0, 6.8, 5.0, phase_deg=ph), TRIM)
+            s.fill(star_prism(c, DECK + 45, DECK + 56, 6, 6.2, 4.4, 0.5, 0.3, twist_deg=40, phase_deg=ph, power=0.85), ROOF)
+            s.set(int(x), DECK + 56, int(z), "gold_block")
+            s.set(int(x), DECK + 57, int(z), "gold_block")
+        s.fill(shapes.cylinder(c, 3.2, DECK + 1, DECK + 16), "air")
+
+
+def horn_ridges(s):
+    """Annular ridges along each horn (ram's-horn growth rings) so they read by shadow, plus bone thorns on the outer curve."""
+    for a in HORNS:
+        path = horn_path(a)
+        for i in range(2, 40, 3):
+            rr = 9.0 + (0.6 - 9.0) * ((i + 0.5) / 46) ** 1.1
+            ring = shapes.capsule(path[i], path[i + 1], rr + 0.75)
+            s.fill(ring, Gradient("y", [(DECK + 22, "obsidian"), (DECK + 44, Mix({"obsidian": 1, "polished_blackstone": 1})),
+                                        (108, "polished_basalt"), (999, BONE)], seed=SEED + a), replace="air")
+        u = np.array([math.cos(math.radians(a)), 0, math.sin(math.radians(a))])
+        for i in (9, 15, 21):
+            p = path[i]
+            rr = 9.0 + (0.6 - 9.0) * ((i + 0.5) / 46) ** 1.1
+            p0 = p + u * (rr - 1)
+            thorn(s, tuple(p0), tuple(p0 + u * 4 + np.array([0, 2, 0])), tuple(p0 + u * 6 + np.array([0, 6, 0])), 1.4, 0.4)
+
+
+def fang_crowns(s):
+    """Collar thorns at every star point of every collar, a thorn crown on the throne lantern, bone needles on the Maw jaws,
+    ridge thorns and pinnacles on the Forge Hall."""
+    for yc, ro, ri in COLLARS:
+        ph = collar_phase(yc)
+        ln = 5 + ro * 0.25
+        for k in range(6):
+            ang = math.radians(ph + k * 60)
+            ux, uz = math.cos(ang), math.sin(ang)
+            p0 = (C[0] + ux * (ro - 2), yc, C[1] + uz * (ro - 2))
+            p1 = (C[0] + ux * (ro + ln * 0.6), yc + ln * 0.3, C[1] + uz * (ro + ln * 0.6))
+            p2 = (C[0] + ux * (ro + ln * 0.8), yc + ln, C[1] + uz * (ro + ln * 0.8))
+            thorn(s, p0, p1, p2, 1.3, 0.4)
+    # throne lantern crown
+    s.fill(star(7.8, 5.2, 166, 166, phase=80), TRIM)
+    for k in range(6):
+        ang = math.radians(80 + 10 + k * 60)
+        ux, uz = math.cos(ang), math.sin(ang)
+        thorn(s, (C[0] + ux * 6, 165, C[1] + uz * 6), (C[0] + ux * 8.5, 169, C[1] + uz * 8.5),
+              (C[0] + ux * 8, 175, C[1] + uz * 8), 1.1, 0.35, base="obsidian", tip="gold_block", tip_frac=0.3)
+    # Maw jaw needles in bone
+    F = GATE_F
+    for side in (-1, 1):
+        jc = (104 + side * 11.5, 0, ZF - 4)
+        m = star_prism(jc, F + 50, F + 62, 4, 9.5, 6.0, 1.2, 0.6, phase_deg=90).mask(s.shape) & s.match(MASONRY)
+        s.fill(m & (YY >= F + 50), BONE)
+    # Forge Hall: ridge thorns and buttress pinnacles
+    x0, x1, z0, z1 = HALL
+    for z in range(z0 + 1, z1 + 1, 3):
+        top = ground_y(s, 104, z)
+        if top <= DECK + 34:
+            s.box((104, top, z), (105, top + 1, z), BONE)
+    for z in range(z0 + 2, z1 - 1, 4):
+        for x in (x0 - 2, x1 + 2):
+            s.box((x, DECK + 14, z), (x, DECK + 15, z + 1), "polished_basalt")
+            s.box((x, DECK + 16, z), (x, DECK + 16, z + 1), "cinnabar_brick_wall")
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
@@ -838,7 +952,11 @@ def build():
     if PASS >= 2:
         star_facade(s)
     horns(s)
-    spires(s)
+    if PASS >= 3:
+        horn_ridges(s)
+        spires3(s)
+    else:
+        spires(s)
     keep(s)
     keep_collars(s)
     if PASS >= 2:
@@ -851,6 +969,8 @@ def build():
     if PASS >= 2:
         rim_facade(s, r, th)
     gate(s)
+    if PASS >= 3:
+        fang_crowns(s)
     processional(s, h)
     barbican(s, h)
     road(s, h)

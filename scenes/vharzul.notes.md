@@ -38,3 +38,21 @@ Weakest three (P2 sheet):
 2. Palette by absolute y: every outwork low on the island (pylons, Maw base, rim skirt) falls in the darkest blackstone band,
    so the approach is black where the viewer stands. Trims are all the same flat sulfur.
 3. Outer ring still unreadable (ribs = lumps, NE fumaroles = yellow blobs at eye level, cam_ash_ne buried in a spike).
+
+## P3: rooflines, spikes, collars, skyline
+Fixes for P2's list:
+1. Skyline hierarchy: three spires with three silhouettes: the Alembic (SE: round tower, cinnabar dome, three flues, sulfur
+   needle, gold tip), the Blade (W: twisted square tower, machicolation, tile pyramid, four bone corner thorns), the Bell
+   (NE: hexagonal, open belfry with six arches, twisted cinnabar needle, gold finial). Fang collars got six curved thorns
+   each (basalt to bone, 24 total, spaced so the Fang reads as a thorned stem), the throne lantern a sulfur cornice and
+   six obsidian/gold crown thorns. Horns got 13 growth ridges each (shadow texture) and three bone thorns on the outer
+   curve. The Maw jaws were pulled 4 blocks forward (they were hidden behind the brow from the stair; checked with a
+   stair-foot camera) and got bone needle tips; Forge Hall got ridge thorns and buttress pinnacles with cinnabar caps.
+2./3. Palette and outer ring: P4 and P6.
+
+Weakest three (P3 sheet):
+1. The horns are two huge black blobs in the hero view: obsidian with obsidian ridges, no colour or value change until the
+   tips. The Fang body is still a plain black column between collars.
+2. The approach is still black at eye level: the WALL gradient is by absolute y, so pylons, cheek piers, stair and the
+   Maw's lower body all use the darkest stop; the stair is a featureless dark ramp.
+3. Rim fangs and the field of spears are one repeated grey cone; they make noise rather than places.
