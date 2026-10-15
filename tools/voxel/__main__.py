@@ -7,6 +7,7 @@
   place   SCENE --server NAME [--at X Y Z] [--no-air] [--verify N] [--pristine]      place over RCON (+ execute-if-block sample)
   verify  SCENE --server NAME [--at X Y Z] [-n N]
   pull    --server NAME (--box X0 Y0 Z0 X1 Y1 Z1 | --scene SCENE) [--out F.npz]
+  light   SCENE [--min 7] [--render] [--auto STYLE] [--patch]   light audit (block+sky flood fill), overlay, auto-light
   stats   SCENE [--json F]                       quantitative floors (playbook §5): canvas, facades, decoration density
   diff    SCENE (--server NAME [--at X Y Z] | --against F.npz|F.nbt) [--patch] [--no-render] [--strict]
 
@@ -111,6 +112,12 @@ def main(argv=None):
     a.add_argument("--against"); a.add_argument("--patch", action="store_true", help="write <scene>.patch.json beside the scene")
     a.add_argument("--no-render", action="store_true"); a.add_argument("--strict", action="store_true", help="compare neighbour-shape props too")
     a = sub.add_parser("stats"); a.add_argument("scene"); a.add_argument("--json", help="also write the metrics here")
+    a = sub.add_parser("light"); a.add_argument("scene"); a.add_argument("--min", type=int, default=7)
+    a.add_argument("--render", action="store_true", help="overlay views: floor tinted by block light (red 0, orange < min)")
+    a.add_argument("--auto", metavar="STYLE", help="add fixtures in this kit style until interiors reach --min")
+    a.add_argument("--outdoor", action="store_true", help="--auto also lights cells that are only dark at night")
+    a.add_argument("--max", type=int, default=200); a.add_argument("--patch", action="store_true",
+                   help="with --auto: append the new fixtures to <scene>.patch.json")
     args = ap.parse_args(argv)
 
     if args.cmd == "pull":
@@ -137,6 +144,39 @@ def main(argv=None):
         jf = Path(args.json) if args.json else out_dir(s.name) / "stats.json"
         jf.write_text(stats.to_json(m))
         print(f"[voxel] {jf}")
+        return
+    if args.cmd == "light":
+        from . import light
+        out = out_dir(s.name)
+        rep, g = light.audit(s, args.min)
+        print(light.format_report(rep))
+        if args.auto:
+            add = light.autolight(s, args.auto, args.min, args.max, outdoor=args.outdoor)
+            print(f"[voxel] auto-light: {len(add)} fixture(s) added")
+            rep2, g = light.audit(s, args.min)
+            print(light.format_report(rep2))
+            rep = {"before": rep, "after": rep2, "added": add}
+            if args.patch and str(args.scene).endswith(".py"):
+                from .diff import write_patch_list
+                tgt = Path(args.scene).with_suffix(".patch.json")
+                old = json.loads(tgt.read_text()) if tgt.exists() else []
+                cells = {tuple(c[:3]): c for c in old if isinstance(c, list)}
+                for a_ in add:
+                    for (x, y, z) in [tuple(a_["pos"])]:
+                        cells[(x, y, z)] = [x, y, z, a_["state"]]
+                # chains above hanging lanterns
+                for (x, y, z), st_ in [((x, y, z), s.get(x, y, z)) for x, y, z in np.argwhere(s.match("chain"))]:
+                    cells.setdefault((int(x), int(y), int(z)), [int(x), int(y), int(z), st_])
+                write_patch_list(tgt, list(cells.values()) + [c for c in old if isinstance(c, dict)])
+                print(f"[voxel] patch {tgt}")
+        (out / "light.json").write_text(json.dumps(rep, indent=1))
+        print(f"[voxel] {out / 'light.json'}")
+        if args.render:
+            from .render import render_views
+            res = render_views(s, out / "light", 1280, 800, only=["top", "iso", "eye"], vtint=light.overlay_tint(s, g, args.min),
+                               sightlines=False)
+            for k, v in res.items():
+                print(f"  {k:18s} {v}")
         return
     if args.cmd == "info":
         print(s)
