@@ -16,7 +16,7 @@ Status key: **done** = playable and reviewed by the user. **built** = playable, 
 | Miner | 80 | leather, pickaxe, night vision | night vision + mining grit, Block Pulverizer flask (haste III + glowing 8 s, 45 s cd) | built (main) |
 | Tank | 100 | iron + shield | iron + locked shield, +2 hearts, 40% knockback resistance, Ironskin flask | built (main) |
 | Ninja | 100 | armour stripped, Chunin Sandals | sandals only: fast, step-up, frost walker, light fall; Genjutsu flask (invisible + fast; never used up, 20 s cooldown) | built (main) |
-| Berserker | 120 | strength, speed, regen, armour stripped | #84: light axe (3 dmg, attack speed 8), axe out = Resistance IV + armour 0 + speed + no knockback; Strength I/II/III at <=75/50/25 % HP; hit = +2 hearts lifesteal (once per 1.5 s); no natural/food regeneration (food held at 17 by hidden Hunger, Saturation effects stripped) | built |
+| Berserker | 120 | strength, speed, regen, armour stripped | #84/#89: light axe (3 dmg, attack speed 8), axe out = armour 0 + speed + no knockback; health bands >75/<=75/<=50/<=25 %: Resistance IV/III/II/II, Strength -/I/II/III, axe +0/+1/+2/+3, lifesteal 2 hearts per 1.5 s / 1 s, 4 hearts per 1.5 s / 1 s; heal guard: any other health gain (food, saturation, potions, regen) is undone by clamping max health to the last allowed health for 3 s (no damage, no flash) | built |
 | **Champion** | 150 | none | grows with player kills while undefeated (see below) | **new**, built |
 | Reaper | 200 | pumpkin, scythe, permanent invisibility + speed II, 3 s resistance V per kill | see below (#70/#71 rework) | built |
 | Monster | 1800 | Monster Transformation (300) / Skull (1800): devour on kill, hunger | +10 hearts, bigger, faster, claws with short reach, 80% knockback resistance; every kill devoured (strength, speed, heal) | built (main) |
@@ -66,3 +66,5 @@ Paladin 300, Death Knight 500, Titan 1500, Destroyer 2000, Guardian Angel 5000. 
 - Champion: price 150 and bounty 10 coins/kill are guesses. Should a downed Champion's kill tier rise with its level?
 - Should the five unbuilt V2 classes get remaster designs, and in which order?
 - Should invisible players glow (the V2 `weakInv` rule), except the Reaper and Ninja?
+- Ninja armour pop-off and Berserker axe-only armour: keep both?
+- Spawn guard (Instant Damage near the enemy spawn) is off in the classes2 demo (#88). Keep it in real matches once the map edges have barriers?

@@ -82,17 +82,17 @@
           "text": ""
          },
          {
-          "text": "In hand: Resistance IV, armour 0, no knockback, very fast swings",
+          "text": "In hand: armour 0, no knockback, very fast swings",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Hit: steal life. Hurt: hit harder (75/50/25% health)",
+          "text": "Hurt (75/50/25%): hit harder, steal more, Resistance IV to II",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Food never heals a Berserker",
+          "text": "Only stolen life heals a Berserker",
           "color": "dark_green",
           "italic": false
          },

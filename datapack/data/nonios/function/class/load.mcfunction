@@ -22,6 +22,12 @@ scoreboard objectives add nx.cls_ry2 dummy
 scoreboard objectives add nx.cls_rg dummy
 # Berserker: health band 0..3 (Strength level)
 scoreboard objectives add nx.cls_blvl dummy
+# Berserker heal guard (#89): last allowed health x100, ticks left on the max-health clamp
+scoreboard objectives add nx.cls_bhp dummy
+scoreboard objectives add nx.cls_bcap dummy
+scoreboard objectives add nx.cls_bgr dummy
+scoreboard objectives add nx.cls_bgt dummy
+scoreboard players set #100 nx.cls_tmp 100
 # Champion: kills while undefeated (0..5)
 scoreboard objectives add nx.cls_champ dummy
 # Cracy Frog tongue: ticks left in flight, spring countdown; victims: ticks yanked / immune, launch Y and peak Y (x10). nx.pid = player id (dream/pid)

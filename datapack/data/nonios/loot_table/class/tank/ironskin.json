@@ -65,7 +65,7 @@
           "italic": false
          },
          {
-          "text": "Refills in 60s",
+          "text": "Cooldown 60s",
           "color": "dark_green",
           "italic": false
          },
@@ -134,7 +134,7 @@
             "italic": false
            },
            {
-            "text": "Refills in 60s",
+            "text": "Cooldown 60s",
             "color": "dark_green",
             "italic": false
            },

@@ -320,7 +320,7 @@
               "italic": false
             },
             {
-              "text": "Refills in 45s",
+              "text": "Cooldown 45s",
               "color": "dark_green",
               "italic": false
             }
@@ -474,7 +474,7 @@
               "italic": false
             },
             {
-              "text": "Refills in 60s",
+              "text": "Cooldown 60s",
               "color": "dark_green",
               "italic": false
             }
@@ -761,7 +761,7 @@
         "sprite": "minecraft:item/stone_axe"
       },
       "lost_msg": "The fury burned out.",
-      "blurb": "A light axe that swings very fast. While it is out: Resistance IV, no armour, unshakeable, every hit steals life, and the lower your health the harder you hit. Food never heals you.",
+      "blurb": "A light axe that swings very fast. While it is out: no armour, unshakeable, every hit steals life. The lower your health, the harder you hit and the more you steal, but Resistance falls from IV to II. Only stolen life heals you.",
       "vision": [],
       "hooks": [
         "tick",
@@ -791,17 +791,17 @@
               "text": ""
             },
             {
-              "text": "In hand: Resistance IV, armour 0, no knockback, very fast swings",
+              "text": "In hand: armour 0, no knockback, very fast swings",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Hit: steal life. Hurt: hit harder (75/50/25% health)",
+              "text": "Hurt (75/50/25%): hit harder, steal more, Resistance IV to II",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Food never heals a Berserker",
+              "text": "Only stolen life heals a Berserker",
               "color": "dark_green",
               "italic": false
             }
