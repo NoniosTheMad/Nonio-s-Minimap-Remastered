@@ -9,7 +9,7 @@
    "type": "minecraft:plain_message",
    "width": 310,
    "contents": {
-    "text": "Pick a class, then fight the dummies. Shop classes (Reaper, Cracy Frog) lock their armour and are lost on death; the basic Warrior comes back on every respawn. Old armour goes back to your inventory.",
+    "text": "Pick a class, then fight the dummies. Shop classes lock their armour and are lost on death; the basic Warrior comes back on every respawn. Old armour goes back to your inventory.",
     "color": "gray"
    }
   }
@@ -34,7 +34,7 @@
     "color": "light_purple"
    },
    "tooltip": {
-    "text": "The V2 'are you sure?' chain, as the shop will show it"
+    "text": "The V2 'are you sure?' chain, as the shop will show it. Tongue yank, broom, chaos hits"
    },
    "action": {
     "type": "minecraft:run_command",
@@ -60,11 +60,115 @@
     "color": "gray"
    },
    "tooltip": {
-    "text": "Basic class: re-applied on every respawn, gear follows the team level"
+    "text": "Basic class, comes back on every respawn. Its kit follows the team level (V2 offerings), not personal kills"
    },
    "action": {
     "type": "minecraft:run_command",
     "command": "trigger demo.cls set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Champion",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Shop class (150). Each player kill while undefeated: +1 heart, +0.5 damage (max 5). 3+: glows, bounty on its head"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 13"
+   }
+  },
+  {
+   "label": {
+    "text": "Archer",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Shop class (50)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 14"
+   }
+  },
+  {
+   "label": {
+    "text": "Miner",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Shop class (80)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 15"
+   }
+  },
+  {
+   "label": {
+    "text": "Tank",
+    "color": "dark_aqua"
+   },
+   "tooltip": {
+    "text": "Shop class (100)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 16"
+   }
+  },
+  {
+   "label": {
+    "text": "Ninja",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Shop class (100)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 17"
+   }
+  },
+  {
+   "label": {
+    "text": "Berserker",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Shop class (120)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 18"
+   }
+  },
+  {
+   "label": {
+    "text": "Monster",
+    "color": "dark_red"
+   },
+   "tooltip": {
+    "text": "Shop class (1800)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 19"
+   }
+  },
+  {
+   "label": {
+    "text": "Balrog",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Shop class (10000)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.cls set 20"
    }
   },
   {

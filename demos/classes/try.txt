@@ -1,11 +1,5 @@
-You spawn in survival in a walled yard. G > Demo: Classes has every button. Dummies (husks, no AI) count as kills for the Reaper.
-1. Spawn test dummies, then Reaper: pumpkin head, invisible shroud (armour locked), dark reaper vision, 5 hearts. Old armour drops back into your inventory.
-2. Hit a dummy with the Scyce: you heal 2 hearts and slow it (3 s). Kill it: +1 soul, 4 s invisible (pumpkin and scythe vanish too), 8 s untouchable (soul wisps; no refresh while it lasts). The scythe glints when it has souls: right-click (hold 0.5 s) bursts them around you (8 s cooldown). With no souls it says "No souls" and stays in your hand.
-2b. Reaper flight: step off any ledge. You float at walking/sprint speed: Space rises, Shift sinks, nothing held = hover. You can only rise within 10 blocks of the ground (higher, you sink slowly). No fall damage. Water/lava/landing ends it.
-3. Cracy Frog (ask me): answer the Shop Keeper's three questions (the V2 joke). The world turns rainbow + acid. Jump: frog legs (no fall damage up to ~15 blocks).
-4. Hold right-click with the Magic Broom: look up to climb, level to hover, down to glide; it pushes you forward. 3 s of fuel, refills on the ground.
-5. Hit a dummy with the Frog Tongue: something random happens to it. Right-click the tongue: RIBBIT (wind bursts all around you, you fly too).
-6. Simulate death: shop classes are lost (and the vision goes); Die for real does the same through an actual death.
-7. Warrior (basic), then Team level +1 a few times, then die: it comes back at the current level.
-8. Leave and rejoin while being a class: the vision should come back. Reset cooldowns if you are stuck waiting.
-Feedback: how each class feels (too strong/weak), the broom flight, the frog chaos outcomes, the reaper/frog vision, what else a class should do.
+Your role: judge whether Reaper, Cracy Frog and Champion are scary but escapable, and annoying but fair.
+Check: Reaper flight (Space up, Shift down, hover) feels free but cannot climb past 10 blocks over the ground; a kill hides the pumpkin and scythe too.
+Check: Frog tongue (right-click, Shift = RIBBIT) is easy to see coming, and being yanked hurts without being lethal.
+Check: Champion's growth per dummy kill (hearts, damage, glow from 3) feels earned rather than snowbally.
+Controls: G > Demo: Classes has every class, dummies (they count as player kills), Reset cooldowns, Simulate death.
