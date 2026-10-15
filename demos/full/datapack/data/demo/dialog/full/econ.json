@@ -1,0 +1,95 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Economy / Bank",
+  "color": "gold"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Coins and the team bank",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "+100 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "+1000 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 16"
+   }
+  },
+  {
+   "label": {
+    "text": "+10000 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 53"
+   }
+  },
+  {
+   "label": {
+    "text": "+3,200,000 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 64"
+   },
+   "tooltip": {
+    "text": "For the Dragon Skull"
+   }
+  },
+  {
+   "label": "TP: my bank",
+   "tooltip": {
+    "text": "Next to the pad: step on a gold plate to bank your purse, right-click the vault to withdraw"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 65"
+   }
+  },
+  {
+   "label": {
+    "text": "Match clock +10 min",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Interest and coin weight jump as if 10 minutes passed"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 66"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

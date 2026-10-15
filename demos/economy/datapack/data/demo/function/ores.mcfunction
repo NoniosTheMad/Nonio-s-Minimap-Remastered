@@ -13,9 +13,9 @@ execute align xyz run fill ~3 ~ ~4 ~3 ~1 ~4 minecraft:deepslate
 execute align xyz run fill ~2 ~ ~-5 ~2 ~1 ~4 minecraft:air
 execute align xyz run fill ~2 ~-1 ~-5 ~2 ~-1 ~4 minecraft:smooth_stone keep
 clear @s *[minecraft:custom_data={demo_pick:1b}]
-give @s minecraft:diamond_pickaxe[custom_data={demo_pick:1b},item_name={text:"Pickaxe (no Fortune)"}]
-give @s minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:fortune":1},item_name={text:"Fortune I (+40%)"}]
-give @s minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:fortune":2},item_name={text:"Fortune II (+80%)"}]
-give @s minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:fortune":3},item_name={text:"Fortune III (+120%)"}]
-give @s minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:silk_touch":1},item_name={text:"Silk Touch (place-back test)"}]
+function nonios:gear/give {item:'minecraft:diamond_pickaxe[custom_data={demo_pick:1b},item_name={text:"Pickaxe (no Fortune)"}]',count:1}
+function nonios:gear/give {item:'minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:fortune":1},item_name={text:"Fortune I (+40%)"}]',count:1}
+function nonios:gear/give {item:'minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:fortune":2},item_name={text:"Fortune II (+80%)"}]',count:1}
+function nonios:gear/give {item:'minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:fortune":3},item_name={text:"Fortune III (+120%)"}]',count:1}
+function nonios:gear/give {item:'minecraft:diamond_pickaxe[custom_data={demo_pick:1b},enchantments={"minecraft:silk_touch":1},item_name={text:"Silk Touch (place-back test)"}]',count:1}
 tellraw @s {"text":"[demo] Ore wall 3 blocks east (north to south: stone, coal 0.1, copper 0.2, iron 0.5, gold 1, redstone 2, lapis 4, diamond 3, emerald 5, deepslate). 5 pickaxes.","color":"yellow"}

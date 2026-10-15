@@ -6,8 +6,9 @@ branches), so editing files + `mcdev reload <name>` is enough for logic changes.
 Resource packs are zipped at start and served by the daemon's tiny HTTP server; when a
 server's pack sources change the daemon restarts it with the new pack (players hop and return).
 
-In game, press G (Quick Actions) or open the pause menu -> "Nonios Dev" to jump
-between servers, reload or leave feedback.
+Datapack sources are watched too: a change /reloads the server (or restarts it when a registry
+like dialogs/worldgen changed). In game, press G (Quick Actions) or open the pause menu ->
+"Nonios Dev" to jump between servers, read the inbox or leave feedback.
 
 Usage:
   mcdev up <name> [--branch B] [--demo D] [--desc TEXT] [--mem 2G]
@@ -24,7 +25,9 @@ Usage:
   mcdev notify "text"                 message the user's in-game inbox (G > Inbox; delivered in chat when online)
   mcdev nav                           regenerate the in-game server list
   mcdev review <name> [--done]        star/unstar a server as waiting for the user's review
-  mcdev archive <name> [--note TEXT]  stop it, keep world + branch@commit, free its port (G > Servers > Archive revives it)
+  mcdev approve <name> [--note TEXT]  "I like it as is": feedback entry "APPROVED name branch@commit (merge)", then archive it
+  mcdev archive <name> [--note TEXT]  shelve = review closed, not adopted (feedback entry "CLOSED ..."): stops it, keeps
+                                      world + branch@commit, frees its port (G > Servers > Archive revives it)
   mcdev unarchive <name>              revive (same as `up <name>`): recreates the worktree if needed, new port
 """
 import argparse, io, json, os, re, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
@@ -314,36 +317,49 @@ def tip_lines(*parts):
                 out.append(text(("\n" if out else "") + trunc(ln, TIP_COLS), color))
     return out or [text("-", "gray")]
 
-def nav_dialog(reg):
+UI_VER = 2  # self-pack generation: 2 = has the this-server dialogs (approve / shelve); older servers need a restart
+
+def nav_dialog(reg, here=None):
+    """G > Servers as seen from server `here`: its own row (▸) opens the this-server dialog (approve / shelve).
+    Status is the colour only (user request): gold/aqua = running, dark gray = asleep."""
     live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: (not kv[1].get("review"), kv[1]["port"]))
             if s.get("status") in ("up", "sleeping")]
     actions = []
     for n, s in live:
         asleep = s["status"] == "sleeping"
-        # same shape for every row: [★] name + state; the description lives in the tooltip (long labels overflow the button)
-        label = ([text("★ ", "yellow")] if s.get("review") else []) + (
-            [text(n, "dark_gray", bold=True), text("  (asleep, ~10s)", "dark_gray", italic=True)] if asleep else
-            [text(n, "gold" if s["persistent"] else "aqua", bold=True), text("  (running)", "green", italic=True)])
+        mine = n == here
+        # same shape for every row: [▸][★] name [✔]; the description lives in the tooltip (long labels overflow the button)
+        label = ([text("▸ ", "yellow")] if mine else []) + ([text("★ ", "yellow")] if s.get("review") else []) + [
+            text(n, "dark_gray" if asleep else "gold" if s["persistent"] else "aqua", bold=True)] + (
+            [text(" ✔", "green")] if s.get("approved") else [])
         heads = todo_heads(s.get("todo") or "")
+        new_ui = s.get("ui_ver", 0) >= UI_VER
+        click = (("Click: approve / shelve" if new_ui else "Restart it to approve here") if mine else
+                 f"Click: starts (~{s.get('boot_secs', 8) + 3}s), sends you" if asleep else "")
         tip = tip_lines((s["desc"] or n, "white"), (s["branch"] + (f" / {s['demo']}" if s.get("demo") else ""), "dark_gray"),
-                        ("Click: start it, you're sent there" if asleep else "", "gray"),
-                        ("\n".join(heads[:6]), "gray"))
-        actions.append({"label": label, "tooltip": tip, "width": 310,
-                        "action": {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}})
-    n_up = sum(s["status"] == "up" for _, s in live)
-    summary = f"{n_up} running" + (f", {len(live) - n_up} asleep" if len(live) > n_up else "")
+                        ("✔ approved" if s.get("approved") else "", "green"), (click, "gray"), ("\n".join(heads[:6]), "gray"))
+        row = {"label": label, "tooltip": tip, "width": 310}
+        if not mine:
+            row["action"] = {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}
+        elif new_ui:  # the self pack's tick shows devnav:this; older self packs don't have it (greyed, tooltip says why)
+            row["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 12"}
+        actions.append(row)
     n_arch = sum(s.get("status") == "archived" for s in reg.values())
     arch = {"label": text(f"Archive ({n_arch})", "gray" if n_arch else "dark_gray"), "width": 150,
             "tooltip": text("Old tests, stopped. Click one there to revive it." if n_arch else "Nothing archived")}
     if n_arch:  # no action = greyed-out button in the same place (Dialog UI rules)
         arch["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 10"}
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
-            "body": [{"type": "minecraft:plain_message", "contents": text(f"{summary}. ★ = to review.", "gray"), "width": 300}],
+            "body": [{"type": "minecraft:plain_message", "contents": text("★ to review   ▸ here: approve / shelve", "gray"), "width": 300}],
             "actions": actions + [arch, {"label": "Back", "width": 150, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 7"}}],
             "columns": 1, "pause": False}
 
 def todo_heads(todo):
-    """Step headlines from try.txt ("2. Generator: ..." -> "2. Generator") for the Servers tooltip."""
+    """Servers tooltip: the "Your role:" line of try.txt, else step headlines ("2. Generator: ..." -> "2. Generator")."""
+    for ln in todo.splitlines():
+        if ln.strip().lower().startswith("your role:"):  # wrapped: tip_lines would cut it at TIP_COLS
+            import textwrap
+            return textwrap.wrap(ln.strip(), TIP_COLS)[:4]
     heads = []
     for ln in todo.splitlines():
         m = re.match(r"\s*(\d+)[.)]\s*(.+)", ln)
@@ -362,10 +378,12 @@ def archive_dialog(reg):
     actions = []
     for n, s in archived(reg):
         ar = s["archive"]
-        tip = tip_lines((s["desc"] or n, "white"), (f"Note: {ar['note']}" if ar.get("note") else "", "gray"),
+        tip = tip_lines((s["desc"] or n, "white"), ("✔ approved (merge)" if ar.get("kind") == "approved" else "", "green"),
+                        (f"Note: {ar['note']}" if ar.get("note") else "", "gray"),
                         (f"{s['branch']} @ {(ar.get('commit') or '?')[:7]}", "dark_gray"), (f"Archived {ar['date']}", "dark_gray"),
                         ("Click: revive it, you're sent there", "gray"))
-        actions.append({"label": [text(n, "gray", bold=True), text(f"  {ar['date'][5:10]}", "dark_gray"),
+        ok = ar.get("kind") == "approved"
+        actions.append({"label": ([text("✔ ", "green")] if ok else []) + [text(n, "gray", bold=True), text(f"  {ar['date'][5:10]}", "dark_gray"),
                                   text(f"  {trunc(ar.get('note') or s['desc'] or s['branch'], 40)}", "dark_gray", italic=bool(ar.get("note")))],
                         "tooltip": tip, "width": 310,
                         "action": {"type": "minecraft:run_command", "command": f"trigger devnav.revive set {ar['aid']}"}})
@@ -455,7 +473,7 @@ def write_devnav(reg=None):
         "execute as @a[scores={devnav.act=6}] run function devnav:inbox\n"
         "execute as @a[scores={devnav.act=7}] run dialog show @s devnav:menu\n"
         "execute as @a[scores={devnav.act=8}] run function devnav:todo\n"
-        "scoreboard players reset @a[scores={devnav.act=1..}] devnav.act\n")
+        "scoreboard players reset @a[scores={devnav.act=1..11}] devnav.act\n")  # 12+: self pack (this-server dialogs)
     # Inbox: the daemon keeps the whole dialog (a compound) in storage devnav:ui d; a macro shows it inline.
     (fn / "inbox.mcfunction").write_text(
         'execute unless data storage devnav:ui d run tellraw @s {"text":"[dev] Inbox not ready yet (daemon down?)","color":"gray"}\n'
@@ -533,7 +551,10 @@ def write_self_pack(name, s, d):
     (fn / "tick.mcfunction").write_text(
         "execute as @a[tag=!devnav.seen] run function devnav:welcome\n"
         "execute as @a[scores={devnav.left=1..}] run function devnav:welcome\n"
-        + ("execute as @a[scores={devnav.chk=1..}] run function devnav:ground_check\n" if void and name != "hub" else ""))
+        + ("execute as @a[scores={devnav.chk=1..}] run function devnav:ground_check\n" if void and name != "hub" else "")
+        # G > Servers > own row (devnav.act 12, shared nav_tick leaves 12+ alone): the this-server dialog (approve / shelve)
+        + "execute as @a[scores={devnav.act=12}] run dialog show @s devnav:this\n"
+        "scoreboard players reset @a[scores={devnav.act=12..}] devnav.act\n")
     # Welcome = title only (feedback #34: instructions don't show by default; they sit in the demo's own dialog).
     welcome = [
         "tag @s add devnav.seen", "scoreboard players reset @s devnav.left",
@@ -575,9 +596,8 @@ def write_self_pack(name, s, d):
     actions = [
         {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
         {"label": text("Servers...", "aqua"), "action": act(1)},
-        {"label": text("Feedback (book)", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic. Short notes: just type in chat."), "action": act(4)},
-        {"label": "Reload datapacks", "tooltip": text("/reload here (resource packs reload by themselves when they change)"), "action": act(3)},
-        reset]
+        {"label": text("Feedback", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic. Short notes: just type in chat."), "action": act(4)},
+        reset]  # 2x2; no reload button (#33): the daemon reloads datapacks and resource packs when their sources change
     if todo and not demo_dialogs:  # no demo dialog to hang the instructions on: keep them reachable here (always last)
         actions.append({"label": text("What to try here", "yellow"), "action": act(8)})
     menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"), "external_title": text("Nonios Dev"),
@@ -586,6 +606,7 @@ def write_self_pack(name, s, d):
                 text(f"\n{trunc(s['desc'], 60)}" if s.get("desc") else "", "white")]}],
             "actions": actions, "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
+    write_this_dialogs(name, s, d, act)
     back = act(11) if demo_dialogs else act(7)
     (fn / "demo_menu.mcfunction").write_text(f"dialog show @s {demo_dialogs[0]}\n" if demo_dialogs else "dialog show @s devnav:menu\n")
     if todo:  # full instructions live in a dialog (button in the demo's own dialog), not in chat
@@ -595,6 +616,48 @@ def write_self_pack(name, s, d):
             "action": {"label": "Back", "action": back}, "pause": False}, indent=1))
     (fn / "todo.mcfunction").write_text("dialog show @s devnav:todo\n" if todo else
                                         'tellraw @s {"text":"[dev] No instructions for this server.","color":"gray"}\n')
+
+def retire_block(name, s, kind):
+    """Why server `name` can't be approved / shelved (kind "approved" | "shelved"), or None."""
+    if s.get("persistent"):
+        return "hub/main/test are permanent"
+    if kind == "approved" and s.get("branch") in (None, "main"):
+        return "already on main, nothing to merge"
+    return None
+
+def write_this_dialogs(name, s, d, act):
+    """G > Servers > own row -> devnav:this [Approve] [Shelve] / [Back]; each opens a confirmation (optional note) whose Yes
+    is a dynamic/custom click devnav:approve|devnav:shelve (logged, tailed by the daemon -> retire())."""
+    dd = d / "data" / "devnav" / "dialog"
+    src = Path(s["src"])
+    commit = git("rev-parse", "--short", "HEAD", cwd=src).stdout.strip() if src.exists() else ""
+    where = s["branch"] + (f" @ {commit}" if commit else "")
+    show = lambda did: {"type": "minecraft:show_dialog", "dialog": did}
+    buttons = []
+    for kind, label, color, tip, did in (("approved", "✔ Approve", "green", "I like it as is: merge it", "devnav:approve"),
+                                         ("shelved", "Shelve", "gold", "Close review: not adopted", "devnav:shelve")):
+        why = retire_block(name, s, kind)
+        b = {"label": text(label, "dark_gray" if why else color), "tooltip": text(f"Not available: {why}" if why else tip)}
+        if not why:
+            b["action"] = show(did)
+        buttons.append(b)
+    ok = s.get("approved")
+    (dd / "this.json").write_text(json.dumps({
+        "type": "minecraft:multi_action", "title": text("This server", "gold"), "external_title": text("This server"),
+        "body": [{"type": "minecraft:plain_message", "width": 300, "contents": [
+            text(name, "yellow", bold=True), text(f"  {trunc(where, 40)}", "gray"),
+            text(f"  ✔ approved {ok['date'][5:10]}" if ok else "", "green")]}],
+        "actions": buttons + [{"label": "Back", "action": act(1)}], "columns": 2, "pause": False}, indent=1))
+    note = [{"type": "minecraft:text", "key": "note", "label": text("Note (optional)"), "width": 300, "max_length": 200}]
+    for did, title, color, body, yes in (
+            ("approve", f"Approve {name}?", "green", f"Merge {trunc(s['branch'], 30)} into main. Archives this server.", "✔ Approve"),
+            ("shelve", f"Shelve {name}?", "gold", "Review closed, not adopted. Archives this server.", "Shelve")):
+        (dd / f"{did}.json").write_text(json.dumps({
+            "type": "minecraft:confirmation", "title": text(title, color), "external_title": text(title),
+            "body": [{"type": "minecraft:plain_message", "width": 300, "contents": text(body, "gray")}],
+            "inputs": note,
+            "yes": {"label": text(yes, color), "action": {"type": "minecraft:dynamic/custom", "id": f"devnav:{did}"}},
+            "no": {"label": "Back", "action": show("devnav:this")}, "pause": False}, indent=1))
 
 TRY_BUTTON = "What to try here"
 
@@ -621,7 +684,7 @@ def write_demo_dialogs(s, d, try_action):
         if dlg.get("type") != "minecraft:multi_action":
             continue
         dlg["actions"] = list(dlg.get("actions", [])) + [{"label": text(TRY_BUTTON, "yellow"),
-                                                          "tooltip": text("Step-by-step test instructions for this demo"), "action": try_action}]
+                                                          "tooltip": text("Your role here: what feedback we need"), "action": try_action}]
         out = d / "data" / ns / "dialog" / f"{path}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(dlg, indent=1))
@@ -683,7 +746,7 @@ def daemon():
         return
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     write_devnav()  # shared pack files of this code version (servers pick them up on their next start/reload)
-    mail, idle, packs = Mailroom(), IdleWatch(), PackWatch()
+    mail, idle, packs, datas = Mailroom(), IdleWatch(), PackWatch(), DataWatch()
     me = Path(__file__)
     my_mtime, my_change = me.stat().st_mtime, None
     print(time.strftime("%H:%M:%S"), f"daemon up (idle sleep after {IDLE_SLEEP_SECS}s"
@@ -702,6 +765,10 @@ def daemon():
             packs.tick(reg)
         except Exception as e:
             print(time.strftime("%H:%M:%S"), "pack watch failed:", repr(e), flush=True)
+        try:
+            datas.tick(reg)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "datapack watch failed:", repr(e), flush=True)
         # Self-restart when mcdev.py changes (quiet for 3 s, compiles, no start/stop in flight): code fixes apply without
         # anyone having to find and kill this process.
         try:
@@ -848,8 +915,10 @@ def fb_max_id():
 
 _fb_last = [0]
 def alloc_fb_id():
-    """Next feedback id (daemon-only; chat groups reserve theirs before they are written)."""
-    _fb_last[0] = max(_fb_last[0], fb_max_id()) + 1
+    """Next feedback id. Chat groups / screenshots reserve theirs before they are written (persisted in chat_pending.json /
+    shots_pending.json), so a CLI process (`mcdev approve`) skips those too."""
+    pend = [e.get("id", 0) for f in (CHAT_PENDING, SHOTS_PENDING) for e in load_json(f, [])]
+    _fb_last[0] = max([_fb_last[0], fb_max_id()] + pend) + 1
     return _fb_last[0]
 
 def write_feedback(name, s, player, title, body, fid=None, ctx=None, when=None):
@@ -1237,10 +1306,10 @@ class Mailroom:
 
     def push_ui(self, reg, up):
         """G > Servers + Archive dialogs into storage devnav:ui (nav, arch) on every up server: on change and after each start."""
-        cmds = dialog_commands("nav", nav_dialog(reg)) + dialog_commands("arch", archive_dialog(reg))
-        sig = hash(tuple(cmds))
-        for n, s in up.items():
-            key = (sig, s.get("started"))
+        arch = dialog_commands("arch", archive_dialog(reg))
+        for n, s in up.items():  # G > Servers differs per server: its own row (▸) opens the this-server dialog
+            cmds = dialog_commands("nav", nav_dialog(reg, n)) + arch
+            key = (hash(tuple(cmds)), s.get("started"))
             if self.pushed_ui.get(n) != key:
                 try:
                     for c in cmds:
@@ -1271,6 +1340,19 @@ class Mailroom:
                         e = self.dialog_feedback(n, s, ev[2], line)
                         if e:
                             said.append(e)
+                    elif ev[1] in ("devnav:approve", "devnav:shelve") and n in _busy:
+                        for p in online(s):
+                            tell(s, p, [text("[dev] Busy (restarting?), try again in a moment.", "gray", italic=True)])
+                    elif ev[1] in ("devnav:approve", "devnav:shelve"):
+                        try:
+                            note = (snbt_compound(ev[2]).get("note") or "").strip()
+                        except (ValueError, IndexError):
+                            note = ""
+                        players = online(s)
+                        player = USER if USER in players or not players else players[0]
+                        kind = "approved" if ev[1] == "devnav:approve" else "shelved"
+                        print(time.strftime("%H:%M:%S"), f"{kind} {n} from the game ({player})", flush=True)
+                        background(n, retire, n, kind, note, player if players else None)
                 elif ev[0] == "joined":
                     if ev[1] == USER:
                         joins.append(n)
@@ -1386,8 +1468,8 @@ _busy = set()  # servers a daemon thread is stopping/starting (repack, reset, wa
 
 def background(name, fn, *args):
     import threading
+    _busy.add(name)  # now, not in the thread: a watcher ticking right after this must already see it busy
     def run():
-        _busy.add(name)
         try:
             fn(*args)
         except BaseException as e:  # start() reports failures with sys.exit
@@ -1429,7 +1511,7 @@ class IdleWatch:
                 self.seen.pop(n)
                 background(n, sleep_server, n, s.get("started"))
 
-PACK_CHECK_SECS, PACK_QUIET_SECS, PACK_WARN_SECS = 3, 5, 5
+PACK_CHECK_SECS, PACK_QUIET_SECS, PACK_WARN_SECS = 3, 5, 1  # warning: 1 s (user request)
 
 def pack_signature(s):
     """Cheap change detector for a server's resource pack sources (paths, sizes, mtimes)."""
@@ -1478,8 +1560,8 @@ class PackWatch:
                 print(time.strftime("%H:%M:%S"), f"resource pack of {n} changed, reloading it" + (f" ({', '.join(players)} online)" if players else ""), flush=True)
                 background(n, pack_reload, n, players)
 
-def pack_reload(name, players):
-    """Restart a server with its rebuilt pack; players on it hop to the hub meanwhile and come back."""
+def pack_reload(name, players, what="Resource pack"):
+    """Restart a server (rebuilt pack, re-read datapacks); players on it hop to the hub meanwhile and come back."""
     reg = sync_status(load_reg())
     s, hub = reg.get(name), reg.get("hub")
     if not s or s.get("status") != "up":
@@ -1489,7 +1571,7 @@ def pack_reload(name, players):
         return
     for i in range(PACK_WARN_SECS, 0, -1):
         for p in players:
-            actionbar(s, p, [text("Resource pack changed: reloading in ", "gray"), text(f"{i}s", "yellow")])
+            actionbar(s, p, [text(f"{what} changed: reloading in ", "gray"), text(f"{i}s", "yellow")])
         time.sleep(1 if players else 0)
     for p in players:
         rcon(s["port"] + 10000, f"execute as {p} run transfer {HOST} {hub['port']} @s")
@@ -1498,6 +1580,117 @@ def pack_reload(name, players):
     reg = load_reg()
     for p in players:
         send_back(reg, reg[name], p)
+
+# Datapack auto-reload (#33): game + demo datapack sources of each up server. Files of these kinds are re-read by /reload;
+# anything else under data/<ns>/ (dialog, worldgen, dimension, enchantment, damage_type, ... and their tags) is a
+# registry that only loads at server start -> restart. The shared devnav pack is not watched (the daemon rewrites it on every
+# start), but a /reload would load it too, and reloading a server whose devnav changed since its start broke its tick tag:
+# such a server is restarted instead.
+DATA_RELOADABLE = {"function", "advancement", "loot_table", "predicate", "item_modifier", "recipe", "structure",
+                   "tags/function", "tags/block", "tags/item", "tags/entity_type", "tags/fluid", "tags/game_event"}
+DATA_ERRORS = re.compile(r"Failed to load function|Couldn't load tag|Failed to parse|Couldn't parse element|Failed to load")
+
+def data_layers(name, s):
+    """Datapack source dirs junctioned into this server (see write_server)."""
+    src = Path(s["src"])
+    return ([src / "datapack"] if name != "hub" else []) + ([src / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
+
+def data_files(name, s):
+    """{'<layer>:<path in the pack>': (size, mtime_ns)} over the server's datapack sources."""
+    out = {}
+    for i, layer in enumerate(data_layers(name, s)):
+        if layer.exists():
+            for f in layer.rglob("*"):
+                try:
+                    if f.is_file():
+                        st = f.stat()
+                        out[f"{'game' if i == 0 and name != 'hub' else 'demo'}:{f.relative_to(layer).as_posix()}"] = (st.st_size, st.st_mtime_ns)
+                except OSError:
+                    pass
+    return out
+
+def data_needs_restart(key):
+    """'<layer>:data/<ns>/<kind>/...' -> True if /reload can't apply it (dynamic registry)."""
+    parts = key.split(":", 1)[1].split("/")
+    if parts[0] != "data" or len(parts) < 4:
+        return False  # pack.mcmeta, README, ...
+    kind = parts[2] + ("/" + parts[3] if parts[2] == "tags" and len(parts) > 4 else "")
+    return kind not in DATA_RELOADABLE
+
+def devnav_signature():
+    """Content hash of the shared devnav pack (rewritten by every start: mtimes change, content usually doesn't)."""
+    import hashlib
+    h = hashlib.sha1()
+    d = STATE / "devnav"
+    for f in sorted(d.rglob("*")) if d.exists() else []:
+        if f.is_file():
+            h.update(f.relative_to(d).as_posix().encode() + b"\0" + f.read_bytes())
+    return h.hexdigest()
+
+class DataWatch:
+    """Datapacks reload by themselves (feedback #33): when an up server's datapack sources change and stay quiet for
+    PACK_QUIET_SECS, the daemon /reloads it, or restarts it (PACK_WARN_SECS warning, players parked on the hub and sent
+    back, as for resource packs) when a registry-only file changed or devnav changed since the server started."""
+    def __init__(self):
+        self.seen, self.next_check = {}, 0  # name -> {"started", "files", "changed": set, "at"}
+
+    def tick(self, reg):
+        now = time.time()
+        if now < self.next_check:
+            return
+        self.next_check = now + PACK_CHECK_SECS
+        for n, s in reg.items():
+            if s.get("status") != "up" or n in _busy:
+                continue
+            files = data_files(n, s)
+            w = self.seen.get(n)
+            if not w or w["started"] != s.get("started"):
+                self.seen[n] = {"started": s.get("started"), "files": files, "changed": set(), "at": None}
+                continue
+            if files != w["files"]:
+                old = w["files"]
+                w["changed"] |= {k for k in old.keys() | files.keys() if old.get(k) != files.get(k)}
+                w["files"], w["at"] = files, now
+                continue
+            if w["at"] and now - w["at"] >= PACK_QUIET_SECS:
+                changed, w["changed"], w["at"] = sorted(w["changed"]), set(), None
+                regs = [k for k in changed if data_needs_restart(k)]
+                devnav = s.get("devnav_sig") != devnav_signature()
+                players = online(s)
+                why = f"{len(changed)} file(s): " + ", ".join(changed[:3]) + (" ..." if len(changed) > 3 else "")
+                if regs or devnav:
+                    print(time.strftime("%H:%M:%S"), f"datapack of {n} changed ({why}), restarting it: "
+                          + (f"registry files {', '.join(regs[:3])}" if regs else "devnav changed since its start")
+                          + (f" ({', '.join(players)} online)" if players else ""), flush=True)
+                    background(n, pack_reload, n, players, "Datapack")
+                else:
+                    print(time.strftime("%H:%M:%S"), f"datapack of {n} changed ({why}), /reload", flush=True)
+                    background(n, data_reload, n, players)
+
+def data_reload(name, players):
+    """/reload over RCON; datapack errors from the reload go to daemon.log, players get a gray actionbar note."""
+    reg = load_reg()
+    s = reg.get(name)
+    if not s or s.get("status") != "up":
+        return
+    log = SERVERS / name / "logs" / "latest.log"
+    try:
+        pos = log.stat().st_size
+    except OSError:
+        pos = 0
+    rcon(s["port"] + 10000, "reload", timeout=30)
+    time.sleep(2)  # the reload can still be logging when /reload answers
+    try:
+        with open(log, "rb") as f:
+            f.seek(pos)
+            new = f.read().decode("utf-8", "replace").splitlines()
+    except OSError:
+        new = []
+    errs = [l.strip() for l in new if DATA_ERRORS.search(l)]
+    for e in errs[:10]:
+        print(time.strftime("%H:%M:%S"), f"WARNING {name} reload:", e, flush=True)
+    for p in players:
+        actionbar(s, p, [text("Datapack reloaded", "gray")] + ([text(f" ({len(errs)} errors)", "red")] if errs else []))
 
 def sleep_server(name, started):
     reg = sync_status(load_reg())
@@ -1603,8 +1796,9 @@ def cmd_up(a):
     if sp:
         s["spawn"] = sp
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
-    if reg.get(name, {}).get("archive"):  # note + id survive revive/re-archive
-        s["archive"] = reg[name]["archive"]
+    for k in ("archive", "approved"):  # archive note + id, approval survive revive/re-archive
+        if reg.get(name, {}).get(k):
+            s[k] = reg[name][k]
     t = start(name, s)
     print(f"{name} up on {HOST}:{port} ({t:.0f}s)  branch={branch}" + (f" demo={s['demo']}" if s['demo'] else ""))
     if name not in reg and not s["persistent"]:  # brand-new demo/branch server (not a restart)
@@ -1618,6 +1812,9 @@ def start(name, s, _reg=None, on_ready=None):
     reg = load_reg()
     reg[name] = s
     write_devnav(reg)
+    s["ui_ver"] = UI_VER  # G > Servers: own row opens the this-server dialog only on servers whose self pack has it
+    s["devnav_sig"] = devnav_signature()  # DataWatch: /reload is only safe while devnav is what this server started with
+    s["todo"] = read_todo(s["src"], s.get("demo")) or s.get("todo", "")  # wake/restart pick up try.txt edits
     write_server(name, s)
     harvest_feedback(name)  # then drop the old log so wait_ready can't see a stale "Done ("
     for f in (SERVERS / name / "logs" / "latest.log", SERVERS / name / ".feedback_seen"):
@@ -1685,7 +1882,13 @@ def read_spawn(src, demo):
 def read_todo(src, demo):
     """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
     f = Path(src) / "demos" / str(demo) / "try.txt"
-    return f.read_text().strip() if demo and f.exists() else ""
+    if not (demo and f.exists()):
+        return ""
+    raw = f.read_bytes()
+    try:
+        return raw.decode("utf-8-sig").strip()
+    except UnicodeDecodeError:  # saved by a Windows editor in the ANSI codepage
+        return raw.decode("cp1252", "replace").strip()
 
 def cmd_review(a):
     reg = load_reg()
@@ -1778,31 +1981,117 @@ def unarchive(name):
     print(time.strftime("%H:%M:%S"), f"unarchived {name} -> :{s['port']} ({s['src']})", flush=True)
     return s
 
-def cmd_archive(a):
-    reg = sync_status(load_reg())
-    s = reg.get(a.name)
-    if not s:
-        sys.exit(f"unknown server {a.name}")
-    if s["persistent"]:
-        sys.exit(f"{a.name} is persistent (hub/main/test), not archivable")
-    if s.get("status") != "archived":
-        stop(a.name, s)
+def server_commit(s):
+    """Full commit the server's checkout is at (its worktree HEAD, else the branch, else the archived one)."""
     src = Path(s["src"])
     head = git("rev-parse", "HEAD", cwd=src) if src.exists() else git("rev-parse", "--verify", "--quiet", s["branch"])
-    commit = head.stdout.strip() or s.get("archive", {}).get("commit")
+    return head.stdout.strip() or s.get("archive", {}).get("commit")
+
+def server_dirty(s):
+    src = Path(s["src"])
+    return src.exists() and src != ROOT and bool(git("status", "--porcelain", "--untracked-files=no", cwd=src).stdout.strip())
+
+def archive_server(name, note="", kind="shelved"):
+    """Stop it, keep its world + branch@commit (ref refs/mcdev/archive/<name>), free its port. kind: shelved | approved."""
+    reg = sync_status(load_reg())
+    s = reg.get(name)
+    if not s:
+        sys.exit(f"unknown server {name}")
+    if s["persistent"]:
+        sys.exit(f"{name} is persistent (hub/main/test), not archivable")
+    if s.get("status") != "archived":
+        stop(name, s)
+    commit = server_commit(s)
     if commit:  # a ref keeps the commit alive even if the branch is deleted later
-        git("update-ref", f"refs/mcdev/archive/{a.name}", commit)
-    if src.exists() and src != ROOT and git("status", "--porcelain", "--untracked-files=no", cwd=src).stdout.strip():
-        print(f"WARNING: {src} has uncommitted changes; they are lost if the worktree is removed")
+        git("update-ref", f"refs/mcdev/archive/{name}", commit)
+    if server_dirty(s):
+        print(f"WARNING: {s['src']} has uncommitted changes; they are lost if the worktree is removed")
     reg = load_reg()  # stop() can take a while
-    prev = reg[a.name].get("archive", {})
+    prev = reg[name].get("archive", {})
     aid = prev.get("aid") or 1 + max((x.get("archive", {}).get("aid", 0) for x in reg.values()), default=0)
-    reg[a.name] = dict(s, status="archived", review=False, port=0,
-                       archive=dict(date=time.strftime("%Y-%m-%d %H:%M"), note=a.note or prev.get("note", ""),
-                                    commit=commit, port=s["port"] or prev.get("port"), aid=aid))
+    reg[name] = dict(reg[name], status="archived", review=False, port=0, pid=s.get("pid"),
+                     archive=dict(date=time.strftime("%Y-%m-%d %H:%M"), note=note or prev.get("note", ""), kind=kind,
+                                  commit=commit, port=s["port"] or prev.get("port"), aid=aid))
     save_reg(reg)
     refresh_nav(sync_status(reg))
-    print(f"{a.name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / a.name})")
+    print(f"{name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / name})", flush=True)
+    return commit
+
+def retire(name, kind, note="", player=None, wait=20, by=None):
+    """Approve ("I like it as is": Claude merges branch@commit into main) or shelve (review closed, not adopted; follow-ups
+    go to new servers). Writes a feedback entry for Claude (`mcdev feedback`), marks the registry, then archives the server.
+    Players on it are moved off first (hub, else any other up server); if they can't be, it is recorded but stays up.
+    `by` = who decided, for the entry (default: the player, else the user); the CLI passes "cli". Returns the feedback id."""
+    reg = sync_status(load_reg())
+    s = reg.get(name)
+    if not s:
+        sys.exit(f"unknown server {name}")
+    why = retire_block(name, s, kind)
+    if why:
+        if player:
+            tell(s, player, [text(f"[dev] {why}", "red")])
+        sys.exit(f"{name}: {why}")
+    commit, dirty = server_commit(s), server_dirty(s)
+    at = f"{s['branch']}@{(commit or '?')[:7]}"
+    title = f"✔ APPROVED {name} {at} (merge)" if kind == "approved" else f"■ CLOSED {name} {at} (not adopted)"
+    ctx = (f"  | kind {kind}: branch {s['branch']} @ {commit}, worktree {s['src']}\n"
+           + ("  | WARNING: uncommitted changes in the worktree (not in that commit)\n" if dirty else ""))
+    fid = write_feedback(name, s, by or player or USER, title, note or "(no note)", ctx=ctx)
+    reg = load_reg()  # the latest decision wins: shelving an approved server withdraws the approval
+    if kind == "approved":
+        reg[name]["approved"] = dict(date=time.strftime("%Y-%m-%d %H:%M"), commit=commit, note=note, fid=fid)
+    else:
+        reg[name].pop("approved", None)
+    save_reg(reg)
+    word = "approved" if kind == "approved" else "shelved"
+    dest = None
+    if s.get("status") == "up":  # never stop a server with players on it: send them away first
+        players = online(s)
+        if players:
+            ups = sorted((x for m, x in reg.items() if m != name and x.get("status") == "up" and pid_alive(x.get("pid"))),
+                         key=lambda x: x["port"] != PRESETS["hub"]["port"])
+            dest = ups[0] if ups else None
+            if not dest:
+                for p in players:
+                    tell(s, p, [text(f"✔ {word} (#{fid}). Not archived: no other server up to send you to.", "gray", italic=True)])
+                print(time.strftime("%H:%M:%S"), f"{name} {word} (#{fid}) but not archived: nowhere to send {players}", flush=True)
+                return fid
+            for p in players:
+                actionbar(s, p, [text(f"{word.capitalize()}: ", "gray"), text(name, "yellow"), text(" archived", "gray")])
+                try:
+                    rcon(s["port"] + 10000, f"execute as {p} run transfer {HOST} {dest['port']} @s")
+                except (OSError, RuntimeError):
+                    pass
+            t0 = time.time()
+            while online(s) and time.time() - t0 < wait:
+                time.sleep(0.5)
+            left = online(s)
+            if left:
+                for p in left:
+                    tell(s, p, [text(f"✔ {word} (#{fid}). Not archived: couldn't move you.", "gray", italic=True)])
+                print(time.strftime("%H:%M:%S"), f"{name} {word} (#{fid}) but not archived: {left} still on it", flush=True)
+                return fid
+    archive_server(name, note, kind)
+    if player and dest:
+        for _ in range(20):  # login + pack take a moment
+            try:
+                if "passed" in rcon(dest["port"] + 10000, f"execute if entity {player}", timeout=2):
+                    break
+            except (OSError, RuntimeError):
+                pass
+            time.sleep(0.5)
+        tell(dest, player, [text(f"✔ {name} {word}", "green"), text(f" (#{fid})", "dark_gray")])
+    return fid
+
+def cmd_archive(a):
+    s = load_reg().get(a.name)
+    if s and s.get("status") == "archived":  # already archived: only the note changes, nothing new for Claude
+        archive_server(a.name, a.note, s.get("archive", {}).get("kind", "shelved"))
+    else:
+        print(f"feedback #{retire(a.name, 'shelved', a.note, by='cli')}: CLOSED {a.name} (not adopted)")
+
+def cmd_approve(a):
+    print(f"feedback #{retire(a.name, 'approved', a.note, by='cli')}: APPROVED {a.name} (merge)")
 
 def cmd_unarchive(a):
     reg = load_reg()
@@ -1828,15 +2117,16 @@ def cmd_ls(a):
     print(f"{'name':<22}{'state':<10}{'addr':<17}{'branch':<22}{'demo':<16}desc")
     for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"]):
         if s.get("status") != "archived":
-            print(f"{n:<22}{s['status'] + ('*' if s.get('review') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+            print(f"{n:<22}{s['status'] + ('*' if s.get('review') else '') + ('+' if s.get('approved') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
     arch = archived(reg)
     if arch:
         print(f"\narchived ({len(arch)}): `mcdev unarchive <name>` or G > Servers > Archive revives one")
         for n, s in arch:
             ar = s["archive"]
-            print(f"{n:<22}{ar['date']:<18}{s['branch'] + '@' + (ar.get('commit') or '?')[:7]:<35}{s.get('demo') or '-':<17}{ar.get('note') or s['desc']}")
+            kind = "APPROVED" if ar.get("kind") == "approved" else "closed" if ar.get("kind") == "shelved" else "-"
+            print(f"{n:<22}{ar['date']:<18}{kind:<10}{s['branch'] + '@' + (ar.get('commit') or '?')[:7]:<35}{s.get('demo') or '-':<17}{ar.get('note') or s['desc']}")
     print(f"pack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})"
-          f"   * = awaiting review; sleeping = stopped after {IDLE_SLEEP_SECS // 60} min empty, `mcdev up <name>` or G > Servers wakes it")
+          f"   * = awaiting review, + = approved; sleeping = stopped after {IDLE_SLEEP_SECS // 60} min empty, `mcdev up <name>` or G > Servers wakes it")
 
 def targets(name):
     reg = sync_status(load_reg())
@@ -1878,6 +2168,9 @@ def cmd_feedback(a):
     read = int(mark.read_text()) if mark.exists() else 0
     out = lines if a.all else lines[read:]
     print("".join(out) or "(no new feedback)")
+    decided = [m.groups() for l in out if (m := re.match(r"(#\d+) .*?\] \S+ (APPROVED|CLOSED) (\S+ \S+)", l))]
+    if decided:  # server decisions from G > Servers > own row (or `mcdev approve/archive`): approved = merge that commit into main
+        print("server decisions: " + ", ".join(f"{k} {w} {fid}" for fid, k, w in decided))
     if a.ack:
         mark.write_text(str(len(lines)))
 
@@ -1896,6 +2189,8 @@ def main():
     sp.add_parser("ls").set_defaults(f=cmd_ls)
     ar = sp.add_parser("archive", help="stop a server and keep it in the archive (port freed)")
     ar.add_argument("name"); ar.add_argument("--note", default=""); ar.set_defaults(f=cmd_archive)
+    ap = sp.add_parser("approve", help="'I like it as is': feedback entry APPROVED name branch@commit (merge), then archive it")
+    ap.add_argument("name"); ap.add_argument("--note", default=""); ap.set_defaults(f=cmd_approve)
     ua = sp.add_parser("unarchive", help="revive an archived server (= up <name>)"); ua.add_argument("name"); ua.set_defaults(f=cmd_unarchive)
     r = sp.add_parser("reload"); r.add_argument("name", nargs="?"); r.set_defaults(f=cmd_reload)
     c = sp.add_parser("cmd"); c.add_argument("name"); c.add_argument("command", nargs="+"); c.set_defaults(f=cmd_cmd)
@@ -1909,6 +2204,8 @@ def main():
     a = p.parse_args()
     for st in (sys.stdout, sys.stderr):  # cp1252 consoles: don't crash on RCON replies with symbols
         st.reconfigure(errors="backslashreplace")
+    if a.cmd != "_daemon":  # any command brings the daemon back (feedback, inbox, idle sleep, pack/datapack watch)
+        ensure_daemon()
     a.f(a)
 
 if __name__ == "__main__":

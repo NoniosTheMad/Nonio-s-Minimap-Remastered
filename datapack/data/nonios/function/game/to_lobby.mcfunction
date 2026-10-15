@@ -20,4 +20,4 @@ execute as @a run function nonios:game/lobby_player
 scoreboard players set #white nx.cls_lvl 1
 scoreboard players set #black nx.cls_lvl 1
 function nonios:map/build
-tellraw @a [{"text":"Back in the lobby. Teams are kept; ","color":"gray"},{"text":"[Choose team]","color":"green","click_event":{"action":"run_command","command":"/trigger nx.team set 1"}}]
+tellraw @a [{"text":"Back in the lobby. ","color":"gray"},{"text":"[Choose team]","color":"green","click_event":{"action":"run_command","command":"/trigger nx.team set 1"}}]
