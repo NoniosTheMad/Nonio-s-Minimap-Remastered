@@ -64,6 +64,11 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   **What to try here** (try.txt) is a button inside the demo's own G dialog (#34): `write_demo_dialogs` copies each dialog in the demo's
   `quick_actions` tag into the self pack (loads after `demo`, so it overrides) with that button appended; its Back returns to the demo dialog.
   Demo authors: nothing to do, just keep the demo dialog a `multi_action` listed in the demo's quick_actions tag.
+  **try.txt format** (user request, 2026-10-15): it tells the user their role, i.e. the feedback we need, not how to test. ≤ 6 short lines (≤ ~60 chars),
+  plain ASCII (`-` bullets; `read_todo` decodes with the Windows codepage):
+  `Your role: <the one decision/judgement we need>` / `Check:` / 2-4 `- <concrete, testable thing: button + question>` /
+  optional `Unique controls: <demo-only interactions, e.g. say "pull" in chat>`. Never: how to give feedback, G menu, Inbox,
+  screenshots, travel, gamemode, step-by-step walkthroughs, "Feedback:" lines. Rewrite it when the open question changes.
   G → Servers rows are all `[▸][★] name [✔]`, status = colour only (user request): gold/aqua running, dark gray asleep; no status words.
   ▸ = the server you're on (the list is built per server), ✔ = approved. Tooltip ≤6 lines of ≤34 chars (`tip_lines`): desc, branch/demo, step headlines.
   G → Servers / Archive are built by the daemon in storage `devnav:ui nav|arch` (`dialog_commands`, one RCON command per button) on every
@@ -135,7 +140,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 The user plays at a GUI scale below default; dialogs that put text at the very top and buttons at the very bottom are hard to use.
 Applies to every dialog: game pack, demos, devnav.
 - **Compact**: body text short (1-2 lines) so it sits right above the buttons. Long explanations go in a button's `tooltip`, a separate
-  "What to try here"/info dialog, or try.txt; never a paragraph above the controls. Numbers the player needs (balance, cost) go in the body or the button label.
+  info dialog; never a paragraph above the controls (try.txt is only the role brief, see "try.txt format"). Numbers the player needs (balance, cost) go in the body or the button label.
 - **Buttons never move**: the same dialog always has the same buttons in the same order and positions, whatever the state.
 - **Unavailable = greyed, not gone**: omit the button's `action` (the client renders it inactive), grey label (`dark_gray`), and a `tooltip` that says why
   ("Need 50 coins", "Only during preparation"). Never drop or reorder buttons to hide an action.
@@ -186,4 +191,4 @@ Modes buy N lots of a bulk item (Stack = one stack's worth); a buy that doesn't 
 - **Loot tables changed format:** `functions`/`function` → `modifier` (object or list, each with `type`); `conditions`/`condition` → one `condition` object with `type`. Old keys are silently ignored (count 1, chances always pass). Check vanilla tables in the server jar.
 - `block_display.block_state` = `{id:"minecraft:vault",properties:{...}}` or a plain id string; the old `{Name,Properties}` only WARNs and renders air.
 - `use_cooldown` applies only when a consumable finishes (item consumed) → give the item back next tick. `minecraft:use_effects {can_sprint, speed_multiplier}` removes the use slowdown. `minecraft:movement` predicate speeds are blocks/s.
-- In-game text stays terse and diegetic (user feedback #15): no instructions/tutorial lines in the game pack; those go in try.txt / demo dialogs.
+- In-game text stays terse and diegetic (user feedback #15): no instructions/tutorial lines in the game pack; those go in demo dialogs/tooltips (try.txt is only the role brief).
