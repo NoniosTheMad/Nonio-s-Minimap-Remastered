@@ -112,6 +112,33 @@ def ring_wall(s, ctx):
         ramp(s, path, 3.2, full, slab, thick=10, carve=4)
 
 
+def court_lamps(s, ctx):
+    """Eight lamp standards round the compass rose (a copper armillary cage over a lantern), and a lantern on every
+    fourth merlon: the wall's crown sparkles from the highland at night."""
+    for k in range(8):
+        a = 22.5 + 45 * k
+        x, z = at_polar(a, 19.6)
+        xi, zi = int(x), int(z)
+        s.set(xi, FLOOR + 1, zi, "polished_deepslate")
+        for dy in (2, 3, 4):
+            s.set(xi, FLOOR + dy, zi, "deepslate_brick_wall")
+        s.set(xi, FLOOR + 5, zi, cu("", "chiseled"))
+        s.set(xi, FLOOR + 6, zi, cu("", "lantern", hanging="false"))
+        for dx, dz, f in ((1, 0, "east"), (-1, 0, "west"), (0, 1, "south"), (0, -1, "north")):
+            s.set(xi + dx, FLOOR + 5, zi + dz, cu("weathered", "trapdoor", facing=f, half="top", open="true"))
+    n = 0
+    for k in range(int(2 * math.pi * WALL_OUT)):
+        th = k / WALL_OUT
+        if wrap_deg(math.degrees(th) - 90) ** 2 < 21 ** 2 or k % 12:
+            continue
+        x, z = C[0] + math.cos(th) * (WALL_OUT - 0.5), C[1] + math.sin(th) * (WALL_OUT - 0.5)
+        xi, zi = int(x), int(z)
+        if s.idx[xi, WALK + 2, zi] != 0 and s.idx[xi, WALK + 3, zi] == 0:
+            s.set(xi, WALK + 3, zi, cu("exposed", "lantern", hanging="false"))
+            n += 1
+    ctx["merlon_lamps"] = n
+
+
 # ------------------------------------------------------------------ towers
 def tower(s, ctx, a, rc, rad, top, crown):
     x, z = at_polar(a, rc)
@@ -472,6 +499,7 @@ def service_floors(s, ctx):
 def build(s, ctx):
     court(s, ctx)
     ring_wall(s, ctx)
+    court_lamps(s, ctx)
     ctx["towers"] = [tower(s, ctx, *t) for t in TOWERS]
     ctx["wings"] = {n: wing(s, ctx, n, *w) for n, w in WINGS.items()}
     tower_wing_doors(s, ctx)

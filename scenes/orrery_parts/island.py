@@ -147,7 +147,8 @@ def stalactites(s, f):
         L = rng.uniform(4, 9) if k % 4 else rng.uniform(10, 20)
         r0 = 1.2 + L * 0.12
         crystal = (k % 5 == 0)
-        mat = (Gradient("y", [(b0 - L * 0.45, "amethyst_block"), (999, Mix({"calcite": 2, "amethyst_block": 1}))], jitter=1.0)
+        mat = (Gradient("y", [(b0 - L * 0.45, Mix({"amethyst_block": 5, "pearlescent_froglight": 1})),   # glowing facets
+                              (999, Mix({"calcite": 2, "amethyst_block": 1}))], jitter=1.0)
                if crystal else Gradient("y", [(b0 - L * 0.5, Mix({"dripstone_block": 3, "calcite": 1})),
                                              (999, Mix({"tuff": 2, "dripstone_block": 2, "deepslate": 1}))], jitter=1.5))
         cone = shapes.cylinder((x, 0, z), 0.45, b0 - L, b0 + 1.5, r0)

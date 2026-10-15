@@ -26,7 +26,7 @@ def markers(s, ctx):
     s.mark("cam_arc", (70, 48, 85), look_at=(47, 62, 47))       # on the heath, clear of the shards
     s.mark("cam_observatory", (150, 113, 82), look_at=(180, 58, 69))
     s.markers["cam_observatory"]["fov"] = 50
-    s.mark("cam_court", (88, FLOOR + 1, 121), look_at=(104, 185, 104))
+    s.mark("cam_court", (88, FLOOR + 1, 121), look_at=(110, FLOOR + 5, 110))
     s.mark("cam_gallery", (104, 151, 120), look_at=(160, 150, 50))
     L = ctx.get("stair_landings")
     if L:
@@ -62,7 +62,18 @@ def plug_pockets(s, ctx, max_size=6):
     ctx["plugged"] = n
 
 
+def courses(s, ctx):
+    """String courses every 5 rows on all flat masonry (the castle, the Spire, the cellars, the ruins), with star lamps
+    set in them: denser on the castle and Spire (lit for the court and the gallery), sparse on the ruins."""
+    from .common import relief
+    rows = lambda y: (y - FLOOR) % 5 == 3
+    up = relief(s, (0, FLOOR + 2, 0), s.shape, rows, lamp_p=0.2)
+    down = relief(s, (0, 20, 0), (s.shape[0], FLOOR + 2, s.shape[2]), rows, lamp_p=0.08, seed=1)
+    ctx["courses"] = dict(stairs=up[0] + down[0], lamps=up[1] + down[1])
+
+
 def build(s, ctx):
+    courses(s, ctx)
     n = stability.fix_soil(s)
     ctx["fix_soil"] = n
     markers(s, ctx)

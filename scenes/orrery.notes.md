@@ -50,3 +50,19 @@ Weakest three after pass 3:
 1. The belly still dominates crater and spawn views (big, dark, uniform).
 2. Lighting: court, gallery and walls are dark (0.35 lights/100 m2 near facades).
 3. Facade palette is flat (top-5 share 0.49, partial blocks 0.08): trims and gradients needed.
+
+## Pass 4: light, courses, the belly at night (sheet rendered at dusk)
+- String courses: every 5th row of flat masonry becomes an upside-down stair of its own stone facing into the wall
+  (drip groove, flush top: no new ledges); outer corners of round walls get outer-corner stairs (`common.relief`).
+- Star lamps: lit copper bulbs set in the courses, chosen by column, so they stack in vertical strings on towers
+  (20% of course cells above the deck, 8% below).
+- Court: 8 lamp standards round the compass rose (copper cage + lantern), a lantern on every 4th merlon.
+- Belly: 64 copper lanterns on chains of 2-11 links (thickest at the rim, clear of the stair and mooring chains);
+  crystal stalactites get pearlescent froglight facets. At night the underside reads as a field of lamps.
+- cam_court re-aimed into the court. Walk: 0 traps. Stats: top-5 0.49 -> 0.44 (PASS), metal 3.0 (PASS),
+  facade lights 0.35 -> 0.91, partial 0.08 -> 0.14.
+
+Weakest three after pass 4:
+1. The gatehouse is not yet the densest element: a flat wall with a portal and random lamps.
+2. Daylight belly is still one dark mass (lamps only help at night).
+3. Rings: full-block truss (0 partial blocks), and the Spire heart is hidden from most views.

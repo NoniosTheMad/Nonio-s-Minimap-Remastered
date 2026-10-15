@@ -103,6 +103,37 @@ def capstan(s, p, a, age):
         s.set(int(bx), y + 3, int(bz), cu(age, "lantern"))
 
 
+def belly_lamps(s, ctx, avoid):
+    """The astronomer's lamps: copper lanterns hung on chains of every length from the belly, thickest round the rim
+    (they light the crater players' sky and turn the underside into a field of stars at night)."""
+    from .island import edge_r
+    rng = np.random.default_rng(SEED + 60)
+    A = np.array(avoid) if len(avoid) else np.zeros((0, 3))
+    n = 0
+    for k in range(400):
+        if n >= 64:
+            break
+        a = rng.uniform(0, 360)
+        e = float(edge_r(np.array([a]))[0])
+        rr = e - rng.uniform(1.5, 6) if k % 3 else rng.uniform(10, e - 6)
+        x, z = at_polar(a, rr)
+        xi, zi = int(x), int(z)
+        hy = _underside(s, xi, zi)
+        if hy >= FLOOR - 2 or s.idx[xi, hy - 1, zi] != 0:
+            continue
+        L = int(rng.integers(2, 6) if k % 3 else rng.integers(5, 12))
+        cells = [(xi, y, zi) for y in range(hy - L, hy)]
+        if any(s.idx[c] != 0 for c in cells) or s.idx[xi, hy - L - 1, zi] != 0:
+            continue
+        if len(A) and np.min(np.linalg.norm(A - np.array([xi, hy - L / 2, zi]), axis=1)) < 4 + L / 2:
+            continue
+        for c in cells[1:]:
+            s.set(*c, cu(("", "exposed", "weathered")[k % 3], "chain", axis="y"))
+        s.set(*cells[0], cu(("", "exposed", "weathered")[(k // 3) % 3], "lantern", hanging="true"))
+        n += 1
+    ctx["belly_lamps"] = n
+
+
 def build(s, ctx):
     stair_P = np.array(ctx.get("stair_path", [(0, -999, 0)]))
     out = []
@@ -123,3 +154,8 @@ def build(s, ctx):
         out.append(dict(a=a, hawse=(round(hx, 1), hy, round(hz, 1)), anchor=(round(ax, 1), gy, round(az, 1)), links=len(links),
                         stair_clear=round(float(d), 1)))
     ctx["moorings"] = out
+    avoid = [tuple(p) for p in stair_P[:, [0, 2, 1]]] if len(stair_P) > 1 else []
+    for m in out:
+        A_, B_ = np.array(m["hawse"], float), np.array(m["anchor"], float)
+        avoid += [tuple(A_ + (B_ - A_) * t) for t in np.linspace(0, 1, 40)]
+    belly_lamps(s, ctx, avoid)

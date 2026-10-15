@@ -325,3 +325,71 @@ def skin(s, lo, hi, corners="slab", mask=None, dirs=("west", "east", "north", "s
                 c[mm] = s.id(f"{sl}[type=bottom,waterlogged=false]")
                 out += int(mm.sum())
     return out
+
+
+# ------------------------------------------------------------------ string courses + star lamps
+RELIEF_MATS = ("deepslate_tiles", "cracked_deepslate_tiles", "deepslate_bricks", "cracked_deepslate_bricks",
+               "polished_deepslate", "tuff_bricks", "polished_tuff", "smooth_quartz", "quartz_bricks", "stone_bricks",
+               "mossy_stone_bricks")
+STAR_LAMP = cu("", "bulb", lit="true", powered="false")
+
+
+def relief(s, lo, hi, rows, mask=None, lamp_p=0.0, lamp=STAR_LAMP, seed=0):
+    """String courses on flat masonry walls inside [lo, hi): a wall cell (air on exactly one side, masonry behind,
+    solid above and below) on a course row (rows(y) -> bool) becomes an upside-down stair of its own stone facing into
+    the wall (a drip groove under a flush top: no ledge to stand on). A share lamp_p of those cells is a lit copper
+    bulb instead (the star lamps). Returns (stairs, lamps)."""
+    from tools.voxel import noise
+    x0, y0, z0 = [max(1, int(v)) for v in lo]
+    x1, y1, z1 = [min(n - 1, int(v)) for v, n in zip(hi, s.shape)]
+    if x1 <= x0 or y1 <= y0 or z1 <= z0:
+        return 0, 0
+    A = s.idx[x0 - 1:x1 + 1, y0 - 1:y1 + 1, z0 - 1:z1 + 1]
+    src = {}
+    for i, st in enumerate(s.palette):
+        n = st.split("[")[0].replace("minecraft:", "")
+        if n in RELIEF_MATS:
+            src[i] = _SKIN[n][0]
+    if not src:
+        return 0, 0
+    c = A[1:-1, 1:-1, 1:-1]
+    air = A == 0
+    gx, gy, gz = np.ogrid[x0:x1, y0:y1, z0:z1]
+    cand = np.isin(c, list(src)) & ~air[1:-1, 2:, 1:-1] & ~air[1:-1, :-2, 1:-1]
+    cand &= np.broadcast_to(np.asarray(rows(gy), bool), cand.shape)
+    if mask is not None:
+        cand &= np.broadcast_to(mask(gx + 0.5, gy + 0.5, gz + 0.5), cand.shape)
+    e, w = air[2:, 1:-1, 1:-1], air[:-2, 1:-1, 1:-1]
+    so, no = air[1:-1, 1:-1, 2:], air[1:-1, 1:-1, :-2]
+    nair = e.astype(int) + w + so + no
+    corner = cand & (nair == 2) & ~(e & w) & ~(so & no)        # outer corners of stepped round walls
+    cand &= nair == 1
+    lamp_m = np.zeros(cand.shape, bool)
+    if lamp_p > 0:
+        h = noise.hash01(np.broadcast_to(gx, cand.shape), 0, np.broadcast_to(gz, cand.shape), seed=SEED + 77 + seed)   # by column: lamps stack in vertical strings
+        lamp_m = cand & (h < lamp_p)
+    n_st = 0
+    for dirm, behind, facing in ((e, w, "west"), (w, e, "east"), (so, no, "north"), (no, so, "south")):
+        m = cand & dirm & ~lamp_m
+        for i, st in src.items():
+            mm = m & (c == i)
+            if mm.any():
+                c[mm] = s.id(f"{st}[facing={facing},half=top,shape=straight,waterlogged=false]")
+                n_st += int(mm.sum())
+    # corner: air on two adjacent sides -> outer-corner stair whose full quarter points into the wall
+    LEFT = {"north": "west", "east": "north", "south": "east", "west": "south"}
+    solid_side = {"east": ~e, "west": ~w, "south": ~so, "north": ~no}
+    for fa in ("north", "east", "south", "west"):
+        lb = LEFT[fa]
+        rb = OPP[lb]
+        for b2, shape in ((lb, "outer_left"), (rb, "outer_right")):
+            m = corner & solid_side[fa] & solid_side[b2]
+            for i, st in src.items():
+                mm = m & (c == i)
+                if mm.any():
+                    c[mm] = s.id(f"{st}[facing={fa},half=top,shape={shape},waterlogged=false]")
+                    n_st += int(mm.sum())
+            corner &= ~m
+    if lamp_m.any():
+        c[lamp_m] = s.id(lamp)
+    return n_st, int(lamp_m.sum())
