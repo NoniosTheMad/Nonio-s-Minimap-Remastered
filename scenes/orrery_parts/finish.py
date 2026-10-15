@@ -67,7 +67,8 @@ def courses(s, ctx):
     set in them: denser on the castle and Spire (lit for the court and the gallery), sparse on the ruins."""
     from .common import relief
     rows = lambda y: (y - FLOOR) % 5 == 3
-    up = relief(s, (0, FLOOR + 2, 0), s.shape, rows, lamp_p=0.2)
+    not_gate = lambda x, y, z: ~((np.abs(x - 104) < 16) & (z > 128) & (y < FLOOR + 40))    # the gate face has its own lighting
+    up = relief(s, (0, FLOOR + 2, 0), s.shape, rows, lamp_p=0.2, lamp_mask=not_gate)
     down = relief(s, (0, 20, 0), (s.shape[0], FLOOR + 2, s.shape[2]), rows, lamp_p=0.08, seed=1)
     ctx["courses"] = dict(stairs=up[0] + down[0], lamps=up[1] + down[1])
 

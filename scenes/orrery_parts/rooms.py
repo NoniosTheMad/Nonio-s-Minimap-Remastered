@@ -65,8 +65,8 @@ def zones(ctx):
                       ["stair hole with balustrade (north)", "windows to the court"]))
     gr = ctx.get("gate_room")
     if gr:
-        Z.append(_box("Gate Room", "armoury", gr, "martial, the rose window glowing over the gate",
-                      ["rose window (south)", "two wall-walk doors (east/west)", "murder slots over the passage possible"]))
+        Z.append(_box("Gate Room", "armoury", gr, "martial, tall, the astrolabe window glowing violet over the gate",
+                      ["astrolabe window (south, upper wall)", "two wall-walk doors (east/west)", "murder slots over the passage possible", "gallery possible at mid height (16 tall)"]))
     # ---- towers
     for t in ctx.get("towers", []):
         x, z = t["c"]

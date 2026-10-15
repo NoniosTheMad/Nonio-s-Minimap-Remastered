@@ -374,7 +374,7 @@ def roof(s, x0, x1, z0, z1, y0, axis, name):
 # ------------------------------------------------------------------ gatehouse
 def gatehouse(s, ctx):
     x0, x1, z0, z1 = GATE_X0, GATE_X1, GATE_Z0, GATE_Z1
-    top = FLOOR + 20
+    top = FLOOR + 26
     s.box((x0, FLOOR - 6, z0), (x1, top, z1), MASONRY)
     b = Box(s, (x0 - 4, FLOOR - 1, z0 - 1), (x1 + 5, top + 12, z1 + 5))
     u = b.x - C[0]
@@ -388,23 +388,14 @@ def gatehouse(s, ctx):
         hs, sp = 2.5 + ring, 5 + ring
         arch = pointed_arch_2d(u, v - 0.5, hs, sp) & ~pointed_arch_2d(u, v - 0.5, hs - 1, sp - 1) & (b.y > FLOOR + 0.5)
         b.fill(arch & (b.z > z1 + 1 - (4 - ring)) & (b.z < z1 + 1), mat)
-    # outward flourish: a projecting hood moulding and portal frame pilasters
-    hood = pointed_arch_2d(u, v - 0.5, 7.5, 9) & ~pointed_arch_2d(u, v - 0.5, 6.5, 8) & (b.y > FLOOR + 0.5)
-    b.fill(hood & (b.z > z1 + 0.5) & (b.z < z1 + 1.5), TRIM)
-    for sx in (-8, 8):
-        s.box((int(C[0] + sx - 0.5), FLOOR + 1, z1 + 1), (int(C[0] + sx - 0.5), FLOOR + 14, z1 + 1), TRIM)
-    # gate room above the passage (wall-walk level)
-    s.box((x0 + 2, WALK + 1, z0 + 1), (x1 - 2, WALK + 8, z1 - 1), "air")
+    # gate room above the passage (wall-walk level), tall: the astrolabe window fills its upper south wall
+    s.box((x0 + 2, WALK + 1, z0 + 1), (x1 - 2, WALK + 16, z1 - 1), "air")
     s.box((x0 + 2, WALK, z0 + 1), (x1 - 2, WALK, z1 - 1), Mix({"spruce_planks": 2, "polished_tuff": 1}))
     for side in (x0, x1):      # wall-walk doors
         for yy in range(WALK + 1, WALK + 4):
             for zz in (z0 + 1, z0 + 2):
                 s.set(side, yy, zz, "air")
         s.box((side, WALK + 1, z0 + 1), (side + (1 if side == x0 else -1), WALK + 3, z0 + 2), "air")
-    # rose window over the gate (outer face) and lancets
-    rose = ((u ** 2 + (b.y - (WALK + 4.5)) ** 2) <= 3.3 ** 2) & (b.z > z1 - 0.5) & (b.z < z1 + 0.5)
-    b.fill(rose, "purple_stained_glass")
-    b.fill(((u ** 2 + (b.y - (WALK + 4.5)) ** 2) <= 0.8) & (b.z > z1 - 0.5) & (b.z < z1 + 0.5), "amethyst_block")
     # stepped gable crown with spikes
     for k in range(7):
         hw = 9 - k * 1.3
@@ -441,8 +432,56 @@ def gatehouse(s, ctx):
         s.box((px, FLOOR - 4, z1 + 7), (px, FLOOR + 6, z1 + 7), MASONRY)
         s.box((px, FLOOR + 7, z1 + 7), (px, FLOOR + 7, z1 + 7), cu("", "bulb", lit="true", powered="false"))
         s.set(px, FLOOR + 8, z1 + 7, cu("", "rod"))
-    ctx["gate_room"] = (x0 + 2, WALK + 1, z0 + 1, x1 - 2, WALK + 8, z1 - 1)
+    gate_face(s, ctx, top)
+    ctx["gate_room"] = (x0 + 2, WALK + 1, z0 + 1, x1 - 2, WALK + 16, z1 - 1)
     ctx["gate_towers"] = towers
+
+
+ASTRO_C = (104.0, FLOOR + 25.0)     # the Astrolabe's centre on the gate face (x, y)
+
+
+def gate_face(s, ctx, top):
+    """The Astrolabe Gate: the densest face of the build. Over the nested portal hangs a 14-block astrolabe (calcite
+    mater with copper hour ticks, a copper rete of star lines and a fresh-copper alidade over violet glass: the Gate
+    Room's window); two stepped buttresses (three setbacks, stair caps, copper pinnacles) frame it, with a copper
+    star-gazer statue and a lantern on each first setback."""
+    z1 = GATE_Z1
+    ax, ay = ASTRO_C
+    b = Box(s, (ax - 10, FLOOR, z1), (ax + 10, top + 8, z1 + 4))
+    u, v = b.x - ax, b.y - ay
+    r = np.hypot(u, v)
+    ang = np.degrees(np.arctan2(v, u)) % 360
+    zc = b.z - 0.5                           # integer cell z
+    R_GL, R_IN, R_OUT = 5.6, 5.6, 7.0
+    b.fill((zc == z1) & (r < R_GL), "purple_stained_glass")
+    b.fill((zc == z1 + 1) & (r >= R_IN) & (r < R_OUT), "calcite")
+    tick = np.abs(((ang + 15) % 30) - 15) * np.pi / 180 * r < 0.55
+    b.fill((zc == z1 + 2) & (r >= R_IN) & (r < R_OUT) & tick, cu("oxidized", "chiseled"))
+    # rete: three star lines, an inner ring (the ecliptic) and the alidade
+    for a in (0, 60, 120):
+        ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+        b.fill((zc == z1 + 1) & (r < R_IN) & (np.abs(-u * sa + v * ca) < 0.5), cu("", "cut"))
+    b.fill((zc == z1 + 1) & (r >= 2.6) & (r < 3.6), cu("exposed", "cut"))
+    ca, sa = math.cos(math.radians(75)), math.sin(math.radians(75))
+    b.fill((zc == z1 + 2) & (r < R_OUT + 0.6) & (np.abs(-u * sa + v * ca) < 0.5) & (u * ca + v * sa > -1.5), cu("", "chiseled"))
+    b.fill((zc == z1 + 2) & (r < 1.0), "amethyst_block")
+    b.fill((zc == z1 + 3) & (r < 0.75), cu("", "bulb", lit="true", powered="false"))
+    # buttresses
+    for sgn in (-1, 1):
+        xs = [int(ax + sgn * 6.5 - 0.5), int(ax + sgn * 7.5 - 0.5)] if sgn > 0 else [int(ax - 7), int(ax - 8)]
+        for (ya, yb, d, mat) in ((FLOOR + 1, FLOOR + 9, 3, Mix({"deepslate_bricks": 3, "polished_deepslate": 1})),
+                                 (FLOOR + 10, FLOOR + 17, 2, Mix({"tuff_bricks": 3, "polished_tuff": 1})),
+                                 (FLOOR + 18, top - 1, 1, Mix({"tuff_bricks": 2, "polished_tuff": 1}))):
+            for x in xs:
+                s.box((x, ya, z1 + 1), (x, yb, z1 + d), mat)
+                s.set(x, yb + 1, z1 + d, "calcite" if d == 1 else "polished_tuff_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]")
+        inner, outer = xs[0], xs[1]
+        s.set(inner, FLOOR + 10, z1 + 3, "waxed_copper_golem_statue[facing=south,copper_golem_pose=star,waterlogged=false]")
+        s.set(outer, FLOOR + 10, z1 + 3, cu("", "lantern", hanging="false"))
+        for x in xs:                                   # pinnacles
+            s.set(x, top + 1, z1 + 1, cu("", "chiseled"))
+            s.set(x, top + 2, z1 + 1, cu("", "rod"))
+    ctx["astrolabe"] = dict(c=(ax, ay, z1), r=R_OUT)
 
 
 def outer_terrace(s, ctx):

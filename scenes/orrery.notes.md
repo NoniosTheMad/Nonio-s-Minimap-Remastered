@@ -66,3 +66,17 @@ Weakest three after pass 4:
 1. The gatehouse is not yet the densest element: a flat wall with a portal and random lamps.
 2. Daylight belly is still one dark mass (lamps only help at night).
 3. Rings: full-block truss (0 partial blocks), and the Spire heart is hidden from most views.
+
+## Pass 5: the Astrolabe Gate
+- The gate face was a flat wall: its rose window and hood moulding never existed (both tested the face plane on
+  voxel centres and matched no cell). Rebuilt as `castle.gate_face`: a 14-block astrolabe over the portal (calcite
+  mater, 12 oxidized-copper hour ticks proud of it, a fresh-copper rete of star lines, an exposed ecliptic ring,
+  a chiseled alidade, an amethyst boss with a lit bulb) over violet glass that is also the Gate Room's window.
+- Gate body raised to FLOOR + 26, Gate Room 16 tall. Two stepped buttresses (3 setbacks, stair caps, copper
+  pinnacles with rods); on each first setback a waxed copper golem statue (pose "star") and a lantern.
+- Star lamps masked off the gate face (it has its own composed lights). Walk: 0 traps.
+
+Weakest three after pass 5:
+1. Rings are full-block trusses: no partial blocks, the rails read flat close up.
+2. The Spire heart (amethyst) is invisible from the court and the highland.
+3. Daylight belly: still one dark mass from the crater.

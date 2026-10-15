@@ -334,7 +334,7 @@ RELIEF_MATS = ("deepslate_tiles", "cracked_deepslate_tiles", "deepslate_bricks",
 STAR_LAMP = cu("", "bulb", lit="true", powered="false")
 
 
-def relief(s, lo, hi, rows, mask=None, lamp_p=0.0, lamp=STAR_LAMP, seed=0):
+def relief(s, lo, hi, rows, mask=None, lamp_p=0.0, lamp=STAR_LAMP, seed=0, lamp_mask=None):
     """String courses on flat masonry walls inside [lo, hi): a wall cell (air on exactly one side, masonry behind,
     solid above and below) on a course row (rows(y) -> bool) becomes an upside-down stair of its own stone facing into
     the wall (a drip groove under a flush top: no ledge to stand on). A share lamp_p of those cells is a lit copper
@@ -368,6 +368,8 @@ def relief(s, lo, hi, rows, mask=None, lamp_p=0.0, lamp=STAR_LAMP, seed=0):
     if lamp_p > 0:
         h = noise.hash01(np.broadcast_to(gx, cand.shape), 0, np.broadcast_to(gz, cand.shape), seed=SEED + 77 + seed)   # by column: lamps stack in vertical strings
         lamp_m = cand & (h < lamp_p)
+        if lamp_mask is not None:
+            lamp_m &= np.broadcast_to(lamp_mask(gx + 0.5, gy + 0.5, gz + 0.5), cand.shape)
     n_st = 0
     for dirm, behind, facing in ((e, w, "west"), (w, e, "east"), (so, no, "north"), (no, so, "south")):
         m = cand & dirm & ~lamp_m
