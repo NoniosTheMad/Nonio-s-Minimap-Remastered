@@ -170,6 +170,19 @@
     "type": "minecraft:run_command",
     "command": "trigger demo.arena set 12"
    }
+  },
+  {
+   "label": {
+    "text": "Events…",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Fire any arena event"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 21"
+   }
   }
  ],
  "columns": 2,

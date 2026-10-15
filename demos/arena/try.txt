@@ -1,6 +1,6 @@
-Your role: judge the arena's runes, fountain and payouts
+Your role: judge the arena as a whole, is it worth fighting in
 Check:
 - Runes: readable from 30 blocks? bar fills smoothly?
-- Fountain: do the emeralds pull you to the centre?
-- Golden Hour now: centre emeralds come out x2?
+- Fountain + Golden Hour now: worth fighting over?
 - Purse Thief: die in the arena; half dropped feels fair?
+- Events...: enemy events fun? countdown bar readable?

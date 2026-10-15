@@ -11,3 +11,4 @@ time set 6000
 weather clear
 execute unless data storage demo:arena {built:1b} run schedule function demo:build 2t
 schedule function demo:second 20t replace
+function demo:events_load

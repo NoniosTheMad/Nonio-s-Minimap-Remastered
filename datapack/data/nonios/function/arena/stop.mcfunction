@@ -8,4 +8,5 @@ scoreboard players set #ev_wait nx.arena 0
 scoreboard players set #ev_run nx.arena 0
 bossbar set nonios:arena/event visible false
 function nonios:arena/lightning/despawn
+function nonios:arena/event/mob/clear
 function nonios:arena/gate/state

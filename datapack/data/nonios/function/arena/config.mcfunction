@@ -53,8 +53,10 @@ data modify storage nonios:arena config.events append value {id:"emerald_surge",
 data modify storage nonios:arena config.events append value {id:"supply_drop",name:"SUPPLY DROP",color:"aqua",bar:"blue",sub:"A supply chest falls",at:1b,sound:"minecraft:item.trident.thunder",weight:3,fn:"nonios:arena/event/supply_drop"}
 data modify storage nonios:arena config.events append value {id:"golden_hour",name:"GOLDEN HOUR",color:"gold",bar:"yellow",sub:"Arena coins x2",at:0b,sound:"minecraft:ui.toast.challenge_complete",weight:2,fn:"nonios:arena/event/golden_hour"}
 data modify storage nonios:arena config.events append value {id:"bounty_hunt",name:"BOUNTY HUNT",color:"red",bar:"red",sub:"Kills in the Arena pay extra",at:0b,sound:"minecraft:entity.evoker.prepare_attack",weight:2,fn:"nonios:arena/event/bounty_hunt"}
-data modify storage nonios:arena config.events append value {id:"low_gravity",name:"LOW GRAVITY",color:"light_purple",bar:"purple",sub:"The Arena lets go",at:0b,sound:"minecraft:block.beacon.power_select",weight:2,fn:"nonios:arena/event/low_gravity"}
 data modify storage nonios:arena config.events append value {id:"frog_rain",name:"IT'S RAINING FROGS",color:"light_purple",bar:"pink",sub:"Emerald-stuffed frogs fall",at:1b,sound:"minecraft:entity.frog.long_jump",weight:1,troll:1b,fn:"nonios:arena/event/frog_rain"}
+data modify storage nonios:arena config.events append value {id:"warband",name:"WARBAND",color:"dark_red",bar:"red",sub:"Raiders storm the Arena",at:0b,sound:"minecraft:event.raid.horn",weight:2,fn:"nonios:arena/event/warband"}
+data modify storage nonios:arena config.events append value {id:"warden",name:"THE GILDED WARDEN",color:"gold",bar:"yellow",sub:"A guardian rises by the generator",at:0b,sound:"minecraft:entity.wither_skeleton.ambient",weight:2,fn:"nonios:arena/event/warden"}
+data modify storage nonios:arena config.events append value {id:"graves",name:"GRAVES OPEN",color:"dark_green",bar:"green",sub:"The dead rise at every node",at:0b,sound:"minecraft:entity.zombie.ambient",weight:2,fn:"nonios:arena/event/graves"}
 # Event tuning
 data modify storage nonios:arena config.surge_waves set value 8
 data modify storage nonios:arena config.supply_height set value 24
@@ -65,6 +67,13 @@ data modify storage nonios:arena config.bounty_coins set value 50
 data modify storage nonios:arena config.gravity_time set value 900
 data modify storage nonios:arena config.frogs set value 10
 data modify storage nonios:arena config.frog_life set value 1200
+# Enemy events (emerald drops only; event mobs are leashed to config.bounds and vanish on stop/reset):
+# warband: `waves` waves of `size` raiders every `gap` ticks within `range` of config.center, survivors leave after `life`.
+# warden: one boss with `hp` at the centre generator, never more than `leash` blocks from it, withdraws after `life`.
+# graves: `per_node` husks (one Grave Lord) at every node, leftovers crumble after `life`.
+data modify storage nonios:arena config.warband set value {waves:3,size:4,gap:300,life:1800,range:12}
+data modify storage nonios:arena config.warden set value {hp:120,life:2400,leash:10}
+data modify storage nonios:arena config.graves set value {per_node:3,life:1200}
 # Lightning (V2 homage): the Lightning Rabbit roams the Arena and calls a bolt on itself every `every` ticks.
 # Kill it for its loot; it comes back after `respawn` ticks. `on` = default for a fresh world; at runtime use
 # function nonios:arena/lightning/on | off | toggle (remembered across reloads).

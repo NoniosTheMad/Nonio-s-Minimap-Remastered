@@ -13,5 +13,8 @@ execute if entity @a[scores={demo.arena=9}] run function demo:speed
 execute as @a[scores={demo.arena=10}] at @s run function demo:thief
 execute as @a[scores={demo.arena=11}] run function nonios:arena/status
 execute if entity @a[scores={demo.arena=12}] run function demo:reset
+function demo:events_tick
+execute as @a[scores={demo.arena=21}] run dialog show @s demo:events
+execute as @a[scores={demo.arena=20}] run dialog show @s demo:arena
 scoreboard players reset @a[scores={demo.arena=1..}] demo.arena
 scoreboard players enable @a demo.arena

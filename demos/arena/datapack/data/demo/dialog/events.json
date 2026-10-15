@@ -1,0 +1,163 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Arena events",
+  "color": "gold"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 240,
+   "contents": {
+    "text": "Fires at once (no warning).",
+    "color": "gray"
+   }
+  }
+ ],
+ "columns": 2,
+ "actions": [
+  {
+   "label": {
+    "text": "Surge",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Emerald Surge at a random node"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Supply",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Supply Drop at a random node"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Golden Hour",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Golden Hour (timed)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Bounty",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Bounty Hunt (timed)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Frog Rain",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "It's Raining Frogs (troll event)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Warband",
+    "color": "dark_red"
+   },
+   "tooltip": {
+    "text": "Raider waves around the centre (timed)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Gilded Warden",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Boss guarding the centre generator (timed)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Graves",
+    "color": "dark_green"
+   },
+   "tooltip": {
+    "text": "Husks at every node (timed)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Random, announced",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Picked by weight, with the 30 s warning bar"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Clear events",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Ends the running event, removes its mobs"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ev set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Back",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "Arena demo menu"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 20"
+   }
+  }
+ ]
+}
