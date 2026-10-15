@@ -1,9 +1,6 @@
-A small arena north of you with three node pads (West, North, East). You are on team White, in adventure mode.
-1. Walk onto a pad: a bossbar appears (only while inside). It fills in 10 s, then "White captured ...". The beacon beam turns white, the hologram shows "Held by White · next payout in Ns".
-2. G > Demo: Arena > Spawn enemy dummy: a Black husk appears on the nearest pad. Stand with it: CONTESTED (red bar, red beam). Hit it until it dies and the capture goes on.
-3. Leave a dummy alone on a White pad: Black drains it to neutral, then takes it (purple beam).
-4. Speed x10: a held pad drops loot every 3 s. "Payouts: drop / bank" sends the coins to a team bank in the sidebar instead (the hook a real bank will use).
-5. Events: Emerald Surge (emerald fountain), Raining Frogs (kill the frogs, the glowing Cracy Frog is the jackpot), Golden Hour (double payouts). The board at spawn counts down to the next random one.
-6. Toggle lightning: the Lightning Rabbit from V2 runs around the arena calling bolts on itself. It hurts. Kill it for its loot.
-7. Switch my team to play Black. Reset puts everything back.
-Feedback: capture time, payout size and rhythm, event ideas, whether the rabbit is fun or just annoying.
+Your role: tune node captures and payouts; judge the rabbit.
+Check:
+- Stand on a pad: is a 10 s capture right?
+- "Speed x10": payout size every 3 s OK?
+- Toggle lightning: Lightning Rabbit fun or annoying?
+- Surge, Frogs, Golden Hour: which events to keep?
