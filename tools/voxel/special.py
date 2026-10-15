@@ -315,6 +315,8 @@ def entity_quads(e):
 def _item_tex(item_id):
     """Texture for an item stack's sprite: item/<id>, else the block's own texture, else its model's first texture."""
     s = item_id.split(":")[-1]
+    s = {"crossbow": "crossbow_standby", "clock": "clock_00", "compass": "compass_16", "recovery_compass": "recovery_compass_16",
+         "potion": "potion", "splash_potion": "splash_potion", "filled_map": "filled_map"}.get(s, s)
     root = bank().root / "textures"
     for p in ("item/" + s, "block/" + s, "block/" + s + "_front", "block/" + s + "_side"):
         if (root / (p + ".png")).exists():

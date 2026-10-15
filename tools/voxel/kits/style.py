@@ -91,7 +91,12 @@ class Style:
 
     @property
     def chain(self):
-        return _ns({"gold": "chain", "copper": "copper_chain"}.get(self.metal, "chain"))
+        return _ns("waxed_copper_chain" if self.metal == "copper" else "iron_chain")
+
+    @property
+    def panel(self):
+        """Trapdoor for cabinet doors and armrests: the main wood if its trapdoor is solid, else spruce."""
+        return self.w("trapdoor") if self.wood in ("spruce", "birch", "dark_oak", "pale_oak") else _ns("spruce_trapdoor")
 
     @property
     def metal_block(self):
@@ -99,7 +104,7 @@ class Style:
 
     @property
     def bars(self):
-        return _ns({"copper": "copper_bars"}.get(self.metal, "iron_bars"))
+        return _ns("waxed_copper_bars" if self.metal == "copper" else "iron_bars")
 
     def carpet(self, colour=None):
         return _ns(f"{colour or self.cloth}_carpet")
