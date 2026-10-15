@@ -1,9 +1,6 @@
-Three generators stand north of you: white Lv1 (left), black Lv2 (middle), white Lv3 (right). You are in adventure mode; your coins are in the sidebar.
-1. Watch the holograms: "Lv N · next drop Ns". Lv1 drops every 10 s, Lv2 every 8 s, Lv3 every 6 s. The core spins faster per level; Lv3 glows.
-2. G > Demo: Generators > Time x10 to speed things up. Drops land on the sea lantern (chime + sparkles).
-3. Lv3 is mostly coins (emerald outcomes): its hologram shows "N coins · right-click to collect". Right-click the generator: coins go to your purse (+N on the actionbar) and its drops jump to you.
-4. Stand next to a generator: Upgrade nearest / Downgrade nearest swap the structure (V2 glass), core item, interval and loot. Reset all = all back to Lv1.
-5. Buy upgrade nearest charges the V2 prices (200 to Lv2, 500 to Lv3); +100 coins if you are short.
-6. Leave drops on the floor: after 16 stacks the generator holds ("full: pick up the drops").
-7. Simulate 20 per team: each drop rolls 5 times (scales with team size). Status prints the numbers.
-Feedback: drop rates and coin amounts, intervals per level, whether enemies may collect your pot, the visuals.
+Your role: set drop rates, intervals and coin pots per level.
+Check:
+- "Time x10": Lv1 / Lv2 / Lv3 rhythm right?
+- Lv3 coin pot (right-click it): too big or too small?
+- Upgrade at 200 / 500 coins: worth it?
+- Should enemies be able to take your pot?
