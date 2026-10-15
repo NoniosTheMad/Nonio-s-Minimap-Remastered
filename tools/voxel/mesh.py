@@ -17,6 +17,55 @@ FOLIAGE_BLOCKS = ("oak_leaves", "jungle_leaves", "acacia_leaves", "dark_oak_leav
 SELF_CULL = ("glass", "ice", "water", "lava", "slime_block", "honey_block")  # same-block faces between them vanish
 AO_CURVE = np.array([0.42, 0.62, 0.8, 1.0], np.float32)
 
+# Block light emitted (vanilla 26.3 luminance). "lit" blocks only when lit=true. Used by mood renders (render --mood).
+LUMINANCE = {"lava": 15, "fire": 15, "glowstone": 15, "sea_lantern": 15, "shroomlight": 15, "jack_o_lantern": 15,
+             "beacon": 15, "conduit": 15, "ochre_froglight": 15, "verdant_froglight": 15, "pearlescent_froglight": 15,
+             "lantern": 15, "end_rod": 14, "torch": 14, "wall_torch": 14, "end_gateway": 15, "end_portal": 15,
+             "soul_fire": 10, "soul_lantern": 10, "soul_torch": 10, "soul_wall_torch": 10, "crying_obsidian": 10,
+             "magma_block": 3, "amethyst_cluster": 5, "large_amethyst_bud": 4, "medium_amethyst_bud": 2,
+             "glow_lichen": 7, "sea_pickle": 6, "respawn_anchor": 15, "enchanting_table": 7, "ender_chest": 7,
+             "copper_torch": 14, "copper_wall_torch": 14, "copper_lantern": 15, "brewing_stand": 1, "dragon_egg": 1}
+LIT_LUMINANCE = {"campfire": 15, "soul_campfire": 10, "redstone_lamp": 15, "copper_bulb": 15, "exposed_copper_bulb": 12,
+                 "weathered_copper_bulb": 8, "oxidized_copper_bulb": 4, "furnace": 13, "blast_furnace": 13, "smoker": 13,
+                 "candle": 3, "redstone_ore": 9, "deepslate_redstone_ore": 9}
+# faces drawn full-bright in mood renders (the block glows, not just lights its neighbours)
+EMISSIVE = ("lava", "fire", "soul_fire", "glowstone", "sea_lantern", "shroomlight", "froglight", "lantern", "end_rod",
+            "torch", "magma_block", "crying_obsidian", "jack_o_lantern", "beacon", "amethyst_cluster", "_bud", "campfire",
+            "redstone_lamp[lit=true", "copper_bulb[lit=true")
+
+
+def luminance(state):
+    name = bs.name_of(state).split(":")[-1]
+    if name in LUMINANCE:
+        return LUMINANCE[name]
+    if name in LIT_LUMINANCE or name.endswith("_candle"):
+        if "lit=true" in state:
+            n = 3
+            if "candles=" in state:
+                n = 3 * int(state.split("candles=")[1][0])
+            return LIT_LUMINANCE.get(name, n) if not name.endswith("candle") else min(15, n)
+    if name.endswith("_copper_lantern"):
+        return 15
+    return 0
+
+
+def block_light(scene, occ_state):
+    """Vanilla-like block light (0..15): each emitter floods non-opaque cells, -1 per step (6-neighbour)."""
+    lum = np.array([luminance(p) for p in scene.palette], np.int16)
+    src = lum[scene.idx]
+    if not src.any():
+        return np.zeros(scene.shape, np.int16)
+    opaque = occ_state[scene.idx]
+    lvl = src.copy()
+    for _ in range(14):
+        n = lvl.copy()
+        n[1:] = np.maximum(n[1:], lvl[:-1]); n[:-1] = np.maximum(n[:-1], lvl[1:])
+        n[:, 1:] = np.maximum(n[:, 1:], lvl[:, :-1]); n[:, :-1] = np.maximum(n[:, :-1], lvl[:, 1:])
+        n[:, :, 1:] = np.maximum(n[:, :, 1:], lvl[:, :, :-1]); n[:, :, :-1] = np.maximum(n[:, :, :-1], lvl[:, :, 1:])
+        n = np.where(opaque, 0, np.maximum(n - 1, 0))
+        lvl = np.maximum(lvl, np.maximum(n, src))
+    return lvl
+
 
 def tint_of(name):
     short = name.split(":")[-1]
@@ -75,8 +124,10 @@ class Mesh:
         self.quads = 0
 
 
-def build(scene, origin=(0, 0, 0), ao=True, vtint=None):
-    """vtint: optional (X,Y,Z,3) per-voxel colour multiplier (diff highlighting)."""
+def build(scene, origin=(0, 0, 0), ao=True, vtint=None, light=False):
+    """vtint: optional (X,Y,Z,3) per-voxel colour multiplier (diff highlighting).
+    light: compute block light + emissive faces; stored in the shading normal's length (|n| = 1 + level, +32 if emissive),
+    which only the mood renderer reads (it normalises n)."""
     b = bank()
     tex = TextureArray()
     pal = scene.palette
@@ -100,6 +151,10 @@ def build(scene, origin=(0, 0, 0), ao=True, vtint=None):
     counts = np.bincount(flat, minlength=len(pal))
     starts = np.concatenate([[0], np.cumsum(counts)])
 
+    if light:
+        bl = np.zeros((X + 2, Y + 2, Z + 2), np.int16)
+        bl[1:-1, 1:-1, 1:-1] = block_light(scene, occ_state)
+        emis = np.array([any(e in p for e in EMISSIVE) for p in pal])
     P, UV, L, N, C, A, TR = [], [], [], [], [], [], []
     for k, state in enumerate(pal):
         if not counts[k] or names[k] in INVISIBLE:
@@ -133,7 +188,14 @@ def build(scene, origin=(0, 0, 0), ao=True, vtint=None):
                 P.append(v)
                 UV.append(np.broadcast_to(q.uv[i], (len(pp), 4, 2)))
                 L.append(np.full((len(pp), 4), layers[i], np.float32))
-                N.append(np.broadcast_to(q.shade[i], (len(pp), 4, 3)))
+                if light:
+                    nv = np.asarray(q.shade[i], np.float32)
+                    nb = pp + 1 + np.round(nv).astype(np.int32)
+                    lv = np.maximum(bl[nb[:, 0], nb[:, 1], nb[:, 2]], bl[pp[:, 0] + 1, pp[:, 1] + 1, pp[:, 2] + 1])
+                    ln = 1.0 + lv.astype(np.float32) + (32.0 if emis[k] else 0.0)
+                    N.append(np.broadcast_to(nv[None, None, :] * ln[:, None, None], (len(pp), 4, 3)))
+                else:
+                    N.append(np.broadcast_to(q.shade[i], (len(pp), 4, 3)))
                 col = tint if q.tint[i] >= 0 else np.ones(3, np.float32)
                 if vtint is not None:
                     col = col[None] * vtint[pp[:, 0], pp[:, 1], pp[:, 2]]

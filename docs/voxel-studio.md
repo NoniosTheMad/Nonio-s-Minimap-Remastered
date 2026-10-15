@@ -41,7 +41,7 @@ The outputs go to `.mcdev/voxel/out/<scene name>/`: `*.png`, `sheet.png`, `viewe
 | command | what it does |
 |---|---|
 | `info SCENE` | Prints the size, bounds, palette counts, markers and meta. Lint flags gravity blocks over air, markers inside blocks and markers standing on air. |
-| `render SCENE [--only iso,top,eye] [--size WxH] [--no-shadows]` | Writes the PNG views and the contact sheet. |
+| `render SCENE [--only iso,top,eye] [--size WxH] [--no-shadows] [--mood M]` | Writes the PNG views and the contact sheet. `--mood` sets sky, sun and block-light colour: `day` (default), `golden`, `dusk`, `night`, `ember`; a scene can set its own default with `meta["mood"]`. In non-day moods light sources (lava, lanterns, magma...) light their surroundings with a flood-filled block light and glow full-bright. |
 | `view SCENE` | Writes `viewer.html`: a single offline file with three.js r147 inlined and real textures. Drag to orbit, right-drag to pan, wheel to zoom, keys 1-4 for the iso corners, T for top. |
 | `export SCENE [--out DIR] [--tile 64] [--no-air]` | Writes structure `.nbt` tiles (DataVersion 5023, `{id, properties}` palette). |
 | `place SCENE --server N [--at X Y Z] [--no-air] [--verify N] [--pristine]` | Places the scene at `--at`, else at the last placement, else at `meta["origin"]`. Air cells carve unless `--no-air`; `structure_void` cells leave the world alone. `--pristine` snapshots the world so mcdev's "Reset this server" restores the build. |
