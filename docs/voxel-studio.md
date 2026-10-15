@@ -41,7 +41,7 @@ The outputs go to `.mcdev/voxel/out/<scene name>/`: `*.png`, `sheet.png`, `viewe
 | command | what it does |
 |---|---|
 | `info SCENE` | Prints the size, bounds, palette counts, markers and meta. Lint flags gravity blocks over air, markers inside blocks and markers standing on air. |
-| `render SCENE [--only iso,top,eye] [--size WxH] [--no-shadows]` | Writes the PNG views and the contact sheet. |
+| `render SCENE [--only iso,top,eye] [--size WxH] [--no-shadows] [--mood M]` | Writes the PNG views and the contact sheet. `--mood` sets sky, sun and block-light colour: `day` (default), `golden`, `dusk`, `night`, `ember`; a scene can set its own default with `meta["mood"]`. In non-day moods light sources (lava, lanterns, magma...) light their surroundings with a flood-filled block light and glow full-bright. |
 | `view SCENE [--no-merge]` | Writes `viewer.html`: one offline file (plain WebGL1, no libraries) with real textures. See "Viewer" below. |
 | `serve [--port 8765] [--host 127.0.0.1]` | Serves `.mcdev/voxel/out/` over HTTP with an index of every scene's viewer and sheet. `--host 0.0.0.0` for a phone on the LAN. |
 | `stats SCENE [--json F]` | Quantitative floors (playbook §5): canvas use, facade area and break ratio, partial-block share, decoration density. Writes `stats.json`. They catch emptiness; they don't prove beauty. |

@@ -17,6 +17,21 @@ from . import mesh as meshmod
 SKY_TOP = np.array([0.45, 0.62, 0.92]); SKY_BOT = np.array([0.80, 0.87, 0.97])
 SUN = np.array([0.45, 0.80, 0.38]); SUN /= np.linalg.norm(SUN)   # from the south-east, high afternoon
 
+# Lighting moods (render --mood / scene.meta["mood"]). "day" = the classic look (no block light). The others add vanilla-like
+# block light from lava / lanterns / froglights ... (mesh.block_light) and draw light-emitting blocks full-bright.
+#   sky_top/sky_bot: gradient; sun: direction (towards the light); sun_col / amb: direct and ambient light; blk: block-light colour
+MOODS = {
+    "day":    dict(sky_top=SKY_TOP, sky_bot=SKY_BOT, sun=SUN, sun_col=(0.5, 0.5, 0.5), amb=(0.5, 0.5, 0.5), blk=None),
+    "golden": dict(sky_top=(0.38, 0.52, 0.80), sky_bot=(0.98, 0.80, 0.58), sun=(-0.80, 0.42, 0.30),
+                   sun_col=(0.80, 0.60, 0.38), amb=(0.34, 0.34, 0.42), blk=(1.0, 0.82, 0.55)),
+    "dusk":   dict(sky_top=(0.16, 0.17, 0.36), sky_bot=(0.86, 0.50, 0.38), sun=(-0.85, 0.30, 0.25),
+                   sun_col=(0.66, 0.45, 0.34), amb=(0.30, 0.30, 0.40), blk=(1.0, 0.78, 0.50)),
+    "night":  dict(sky_top=(0.03, 0.04, 0.12), sky_bot=(0.14, 0.17, 0.34), sun=(0.30, 0.75, -0.55),
+                   sun_col=(0.16, 0.20, 0.32), amb=(0.10, 0.11, 0.19), blk=(1.0, 0.80, 0.55)),
+    "ember":  dict(sky_top=(0.16, 0.07, 0.08), sky_bot=(0.70, 0.32, 0.16), sun=(0.30, 0.50, 0.80),
+                   sun_col=(0.62, 0.42, 0.34), amb=(0.30, 0.24, 0.26), blk=(1.0, 0.58, 0.28)),
+}
+
 VS = """#version 330
 uniform mat4 mvp; uniform mat4 lightmvp;
 in vec3 in_pos; in vec3 in_uvl; in vec3 in_nrm; in vec3 in_col;
@@ -26,11 +41,14 @@ void main(){ gl_Position = mvp*vec4(in_pos,1.0); uvl=in_uvl; nrm=in_nrm; col=in_
 FS = """#version 330
 uniform sampler2DArray tex; uniform sampler2DShadow shadow; uniform vec3 sun; uniform vec3 eye;
 uniform vec3 fogcol; uniform float fogstart; uniform float fogend; uniform int translucent; uniform int shadows;
+uniform vec3 suncol; uniform vec3 amb; uniform vec3 blkcol; uniform int blk;
 in vec3 uvl; in vec3 nrm; in vec3 col; in vec4 lpos; in vec3 wpos; out vec4 frag;
 void main(){
   vec4 t = texture(tex, uvl);
   if (translucent==0 && t.a < 0.5) discard;
-  vec3 n = normalize(nrm);
+  float nl = length(nrm); vec3 n = nrm/nl;
+  float em = 0.0, bl = 0.0;
+  if (blk==1) { em = nl > 30.0 ? 1.0 : 0.0; bl = clamp((nl - 1.0 - 32.0*em)/15.0, 0.0, 1.0); }
   // Minecraft-like directional face shading x soft sun
   float face = abs(n.y) > 0.5 ? (n.y > 0.0 ? 1.0 : 0.5) : (abs(n.z) > 0.5 ? 0.8 : 0.6);
   float lit = 1.0;
@@ -43,8 +61,10 @@ void main(){
     }
   }
   float ndl = max(dot(n, sun), 0.0);
-  float light = face*(0.5 + 0.5*lit*(0.3+0.7*ndl));
+  vec3 light = face*(amb + suncol*lit*(0.3+0.7*ndl));
+  if (blk==1) light += face*blkcol*(pow(bl, 2.2)*1.25);
   vec3 c = t.rgb*col*light;
+  if (em > 0.5) c = t.rgb*mix(vec3(1.0), col, 0.35)*1.12;
   float d = distance(eye, wpos);
   float f = clamp((d-fogstart)/(fogend-fogstart), 0.0, 1.0);
   c = mix(c, fogcol, f*f);
@@ -104,8 +124,10 @@ class Camera:
 
 # ------------------------------------------------------------------ renderer
 class Renderer:
-    def __init__(self, width=1280, height=800, ssaa=2):
+    def __init__(self, width=1280, height=800, ssaa=2, mood="day"):
         import moderngl
+        self.mood = dict(MOODS[mood])
+        self.mood["sun"] = np.asarray(self.mood["sun"], float) / np.linalg.norm(self.mood["sun"])
         self.ctx = moderngl.create_standalone_context()
         self.w, self.h, self.ss = width, height, ssaa
         self.prog = self.ctx.program(vertex_shader=VS, fragment_shader=FS)
@@ -143,7 +165,7 @@ class Renderer:
         self.radius = float(np.linalg.norm(hi - lo) / 2) + 1
         # sun shadow map
         c = self.centre
-        lv = look_at(c + SUN * self.radius * 2, c)
+        lv = look_at(c + self.mood["sun"] * self.radius * 2, c)
         corners = np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
         self.lightmvp = _fit_ortho(lv, corners, 1.0, 1.02) @ lv
         if self.vao is not None:
@@ -170,15 +192,19 @@ class Renderer:
         mvp = proj @ view
         self.fbo.use()
         ctx.viewport = (0, 0, W, H)
-        ctx.clear(*SKY_BOT, 1.0)
+        mo = self.mood
+        sky_bot = np.asarray(mo["sky_bot"], float)
+        ctx.clear(*sky_bot, 1.0)
         # sky gradient: draw by clearing then a fullscreen quad would need another program; cheap trick: bands
         ctx.enable(moderngl.DEPTH_TEST); ctx.disable(moderngl.CULL_FACE)
         p = self.prog
         p["mvp"].write(mvp.T.astype("f4").tobytes())
         p["lightmvp"].write(self.lightmvp.T.astype("f4").tobytes())
-        p["sun"].value = tuple(SUN)
+        p["sun"].value = tuple(mo["sun"])
+        p["suncol"].value = tuple(mo["sun_col"]); p["amb"].value = tuple(mo["amb"])
+        p["blkcol"].value = tuple(mo["blk"] or (0, 0, 0)); p["blk"].value = 1 if mo["blk"] else 0
         p["eye"].value = tuple(cam.eye)
-        p["fogcol"].value = tuple(SKY_BOT)
+        p["fogcol"].value = tuple(sky_bot)
         p["fogstart"].value, p["fogend"].value = fog
         p["shadows"].value = 1 if shadows else 0
         self.texarr.use(0); self.sdepth.use(1)
@@ -193,7 +219,8 @@ class Renderer:
             self.tvao.render()
             ctx.depth_mask = True; ctx.disable(moderngl.BLEND)
         raw = np.frombuffer(self.fbo.read(components=3), np.uint8).reshape(H, W, 3)[::-1]
-        img = Image.fromarray(_sky(raw, cam.kind))
+        kind = "persp" if mo["blk"] and cam.kind != "top" else cam.kind   # moods: gradient behind iso views too
+        img = Image.fromarray(_sky(raw, kind, sky_bot, np.asarray(mo["sky_top"], float)))
         if self.ss > 1:
             img = img.resize((self.w, self.h), Image.LANCZOS)
         if path:
@@ -201,14 +228,14 @@ class Renderer:
         return img
 
 
-def _sky(raw, kind):
+def _sky(raw, kind, sky_bot=SKY_BOT, sky_top=SKY_TOP):
     """Replace the flat clear colour with a vertical gradient (perspective views only)."""
     if kind != "persp":
         return raw
     H = raw.shape[0]
-    clear = np.all(raw == (SKY_BOT * 255).round().astype(np.uint8), axis=2)
+    clear = np.all(np.abs(raw.astype(int) - (sky_bot * 255).round().astype(int)) <= 1, axis=2)
     t = np.linspace(0, 1, H)[:, None, None]
-    grad = ((SKY_TOP * (1 - t) + SKY_BOT * t) * 255).astype(np.uint8)
+    grad = ((sky_top * (1 - t) + sky_bot * t) * 255).astype(np.uint8)
     out = raw.copy()
     out[clear] = np.broadcast_to(grad, raw.shape)[clear]
     return out
@@ -310,12 +337,15 @@ def contact_sheet(images, path, cols=3, w=640, h=400):
     return path
 
 
-def render_views(scene, out, width=1280, height=800, only=None, shadows=True, extra_cams=(), vtint=None, sightlines=True):
+def render_views(scene, out, width=1280, height=800, only=None, shadows=True, extra_cams=(), vtint=None, sightlines=True,
+                 mood=None):
+    """mood: key of MOODS (default scene.meta["mood"], else "day")."""
     t0 = time.time()
+    mood = mood or scene.meta.get("mood", "day")
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
-    m = meshmod.build(scene, vtint=vtint)
+    m = meshmod.build(scene, vtint=vtint, light=MOODS[mood]["blk"] is not None)
     t1 = time.time()
-    r = Renderer(width, height)
+    r = Renderer(width, height, mood=mood)
     r.load(m)
     res, imgs = {}, {}
     for cam in list(default_cameras(scene)) + list(extra_cams):

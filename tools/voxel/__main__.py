@@ -1,8 +1,8 @@
 """Voxel studio CLI.   python -m tools.voxel <command> ...   (see docs/voxel-studio.md)
 
   info    SCENE                                  size, palette, lint (bad states, floating sand/gravel, ...)
-  render  SCENE [--only iso,top,eye] [--size 1280x800] [--no-shadows]   PNG views + sheet.png
-  view    SCENE [--serve]                        single-file WebGL1 viewer.html (orbit camera; publishable, < 16 MB)
+  render  SCENE [--only iso,top,eye] [--size 1280x800] [--no-shadows] [--mood dusk]   PNG views + sheet.png
+  view    SCENE [--no-merge]                     single-file WebGL1 viewer.html (orbit camera; publishable, < 16 MB)
   serve   [--port 8765] [--host 127.0.0.1]       HTTP server over .mcdev/voxel/out/ (viewers, sheets, renders)
   export  SCENE [--out DIR] [--tile 64] [--no-air]                        structure .nbt tiles
   place   SCENE --server NAME [--at X Y Z] [--no-air] [--verify N] [--pristine]      place over RCON (+ execute-if-block sample)
@@ -138,6 +138,7 @@ def main(argv=None):
     a = sub.add_parser("info"); a.add_argument("scene")
     a = sub.add_parser("render"); a.add_argument("scene"); a.add_argument("--only"); a.add_argument("--size", default="1280x800")
     a.add_argument("--no-shadows", action="store_true"); a.add_argument("--out")
+    a.add_argument("--mood", help="day | golden | dusk | night | ember (default: scene.meta['mood'] or day)")
     a = sub.add_parser("view"); a.add_argument("scene"); a.add_argument("--out")
     a.add_argument("--no-merge", action="store_true", help="skip greedy meshing (debug)")
     a = sub.add_parser("serve"); a.add_argument("--port", type=int, default=8765); a.add_argument("--host", default="127.0.0.1")
@@ -274,7 +275,7 @@ def main(argv=None):
             print("LINT", m)
         w, h = (int(v) for v in args.size.split("x"))
         res = render_views(s, Path(args.out) if args.out else out_dir(s.name), w, h,
-                           only=args.only.split(",") if args.only else None, shadows=not args.no_shadows)
+                           only=args.only.split(",") if args.only else None, shadows=not args.no_shadows, mood=args.mood)
         for k, v in res.items():
             print(f"  {k:18s} {v}")
     elif args.cmd == "view":
