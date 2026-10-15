@@ -1,12 +1,3 @@
-# Frog Tongue right-click (6 s cooldown): RIBBIT. Wind bursts all around the frog (it gets thrown too, that's the fun).
-playsound minecraft:entity.frog.ambient player @a ~ ~ ~ 3 0.5
-playsound minecraft:entity.frog.long_jump player @a ~ ~ ~ 2 0.7
-title @s actionbar {"text":"RIBBIT!","color":"dark_purple","bold":true}
-execute positioned ~ ~0.2 ~ run summon minecraft:wind_charge ^2.5 ^ ^ {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ run summon minecraft:wind_charge ^-2.5 ^ ^ {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ run summon minecraft:wind_charge ^ ^ ^2.5 {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ if predicate nonios:class/coin run summon minecraft:wind_charge ^ ^ ^-2.5 {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ if predicate nonios:class/coin run summon minecraft:wind_charge ^1.8 ^ ^1.8 {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ if predicate nonios:class/coin run summon minecraft:wind_charge ^-1.8 ^ ^1.8 {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ if predicate nonios:class/coin run summon minecraft:wind_charge ^1.8 ^ ^-1.8 {Motion:[0.0,-1.0,0.0]}
-execute positioned ~ ~0.2 ~ if predicate nonios:class/coin run summon minecraft:wind_charge ^-1.8 ^ ^-1.8 {Motion:[0.0,-1.0,0.0]}
+# Frog Tongue right-click finished (0.35 s wind-up, 7 s cooldown). Shift = RIBBIT, otherwise the tongue lashes out.
+execute if predicate nonios:class/input_sneak run return run function nonios:class/cracy_frog/ribbit
+function nonios:class/cracy_frog/tongue_fire

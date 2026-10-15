@@ -8,8 +8,8 @@ scoreboard players operation #v nx.cls_tmp /= #2 nx.cls_tmp
 scoreboard players operation @s nx.cls_ry2 = @s nx.cls_ry1
 scoreboard players operation @s nx.cls_ry1 = #y nx.cls_tmp
 scoreboard players set #tg nx.cls_tmp 0
-execute if predicate nonios:class/reaper/jump run scoreboard players set #tg nx.cls_tmp 250
-execute if predicate nonios:class/reaper/sneak run scoreboard players set #tg nx.cls_tmp -300
+execute if predicate nonios:class/input_jump run scoreboard players set #tg nx.cls_tmp 250
+execute if predicate nonios:class/input_sneak run scoreboard players set #tg nx.cls_tmp -300
 # lift only near the ground: no block within 10 below = no rising, a slow sink (no crossing the void, no sky camping)
 execute if score #tg nx.cls_tmp matches -99.. unless function nonios:class/reaper/near_ground run scoreboard players set #tg nx.cls_tmp -100
 # slow falling (falls only 0.01/tick and keeps the fall distance at 0: no crits from hovering) except while diving

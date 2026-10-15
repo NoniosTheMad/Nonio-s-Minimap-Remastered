@@ -40,6 +40,14 @@ import uuid
 import zipfile
 from pathlib import Path
 
+# The watchdog has no console, so every console child (tasklist, taskkill, git, ...) would flash its own window
+# and steal focus from the user's game. Default every child process to no window (same as mcdev.py).
+if os.name == "nt":
+    _popen_init = subprocess.Popen.__init__
+    def _popen_no_window(self, *a, creationflags=0, **k):
+        _popen_init(self, *a, creationflags=creationflags | subprocess.CREATE_NO_WINDOW, **k)
+    subprocess.Popen.__init__ = _popen_no_window
+
 
 def repo_root():
     """The main checkout (owner of .mcdev), also when this file runs from a worktree."""

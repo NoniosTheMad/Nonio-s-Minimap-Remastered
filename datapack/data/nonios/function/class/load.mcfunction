@@ -20,6 +20,13 @@ scoreboard objectives add nx.cls_rfly dummy
 scoreboard objectives add nx.cls_ry1 dummy
 scoreboard objectives add nx.cls_ry2 dummy
 scoreboard objectives add nx.cls_rg dummy
+# Cracy Frog tongue: ticks left in flight, spring countdown; victims: ticks yanked / immune, launch Y and peak Y (x10). nx.pid = player id (dream/pid)
+scoreboard objectives add nx.pid dummy
+scoreboard objectives add nx.cls_tng dummy
+scoreboard objectives add nx.cls_leap dummy
+scoreboard objectives add nx.cls_yk dummy
+scoreboard objectives add nx.cls_y0 dummy
+scoreboard objectives add nx.cls_ypk dummy
 # Cracy Frog broom: fuel (ticks), >0 while right-click is held, forward-impulse gate read by the frog_broom enchantment
 scoreboard objectives add nx.cls_fuel dummy
 scoreboard objectives add nx.cls_fly dummy

@@ -32,6 +32,53 @@
     "amount": 12,
     "operation": "add_value"
    }
+  ],
+  "minecraft:tick": [
+   {
+    "effect": {
+     "type": "minecraft:all_of",
+     "effects": [
+      {
+       "type": "minecraft:apply_impulse",
+       "direction": [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       "coordinate_scale": [
+        1.0,
+        0.0,
+        1.0
+       ],
+       "magnitude": 1.3
+      },
+      {
+       "type": "minecraft:apply_impulse",
+       "direction": [
+        0.0,
+        1.0,
+        0.0
+       ],
+       "coordinate_scale": [
+        0.0,
+        1.0,
+        0.0
+       ],
+       "magnitude": 0.75
+      }
+     ]
+    },
+    "requirements": {
+     "type": "minecraft:entity_scores",
+     "entity": "this",
+     "scores": {
+      "nx.cls_leap": {
+       "min": 1,
+       "max": 1
+      }
+     }
+    }
+   }
   ]
  }
 }

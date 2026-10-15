@@ -1706,7 +1706,7 @@
         "confirm": "nonios:class/cracy_frog/ask_step {step:1}"
       },
       "lost_msg": "The frog croaked. #Useful",
-      "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that sends things anywhere. Leather armour locked on, and the world never stops melting.",
+      "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that drags people into the sky and lets them drop. Leather armour locked on, and the world never stops melting.",
       "vision": [
         "nonios:rainbow",
         "nonios:acid"
@@ -1886,12 +1886,17 @@
               "text": ""
             },
             {
-              "text": "Hit: something random happens to someone",
+              "text": "Right-click: tongue (12 blocks), yanks up whoever it catches",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Right-click: RIBBIT (wind bursts all around)",
+              "text": "Shift + right-click: RIBBIT (wind bursts all around)",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Hit: something random happens to someone",
               "color": "dark_green",
               "italic": false
             }
@@ -1925,7 +1930,7 @@
               "has_consume_particles": false
             },
             "minecraft:use_cooldown": {
-              "seconds": 6,
+              "seconds": 7,
               "cooldown_group": "nonios:frog_ribbit"
             },
             "minecraft:enchantments": {
@@ -1968,6 +1973,53 @@
                 "attribute": "minecraft:safe_fall_distance",
                 "amount": 12,
                 "operation": "add_value"
+              }
+            ],
+            "minecraft:tick": [
+              {
+                "effect": {
+                  "type": "minecraft:all_of",
+                  "effects": [
+                    {
+                      "type": "minecraft:apply_impulse",
+                      "direction": [
+                        0.0,
+                        0.0,
+                        -1.0
+                      ],
+                      "coordinate_scale": [
+                        1.0,
+                        0.0,
+                        1.0
+                      ],
+                      "magnitude": 1.3
+                    },
+                    {
+                      "type": "minecraft:apply_impulse",
+                      "direction": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ],
+                      "coordinate_scale": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ],
+                      "magnitude": 0.75
+                    }
+                  ]
+                },
+                "requirements": {
+                  "type": "minecraft:entity_scores",
+                  "entity": "this",
+                  "scores": {
+                    "nx.cls_leap": {
+                      "min": 1,
+                      "max": 1
+                    }
+                  }
+                }
               }
             ]
           }
