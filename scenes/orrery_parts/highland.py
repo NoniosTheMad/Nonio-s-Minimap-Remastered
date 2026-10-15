@@ -76,7 +76,7 @@ def observatory(s, ctx):
     # plinth: a battered drum of masonry down into the slope, paved on top
     s.fill(shapes.cylinder(c, 11.5, fy - 12, fy - 0.5, 12.5), Mix({"deepslate_bricks": 2, "tuff_bricks": 2, "cracked_deepslate_bricks": 1}))
     s.fill(shapes.cylinder(c, 11.0, fy - 0.5, fy + 0.5), Mix({"polished_tuff": 3, "tuff_bricks": 1, "mossy_stone_bricks": 1}))
-    s.fill(shapes.cylinder(c, 11.0, fy + 0.5, fy + 30), "air")
+    s.fill(shapes.cylinder(c, 11.0, fy + 0.5, fy + 42), "air")
     # broken parapet round the plinth
     b = Box(s, (x - 12, fy + 1, z - 12), (x + 13, fy + 2, z + 13))
     r = np.hypot(b.x - x, b.z - z)
@@ -92,15 +92,45 @@ def observatory(s, ctx):
             break
         s.fill(shapes.cylinder((sx, 0, sz), 2.2, fy - k - 1, fy - k + 0.5), Mix({"polished_tuff": 2, "tuff_bricks": 1}))
         s.fill(shapes.cylinder((sx, 0, sz), 2.2, fy - k + 0.5, fy - k + 4), "air")
-    # the tower: r 6, wall 1.5, broken top (8..17 above the floor, by angle)
+    # the tower: r 6, wall 1.5, torn on a slant: chest-high over the perch on the crater side, 34 tall on the far side
+    # (a vertical answer to the Spire across the crater; the slant reads in profile from the island), with the iron frame of its dome still clinging to the top
     R = 6.0
-    b = Box(s, (x - R - 1, fy, z - R - 1), (x + R + 2, fy + 20, z + R + 2))
+    ia_deg = a + 180
+    tall = ia_deg + 110                 # seen from the crater the break is a slant, low left to high right
+    hfun = lambda th_: 10 + 24 * np.maximum(0.0, np.cos(np.radians(th_ - tall)))
+    b = Box(s, (x - R - 1, fy, z - R - 1), (x + R + 2, fy + 40, z + R + 2))
     r = np.hypot(b.x - x, b.z - z)
     th = np.degrees(np.arctan2(b.z - z, b.x - x))
-    h = 12 + 5 * np.sin(np.radians(th - a) * 1) + 2.5 * noise.hash01(np.floor(th / 9).astype(int), 0, 0, seed=SEED + 411)
+    h = hfun(th) + 3.0 * noise.hash01(np.floor(th / 9).astype(int), 0, 0, seed=SEED + 411)
     wall = (r <= R) & (r > R - 1.6) & (b.y - fy < h)
     b.fill(wall, Gradient("y", [(fy + 3, Mix({"deepslate_bricks": 2, "cracked_deepslate_bricks": 1, "mossy_stone_bricks": 0.6})),
-                                (999, Mix({"tuff_bricks": 3, "cracked_stone_bricks": 1, "polished_tuff": 1}))], jitter=1.5))
+                                (fy + 16, Mix({"tuff_bricks": 3, "cracked_stone_bricks": 1, "polished_tuff": 1})),
+                                (999, Mix({"tuff_bricks": 2, "polished_tuff": 2, "calcite": 0.4}))], jitter=1.5))
+    # calcite bands (the floors that are gone) and a buttress pair on the tall side
+    b.fill(wall & (r > R - 0.8) & np.isin(np.floor(b.y - fy).astype(int), (9, 18, 27)), "calcite")
+    for sg in (-1, 1):
+        ba = math.radians(tall + sg * 35)
+        bx, bz = x + math.cos(ba) * (R + 0.8), z + math.sin(ba) * (R + 0.8)
+        for k, (hh, rr_) in enumerate(((22, 1.6), (14, 2.2))):
+            s.fill(shapes.cylinder((bx + math.cos(ba) * k, 0, bz + math.sin(ba) * k), rr_, fy - 2, fy + hh),
+                   Mix({"deepslate_bricks": 2, "tuff_bricks": 1}), replace="air")
+    # upper lancets on the tall side
+    for k in (-1, 0, 1):
+        wa = tall + k * 30
+        db = np.radians(wrap_deg(th - wa))
+        b.fill((np.abs(db * r) < 0.6) & (r > R - 2) & (b.y > fy + 20.5) & (b.y < fy + 26.5), "air")
+    # the dome frame: copper ribs springing from the broken top, bent in, snapped off
+    for k, off in enumerate((-40, -20, 0, 20, 40)):
+        ph = math.radians(tall + off)
+        base = fy + float(hfun(tall + off)) - 1.5
+        span = (75, 52, 95, 60, 40)[k]
+        pts = []
+        for t_ in np.arange(0, span, 2.5):
+            tt = math.radians(t_)
+            pts.append((x + math.cos(ph) * (R - 0.8) * math.cos(tt), base + (R + 1) * math.sin(tt), z + math.sin(ph) * (R - 0.8) * math.cos(tt)))
+        for q in pts:
+            s.fill(shapes.sphere(q, 0.75), cu("weathered", "cut"), replace="air")
+        s.fill(shapes.sphere(pts[-1], 0.9), cu("oxidized", "chiseled"))
     # door (towards the crater) and lancets
     da = np.radians(wrap_deg(th - math.degrees(ia)))
     b.fill((np.abs(da * r) < 1.6) & (r > R - 2) & (b.y > fy + 0.5) & (b.y < fy + 4.5), "air")

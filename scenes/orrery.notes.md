@@ -92,3 +92,25 @@ Weakest three after pass 6:
 1. The Spire's middle (between the deck and the gallery) is a dark masonry cone; its heart is not shown.
 2. Crater as a play space: the lake shore and causeway lack landmarks between spawn and the island.
 3. Facade partial share (0.17) still low on the Spire body.
+
+## Pass 7: the observatory stands up, the terrace edge
+I re-ranked the list after the first in-game still and a fresh sheet. Pass 6's items 1 and 3 carry forward (see the end).
+The three weakest things at that point were:
+1. **The Old Observatory was a stub.** A 12-17 block ruin on a grass hill, invisible from the island.
+   - Now a slanted break. The tower is chest-high over the perch on the crater side, and rises to 34 blocks on the side seen in profile from the island.
+   - Calcite bands mark the lost floors. It has two stepped buttresses and three upper lancets.
+   - Five weathered-copper dome ribs spring from the broken top, bend in and snap off. From the island the tower reads as a hooked silhouette: the highland's vertical answer to the Spire.
+2. **The castle stood on a bare grass ledge.**
+   - A balustrade of tuff-brick walls now runs along the drop. It has a random gap every few metres, so a fall is always a choice, and it is open at the gate and the stair.
+   - Soil faces exposed under the shelf are revetted in tuff and deepslate bricks.
+   - Hanging dripstone whose ceiling a later part carved away (2 of them) is removed. The voxel lint no longer flags hanging dripstone that is held from above.
+3. **The review cameras hid what they were for.**
+   - `cam_crater` stood against the crater wall. It now stands on the crater floor.
+   - `cam_observatory` floated 55 blocks up. It now stands on the heath below the tower.
+
+Walk: 0 traps. Stability: PASS.
+
+Weakest three after pass 7 (open):
+1. The Spire's middle is still a dark masonry cone, and its heart is not shown outside the Hall and the Grotto.
+2. Facade partial share 0.18 and facade lights 0.91 per 100 m2, below the 0.3 and 1.2 floors. The masonry is flat between courses.
+3. The crater as a play space has no landmark between the lake shore and the Landing.
