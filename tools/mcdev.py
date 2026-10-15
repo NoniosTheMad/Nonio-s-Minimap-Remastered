@@ -969,10 +969,13 @@ def load_inbox():
 def save_inbox(msgs):
     save_json(INBOX, msgs)
 
-def notify(msg):
-    """Queue a message for the user's in-game inbox; the daemon delivers it in chat when they are online."""
+def notify(msg, reply=False):
+    """Queue a message for the user's in-game inbox; the daemon delivers it in chat when they are online.
+    reply=True: a direct answer to their feedback (#94): eye-catching (aqua header, chime, actionbar)."""
     msgs = load_inbox()
     m = {"id": max((x["id"] for x in msgs), default=0) + 1, "time": time.strftime("%Y-%m-%d %H:%M"), "text": msg, "delivered": False}
+    if reply:
+        m["reply"] = True
     save_inbox(msgs + [m])
     ensure_daemon()
     return m
@@ -985,6 +988,9 @@ def short_time(t):
 
 def mail_lines(m):
     c = chunks(m["text"])
+    if m.get("reply"):
+        return ([[text("✦ Claude ", "aqua", bold=True), text(short_time(m["time"]), "dark_gray")]]
+                + [[text("▎ ", "aqua"), text(x, "white")] for x in c])
     return [[text("\u2709 ", "gold"), text(short_time(m["time"]) + " ", "dark_gray"), text(c[0], "white")]] + [[text(x, "white")] for x in c[1:]]
 
 def inbox_commands(msgs, limit=20):
@@ -1276,6 +1282,12 @@ class Mailroom:
             lines += mail_lines(m)
         for comps in lines:
             tell(s, USER, comps)
+        if any(m.get("reply") for m in pending):
+            actionbar(s, USER, [text("✦ Claude replied (chat)", "aqua", bold=True)])
+            try:
+                rcon(s["port"] + 10000, f"execute as {USER} at @s run playsound minecraft:block.amethyst_block.chime master @s ~ ~ ~ 1 1.4", timeout=2)
+            except (OSError, RuntimeError):
+                pass
         if pending:
             ids = {m["id"] for m in pending}
             fresh = load_inbox()
@@ -2198,7 +2210,8 @@ def main():
     fb = sp.add_parser("feedback"); fb.add_argument("--all", action="store_true"); fb.add_argument("--ack", action="store_true")
     fb.add_argument("--resolve", type=int, metavar="N"); fb.add_argument("note", nargs="*"); fb.set_defaults(f=cmd_feedback)
     nt = sp.add_parser("notify", help="message the user's in-game inbox"); nt.add_argument("text", nargs="+")
-    nt.set_defaults(f=lambda a: print("inbox #%d queued" % notify(" ".join(a.text))["id"]))
+    nt.add_argument("--reply", action="store_true", help="direct answer to feedback: eye-catching")
+    nt.set_defaults(f=lambda a: print("inbox #%d queued" % notify(" ".join(a.text), a.reply)["id"]))
     sp.add_parser("nav").set_defaults(f=lambda a: refresh_nav(sync_status(load_reg())))
     sp.add_parser("_daemon").set_defaults(f=lambda a: daemon())
     a = p.parse_args()
