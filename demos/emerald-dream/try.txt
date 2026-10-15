@@ -1,10 +1,6 @@
-Survival, diamond pickaxe. Sidebar = coins (demo stub: emerald ore 25, diamond 20, gold 8, lapis 6, emerald block 100).
-1. Step on the end portal frame east of spawn (or G > "Demo: Emerald Dream" > Enter). Blindness, then you land on a floating island somewhere random.
-   Look: green sky/fog, green grass and leaves, glow-berry vines under islands, sparkles. Does it feel like a dream? Too bright/dark?
-   New (#47): crystal spires, glowing lamps in the grass, fireflies, wildflowers, more ore in the cliffs (lapis, diamond, amethyst veins).
-2. Around you ~16 ore blocks sparkle (mostly emerald). Mine one: coins go up; a green seed hovers; it regrows after 30 s (menu: 10 s to test fast).
-3. Hold sneak: actionbar bar fills ("Waking up ||||| 3s") with rising chimes. Let go = cancelled. Full bar = you wake up on the portal pad.
-4. Cancel by damage: start sneaking, menu > "Hurt me" (or have a mob hit you): "The dream holds you!" - release sneak and retry.
-5. Ruins: one or two small ruins (shrine / well / arch) land near you, each with a chest. Open it: emeralds and trinkets, sometimes rare loot.
-6. Enter again: different island each time. Try channel 2 s / 10 s / 15 s and say which feels right.
-Feedback: the look (sky/fog colours, particles, spires/lamps), ruin loot, channel length, regrow time, vein count, jump boost in the dream (on now), anything magical missing.
+Your role: is the richer Dream magical and worth the trip?
+Check:
+- Spires, lamps, fireflies, flowers: too busy or bright?
+- Ruin chests: is the loot worth it?
+- ~16 veins, 30 s regrow: too many or too few?
+Unique controls: hold sneak = wake up (a hit cancels).

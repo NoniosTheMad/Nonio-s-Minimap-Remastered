@@ -1,21 +1,6 @@
-Arena v3 (feedback #39 #40 #42 #43, #47-49). Buttons: G > "Demo: Arena v3".
-1. "Pickaxe + axe" (also cobblestone), then "Start + battle now" (most of this only runs in the battle).
-2. Field generator: "Tp: my generator". The block on the sea lantern is a normal block: mine it. Emerald ore / block pay
-   coins like any ore (purse). Once mined, a new random block grows back after a delay (Lv1 15 s, Lv2 10 s, Lv3 7 s).
-   Right-click the base for the upgrade menu (200 / 500 coins; greyed out when you can't). "Grow now" skips the wait.
-   "Single-block generators": every regrowth is gilded blackstone; mine it with the pickaxe and it drops what the V2
-   block would have been (same odds), coins included. Toggle back for V2 blocks.
-3. Centre generator: "Tp: centre generator" (gold hologram on the arena's middle line). Click it to collect its pot and
-   drops. "Banks +1000": it levels up at 1000 and 3000 coins in both banks together and rolls more per drop.
-   "Centre gen: drop now" skips its 10 s timer.
-4. Nodes: "Own all nodes" gives them to your team. West = Haste in your own field, Centre = small bank interest every
-   30 s, East = your generator regrows 50% faster. "Status" shows what is held.
-5. Protection: try to break the arena's floor, walls or ore piles: they come back at once, no drop, no coins.
-   Build with cobblestone anywhere in the arena: that stays. The core (top of the centre pile) still regrows.
-6. "Random event": it is announced with a 30 s countdown bar (raid horn) before it happens. "Time x10" for faster tests.
-7. Barrier: "Ranged kit", "Tp: enemy Nexus". Arrows, trident, rockets, wind charges and fireballs hurt the shell now
-   (sidebar/actionbar HP). Melee: spam-click with the pickaxe = small hits; wait for the full swing = full hit.
-8. Centre pressure: "Centre hold sim" (white holds), "Status": the enemy Barrier barely moves at first, then drains
-   faster the longer the hold lasts (12%/min at 5 min). "Hold +4 min" to jump ahead. Cycle the sim off = ramp resets.
-9. "Minute-20 decay": both Barriers lose 10% of max per minute from now (an untouched one breaks in 10 min).
-Feedback: regrow delays, single-block mode vs V2 blocks, ramp speed of the centre pressure, centre generator strength, node bonuses, event warning time.
+Your role: pick a generator style; confirm what #48 meant.
+Check:
+- "Single-block generators" on/off: which do you prefer?
+- "Ranged kit" vs enemy Nexus: do projectiles hurt enough?
+- "Centre hold sim", "Hold +4 min": drain ramp right?
+- "Minute-20 decay" hits the Nexus: or did you mean walls?
