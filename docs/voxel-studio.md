@@ -6,7 +6,7 @@ RCON, reads the world back from the region files and diffs it against the source
 a patch the agent can keep or fold into the code.
 
 Design guidance (how to make a build look good, the critique prompt and the quality checklist) lives in
-[`voxel-playbook.md`](voxel-playbook.md) (branch `feat/voxel-research`); research notes are in `voxel-research.md`.
+[`voxel-playbook.md`](voxel-playbook.md); research notes are in `voxel-research.md` and `voxel-research-2.md`.
 This document covers the tool only.
 
 Setup: `pip install -r tools/voxel/requirements.txt` (numpy, pillow, scipy, nbtlib, moderngl). Needs the 26.3 client
