@@ -89,6 +89,7 @@ Evidence (research-2 §7):
 | P2 Full blockout | **Architect** (single owner) | No | The whole composition at massing level: every sub-place, all tiers, landscape, approach | Canvas and composition targets (§5.1) met; user glance |
 | P3 Shell passes | Architect | No | Silhouette → facade depth → roofs → palette → light fixtures, cumulative (`<NAME>_PASS` env like the castle) | Facade targets (§5.2) on primary faces |
 | P4 Zones | **Zone decorators**: interiors by room group, landscape and ground, props/kits library | Yes, one zone each | `scenes/<name>/zone_*.py` stamped into the shell; each writes only inside its zone box | Interior standards (§7) per zone |
+| P4b Interior critic | Fresh critic agents, eye-level stills of every room (mcfilm `still`, day + night) | Yes | Per-room score: job legible, focal end, floor/ceiling pattern, prop clusters, light (§7, §7.1) | Every A-zone room ≥ 7 before P5; an empty or "named box only" room fails |
 | P5 Critic rounds | **Critic panel**: 3-5 fresh agents that never build | Yes | Rubric scores, blind pairwise picks, top defects (§4) | Ship gate (§4.4) |
 | P5b Fix | Architect, plus zone owners for zone defects | Owners in parallel only across independent zones | Diagnosed causes (critics report symptoms), fixes, re-render | Back to P5; **minimum 4 rounds** |
 | P6 Place and walk | Director | n/a | `place --pristine`, `diff` (0 changes), in-game stills via `tools/mcfilm.py still`, demo dialog | User walks it |
@@ -102,6 +103,10 @@ Rules:
   architect.
 - **Budget time, then use it.** Set the budget up front (e.g. 4-8 agent-hours for a showcase build). Do not stop
   early while the critics are still picking the reference every time.
+- **Interiors are a pass of their own, not a remainder.** A shell with named empty boxes is P3, not a finished build.
+  P4 gets its own budget and its own critic round (P4b) on eye-level stills from inside each room, judged before the
+  exterior critic rounds start. Lesson from Vharzul (2026-10-15): a strong exterior with empty, dim interiors read
+  as "good enough", not good.
 - **Keep every sheet.** Store them as `.mcdev/voxel/out/<name>/history/<round>_<iter>_sheet.png` so the critic can see
   progress and regressions.
 
@@ -327,6 +332,30 @@ Optional grammars when the concept calls for them (from research-2 §2.4):
   NBT. Until the platform update that adds props and entities lands, place them in a post-placement function and
   record them in the scene. Do not skip them.
 
+### 7.1 Lighting: hidden or integrated, never sprinkled
+
+Light is part of the design, not an afterthought pass. Vharzul's auto-placed torches were the user's top complaint
+(#119): "the use of torches is really bad".
+- **Sources, in order of preference:**
+  1. **Light-emitting materials in the palette**: froglights, shroomlight, sea lanterns, glowstone, magma, lava under glass,
+     crying obsidian, and lit candles in fixtures. Choose them in the art-direction sheet as palette roles (for example
+     "glow: ochre froglight in rib bands"), so light comes from the architecture itself.
+  2. **Hidden sources**: `light` blocks or glow blocks behind leaves, banners, trapdoors, slabs, grates or glass;
+     under carpet or moss; in ceiling coffers; behind lancet bars. The player sees the effect, not the source.
+  3. **Lanterns and chains as features**: chandeliers, hanging lanterns on 1-3 chains over a focal point, lanterns
+     on wall brackets at structural bays (pilasters, rib springs), placed by the bay rhythm, not by a darkness fill.
+  4. **Torches only as a deliberate period detail** (a wall sconce pair at a door, a guardroom), never as fill. An
+     autolight pass may *find* dark cells, but it must place one of 1-3 there, or flag the cell for a fixture.
+- **Targeted, not uniform.** Light the focal points (altar, throne, doorways, stair landings, the route), and let the
+  rest fall off to the gameplay floor (≥ 7 on walkable cells). Contrast between lit focus and dim surround is the goal.
+- **Critic check (apply on every round, day + night stills):**
+  - [ ] Count the visible free-standing torches in each still. More than 2 per still that are not a named period
+    detail = fail.
+  - [ ] Every bright patch can be traced to a fixture or an emissive material that belongs to the design (name it).
+  - [ ] Each room's focal point is the brightest thing in the room at night.
+  - [ ] No visible light grid: sources follow the bay or rib rhythm, not a fixed spacing over the floor.
+  - [ ] Walkable cells ≥ 7 (`light.py`), achieved without breaking the four checks above.
+
 ---
 
 ## 8. Do / Don't
@@ -347,6 +376,12 @@ Optional grammars when the concept calls for them (from research-2 §2.4):
 - Keep a numbered render history and a notes file with the three weakest things per iteration.
 
 **Don't**
+- **Don't block a route with a hazard unless the route is meant to be blocked.** Lava, fire, drops and magma on a
+  walkable line (a hall runner, a corridor, a bridge) must be crossable: put the lava one layer down under glass or
+  grates, run it in a side channel with a walkable kerb, or bridge it. Check: run the reachability BFS with hazard
+  cells as non-walkable; every route in the zone table still connects. (Vharzul's hall lava channel split the
+  entrance hall, #119.) The same goes for fluids: a decorative source must be sealed so it cannot flow onto a route
+  (check for lava/water cells with an air neighbour at the sides or below).
 - Don't ship the first version that passes a checklist. Passing the checklist is the *start* of the critic rounds.
 - Don't default to a plausible example of the type. If the statement could describe 1,000 builds, it is not a
   statement.
@@ -468,7 +503,9 @@ Rules of thumb:
 - [ ] Facade floors met on primary faces (§5.2); every iso view shows a treated side.
 - [ ] Decoration floors met (§5.3); every visible room furnished by its job (§7).
 - [ ] Landscape and approach designed; no void or token plinth unless that is the concept.
-- [ ] Light from fixtures; dusk/night read checked; gameplay floors ≥ 7.
+- [ ] Light from fixtures and emissive materials, hidden or integrated (§7.1); torch count check passed; dusk/night read checked; gameplay floors ≥ 7.
+- [ ] Interior pass done with its own critic round (P4b); no room left as an empty named box.
+- [ ] No hazard blocks an intended route; no decorative fluid can flow (sealed sources).
 - [ ] ≥ 4 critic rounds; median weighted ≥ 7.0, no category < 5; blind pick rate recorded.
 - [ ] Gameplay (arenas): lanes, chokes, equal travel, no all-seeing spot, cover on long lines.
 - [ ] `stats` stability PASS (no unstable soil, nothing spreading or decaying).
