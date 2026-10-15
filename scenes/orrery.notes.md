@@ -80,3 +80,15 @@ Weakest three after pass 5:
 1. Rings are full-block trusses: no partial blocks, the rails read flat close up.
 2. The Spire heart (amethyst) is invisible from the court and the highland.
 3. Daylight belly: still one dark mass from the crater.
+
+## Pass 6: cable trusses, dripping amethyst
+- Ring rungs between the rails are copper chains (axis = the ring's width axis, where it is within ~35 deg of a
+  block axis): the rings become a cable truss with sky through it; rung ends at the rails stay chiseled.
+- Belly: 96 stalactites (was 70), a third of them amethyst with pearlescent froglight facets (was a fifth): the
+  dripping amethyst now covers the whole underside and breaks the dark mass in daylight too.
+- Walk: 0 traps. Partial 0.14 -> 0.17, facade lights 0.92.
+
+Weakest three after pass 6:
+1. The Spire's middle (between the deck and the gallery) is a dark masonry cone; its heart is not shown.
+2. Crater as a play space: the lake shore and causeway lack landmarks between spawn and the island.
+3. Facade partial share (0.17) still low on the Spire body.

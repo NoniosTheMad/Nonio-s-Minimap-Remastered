@@ -136,7 +136,7 @@ def stalactites(s, f):
     tips = []
     bot = f["bot"]
     inside = f["inside"]
-    for k in range(70):
+    for k in range(96):
         a = rng.uniform(0, 360)
         rr = rng.uniform(8, ISLAND_R - 3) if k % 3 else rng.uniform(12, 24)
         x, z = at_polar(a, rr)
@@ -146,7 +146,7 @@ def stalactites(s, f):
         b0 = float(bot[xi, zi])
         L = rng.uniform(4, 9) if k % 4 else rng.uniform(10, 20)
         r0 = 1.2 + L * 0.12
-        crystal = (k % 5 == 0)
+        crystal = (k % 3 == 0)            # dripping amethyst: a third of them, spread over the whole belly
         mat = (Gradient("y", [(b0 - L * 0.45, Mix({"amethyst_block": 5, "pearlescent_froglight": 1})),   # glowing facets
                               (999, Mix({"calcite": 2, "amethyst_block": 1}))], jitter=1.0)
                if crystal else Gradient("y", [(b0 - L * 0.5, Mix({"dripstone_block": 3, "calcite": 1})),

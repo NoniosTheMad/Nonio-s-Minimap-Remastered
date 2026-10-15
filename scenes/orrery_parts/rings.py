@@ -132,6 +132,11 @@ def band(s, R, hw, ht, tilt, yaw, age, glyphs, k, accent, tick_deg, rc=None, kee
     # outer face of the rails: a calcite tick at every degree tick (the graduated scale)
     names[rail & (tk <= 0.55) & (q > ht - 1.0)] = "calcite"
     names[rung] = cu(accent, "chiseled")
+    # between the rails the rungs are copper chain (a cable truss: sky through it) where the ring's width axis is
+    # close to a block axis; the rung ends at the rails stay chiseled
+    wd = np.abs(M[:, 1])
+    if wd.max() > 0.8:
+        names[rung & (aw <= hw - rail_t)] = cu(accent, "chain", axis="xyz"[int(np.argmax(wd))])
     names[rail & rung & (q > ht - 1.0)] = "calcite"
     names[plate] = cu(age, "block")
     names[plate & (aw > hw - rail_t)] = cu(age, "cut")
