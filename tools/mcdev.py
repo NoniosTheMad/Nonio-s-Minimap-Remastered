@@ -145,8 +145,9 @@ def wait_ports_free(name, port, timeout=30):
         time.sleep(0.5)
 
 def free_port(reg, name=None):
-    """First ephemeral port not reserved by another (non-archived) server and not in use."""
-    used = {s["port"] for n, s in reg.items() if n != name and s.get("status") != "archived"}
+    """First ephemeral port not reserved by another (non-archived) server and not in use. An archived server whose
+    process is still alive (#133: shelved/approved in place, closing once empty) still holds its port."""
+    used = {s["port"] for n, s in reg.items() if n != name and (s.get("status") != "archived" or pid_alive(s.get("pid")))}
     return next(p for p in EPHEMERAL_PORTS if p not in used and not port_busy(p) and not port_busy(p + 10000))
 
 
@@ -822,7 +823,7 @@ def daemon():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     write_devnav(load_reg())  # this code version's shared pack; reloads already-up servers if it actually changed
     # (e.g. this is the daemon's post-upgrade self-restart, #9fb6bad)
-    mail, idle, packs, datas = Mailroom(), IdleWatch(), PackWatch(), DataWatch()
+    mail, idle, packs, datas, closing = Mailroom(), IdleWatch(), PackWatch(), DataWatch(), ClosingWatch()
     me = Path(__file__)
     my_mtime, my_change = me.stat().st_mtime, None
     print(time.strftime("%H:%M:%S"), f"daemon up (idle sleep after {IDLE_SLEEP_SECS}s"
@@ -845,6 +846,10 @@ def daemon():
             datas.tick(reg)
         except Exception as e:
             print(time.strftime("%H:%M:%S"), "datapack watch failed:", repr(e), flush=True)
+        try:
+            closing.tick(reg)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "closing watch failed:", repr(e), flush=True)
         # Self-restart when mcdev.py changes (quiet for 3 s, compiles, no start/stop in flight): code fixes apply without
         # anyone having to find and kill this process.
         try:
@@ -895,7 +900,9 @@ def daemon():
                         tell(s, player, [text("[dev] No server on that port any more.", "red")])
                 elif verb == "revive" and aid:
                     target = next((m for m, x in reg.items() if x.get("status") == "archived" and x["archive"].get("aid") == int(aid)), None)
-                    if target:
+                    if target and pid_alive(reg[target].get("pid")):  # #133: shelved/approved in place, still closing
+                        tell(s, player, [text("[dev] Still closing, try again in a moment.", "gray", italic=True)])
+                    elif target:
                         background(target, wake, target, player)
                     else:
                         tell(s, player, [text("[dev] That server is no longer archived.", "red")])
@@ -1603,6 +1610,39 @@ class IdleWatch:
                 self.seen.pop(n)
                 background(n, sleep_server, n, s.get("started"))
 
+class ClosingWatch:
+    """Shelve/approve-in-place (#133): retire() -> archive_server(stop_now=False) marks a server archived right away
+    (registry, menus, feedback entry all update now) but leaves it running while players are still on it, instead of
+    transferring them off ("kicked to the main menu"). This watch stops it and frees its port the moment it's empty."""
+    def __init__(self):
+        self.next_check = 0
+
+    def tick(self, reg):
+        now = time.time()
+        if now < self.next_check:
+            return
+        self.next_check = now + IDLE_CHECK_SECS
+        for n, s in reg.items():
+            if s.get("status") != "archived" or n in _busy or not pid_alive(s.get("pid")):
+                continue  # not a "closing" server: a normal (already stopped) archived one
+            if player_count(s) == 0:
+                print(time.strftime("%H:%M:%S"), f"{n} shelved/approved and now empty, closing it", flush=True)
+                background(n, finish_closing, n, s.get("pid"))
+
+def finish_closing(name, pid):
+    """Stop a server archive_server(stop_now=False) left running, once ClosingWatch finds it empty; free its port."""
+    reg = load_reg()
+    s = reg.get(name)
+    if not s or s.get("status") != "archived" or s.get("pid") != pid or not pid_alive(pid):
+        return  # already closed, revived, or a different instance since
+    stop(name, s)  # mutates this local dict only; registry stays "archived" below, never reverts to "down"
+    reg = load_reg()
+    if name in reg and reg[name].get("status") == "archived" and reg[name].get("pid") == pid:
+        reg[name]["port"] = 0
+        save_reg(reg)
+    refresh_nav(sync_status(reg))
+    print(time.strftime("%H:%M:%S"), f"{name} closed", flush=True)
+
 PACK_CHECK_SECS, PACK_QUIET_SECS, PACK_WARN_SECS = 3, 5, 1  # warning: 1 s (user request)
 
 def pack_signature(s):
@@ -2096,15 +2136,18 @@ def server_dirty(s):
     src = Path(s["src"])
     return src.exists() and src != ROOT and bool(git("status", "--porcelain", "--untracked-files=no", cwd=src).stdout.strip())
 
-def archive_server(name, note="", kind="shelved"):
-    """Stop it, keep its world + branch@commit (ref refs/mcdev/archive/<name>), free its port. kind: shelved | approved."""
+def archive_server(name, note="", kind="shelved", stop_now=True):
+    """Stop it, keep its world + branch@commit (ref refs/mcdev/archive/<name>), free its port. kind: shelved | approved.
+    stop_now=False (#133, retire() with players still online): mark it archived right away (registry, menus, feedback
+    all reflect it now) but leave the process running and its port reserved (see free_port); ClosingWatch stops it
+    and frees the port the moment it's empty."""
     reg = sync_status(load_reg())
     s = reg.get(name)
     if not s:
         sys.exit(f"unknown server {name}")
     if s["persistent"]:
         sys.exit(f"{name} is persistent (hub/main/test), not archivable")
-    if s.get("status") != "archived":
+    if stop_now and s.get("status") != "archived":
         stop(name, s)
     commit = server_commit(s)
     if commit:  # a ref keeps the commit alive even if the branch is deleted later
@@ -2114,18 +2157,21 @@ def archive_server(name, note="", kind="shelved"):
     reg = load_reg()  # stop() can take a while
     prev = reg[name].get("archive", {})
     aid = prev.get("aid") or 1 + max((x.get("archive", {}).get("aid", 0) for x in reg.values()), default=0)
-    reg[name] = dict(reg[name], status="archived", review=False, port=0, pid=s.get("pid"),
+    closing = not stop_now and s.get("status") == "up"
+    reg[name] = dict(reg[name], status="archived", review=False, port=(s["port"] if closing else 0), pid=s.get("pid"),
                      archive=dict(date=time.strftime("%Y-%m-%d %H:%M"), note=note or prev.get("note", ""), kind=kind,
                                   commit=commit, port=s["port"] or prev.get("port"), aid=aid))
     save_reg(reg)
     refresh_nav(sync_status(reg))
-    print(f"{name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / name})", flush=True)
+    print(f"{name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / name})"
+          + (", still up: closing once empty" if closing else ""), flush=True)
     return commit
 
-def retire(name, kind, note="", player=None, wait=20, by=None):
+def retire(name, kind, note="", player=None, by=None):
     """Approve ("I like it as is": Claude merges branch@commit into main) or shelve (review closed, not adopted; follow-ups
     go to new servers). Writes a feedback entry for Claude (`mcdev feedback`), marks the registry, then archives the server.
-    Players on it are moved off first (hub, else any other up server); if they can't be, it is recorded but stays up.
+    #133: players on it are never transferred away. If anyone is online, the registry is archived right away (menus +
+    feedback update now) but the process keeps running until ClosingWatch sees it empty and stops it.
     `by` = who decided, for the entry (default: the player, else the user); the CLI passes "cli". Returns the feedback id."""
     reg = sync_status(load_reg())
     s = reg.get(name)
@@ -2149,43 +2195,13 @@ def retire(name, kind, note="", player=None, wait=20, by=None):
         reg[name].pop("approved", None)
     save_reg(reg)
     word = "approved" if kind == "approved" else "shelved"
-    dest = None
-    if s.get("status") == "up":  # never stop a server with players on it: send them away first
-        players = online(s)
-        if players:
-            ups = sorted((x for m, x in reg.items() if m != name and x.get("status") == "up" and pid_alive(x.get("pid"))),
-                         key=lambda x: x["port"] != PRESETS["hub"]["port"])
-            dest = ups[0] if ups else None
-            if not dest:
-                for p in players:
-                    tell(s, p, [text(f"✔ {word} (#{fid}). Not archived: no other server up to send you to.", "gray", italic=True)])
-                print(time.strftime("%H:%M:%S"), f"{name} {word} (#{fid}) but not archived: nowhere to send {players}", flush=True)
-                return fid
-            for p in players:
-                actionbar(s, p, [text(f"{word.capitalize()}: ", "gray"), text(name, "yellow"), text(" archived", "gray")])
-                try:
-                    rcon(s["port"] + 10000, f"execute as {p} run transfer {HOST} {dest['port']} @s")
-                except (OSError, RuntimeError):
-                    pass
-            t0 = time.time()
-            while online(s) and time.time() - t0 < wait:
-                time.sleep(0.5)
-            left = online(s)
-            if left:
-                for p in left:
-                    tell(s, p, [text(f"✔ {word} (#{fid}). Not archived: couldn't move you.", "gray", italic=True)])
-                print(time.strftime("%H:%M:%S"), f"{name} {word} (#{fid}) but not archived: {left} still on it", flush=True)
-                return fid
-    archive_server(name, note, kind)
-    if player and dest:
-        for _ in range(20):  # login + pack take a moment
-            try:
-                if "passed" in rcon(dest["port"] + 10000, f"execute if entity {player}", timeout=2):
-                    break
-            except (OSError, RuntimeError):
-                pass
-            time.sleep(0.5)
-        tell(dest, player, [text(f"✔ {name} {word}", "green"), text(f" (#{fid})", "dark_gray")])
+    players = online(s) if s.get("status") == "up" else []
+    for p in players:
+        actionbar(s, p, [text(f"{word.capitalize()}, closes when you leave", "gray")])
+        tell(s, p, [text(f"✔ {word} (#{fid})", "gray", italic=True)])
+    archive_server(name, note, kind, stop_now=not players)
+    if players:
+        print(time.strftime("%H:%M:%S"), f"{name} {word} (#{fid}), still up ({', '.join(players)} online): closing once empty", flush=True)
     return fid
 
 def cmd_archive(a):
