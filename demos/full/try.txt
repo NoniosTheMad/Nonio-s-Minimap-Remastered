@@ -1,18 +1,5 @@
-Everything on main in one match. G > "Demo: Full match" opens a hub; each page has Back at the bottom.
-1. Match flow: "Prep time 20 s", then "Start match". "Time x10" speeds generators, arena timers and events.
-2. Shop: Economy/Bank "+10000 coins", then Shop > "Open shop (anywhere)". Pick a category, buy x1/x8/x64/Stack,
-   "Again" repeats the last buy. Greyed buttons = can't afford / nothing there.
-3. Bank: "TP: my bank", walk over a gold plate (whole purse banked; the enemy hears a bell). Right-click the vault:
-   10/50/100/200/500/1000/Half/All. Interest ticks every second on the sidebar; "Match clock +10 min" ramps it.
-4. Ores: mine coal/iron/gold/diamond/emerald in your field: each pays its own yield into the purse, Fortune +40%/level.
-5. Generators / Dream: "TP: my generator", mine the block, right-click the base to upgrade. "Single-block generators"
-   swaps the V2 blocks for one block with V2 drops. "Open my Dream portal" + "TP: my Dream pad", step on the frame.
-   In the Dream: richer islands, ores, ruins with chests. Hold sneak ~3 s to wake up (a hit cancels it).
-6. Arena / Events (battle): "Skip phase" to battle, "TP: arena". Nodes give bonuses; "Random arena event" has a
-   30 s warning bar; "Break the core" regrows; arena floor/walls can't be broken, your own blocks can.
-7. Nexus / Barrier (battle): "Ranged kit", Debug > "Target dummies" if you want company, "TP: enemy spawn" and shoot
-   the enemy Barrier: arrows, trident, rockets, wind charges count. Melee spam = small hits, a full swing = full hit.
-   "Centre hold" + "+4 min" drains the enemy Barrier; "Barrier minute 20" starts the 10%/min decay.
-8. Classes / Altar: free class buttons, "TP: my altar" + "Offering blocks" (right-click the altar) for the team level.
-9. End: "Destroy ENEMY Nexus" (+ Debug > "Clear mobs") = victory, back to the lobby after the end timer.
-Feedback: anything that breaks when the systems run together.
+Your role: find what breaks with every system in one match.
+Check:
+- Prep, battle, end with "Time x10": anything stall?
+- Shop, bank, generators, Dream in one round: coins add up?
+- Barrier: ranged hits + centre hold + decay together.

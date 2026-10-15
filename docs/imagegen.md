@@ -14,4 +14,7 @@ Never type credentials; stop if a login or consent screen appears.
 `python tools/imagegen.py "prompt" [-n 3] [--ref img]` needs paid API credits on the key's AI Studio project. As of 2026-10-15 those were depleted (402).
 
 ## Prompting
-Describe the post-effect itself (vignette shape, colour grade, particles, distortion), set it in a blocky voxel game, and keep the centre readable. Ask for 16:9.
+Hunt for the best inspiration, not a Minecraft mock-up (user, #103): "minecraft scene" prompts drag the quality of the effect down.
+- Describe the effect itself (light, colour grade, particles, distortion, mood) as a cinematic still, concept art or painting. Iterate: vary the wording and keep the strongest frames.
+- Minecraft-with-shaders prompts only when studying light on blocks (god rays, halos), where shader packs already excel. Not a default.
+- Translate to the game afterwards: keep the centre readable, 16:9.
