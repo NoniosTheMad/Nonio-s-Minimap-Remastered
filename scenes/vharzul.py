@@ -461,6 +461,8 @@ def bridge(s):
 def gate(s):
     """The Maw (blockout): a battered gatehouse in the rim notch, split above the arch into two jaws; bone tusks rise
     from its flanks and cross over the gap, framing the Fang."""
+    if PASS >= 2:
+        return maw(s)
     s.fill(((GX0, GATE_F, ZB), (GX1, GATE_I + 14, ZF + 2)), "air")
     gx, gz = cols2d(s.shape)
     batter = np.clip((GATE_F + 30 - YY) / 30, 0, 1) * 4
@@ -509,6 +511,8 @@ def barbican(s, h):
     """The hornwork across the road at the island's south tip (threshold 1): two half-bastions and a gate."""
     zf = s.meta["_stair_foot"] + 16
     g = PLAIN
+    if PASS >= 2:
+        return barbican2(s, zf, g)
     for side in (-1, 1):
         cx = 104 + side * 13
         s.fill(star_prism((cx, 0, zf + 3), g - 6, g + 9, 3, 9.5, 4.5, 8.5, 4.0, phase_deg=90 if side < 0 else 90), WALL)
@@ -565,6 +569,8 @@ def zone(name, kind, box, mood, doors=(), windows=(), must=(), wall=WALL, floor=
         if ceil is not None:
             s.fill(((x0, y1 + 1, z0), (x1, y1 + 1, z1)), ceil)
         s.fill(inner, "air")
+        for d in doors:
+            s.fill(((d[0], d[1], d[2]), (d[0], d[1] + 2, d[2])), "air")
     ZONES.append({"name": name, "kind": kind, "box": [int(v) for v in box], "mood": mood, "doors": [list(d) for d in doors],
                   "windows": [list(w) for w in windows], "must": list(must)})
 
@@ -580,10 +586,11 @@ def interiors(s):
     zone("throne_lantern", "hall", (int(C[0]) - 5, 149, int(C[1]) - 5, int(C[0]) + 5, 161, int(C[1]) + 5), "open crown",
          s=s, carve=False, must=["the Ember Throne facing south", "six open arches", "crucible brazier"])
     # Maw guard rooms, either side of the throat
-    zone("maw_guard_w", "armoury", (91, GATE_F + 1, ZF - 13, 96, GATE_F + 5, ZF - 3), "guard post", s=s,
-         doors=[(98, GATE_F + 1, ZF - 8)], must=["weapon racks", "arrow slits to the stair"])
-    zone("maw_guard_e", "bedroom", (112, GATE_F + 1, ZF - 13, 117, GATE_F + 5, ZF - 3), "barracks", s=s,
-         doors=[(110, GATE_F + 1, ZF - 8)], must=["bunks", "chests", "slits to the stair"])
+    gy = GATE_F + 4      # the throat floor at z = ZF-8 stands at GATE_F+4
+    zone("maw_guard_w", "armoury", (91, gy, ZF - 13, 96, gy + 4, ZF - 3), "guard post", s=s,
+         doors=[(97, gy, ZF - 8), (98, gy, ZF - 8)], must=["weapon racks", "arrow slits to the stair"])
+    zone("maw_guard_e", "bedroom", (112, gy, ZF - 13, 117, gy + 4, ZF - 3), "barracks", s=s,
+         doors=[(111, gy, ZF - 8), (110, gy, ZF - 8)], must=["bunks", "chests", "slits to the stair"])
     # spire rooms
     names = (("spire_se", "lab", "alchemy"), ("spire_w", "armoury", "arsenal"), ("spire_ne", "library", "archive"))
     for (nm, kind, mood), a in zip(names, SPIRES):
@@ -593,6 +600,227 @@ def interiors(s):
     # forge undercroft under the hall
     zone("undercroft", "cellar", (99, DECK - 8, CZ + 14, 109, DECK - 3, CZ + 28), "storage and gaol", s=s,
          must=["barrels and chests in bays", "two cells with bars"])
+
+
+
+# ================================================================== P2: facades, depth layers, the Maw
+GX = np.arange(W)[:, None, None]
+GZ = np.arange(D)[None, None, :]
+
+
+def zr(z0, z1):
+    return (GZ >= z0) & (GZ <= z1)
+
+
+def arch(half, spring, y0, cx=104.0):
+    """(W,H,1) pointed-arch mask in an x-y plane, floor at y0."""
+    U = ((GX - cx) + 0 * YY).astype(float)
+    V = ((YY - y0) + 0 * GX).astype(float)
+    return pointed_arch_2d(U, V, half, spring) & (YY >= y0)
+
+
+MASONRY = lambda n: any(k in n for k in ("deepslate", "tuff", "basalt", "blackstone"))
+
+
+def maw(s):
+    """The Maw: a demon face cut into the rim notch. Mouth = the gate arch with three stepped archivolts and bone teeth,
+    brow = a machicolated gallery, eyes = two slanted lava slits behind bars, jaws = two towers split above the brow with
+    the Fang between them, cheeks = battered piers, tusks = bone horns curling up from the cheeks."""
+    AX = np.abs(GX - 104)
+    F = GATE_F
+    s.fill(((GX0, F, ZB), (GX1, GATE_I + 14, ZF + 4)), "air")
+    batter = np.clip((F + 12 - YY) / 24, 0, 1) * 4
+    body = (AX <= 17 + batter) & zr(ZB + 2, ZF) & (YY >= F - 14) & (YY <= F + 22)
+    s.fill(body, WALL)
+    # the jaws: two diamond-section towers twisting outward like the Fang, prows to the front, needle tips
+    for side in (-1, 1):
+        jc = (104 + side * 11.5, 0, ZF - 8)
+        s.fill(star_prism(jc, F + 18, F + 60, 4, 9.5, 6.0, 1.2, 0.6, twist_deg=-side * 25, phase_deg=90, power=1.25), WALL)
+        for yc, off in ((F + 34, 0.9), (F + 46, 0.7)):
+            tt = ((yc - (F + 18)) / 42) ** 1.25
+            ro, ri = 9.5 + (1.2 - 9.5) * tt, 6.0 + (0.6 - 6.0) * tt
+            ph = 90 - side * 25 * (yc - (F + 18)) / 42
+            s.fill(star_prism(jc, yc - 1, yc, 4, ro + off + 0.6, ri + off, ro + off, ri + off, phase_deg=ph),
+                   Mix({"polished_blackstone_bricks": 2, "deepslate_tiles": 1}))
+            s.fill(star_prism(jc, yc + 1, yc + 1, 4, ro + off * 0.6, ri + off * 0.6, ro + off * 0.6, ri + off * 0.6, phase_deg=ph), TRIM)
+    # cheeks: battered piers on the face
+    cheek = (AX >= 12) & (AX <= 17) & zr(ZF + 1, ZF + 3) & (YY >= F - 14) & (YY <= F + 24 - (GZ - ZF) * 2)
+    s.fill(cheek, PILASTER)
+    s.fill(cheek & (YY == F + 24 - (GZ - ZF) * 2), TRIM)
+    # brow: machicolated gallery across the face above the mouth, corbels under it
+    s.fill((AX <= 12) & zr(ZF + 1, ZF + 2) & (YY >= F + 19) & (YY <= F + 22), WALL)
+    s.fill((AX <= 12) & zr(ZF + 1, ZF + 2) & (YY == F + 22), TRIM)
+    s.fill((AX <= 11) & (GX % 2 == 0) & zr(ZF + 1, ZF + 1) & (YY == F + 18), "polished_blackstone_bricks")
+    # the archivolts: three nested rings stepping back toward the mouth (light, mid, dark)
+    s.fill((arch(10, 9.5, F) & ~arch(8.4, 9, F)) & zr(ZF + 1, ZF + 2) & (YY <= F + 19), TRIM)
+    s.fill((arch(8.4, 9, F) & ~arch(7, 8.5, F)) & zr(ZF + 1, ZF + 1), PILASTER)
+    s.fill((arch(7, 8.5, F) & ~arch(5.5, 8, F)) & zr(ZF, ZF), "polished_blackstone_bricks")
+    mouth = arch(5.5, 8, F)
+    s.fill(mouth & zr(ZB, ZF + 3), "air")
+    # bone teeth hanging from the mouth's intrados, alternate lengths
+    for x in range(99, 110):
+        col = np.nonzero(mouth[x, :, 0])[0]
+        if not len(col):
+            continue
+        top = int(col.max())
+        ln = (3, 1, 2, 1, 4, 2, 4, 1, 2, 1, 3)[x - 99]
+        for z in (ZF - 1, ZF):
+            for y in range(top - ln + 1, top + 1):
+                s.set(x, y, z, BONE)
+    # portcullis, raised
+    s.fill(mouth & zr(ZF - 3, ZF - 3) & (YY >= F + 9), "iron_bars")
+    # the eyes: slanted slits, lava behind iron bars
+    for side in (-1, 1):
+        for k in range(6):
+            x = 104 + side * (7 + k)
+            y = F + 25 + k // 2
+            for dy in ((0, 1) if k < 4 else (0,)):
+                s.set(x, y + dy, ZF, "iron_bars")
+                s.set(x, y + dy, ZF - 1, "lava")
+    # passage floor ramps up inside the throat
+    for z in range(ZB, ZF + 4):
+        tt = (ZF - z) / (ZF - ZB)
+        yf = int(round(F - 1 + (GATE_I - F) * max(0.0, min(1.0, tt))))
+        s.box((GX0, F - 6, z), (GX1, yf, z), PAVE)
+        s.box((GX0, yf + 1, z), (GX1, yf + 8, z), "air", replace="solid")
+    # tusks: bone horns curling up and inward from the cheeks (they flank, they no longer meet)
+    for side in (-1, 1):
+        path = bezier([(104 + side * 15, F - 6, ZF + 2), (104 + side * 24, F + 14, ZF + 9),
+                       (104 + side * 19, F + 38, ZF + 11), (104 + side * 9, F + 46, ZF + 6)], 34)
+        for sdf in tube(path, 3.8, 0.5, power=1.0):
+            s.fill(sdf, BONE)
+
+
+def barbican2(s, zf, g):
+    """Threshold 1: the Pylons. Two horned bastions flank the road, joined only by a low breastwork with a gap, so the
+    Maw stays in view from the spawn; their inner faces carry the same sulfur archivolt language as the Maw."""
+    AX = np.abs(GX - 104)
+    zb = zf + 5
+    for side in (-1, 1):
+        cx = 104 + side * 13
+        s.fill(star_prism((cx, 0, zf + 3), g - 7, g + 8, 3, 9.0, 4.5, 8.4, 4.2, phase_deg=90), WALL)
+        s.fill(star_prism((cx, 0, zf + 3), g - 7, g - 1, 3, 10.4, 5.6, 9.6, 4.9, phase_deg=90), FLOW, replace="air")
+        s.fill(star_prism((cx, 0, zf + 3), g + 8, g + 8, 3, 8.4, 4.2, 8.4, 4.2, phase_deg=90), TRIM)
+        # the pylon: a twisted horn-tower on each bastion, leaning out
+        s.fill(star_prism((cx + side * 1.5, 0, zf + 3), g + 8, g + 30, 4, 4.2, 2.6, 0.8, 0.4, twist_deg=side * 40, phase_deg=45,
+                          power=1.2), WALL)
+        s.fill(star_prism((cx + side * 1.5, 0, zf + 3), g + 9, g + 10, 4, 4.8, 3.2, 4.6, 3.0, phase_deg=45), TRIM)
+    s.fill((AX >= 6) & (AX <= 8) & zr(zf + 1, zb - 1) & (YY >= g - 4) & (YY <= g + 3), WALL)
+    s.fill((AX >= 6) & (AX <= 8) & zr(zf + 1, zb - 1) & (YY == g + 4), TRIM)
+    s.box((99, g - 3, zf - 2), (109, g - 1, zb + 2), PAVE)
+    s.meta["_barb"] = zb
+
+
+def star_r(y):
+    tt = np.clip((y - (DECK - 14)) / 28, 0, 1)
+    return 32 - 2.5 * tt, 22 - 1.5 * tt
+
+
+def star_facade(s):
+    """Star wall depth stack: battered basalt plinth, buttresses on every face, a sulfur string course, machicolation
+    gallery on corbels, merlons with gaps, arrow slits through to the bailey."""
+    r, th = polar(s.shape, C)
+    R = r[:, None, :]
+
+    def ring(y, off, spec, cond=None):
+        ro, ri = star_r(y)
+        m = star(ro + off, ri + off, y, y).mask(s.shape)
+        if cond is not None:
+            m &= cond
+        s.fill(m, spec, replace="air")
+    for y in range(DECK - 20, DECK - 9):
+        ring(y, 1.6 + (DECK - 9 - y) * 0.18, Mix({"basalt": 2, "polished_blackstone": 1, "blackstone": 1}))
+    ring(DECK + 1, 1.0, TRIM)
+    arc = np.round(np.radians(th) * 26).astype(int)
+    ring(DECK + 10, 1.0, "polished_blackstone_bricks", (arc % 2 == 0)[:, None, :])
+    for y in range(DECK + 11, DECK + 14):
+        ring(y, 1.4, WALL)
+    ring(DECK + 13, 1.4, TRIM)
+    ro, ri = star_r(DECK + 14)
+    merl = (star(ro + 1.4, ri + 1.4, DECK + 14, DECK + 16) - star(ro - 1.2, ri - 1.2, DECK + 14, DECK + 16)).mask(s.shape)
+    pick = ((arc % 3) != 0)[:, None, :]
+    s.fill(merl & pick & (YY < DECK + 16), WALL)
+    s.fill(merl & pick & (YY == DECK + 16), "polished_basalt")
+    # buttresses mid-face, stepping back with height
+    u = np.abs(((np.radians(th) % (np.pi / 3)) / (np.pi / 3)) * 2 - 1)
+    for k in range(6):
+        for off in (-15, 15):
+            a = k * 60 + 30 + off
+            across = np.radians(np.abs(wrap_deg(th - a))) * r
+            for y in range(DECK - 18, DECK + 9):
+                ro_, ri_ = star_r(y)
+                redge = ri_ + (ro_ - ri_) * u
+                out = 3.2 - max(0, y - (DECK - 4)) * 0.35
+                m = (across < 1.2) & (r < redge + out) & (r > redge - 3)
+                s.fill(m[:, None, :] & (YY == y), PILASTER if y > DECK - 12 else WALL, replace="air")
+    # arrow slits
+    for k in range(6):
+        for off in (-7, 7, -23, 23):
+            a = k * 60 + 30 + off
+            across = np.radians(np.abs(wrap_deg(th - a))) * r
+            m = (across < 0.5)[:, None, :] & (YY >= DECK + 4) & (YY <= DECK + 7) & (R > 17) & (R < 34)
+            s.fill(m & s.match(MASONRY), "air")
+
+
+def fang_ribs(s):
+    """Light arrises: the Fang's six twisting edges are picked out in polished basalt so the twist reads by day."""
+    x0, x1, z0, z1 = 88, 121, 84, 117
+    y0, y1 = DECK - 6, FANG_TOP
+    xs, ys, zs = np.meshgrid(np.arange(x0, x1), np.arange(y0, y1), np.arange(z0, z1), indexing="ij")
+    tt = np.clip((ys - y0) / (y1 - y0), 0, 1)
+    tp = tt ** 1.45
+    ro = 13.5 + (1.6 - 13.5) * tp
+    ri = 9.0 + (0.8 - 9.0) * tp
+    dx, dz = xs + 0.5 - C[0], zs + 0.5 - C[1]
+    rho = np.hypot(dx, dz)
+    ang = np.arctan2(dz, dx) - math.radians(30) - math.radians(55) * tt
+    seg = 2 * math.pi / 6
+    u = np.abs(((ang % seg) / seg) * 2 - 1)
+    redge = ri + (ro - ri) * u
+    sub = s.idx[x0:x1, y0:y1, z0:z1]
+    obs = np.isin(sub, [s.id("obsidian"), s.id("crying_obsidian")])
+    rib = obs & (u > 0.84) & (rho > redge - 1.6) & (ys < 182)
+    full = np.zeros(s.shape, bool)
+    full[x0:x1, y0:y1, z0:z1] = rib
+    s.fill(full, Mix({"polished_basalt": 3, "smooth_basalt": 1}))
+
+
+def hall_facade(s):
+    """Forge Hall: stepped buttress piers, an arched south door with archivolts, a gable window."""
+    x0, x1, z0, z1 = HALL
+    for z in range(z0 + 2, z1 - 1, 4):
+        for xa, xb, outer in ((x0 - 2, x0 - 1, x0 - 2), (x1 + 1, x1 + 2, x1 + 2)):
+            for y in range(DECK - 9, DECK + 14):
+                s.box((xa, y, z), (xb, y, z + 1), PILASTER, replace="air")
+                if y >= DECK + 8:
+                    s.box((outer, y, z), (outer, y, z + 1), "air", replace=lambda n: "basalt" in n)
+            s.box((xa, DECK + 13, z), (xb, DECK + 13, z + 1), TRIM)
+            s.box((outer, DECK + 7, z), (outer, DECK + 7, z + 1), TRIM)
+    s.fill(((x0 + 1, DECK + 1, z1 - 1), (x1 - 1, DECK + 10, z1)), WALL)
+    s.fill((arch(6.2, 6.6, DECK + 1) & ~arch(5, 6.2, DECK + 1)) & zr(z1 + 1, z1 + 1), PILASTER, replace="air")
+    s.fill((arch(5, 6.2, DECK + 1) & ~arch(3.8, 5.8, DECK + 1)) & zr(z1, z1 + 1), TRIM)
+    s.fill(arch(3.8, 5.8, DECK + 1) & zr(z1 - 1, z1 + 1), "air")
+    s.fill(arch(2.4, 2.6, DECK + 17) & zr(z1, z1 + 1), "iron_bars")
+    s.fill((arch(3.4, 2.8, DECK + 17) & ~arch(2.4, 2.6, DECK + 17)) & zr(z1 + 1, z1 + 1), TRIM)
+
+
+def rim_facade(s, r, th):
+    """Rim wall: battered outer skirt, buttresses every 11 blocks, a sulfur string course under the merlons, caps."""
+    crest = np.round(rim_height(th)).astype(int)[:, None, :]
+    R = r[:, None, :]
+    ok = ((np.abs(wrap_deg(th + 90)) > 26) & (np.abs(wrap_deg(th - BREACH)) > 12) & (np.abs(wrap_deg(th - 90)) > 20))[:, None, :]
+    skirt = ok & (R >= RIM_R + 2.2) & (R < RIM_R + 4.6 - (YY - (crest - 10)) * 0.22) & (YY >= crest - 10) & (YY <= crest + 1)
+    s.fill(skirt, Mix({"basalt": 2, "polished_blackstone": 1, "blackstone": 1}), replace="air")
+    arc = (np.radians(th) * (RIM_R + 3)) % 11
+    but = ok & (arc < 2.2)[:, None, :] & (R >= RIM_R + 2) & (R < RIM_R + 6 - np.clip(YY - crest, 0, None) * 0.5) \
+        & (YY >= crest - 9) & (YY <= crest + 6)
+    s.fill(but, PILASTER, replace="air")
+    s.fill(ok & (R >= RIM_R + 2.2) & (R < RIM_R + 3.2) & (YY == crest + 6), TRIM, replace="air")
+    wall = s.match(lambda n: "deepslate" in n or "tuff_bricks" in n or "polished_basalt" in n or "polished_blackstone_bricks" in n)
+    near = ok & (np.abs(R - RIM_R) < 2.3)
+    above = np.zeros_like(wall)
+    above[:, :-1, :] = wall[:, 1:, :]
+    s.fill(near & wall & ~above & (YY >= crest + 7), "polished_basalt")
 
 
 # ================================================================== build
@@ -607,13 +835,21 @@ def build():
     plug(s)
     lava_falls(s)
     star_wall(s)
+    if PASS >= 2:
+        star_facade(s)
     horns(s)
     spires(s)
     keep(s)
     keep_collars(s)
+    if PASS >= 2:
+        fang_ribs(s)
     hall(s)
+    if PASS >= 2:
+        hall_facade(s)
     bridge(s)
     rim_wall(s, h, r, th)
+    if PASS >= 2:
+        rim_facade(s, r, th)
     gate(s)
     processional(s, h)
     barbican(s, h)
@@ -631,12 +867,14 @@ def build():
 
 def cameras(s):
     zs = s.meta.get("_stair_foot", 196)
-    zsp = s.meta["_barb"] + 12
+    zsp = min(s.meta["_barb"] + 14, D - 6)
     s.mark("spawn_approach", (104, ground_y(s, 104, zsp), zsp), look_at=(104, 112, 100))
     s.markers["spawn_approach"]["fov"] = 70
     s.mark("cam_stairfoot", (104, ground_y(s, 104, zs + 1), zs + 1), look_at=(104, 70, 140))
     s.mark("cam_gate", (104, GATE_I, ZB + 1), look_at=(104, 110, 100))
-    s.mark("cam_bailey", (122, DECK + 1, 112), look_at=(104, 150, 100))
+    bx, bz = pol(40, 17)
+    s.mark("cam_bailey", (int(bx), DECK + 1, int(bz)), look_at=(104, 150, 100))
+    s.mark("cam_maw", (104, ground_y(s, 104, ZF + 16), ZF + 16), look_at=(104, GATE_F + 20, ZF))
     s.mark("cam_heart", (104, DECK + 1, CZ + 5), look_at=(104, 100, 100.5))
     s.mark("cam_hall", (104, DECK + 1, HALL[3] - 3), look_at=(104, DECK + 6, HALL[2]))
     s.mark("cam_ash_west", (14, ground_y(s, 14, 112), 112), look_at=(60, 40, 96))
