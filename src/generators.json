@@ -10,22 +10,22 @@
   "tables.<team>.<lvl>: [drop item, weight, block?] - the block that grows (default: the drop item itself);",
   "  ['coins', weight, emeralds, block] = an emerald ore / block outcome (pays through the purse when mined);",
   "  ['jackpot:<id>', weight] = a chest filled with jackpots.<id>.",
-  "levels.<n>.regrow_ticks = delay before a mined block grows back (sped up by team size: x(1 + (players-1)/players_per_roll)).",
+  "levels.<n>.regrow_ticks: unused since #109 (a mined generator block is replaced at once; upgrades only change the pool). Kept 0.",
   "single = optional single-block mode (feedback #47): one block type that rolls the same odds as a loot table when mined.",
   "CENTRE generator (shared, in the arena, pot style): see centre._doc."
  ],
  "players_per_roll": 4,
  "levels": {
   "1": {
-   "regrow_ticks": 300,
+   "regrow_ticks": 0,
    "upgrade_cost": 75
   },
   "2": {
-   "regrow_ticks": 200,
+   "regrow_ticks": 0,
    "upgrade_cost": 200
   },
   "3": {
-   "regrow_ticks": 140,
+   "regrow_ticks": 0,
    "upgrade_cost": 500
   }
  },
@@ -40,7 +40,7 @@
    "through the purse, exactly as if it had been mined (emerald ore 5, emerald block 20, coal 0.1, ...). No traps.",
    "block: any block nobody else uses; its own vanilla loot table is emptied."
   ],
-  "on": false,
+  "on": true,
   "block": "minecraft:gilded_blackstone"
  },
  "jackpots": {

@@ -4,3 +4,4 @@ Check:
 - Mine ores: +0.1 popup and blue decimals readable?
 - Interest 0% -> 2%/min at min 30, on 2000 coins: fair?
 - Gold floor reads as the bank zone?
+- Generator: click its top to upgrade; mined block back at once?

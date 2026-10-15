@@ -60,3 +60,6 @@ points {t: match s, r: ppm per period} joined by a monotone cubic (`bank/curve/b
 `interest_base` (2000: only that much of the bank earns), `interest_scale` %. Defaults 0% -> 0.5% (10 min) -> 1% (20) -> 2% (30),
 max 40 coins/min. Paid +1 at a time: per tick acc += min(bank, base) x ppm, a coin per period-ticks x 1e6. Text `nonios:eco rtxt`.
 Admin page: base -/+500, curve x -/+25%, per second / per minute.
+
+## #109: generators
+Single block (gilded blackstone) is the default style; mined, it regrows the same tick (generator/tick). Upgrades only change the loot pool. Interaction 2.02 high so its top face wins the pick over the base: top click opens the upgrade dialog, the block on it stays mineable.
