@@ -118,7 +118,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   - Players on it are transferred first (hub, else any other up server), and it is only stopped once empty; if they can't be moved
     the entry is still written but the server stays up. Greyed with a tooltip: both on hub/main/test, Approve on branch `main`.
   - CLI parity: `mcdev approve <name> [--note ..]`, `mcdev archive <name> [--note ..]` (= shelve; re-archiving an archived one only
-    updates the note). `mcdev feedback` ends with a `server decisions:` line listing APPROVED/CLOSED entries; `ls` marks + / APPROVED / closed.
+    updates the note); CLI entries are signed `[cli]`, game ones by the player. `mcdev feedback` ends with a `server decisions:` line listing APPROVED/CLOSED entries; `ls` marks + / APPROVED / closed.
   - The own-row button needs a self pack written by this code (`s["ui_ver"] >= UI_VER`); on servers started earlier it is greyed
     ("Restart it to approve here") until their next start.
   Archived 2026-10-14: nexus, shop, purse (merged into m2/econ), fx (old posteffect probe). 2026-10-15: m4 (#51).

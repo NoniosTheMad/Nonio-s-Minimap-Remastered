@@ -2006,11 +2006,11 @@ def archive_server(name, note="", kind="shelved"):
     print(f"{name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / name})", flush=True)
     return commit
 
-def retire(name, kind, note="", player=None, wait=20):
+def retire(name, kind, note="", player=None, wait=20, by=None):
     """Approve ("I like it as is": Claude merges branch@commit into main) or shelve (review closed, not adopted; follow-ups
     go to new servers). Writes a feedback entry for Claude (`mcdev feedback`), marks the registry, then archives the server.
     Players on it are moved off first (hub, else any other up server); if they can't be, it is recorded but stays up.
-    Returns the feedback id."""
+    `by` = who decided, for the entry (default: the player, else the user); the CLI passes "cli". Returns the feedback id."""
     reg = sync_status(load_reg())
     s = reg.get(name)
     if not s:
@@ -2025,7 +2025,7 @@ def retire(name, kind, note="", player=None, wait=20):
     title = f"✔ APPROVED {name} {at} (merge)" if kind == "approved" else f"■ CLOSED {name} {at} (not adopted)"
     ctx = (f"  | kind {kind}: branch {s['branch']} @ {commit}, worktree {s['src']}\n"
            + ("  | WARNING: uncommitted changes in the worktree (not in that commit)\n" if dirty else ""))
-    fid = write_feedback(name, s, player or USER, title, note or "(no note)", ctx=ctx)
+    fid = write_feedback(name, s, by or player or USER, title, note or "(no note)", ctx=ctx)
     reg = load_reg()  # the latest decision wins: shelving an approved server withdraws the approval
     if kind == "approved":
         reg[name]["approved"] = dict(date=time.strftime("%Y-%m-%d %H:%M"), commit=commit, note=note, fid=fid)
@@ -2077,10 +2077,10 @@ def cmd_archive(a):
     if s and s.get("status") == "archived":  # already archived: only the note changes, nothing new for Claude
         archive_server(a.name, a.note, s.get("archive", {}).get("kind", "shelved"))
     else:
-        print(f"feedback #{retire(a.name, 'shelved', a.note)}: CLOSED {a.name} (not adopted)")
+        print(f"feedback #{retire(a.name, 'shelved', a.note, by='cli')}: CLOSED {a.name} (not adopted)")
 
 def cmd_approve(a):
-    print(f"feedback #{retire(a.name, 'approved', a.note)}: APPROVED {a.name} (merge)")
+    print(f"feedback #{retire(a.name, 'approved', a.note, by='cli')}: APPROVED {a.name} (merge)")
 
 def cmd_unarchive(a):
     reg = load_reg()
