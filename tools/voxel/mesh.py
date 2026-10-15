@@ -1,5 +1,5 @@
 """Scene -> triangle mesh with real block models, face culling, per-vertex ambient occlusion and biome tints.
-Shared by the offscreen renderer (render.py) and the three.js viewer (viewer.py)."""
+Shared by the offscreen renderer (render.py) and the WebGL viewer (viewer.py)."""
 import numpy as np
 from PIL import Image
 
