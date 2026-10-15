@@ -1129,15 +1129,151 @@ def throat_steps(s):
     lay_steps(s, 102, 106, prof, "polished_cinnabar", "polished_cinnabar_stairs")
 
 
+# ================================================================== P6: terrain transitions, the outer ring
+COLUMN = Mix({"basalt": 5, "polished_basalt": 2}, seed=SEED + 90)
+
+
+def causeway(s, h, r, th):
+    """The island edge becomes a crown of hexagonal basalt columns (echoing the plug's organ pipes): column tops step up
+    toward the brink (a palisade of shards along the edge) and hang below it as organ pipes of uneven length, so the
+    cliff reads as a curtain of columns instead of an extruded wall. Dark blackstone joints between cells.
+    Only raises the ground (never digs): no pits. Returns the updated heightmap."""
+    edge = s.meta["_edge"]
+    d = edge - r                                                    # depth inside the edge
+    rng = np.random.default_rng(SEED + 91)
+    region = (d > -2.5) & (d < 15)
+    cid, n, pts = basalt_cells(s.shape, region, 3.0, SEED + 92)
+    pr = np.hypot(pts[:, 0] - C[0], pts[:, 1] - C[1])
+    pth = np.degrees(np.arctan2(pts[:, 1] - C[1], pts[:, 0] - C[0]))
+    pd = edge_radius(pth) - pr                                      # cell-centre depth
+    keep = (pd > -1.2) | (rng.random(n) < 0.35)                     # ragged outline
+    road = (np.abs(cols2d(s.shape)[0] - 104) < 10) & (cols2d(s.shape)[1] > ZF)
+    raise_ = np.where(pd < 3.0, rng.integers(2, 7, n), np.where(pd < 8, rng.integers(0, 2, n), (rng.random(n) < 0.25).astype(int)))
+    hang = np.clip(1 - pd / 15, 0, 1) * (rng.uniform(4, 34, n) + 18 * (rng.random(n) < 0.15)) + rng.uniform(0, 4, n)
+    m = cid >= 0
+    ci = np.where(m, cid, 0)
+    ok = m & keep[ci]
+    # ground under each cell: the cell's median-ish ground (its centre column), so tops are flat per cell
+    cx = np.clip(np.round(pts[:, 0]).astype(int), 0, W - 1)
+    cz = np.clip(np.round(pts[:, 1]).astype(int), 0, D - 1)
+    cg = np.maximum(h[cx, cz], PLAIN)
+    top = np.where(ok, np.where(road, h, np.maximum(h, cg[ci] + raise_[ci])), -1)
+    bot = np.where(ok, PLAIN - 6 - np.round(hang[ci]), 999)
+    col = heightmask(s.shape, top, bot)
+    s.fill(col, COLUMN)
+    joint = np.zeros(m.shape, bool)
+    joint[:-1] |= cid[:-1] != cid[1:]
+    joint[:, :-1] |= cid[:, :-1] != cid[:, 1:]
+    s.fill(col & joint[:, None, :] & (YY < top[:, None, :] - 1) & (YY > PLAIN - 5), Mix({"blackstone": 2, "polished_blackstone": 1}))
+    glow = (rng.random(n) < 0.3) & (pd < 4)                       # some pipes drip with embers at their tips
+    s.fill(col & (YY <= bot[:, None, :] + 1) & glow[ci][:, None, :] & ok[:, None, :], "magma_block")
+    # the column caps fade into the ash: inner cells keep some ash on top
+    ash_top = col & (YY == top[:, None, :]) & ((d > 9) & (fbm2(*cols2d(s.shape), 7, SEED + 93) > 0.0))[:, None, :]
+    s.fill(ash_top, ASH)
+    h2 = np.where(ok, np.maximum(h, top), h)
+    return h2
+
+
+def sulfur_terraces(s, h):
+    """North-east: the Sulfur Terraces. Three travertine-like mounds of stepped pools (each step one block, walkable),
+    sulfur rims, calcite floors, a lava eye and a venting potent-sulfur throat at the top, sulfur spikes around it."""
+    rng = np.random.default_rng(SEED + 95)
+    for k, (a, rr, R, steps) in enumerate(((-48, 80, 12.5, 6), (-30, 76, 8.5, 4), (-64, 86, 7.0, 3))):
+        x, z = pol(a, rr)
+        g = int(np.median(h[int(x) - 3:int(x) + 4, int(z) - 3:int(z) + 4]))
+        for i in range(steps):
+            Ri = R * (1 - i / (steps + 0.6))
+            y = g + i
+            wob = shapes.SDF(lambda X, Y, Z, Ri=Ri, i=i, x=x, z=z, k=k: np.hypot(X - x, Z - z) - Ri
+                             - 1.4 * np.sin(np.arctan2(Z - z, X - x) * (3 + i) + k + i),
+                             ((x - Ri - 3, g - 4, z - Ri - 3), (x + Ri + 3, y + 2, z + Ri + 3)))
+            body = wob & shapes.box((x - Ri - 3, g - 4, z - Ri - 3), (x + Ri + 4, y + 1, z + Ri + 4))
+            s.fill(body, Noise([(-0.2, Mix({"calcite": 3, "tuff": 1})), (1, Mix({"sulfur": 2, "calcite": 2, "tuff": 1}))],
+                               scale=4, seed=SEED + 96 + i))
+            m = body.mask(s.shape) & (YY == y)
+            inner = np.zeros_like(m)
+            inner[1:-1, :, 1:-1] = m[1:-1, :, 1:-1] & m[:-2, :, 1:-1] & m[2:, :, 1:-1] & m[1:-1, :, :-2] & m[1:-1, :, 2:]
+            s.fill(m & ~inner, Mix({"polished_sulfur": 2, "sulfur": 2, "sulfur_bricks": 1}, seed=SEED + 97 + i))
+        ytop = g + steps - 1
+        s.fill(shapes.cylinder((x, 0, z), 1.6 + R * 0.08, ytop, ytop), "lava")
+        s.set(int(x), ytop - 1, int(z), "potent_sulfur[potent_sulfur_state=continuous]")
+        s.set(int(x), ytop, int(z), "air")
+        for j in range(6 + k):
+            ang = rng.uniform(0, 2 * math.pi)
+            rad = rng.uniform(2.6, R * 0.55)
+            px, pz = int(x + math.cos(ang) * rad), int(z + math.sin(ang) * rad)
+            gy = ground_y(s, px, pz)
+            if s.idx[px, gy - 1, pz] and gy < ytop + 2:
+                ln = int(rng.integers(1, 4))
+                for q in range(ln):
+                    th_ = "tip" if q == ln - 1 else ("frustum" if q == ln - 2 else ("base" if q == 0 else "middle"))
+                    s.set(px, gy + q, pz, f"sulfur_spike[thickness={th_},vertical_direction=up]")
+
+
+def spear_clusters(s, h):
+    """The Field of Spears, regrouped: splayed bundles of 3-6 basalt shards leaning out from a common root (one tall
+    leader per bundle), some with polished tips or bone tips; scoria boulders between them."""
+    rng = np.random.default_rng(SEED + 98)
+    centres = []
+    for i in range(60):
+        dense = len(centres) < 11
+        a = rng.uniform(22, 78) if dense else rng.uniform(-180, 180)
+        rr = rng.uniform(RIM_R + 10, 90)
+        if abs(wrap_deg(a - 90)) < 17 or abs(wrap_deg(a - BREACH)) < 10 or abs(wrap_deg(a - 180)) < 30 \
+                or abs(wrap_deg(a - 235)) < 18 or abs(wrap_deg(a + 45)) < 26:
+            continue
+        x, z = pol(a, rr)
+        if rr > edge_radius(np.array(a)) - 12 or any(math.hypot(x - cx, z - cz) < 9 for cx, cz, _ in centres):
+            continue
+        centres.append((x, z, dense))
+        if len(centres) >= 22:
+            break
+    for ci, (x, z, dense) in enumerate(centres):
+        g = h[int(x), int(z)]
+        nsp = int(rng.integers(3, 7))
+        tall = rng.uniform(14, 24) * (1.15 if dense else 0.85)
+        s.fill(shapes.ellipsoid((x, g - 1, z), (3.2, 2.0, 3.2)).displace(0.8, 2.5, seed=ci), FLOW)
+        for j in range(nsp):
+            ang = rng.uniform(0, 2 * math.pi)
+            lean = 0.12 + 0.3 * (j > 0) * rng.random()
+            ht = tall if j == 0 else tall * rng.uniform(0.35, 0.75)
+            off = 0 if j == 0 else rng.uniform(0.8, 2.2)
+            bx, bz = x + math.cos(ang) * off, z + math.sin(ang) * off
+            tip = (bx + math.cos(ang) * lean * ht, g + ht, bz + math.sin(ang) * lean * ht)
+            rad = (2.1 if j == 0 else rng.uniform(0.9, 1.5))
+            path = [(bx, g - 2, bz), ((bx + tip[0]) / 2, g + ht * 0.5, (bz + tip[2]) / 2), tip]
+            tipm = BONE if (j == 0 and ci % 3 == 0) else ("polished_basalt" if j == 0 else Mix({"basalt": 3, "blackstone": 1}))
+            thorn(s, path[0], path[1], path[2], rad, 0.35, tip_frac=0.25 if j == 0 else 0.0,
+                  base=Mix({"basalt": 3, "blackstone": 1, "polished_basalt": 1}, seed=ci * 7 + j), tip=tipm, n=10)
+    for k in range(45):
+        a, rr = rng.uniform(-180, 180), rng.uniform(RIM_R + 8, 92)
+        if abs(wrap_deg(a - 90)) < 15:
+            continue
+        x, z = pol(a, rr)
+        if rr > edge_radius(np.array(a)) - 6:
+            continue
+        g = h[int(x), int(z)]
+        rad = rng.uniform(0.9, 2.2)
+        s.fill(shapes.ellipsoid((x, g, z), (rad * 1.3, rad, rad)).displace(0.5, 2, seed=k + 300),
+               Mix({"blackstone": 2, "basalt": 2, "magma_block": 0.4}))
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
     h, r, th = terrain(s)
-    spikes_field(s, h)
+    if PASS >= 6:
+        h = causeway(s, h, r, th)
+        spear_clusters(s, h)
+    else:
+        spikes_field(s, h)
     obelisks(s, h)
     ribcage(s, h)
     slag_works(s, h)
-    fumaroles(s, h)
+    if PASS >= 6:
+        sulfur_terraces(s, h)
+    else:
+        fumaroles(s, h)
     plug(s)
     lava_falls(s)
     star_wall(s)
@@ -1198,8 +1334,9 @@ def cameras(s):
     s.markers["spawn_approach"]["fov"] = 70
     s.mark("cam_stairfoot", (104, ground_y(s, 104, zs + 1), zs + 1), look_at=(104, 70, 140))
     s.mark("cam_gate", (104, GATE_I, ZB + 1), look_at=(104, 110, 100))
-    bx, bz = pol(40, 17)
-    s.mark("cam_bailey", (int(bx), DECK + 1, int(bz)), look_at=(104, 150, 100))
+    bx, bz = (int(v) for v in pol(152, 17.5))
+    lx, lz = pol(95, 19)
+    s.mark("cam_bailey", (bx, DECK + 1, bz), look_at=(lx, DECK + 16, lz))
     s.mark("cam_maw", (104, ground_y(s, 104, ZF + 16), ZF + 16), look_at=(104, GATE_F + 20, ZF))
     s.mark("cam_heart", (104, DECK + 1, CZ + 5), look_at=(104, 100, 100.5))
     if "_bridge_prof" in s.meta:
@@ -1207,9 +1344,11 @@ def cameras(s):
         s.mark("cam_bridge", (104, s.meta["_bridge_prof"][bz] + 1, bz), look_at=(104, DECK + 8, ZP - 4))
     s.mark("cam_hall", (104, DECK + 1, HALL[3] - 3), look_at=(104, DECK + 6, HALL[2]))
     s.mark("cam_ash_west", (14, ground_y(s, 14, 112), 112), look_at=(60, 40, 96))
-    s.mark("cam_ash_ne", (166, ground_y(s, 166, 40), 40), look_at=(104, 90, 100))
-    bx, bz = int(C[0] + 88 * math.cos(math.radians(40))), int(C[1] + 88 * math.sin(math.radians(40)))
-    s.mark("cam_breach", (bx, ground_y(s, bx, bz), bz), look_at=(C[0] + 75, 30, C[1] + 14))
+    nx, nz = (int(v) for v in pol(-40, 96))
+    s.mark("cam_ash_ne", (nx, ground_y(s, nx, nz) + 2, nz), look_at=(104, 80, 100))
+    bx, bz = (int(v) for v in pol(BREACH, 52))
+    lx, lz = pol(BREACH, 110)
+    s.mark("cam_breach", (bx, LAKE_Y + 6, bz), look_at=(lx, LAKE_Y - 6, lz))
     s.mark("cam_hero", (200, 112, 206), look_at=(104, 84, 100))
     s.markers["cam_hero"]["fov"] = 55
     s.mark("cam_far", (-60, 70, 260), look_at=(104, 100, 100))

@@ -87,3 +87,15 @@ Weakest three now:
 1. Outer ring: fumaroles read as yellow boxes, the rim spikes are repetitive cones, the ash plain is flat, and the island edge is a plain extrusion (cam_ash_ne, cam_breach).
 2. No fixtures and no night read: the interiors are black, there are no lamps on the Tongue or the bridge, and the throne lantern is dark.
 3. The cinnabar runner is a flat, single-texture field and the steps are monotone. It needs edge trim and lamp posts on the landings (P7).
+
+## P6: terrain transitions, the outer ring
+Fixed (P5 weakest #1, the outer ring):
+- **Causeway edge** (`causeway`): the island edge is a crown of hexagonal basalt columns that echo the plug's organ pipes. Tops step up 2 to 6 blocks at the brink as a ragged palisade, and the inner cells rise 0 to 1, so there are no pits. Below the brink, organ pipes of uneven length hang down (15% are "great pipes" +18), and some have magma tips that glow at night. Dark joints run only in the upper band, ash fades onto the inner caps, and the road tip is kept level. The cliff now reads as a curtain of columns instead of an extruded wall.
+- **Sulfur Terraces** (`sulfur_terraces`, replaces the 9 fumarole boxes): three travertine mounds of one-block terraces (walkable) with wobbly sulfur rims, calcite floors, a lava eye with a `potent_sulfur[continuous]` vent, and sulfur spikes.
+- **Spear bundles** (`spear_clusters`, replaces 130 identical cones): 22 splayed bundles of 3 to 6 curved shards from a common basalt root. Each has a tall leader with a polished or bone tip, and there are 45 scoria boulders on the ash. Dense in the SE.
+- Cameras fixed: cam_ash_ne is no longer inside a spike, cam_breach now looks down the gorge from the lake, and cam_bailey looks along the bailey canyon.
+
+Weakest three now:
+1. No fixtures and no night read (P7): black rooms, no lamps on the Tongue, bridge or bailey, a dark throne lantern, and an unlit Maw throat.
+2. The bailey is a canyon 5 to 8 wide between the Fang, the horn roots and a 14-high star wall. It is dramatic but dark and has no hero courtyard. It needs light, and an opened, legible route around the ring.
+3. Zones are unchecked: reachability, windows, and the spawn and defender markers.
