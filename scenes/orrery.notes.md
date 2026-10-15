@@ -114,3 +114,17 @@ Weakest three after pass 7 (open):
 1. The Spire's middle is still a dark masonry cone, and its heart is not shown outside the Hall and the Grotto.
 2. Facade partial share 0.18 and facade lights 0.91 per 100 m2, below the 0.3 and 1.2 floors. The masonry is flat between courses.
 3. The crater as a play space has no landmark between the lake shore and the Landing.
+
+## Pass 8: the lake dial, the Archive lancets
+Fixes for pass 7's open three:
+1. **The Spire's dark middle** (`spire.archive_lancets`).
+   - The Star Archive gets six tall violet lancets with copper-bar transoms and a lit bulb over each apex. They sit between the hall's and the gallery's corbels, and skip the turret side.
+   - The middle of the Spire now carries the heart's colour from the court.
+   - From the far hero view the change is modest: the rings and towers cover most of it.
+2. **The crater floor had no landmark between the Landing and the island** (`finish.dial`). The lake is now a sundial.
+   - Four gnomons stand on the shore at 60/120/240/300 degrees, mirror-symmetric for the two spawns. Each is a 17-block obelisk of polished deepslate with calcite bands, a lit copper-bulb head, a chiseled cap and a rod, on a calcite-ringed pad.
+   - The other hours have calcite hour stones with end rods.
+   - The gnomons are waymarks and cover, and they flank the causeway.
+3. **Facade partial share and lights** are still below the floors: 0.18 and 0.93. I see these as decoration floors for the furnishing pass. Adding more random lamps would bring back the noise I removed in pass 4.
+
+Walk: 0 traps; 48586 nodes reachable both ways. Stability: PASS.

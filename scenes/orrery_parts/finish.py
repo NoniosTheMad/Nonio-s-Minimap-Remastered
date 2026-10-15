@@ -151,7 +151,50 @@ def rim_kerb(s, ctx):
     ctx["revet"] = s.fill(m, Mix({"tuff_bricks": 3, "deepslate_bricks": 1, "cracked_deepslate_bricks": 0.4}))
 
 
+def dial(s, ctx):
+    """The lake is the dial: four gnomons (stone obelisks with lit copper heads) stand on the shore at the 60/120/240/300
+    deg hours, mirror-symmetric for the two spawns, and calcite hour stones with end rods mark the other hours. Landmarks
+    and cover on the crater floor between the Landing and the island's shadow."""
+    import math
+    from tools.voxel import shapes
+    from tools.voxel.palette import Mix
+    from .common import cu
+    out = []
+    for a in range(0, 360, 30):
+        gnomon = a in (60, 120, 240, 300)
+        r = 40.0 if gnomon else 37.0
+        x, z = C[0] + math.cos(math.radians(a)) * r, C[1] + math.sin(math.radians(a)) * r
+        xi, zi = int(x), int(z)
+        g = column_top(s, xi, zi, 60)
+        if g <= LAKE_Y or "water" in s.get(xi, g, zi):
+            continue
+        if not gnomon:
+            s.set(xi, g + 1, zi, "calcite")
+            s.set(xi, g + 2, zi, "chiseled_tuff_bricks")
+            s.set(xi, g + 3, zi, "end_rod[facing=up]")
+            continue
+        c = (xi + 0.5, 0, zi + 0.5)
+        s.fill(shapes.cylinder(c, 3.6, g - 3, g + 0.5), Mix({"polished_tuff": 3, "tuff_bricks": 1}))
+        s.fill(shapes.cylinder(c, 3.6, g - 0.5, g + 0.5) - shapes.cylinder(c, 2.9, 0, 999), "calcite")
+        s.fill(shapes.cylinder(c, 3.6, g + 0.5, g + 18), "air", replace="solid")
+        for k in range(17):
+            y = g + 1 + k
+            if k < 6:
+                lo, hi = (xi - 1, zi - 1), (xi + 3, zi + 3)
+                mat = "calcite" if k == 5 else Mix({"polished_deepslate": 2, "deepslate_bricks": 1})
+            elif k < 14:
+                lo, hi = (xi, zi), (xi + 2, zi + 2)
+                mat = {11: "calcite", 12: cu("", "bulb", lit="true", powered="false"), 13: cu("weathered", "chiseled")}.get(k, Mix({"polished_deepslate": 2, "deepslate_tiles": 1}))
+            else:
+                s.set(xi, y, zi, cu("", "rod") if k < 16 else cu("", "rod"))
+                continue
+            s.fill(shapes.box((lo[0], y, lo[1]), (hi[0], y + 1, hi[1])), mat)
+        out.append((a, xi, g, zi))
+    ctx["dial"] = out
+
+
 def build(s, ctx):
+    dial(s, ctx)
     rim_kerb(s, ctx)
     courses(s, ctx)
     n = stability.fix_soil(s)

@@ -30,7 +30,7 @@ def build():
                 continue
             raise
         m.build(s, ctx)
-    s.meta["report"] = {k: ctx[k] for k in ("ring_hits", "ring_hit_cells", "plugged", "fix_soil", "moorings") if k in ctx}
+    s.meta["report"] = {k: ctx[k] for k in ("ring_hits", "ring_hit_cells", "plugged", "fix_soil", "moorings", "rim_kerb", "revet", "loose_dripstone", "dial") if k in ctx}
     s.meta["mood"] = "dusk"
     s.meta["origin"] = [-104, 20, -104]
     return s

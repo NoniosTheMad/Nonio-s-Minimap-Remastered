@@ -120,6 +120,31 @@ def windows_upper(s):
             uu = np.radians(da) * rr
             lan = pointed_arch_2d(uu, b.y - y0 - 1, 0.6, h - 4) & (b.y > y0 + 0.5) & wall & (np.abs(da) < 25)
             b.fill(lan, GLASS_V_PANE)
+    archive_lancets(s)
+
+
+def archive_lancets(s):
+    """The Star Archive's tall lancets (between the hall's and the gallery's corbels): the dark middle of the Spire
+    gets eight violet slots with copper-bar transoms and a lit bulb over each apex, so the heart's colour shows from the
+    court and the highland."""
+    from scenes.concepts._kit import pointed_arch_2d
+    y0, h = ARCHIVE[0] + 1, 11
+    b = box_around(s, C, 15, y0, y0 + h + 1)
+    rr = np.hypot(b.x - C[0], b.z - C[1])
+    th = np.degrees(np.arctan2(b.z - C[1], b.x - C[0]))
+    wall = (rr > radius(b.y) - WALL_T - 0.5) & (rr <= radius(b.y) + 0.6)
+    for k in range(8):
+        a = k * 45 + 22.5
+        if abs(((a - TURRET[0] + 180) % 360) - 180) < 30:
+            continue
+        da = ((th - a + 180) % 360) - 180
+        uu = np.radians(da) * rr
+        lan = pointed_arch_2d(uu, b.y - y0 - 1, 0.9, h - 3) & (b.y > y0 + 0.5) & wall & (np.abs(da) < 25)
+        b.fill(lan, GLASS_V_PANE)
+        b.fill(lan & np.isin(np.floor(b.y).astype(int), (y0 + 4, y0 + 7)), cu("exposed", "bars"))
+        ar = float(radius(y0 + h)) - 0.5
+        s.set(int(C[0] + math.cos(math.radians(a)) * ar), y0 + h, int(C[1] + math.sin(math.radians(a)) * ar),
+              cu("", "bulb", lit="true", powered="false"))
 
 
 def turret(s):
