@@ -1,4 +1,4 @@
-# Fire one event from config.events, picked by weight. Restarts the event timer.
+# Announce one event from config.events, picked by weight (troll events only with config.trolls). Restarts the event timer.
 scoreboard players operation #ev_t nx.arena = #ev_every nx.arena
 execute unless score #wsum nx.arena matches 1.. run return 0
 scoreboard players set #r nx.arena 1

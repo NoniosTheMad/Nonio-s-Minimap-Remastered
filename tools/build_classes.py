@@ -13,7 +13,6 @@ code lives in function/class/<class>/ and is never touched):
                                                  + shop_items (classes sold by the shop) + confirm (pre-purchase dialogs)
 """
 import json
-import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,7 +24,15 @@ EQUIP = ARMOR | {"weapon.offhand"}
 HOLD_SECONDS = 60  # consumables longer than this are "hold to use" (using_item) instead of "use once" (consume_item)
 
 
+WRITTEN = set()
+
+
 def write(path, text):
+    """Write only when the content changed: the mcdev daemon watches mtimes and restarts a server when a registry
+    file (enchantment) is touched, so a rebuild must leave unchanged files alone."""
+    WRITTEN.add(path.resolve())
+    if path.exists() and path.read_bytes() == text.encode("utf-8"):
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
 
@@ -41,7 +48,9 @@ def jtext(c):
 def item_components(cid, c, key, it):
     comp = dict(it.get("components", {}))
     tag = f"{cid}_{key}"
-    comp["minecraft:custom_data"] = {"nx_cls": cid, "nx_item": tag, "nx_cls_item": True}
+    comp["minecraft:custom_data"] = {**comp.get("minecraft:custom_data", {}), "nx_cls": cid, "nx_item": tag, "nx_cls_item": True}
+    if "gear" in it:  # hotbar convention override for plain bases (gear/category): weapon|bow|pickaxe|bucket|tool|none
+        comp["minecraft:custom_data"]["nx_gear"] = it["gear"]
     ench = dict(comp.get("minecraft:enchantments", {}))
     ench["minecraft:vanishing_curse"] = 1  # class items never drop on death (keep_inventory off) - they are re-given
     if c["tier"] == "shop" and it["slot"] in ARMOR:
@@ -93,8 +102,7 @@ def slot_match(tag):
 def build():
     d = json.loads(SRC.read_text(encoding="utf-8"))
     classes = d["classes"]
-    for sub in ("function/class/gen", "loot_table/class", "enchantment/class", "advancement/class/use"):
-        shutil.rmtree(OUT / sub, ignore_errors=True)
+    gen_dirs = [OUT / sub for sub in ("function/class/gen", "loot_table/class", "enchantment/class", "advancement/class/use")]
     nums = [c["num"] for c in classes.values()]
     assert len(nums) == len(set(nums)) and min(nums) >= 1, "class nums must be unique and >= 1"
 
@@ -118,7 +126,7 @@ def build():
                 if it["slot"] == "supply":
                     assert not basic, f"{cid}.{key}: supply items are for shop classes (given once)"
                     write(OUT / "loot_table" / "class" / cid / f"{key}.json", json.dumps(loot_table(it, supply_components(it)), indent=1) + "\n")
-                    supply.append(f"loot give @s loot nonios:class/{cid}/{key}")
+                    supply.append(f'function nonios:gear/loot {{table:"nonios:class/{cid}/{key}"}}')
                     continue
                 comp = item_components(cid, c, key, it)
                 write(OUT / "loot_table" / "class" / cid / f"{sub}{key}.json", json.dumps(loot_table(it, comp), indent=1) + "\n")
@@ -127,7 +135,7 @@ def build():
                     lines.append(f'function nonios:class/stash {{slot:"{it["slot"]}"}}')
                     lines.append(f"loot replace entity @s {it['slot']} loot {table}")
                 else:
-                    lines.append(f"loot give @s loot {table}")
+                    lines.append(f'function nonios:gear/loot {{table:"{table}"}}')
                 if not basic:
                     _uses(cid, key, it, comp, hooks)
             name = f"{g}/equip" + (f"_l{lvl}" if lvl else "")
@@ -196,8 +204,10 @@ def build():
                         f"execute if items entity @s player.cursor {slot_match(tag)} run return 0",
                         f"execute if items entity @s player.crafting.* {slot_match(tag)} run return 0",
                         f'kill @e[type=item,nbt={{Item:{{components:{{"minecraft:custom_data":{{nx_item:"{tag}"}}}}}}}}]',
-                        f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}",
-                        f"loot give @s loot {table}"])
+                        *([f"# used up (consumable): back into the hand that used it",
+                           f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}"]
+                          if "minecraft:consumable" in item_components(cid, c, key, it) else []),
+                        f'function nonios:gear/loot {{table:"{table}"}}'])
             fn(f"{g}/check", lines)
             disp["check"].append(f"execute if score @s nx.class matches {n} run return run function nonios:{g}/check")
 
@@ -245,6 +255,12 @@ def build():
     snbt = json.dumps(catalog, ensure_ascii=False)
     fn("class/gen/catalog", ["# class catalog for menus/shop: storage nonios:class catalog[] {id,num,tier,price,name,blurb}",
                              f"data modify storage nonios:class catalog set value {snbt}"])
+    for d in gen_dirs:  # generated files nothing wrote this time (renamed/removed items or classes)
+        for f in sorted(d.rglob("*"), reverse=True) if d.exists() else []:
+            if f.is_file() and f.resolve() not in WRITTEN:
+                f.unlink()
+            elif f.is_dir() and not any(f.iterdir()):
+                f.rmdir()
     print("classes built:", ", ".join(classes))
 
 

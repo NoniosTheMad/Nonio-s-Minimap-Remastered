@@ -1,0 +1,99 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Shop",
+  "color": "green"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Shop v3, talisman, skull",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "Open shop (anywhere)",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 54"
+   },
+   "tooltip": {
+    "text": "The shop opens away from the shopkeeper for you from now on"
+   }
+  },
+  {
+   "label": {
+    "text": "Shop anywhere (toggle)",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 32"
+   },
+   "tooltip": {
+    "text": "Opens the shop here; on: the shop works away from the keeper too"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: my shop"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 33"
+   }
+  },
+  {
+   "label": {
+    "text": "+10000 coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 53"
+   }
+  },
+  {
+   "label": {
+    "text": "Emerald Talisman",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 60"
+   },
+   "tooltip": {
+    "text": "Wear it (right-click): luck, +1 coin / 3 s in prep + battle. Binding curse"
+   }
+  },
+  {
+   "label": {
+    "text": "Buy: Dragon Skull"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 61"
+   },
+   "tooltip": {
+    "text": "V2 joke: needs 3,200,000 coins, then it only says 'dragon'"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

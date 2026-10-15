@@ -1,0 +1,126 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Full match",
+  "color": "gold"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Everything on main. Pick a page.",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "Match flow",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Start, phases, admin"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/match"
+   }
+  },
+  {
+   "label": {
+    "text": "Economy / Bank",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Coins and the team bank"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/econ"
+   }
+  },
+  {
+   "label": {
+    "text": "Shop",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Shop v3, talisman, skull"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/shop"
+   }
+  },
+  {
+   "label": {
+    "text": "Arena / Events",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "Nodes, events, gates, core"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/arena"
+   }
+  },
+  {
+   "label": {
+    "text": "Generators / Dream",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Field generators, Emerald Dream"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/gens"
+   }
+  },
+  {
+   "label": {
+    "text": "Nexus / Barrier",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Barrier damage, pressure, decay"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/nexus"
+   }
+  },
+  {
+   "label": {
+    "text": "Classes / Altar",
+    "color": "dark_purple"
+   },
+   "tooltip": {
+    "text": "Free classes, team level, altar"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/classes"
+   }
+  },
+  {
+   "label": {
+    "text": "Debug",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Mobs, gear, inventory"
+   },
+   "action": {
+    "type": "minecraft:show_dialog",
+    "dialog": "demo:full/debug"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": "Close"
+ }
+}

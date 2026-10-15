@@ -1,0 +1,94 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Generators / Dream",
+  "color": "aqua"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Field generators, Emerald Dream",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "TP: my generator"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 19"
+   }
+  },
+  {
+   "label": {
+    "text": "Generator: drop now"
+   },
+   "tooltip": {
+    "text": "Nearest generator"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 24"
+   }
+  },
+  {
+   "label": "Single-block generators",
+   "tooltip": {
+    "text": "On/off: one block type (gilded blackstone) with the V2 odds in its drops, vs the V2 blocks"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 67"
+   }
+  },
+  {
+   "label": {
+    "text": "Open my Dream portal",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Skips the 1000-coin unlock"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 17"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: my Dream pad"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 18"
+   }
+  },
+  {
+   "label": {
+    "text": "Wake me up"
+   },
+   "tooltip": {
+    "text": "Leave the Dream immediately"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 25"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

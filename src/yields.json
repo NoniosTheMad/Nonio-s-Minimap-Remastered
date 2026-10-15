@@ -1,0 +1,35 @@
+{
+  "_doc": [
+    "Coins per mined block (feedback #36, 2026-10-14; temporary numbers, balance here). tools/build_yields.py -> purse/gen/*.",
+    "Values are coins per block and may have decimals (resolution 0.01): the purse keeps the hundredths per player",
+    "(nx.pfrac) and pays whole coins as they add up. Blocks not listed earn nothing and cost nothing to place",
+    "(stone, deepslate, cobblestone...: building blocks).",
+    "fortune_pct: extra yield per Fortune level of the pickaxe used (+40% per level).",
+    "Placing a listed block costs its value at the best Fortune (fortune_max), so silk-touch an ore, place it and mine it",
+    "again with Fortune earns nothing. What the purse can't cover becomes debt (nx.pdebt), paid out of the next mining.",
+    "Bump version when the numbers change: servers then overwrite the in-game values (#<block> nx.coinval) on /reload."
+  ],
+  "version": 2,
+  "fortune_pct": 40,
+  "fortune_max": 3,
+  "blocks": {
+    "coal_ore": 0.1,
+    "deepslate_coal_ore": 0.1,
+    "copper_ore": 0.2,
+    "deepslate_copper_ore": 0.2,
+    "iron_ore": 0.5,
+    "deepslate_iron_ore": 0.5,
+    "redstone_ore": 2,
+    "deepslate_redstone_ore": 2,
+    "lapis_ore": 4,
+    "deepslate_lapis_ore": 4,
+    "gold_ore": 1,
+    "deepslate_gold_ore": 1,
+    "nether_gold_ore": 0.5,
+    "diamond_ore": 3,
+    "deepslate_diamond_ore": 3,
+    "emerald_ore": 5,
+    "deepslate_emerald_ore": 5,
+    "emerald_block": 20
+  }
+}

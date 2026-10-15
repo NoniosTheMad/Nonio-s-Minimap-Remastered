@@ -4,11 +4,11 @@ function nonios:class/strip
 scoreboard players set @s nx.class 6
 function nonios:class/gen/tank/equip
 # kit supplies (plain items, given once)
-loot give @s loot nonios:class/tank/pickaxe
-loot give @s loot nonios:class/tank/axe
-loot give @s loot nonios:class/tank/shovel
-loot give @s loot nonios:class/tank/stone
-loot give @s loot nonios:class/tank/bread
+function nonios:gear/loot {table:"nonios:class/tank/pickaxe"}
+function nonios:gear/loot {table:"nonios:class/tank/axe"}
+function nonios:gear/loot {table:"nonios:class/tank/shovel"}
+function nonios:gear/loot {table:"nonios:class/tank/stone"}
+function nonios:gear/loot {table:"nonios:class/tank/bread"}
 scoreboard players set @s nx.tier 1
 function nonios:class/gen/tank/vision
 tellraw @s [{"text":"✦ You are now a ","color":"gray"},{"text":"Tank","color":"dark_aqua"},{"text":" (lost on death)","color":"dark_gray"}]

@@ -5,6 +5,7 @@ execute if score @s nx.class matches 5 run return run function nonios:class/gen/
 execute if score @s nx.class matches 6 run return run function nonios:class/gen/tank/vision
 execute if score @s nx.class matches 7 run return run function nonios:class/gen/ninja/vision
 execute if score @s nx.class matches 8 run return run function nonios:class/gen/berserker/vision
+execute if score @s nx.class matches 11 run return run function nonios:class/gen/champion/vision
 execute if score @s nx.class matches 1 run return run function nonios:class/gen/reaper/vision
 execute if score @s nx.class matches 9 run return run function nonios:class/gen/monster/vision
 execute if score @s nx.class matches 10 run return run function nonios:class/gen/balrog/vision

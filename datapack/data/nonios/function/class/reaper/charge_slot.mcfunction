@@ -1,0 +1,2 @@
+# macro {at, slot, rem}: rem = the dormant scythe as stored (id, count, components)
+$item modify entity @s $(at).$(slot) [{type:"minecraft:set_components",components:{"minecraft:consumable":{consume_seconds:0.5f,animation:"bow",sound:"minecraft:entity.vex.charge",has_consume_particles:false},"minecraft:use_remainder":$(rem),"minecraft:enchantment_glint_override":true}},{type:"minecraft:set_custom_data",tag:{nx_state:"charged"}}]

@@ -1,0 +1,212 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Shop v3",
+  "color": "gold"
+ },
+ "columns": 2,
+ "pause": false,
+ "actions": [
+  {
+   "label": {
+    "text": "Start match",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Joins a team if needed"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Skip phase",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Prep -> Battle (barrier takes hits)"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "+1000 coins",
+    "color": "gold"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "+100000 coins",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "For bulk buys"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Open shop (anywhere)",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Toggle: the shop opens away from the keeper too"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Clear inventory"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Fill bag (1 slot free)"
+   },
+   "tooltip": {
+    "text": "Cobblestone everywhere but hotbar 9: test partial buys / bag full"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Gear: scrambled give"
+   },
+   "tooltip": {
+    "text": "Clear + give 8 items in random order: each lands in its slot"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Starting kit"
+   },
+   "tooltip": {
+    "text": "#nonios:kit/start through the gear helper"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Power V bow + arrows"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: enemy Nexus"
+   },
+   "tooltip": {
+    "text": "12 blocks in front of it (battle phase to damage it)"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 11"
+   }
+  },
+  {
+   "label": {
+    "text": "Barrier HP"
+   },
+   "tooltip": {
+    "text": "Both Nexus barriers"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 12"
+   }
+  },
+  {
+   "label": {
+    "text": "Stress catalog",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "452 items: Colours / Wood with subcategories"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 13"
+   }
+  },
+  {
+   "label": {
+    "text": "Real catalog",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "Back to the game's 90 items"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 14"
+   }
+  },
+  {
+   "label": {
+    "text": "Switch my team"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 15"
+   }
+  },
+  {
+   "label": {
+    "text": "Stop match",
+    "color": "red"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.shop3 set 16"
+   }
+  }
+ ]
+}

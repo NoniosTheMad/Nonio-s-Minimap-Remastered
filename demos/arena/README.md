@@ -30,10 +30,8 @@ the same way the real map will plug in.
 - **Events:** `config.events` is a list of `{id,name,color,sub,at,sound,weight,fn}`; the timer (first after 3 min, then
   every 5 min) picks one by weight, picks a random node if `at:1b`, shows title + subtitle + sound + chat line, runs `fn`
   as + at that node. Adding an event = one `append` line in the config + its function.
-  - *Emerald Surge* (weight 3): 8 waves of emeralds flung out of the node.
-  - *It's Raining Frogs* (weight 2): 10 frogs with slow falling and emeralds inside (`DeathLootTable`), plus the glowing
-    **Cracy Frog** (emerald blocks, golden carrots, 25% enchanted golden apple, "Cracy Frog's Lucky Spit"). Leftovers vanish after 60 s.
-  - *Golden Hour* (weight 1, global): held nodes pay double for 60 s.
+  - Arena v3 (feat/arena-v3): the event list, weights, the announcement countdown and Frog Rain (now a troll event)
+    live in the **events** demo; this demo's buttons fire Emerald Surge / Supply Drop / Golden Hour.
 - **Lightning** (`lightning/on|off|toggle`, remembered across reloads): the V2 Lightning Rabbit. A glowing, burning,
   fast rabbit (100 HP, Regeneration V, fire resistance) spawns at the arena centre with a bolt and calls a bolt on itself
   every 60 ticks. If it leaves the arena box it is teleported back. Kill it for emeralds and a "Charred Rabbit's Foot";

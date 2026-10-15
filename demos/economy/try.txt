@@ -1,10 +1,10 @@
-Solo test of the M3 economy. Buttons: G > "Demo: Economy". Bank: right-click the vault on your team's gold pad.
-1. "Start match" (puts you on a team, 10 min prep). "+1000 coins": you slow down (weight). "Go to my bank", right-click the vault.
-2. Bank dialog: purse + team bank + interest line. Move the Deposit slider, press Deposit; then "Deposit all". The dialog reopens with new balances.
-3. Withdraw slider + "Withdraw all": coins go back to your purse. No op prompt on any button.
-4. "Fast-forward interest": chat line "Bank interest +N coins (2.0%)". The real loop pays every 60 s (Admin: Economy changes rate/period/cap).
-5. "Go to the enemy bank", right-click its vault: refused. "Stop match", then the vault: refused (bank only works in prep/battle).
-6. "Simulate a kill" with victim profile 0/0: actionbar "+10 kill". Cycle "Victim profile" to 3/1 and 6/3: bounty + tier bonus, chat line "ended Dummy's 6-kill streak".
-7. Three simulated kills in a row: chat "you are on a 3-kill streak! Bounty: 30". "Kill me": streak ends, purse drops as a coin bag, bank keeps its coins.
-8. "Enemy dummy", kill it with a sword ("Diamond gear"): same reward path as a real kill of a dummy.
-Feedback: slider feel with big amounts, reward sizes, interest rate/period, whether anyone on the team should be able to withdraw everything.
+Economy v3 + bank v4: ore yields, weight that eases over the match, bank pad, quick withdraw, interest every second. Buttons: G > "Demo: Economy".
+1. Yields: "Start match", "Ore wall + pickaxes". Mine with the plain pickaxe: coal 0.1, copper 0.2, iron 0.5, gold 1, redstone 2, lapis 4, diamond 3, emerald 5; stone/deepslate 0. Fractions add up (10 coal = 1 coin). "Status" shows the pending hundredths.
+2. Fortune: same ores with Fortune I / II / III = +40% / +80% / +120%. Silk Touch an ore, place it: it costs its Fortune III value (2.2x), so place + re-mine never profits.
+3. Weight: "+1000 coins" (-40% speed). "Match clock +5 min" a few times: the slow eases (at 30 min, 80 coins are free and each coin weighs a quarter). Earning a lot also eases it (team average income).
+4. Deposit: "+100 coins", "Go to my bank" (you land next to the pad), walk onto a gold plate: the whole purse goes in (subtitle, sounds, particles). Standing there does nothing more; step off and on to bank again. Your team gets a chat line + chime, the enemy team an actionbar "<Team> banked N" + a bell ("Switch my team" and step on again with coins to see the enemy side, or ask a second player).
+5. Withdraw: right-click the vault. Fixed buttons 10 | 50 / 100 | 200 / 500 | 1000 / Half | All; greyed when the bank holds less. The dialog stays open with the new balances, so clicking 100 three times takes 300. Teammates see "<you> took N" on their actionbar.
+6. Enemy bank: "Go to the enemy bank", step on a plate: the vault refuses (sound), nothing moves. Its vault refuses you too.
+7. Interest: every second, 1% of the bank at the match start, sliding up to 10% at minute 30, at most 20 coins a second. Sidebar (your team): Bank, Interest %, Income +N/s ("max" = capped). No sound. "Match clock +5 min" moves the rate (+1.5% per 5 min); "Interest: +60 s" pays a minute at once. Small banks still earn: fractions carry over ("Status").
+8. Altar: "Go to my altar". The Offerings icons on the hologram show iron/gold/diamond in their own colours.
+Feedback: interest speed (20/s cap reached at 2000 coins at the start, 200 at minute 30), deposit/enemy cues, withdraw buttons, sidebar look.

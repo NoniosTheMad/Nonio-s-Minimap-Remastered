@@ -8,11 +8,22 @@ scoreboard players operation #dt nx.arena *= #10 nx.arena
 # holograms and particles once per second (#half = 0)
 scoreboard players add #half nx.arena 1
 execute if score #half nx.arena matches 2.. run scoreboard players set #half nx.arena 0
+# nodes; the bonuses held right now are recounted on the way (generator/loop reads #regrow_<team>)
+function nonios:arena/bonus/zero
 execute as @e[type=marker,tag=nx.node] at @s run function nonios:arena/node/tick
-# events
+execute if score #half nx.arena matches 0 run function nonios:arena/bonus/second
+# events: announced first (countdown bossbar), then fired; timed ones count down on the same bar
 scoreboard players operation #ev_t nx.arena -= #dt nx.arena
 execute if score #ev_t nx.arena matches ..0 run function nonios:arena/event/random
+execute if score #ev_wait nx.arena matches 1.. run function nonios:arena/event/pending
+execute if score #ev_run nx.arena matches 1.. run function nonios:arena/event/running
 execute if score #golden_t nx.arena matches 1.. run function nonios:arena/event/golden_tick
 execute if score #frog_t nx.arena matches 1.. run function nonios:arena/event/frog_tick
+execute if score #bounty_t nx.arena matches 1.. run function nonios:arena/event/bounty_tick
+execute if score #grav_t nx.arena matches 1.. run function nonios:arena/event/gravity_tick
+# random-entry gates, regrowing core, centre generator
+execute if score #gon nx.arena matches 1 run function nonios:arena/gate/loop
+execute if score #core nx.arena matches 1 run function nonios:arena/core/loop
+execute if score #cgen nx.arena matches 1 run function nonios:arena/cgen/loop
 # lightning
 execute if score #lt_on nx.arena matches 1 run function nonios:arena/lightning/loop

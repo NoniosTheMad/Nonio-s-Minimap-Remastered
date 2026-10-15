@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:sequence",
+ "functions": [
+  {
+   "type": "minecraft:set_components",
+   "components": {
+    "minecraft:item_model": "minecraft:jack_o_lantern"
+   }
+  },
+  {
+   "type": "minecraft:set_custom_data",
+   "tag": {
+    "nx_hidden": false
+   }
+  }
+ ]
+}

@@ -1,0 +1,2 @@
+# purse too short: same layout as offer_show, "Open" greyed (no action) with the shortfall in its tooltip
+$dialog show @s {type:"minecraft:confirmation",title:{text:"The Emerald Dream",color:"green"},body:{type:"minecraft:plain_message",contents:[{text:"Open the portal for your team\n",color:"gray"},{text:"$(cost) coins",color:"gold"},{text:"   purse: $(coins)",color:"gray"}]},yes:{label:{text:"Open",color:"dark_gray"},tooltip:{text:"Need $(need) coins"}},no:{label:{text:"Not now"}},pause:false}

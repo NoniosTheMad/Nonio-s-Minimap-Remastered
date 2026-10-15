@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:sequence",
+ "functions": [
+  {
+   "type": "minecraft:set_components",
+   "components": {
+    "minecraft:item_model": "minecraft:air"
+   }
+  },
+  {
+   "type": "minecraft:set_custom_data",
+   "tag": {
+    "nx_hidden": true
+   }
+  }
+ ]
+}

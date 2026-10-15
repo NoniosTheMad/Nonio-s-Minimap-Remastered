@@ -1,1 +1,0 @@
-$data modify storage nonios:shop ui.d.body append value {type:"minecraft:plain_message",width:300,contents:[{text:"Balance: ",color:"gray"},{text:"$(bal)",color:"gold",bold:true},{text:" coins",color:"gold"}]}

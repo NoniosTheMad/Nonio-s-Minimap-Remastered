@@ -1,1 +1,0 @@
-$data modify storage nonios:bank ui.d.actions append value {label:[{text:"Deposit all ",color:"green"},{text:"($(p))",color:"yellow"}],tooltip:{text:"Put your whole purse in the team bank"},width:150,action:{type:"minecraft:run_command",command:"trigger nx.bankt set 2"}}

@@ -38,7 +38,7 @@
          "has_consume_particles": false
         },
         "minecraft:use_cooldown": {
-         "seconds": 6,
+         "seconds": 7,
          "cooldown_group": "nonios:frog_ribbit"
         },
         "minecraft:enchantments": {
@@ -48,7 +48,8 @@
         "minecraft:custom_data": {
          "nx_cls": "cracy_frog",
          "nx_item": "cracy_frog_tongue",
-         "nx_cls_item": true
+         "nx_cls_item": true,
+         "nx_gear": "weapon"
         },
         "minecraft:unbreakable": {},
         "minecraft:custom_name": {
@@ -66,12 +67,17 @@
           "text": ""
          },
          {
-          "text": "Hit: something random happens to someone",
+          "text": "Right-click: tongue (12 blocks), yanks up whoever it catches",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Right-click: RIBBIT (wind bursts all around)",
+          "text": "Shift + right-click: RIBBIT (wind bursts all around)",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Hit: something random happens to someone",
           "color": "dark_green",
           "italic": false
          },
@@ -93,7 +99,7 @@
        "type": "minecraft:set_components",
        "components": {
         "minecraft:use_cooldown": {
-         "seconds": 6,
+         "seconds": 7,
          "cooldown_group": "nonios:frog_ribbit_alt"
         }
        },

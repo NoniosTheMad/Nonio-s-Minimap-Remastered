@@ -5,6 +5,7 @@ execute if score @s nx.class matches 5 run return 1
 execute if score @s nx.class matches 6 run return 1
 execute if score @s nx.class matches 7 run return 1
 execute if score @s nx.class matches 8 run return 1
+execute if score @s nx.class matches 11 run return 1
 execute if score @s nx.class matches 1 run return 1
 execute if score @s nx.class matches 9 run return 1
 execute if score @s nx.class matches 10 run return 1

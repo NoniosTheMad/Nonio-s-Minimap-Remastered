@@ -1,0 +1,41 @@
+{
+ "criteria": {
+  "kill": {
+   "trigger": "minecraft:player_killed_entity",
+   "conditions": {
+    "player": {
+     "type": "minecraft:entity_scores",
+     "entity": "this",
+     "scores": {
+      "nx.class": {
+       "min": 11,
+       "max": 11
+      }
+     }
+    },
+    "entity": {
+     "type": "minecraft:any_of",
+     "terms": [
+      {
+       "type": "minecraft:entity_properties",
+       "entity": "this",
+       "predicate": {
+        "minecraft:entity_type": "minecraft:player"
+       }
+      },
+      {
+       "type": "minecraft:entity_properties",
+       "entity": "this",
+       "predicate": {
+        "minecraft:nbt": "{Tags:[\"nx.soul\"]}"
+       }
+      }
+     ]
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/champion/kill"
+ }
+}

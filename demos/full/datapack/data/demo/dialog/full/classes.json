@@ -1,0 +1,256 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Classes / Altar",
+  "color": "dark_purple"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Free classes, team level, altar",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "Reaper",
+    "color": "dark_gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 27"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (200 coins there)"
+   }
+  },
+  {
+   "label": {
+    "text": "Cracy Frog",
+    "color": "dark_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 28"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop's three questions"
+   }
+  },
+  {
+   "label": {
+    "text": "Warrior (basic)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 29"
+   },
+   "tooltip": {
+    "text": "Placeholder basic class: back on every respawn at the team level"
+   }
+  },
+  {
+   "label": {
+    "text": "Archer",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (50 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 35"
+   }
+  },
+  {
+   "label": {
+    "text": "Miner",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (80 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 36"
+   }
+  },
+  {
+   "label": {
+    "text": "Tank",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (100 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 37"
+   }
+  },
+  {
+   "label": {
+    "text": "Ninja",
+    "color": "dark_aqua"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (100 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 38"
+   }
+  },
+  {
+   "label": {
+    "text": "Berserker",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (120 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 39"
+   }
+  },
+  {
+   "label": {
+    "text": "Monster",
+    "color": "dark_green"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (1800 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 40"
+   }
+  },
+  {
+   "label": {
+    "text": "Balrog",
+    "color": "dark_red"
+   },
+   "tooltip": {
+    "text": "Free. Skips the shop (10000 coins there)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 41"
+   }
+  },
+  {
+   "label": {
+    "text": "Remove my class"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 30"
+   }
+  },
+  {
+   "label": {
+    "text": "Team class level +1",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 31"
+   },
+   "tooltip": {
+    "text": "Basic classes: level 1-3 (cycles), re-applied now"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset class cooldowns",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Flasks ready again (items re-given)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 44"
+   }
+  },
+  {
+   "label": {
+    "text": "Class status"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 34"
+   },
+   "tooltip": {
+    "text": "Class, kill tier, basic class, team level, purse, debt"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: my altar",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 58"
+   },
+   "tooltip": {
+    "text": "Right-click the respawn anchor during prep or battle"
+   }
+  },
+  {
+   "label": {
+    "text": "Offering blocks (next step)",
+    "color": "light_purple"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 56"
+   },
+   "tooltip": {
+    "text": "Exactly what your altar's next step needs"
+   }
+  },
+  {
+   "label": {
+    "text": "8 iron/gold + 2 diamond blocks"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 57"
+   },
+   "tooltip": {
+    "text": "A partial offering (V2's Kit I amounts)"
+   }
+  },
+  {
+   "label": {
+    "text": "Team status"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 62"
+   },
+   "tooltip": {
+    "text": "Team levels, altar payments, talisman settings"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

@@ -1,0 +1,1 @@
+$data modify storage nonios:shop ui.d.actions append value {label:[{type:"object",atlas:"$(atlas)",sprite:"$(sprite)"},{text:" ⟳ Again ",color:"$(ncol)"},{text:"$(pt)",color:"$(pcol)"}],tooltip:[{text:"Buy again: ",color:"gray"},{text:"$(label)$(qt)\n",color:"white"},{text:"$(tip)",color:"red"}],width:120,action:{type:"minecraft:run_command",command:"trigger nx.shop set 2"}}

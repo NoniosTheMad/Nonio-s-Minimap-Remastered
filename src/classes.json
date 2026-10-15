@@ -7,6 +7,7 @@
     "items: slot = armor.head|armor.chest|armor.legs|armor.feet|weapon.offhand (equipped, old item returned to you)",
     "       or 'supply' (shop classes: a plain kit consumable given once on apply, no class tags: blocks, food, spare tools, starting arrows).",
     "       or 'inventory' (given; must stay with the owner: dropped copies are deleted and it comes back).",
+    "       gear = hotbar convention override for plain bases (weapon|bow|pickaxe|bucket|tool|none -> custom_data nx_gear, nonios:gear/category).",
     "       components = raw 26.3 item components (JSON form). name/lore are text components; custom_data and the",
     "       class tags are added by the generator. Vanilla look via item_model until we have textures.",
     "lost_msg: shop classes only, shown on death. vision: post effects (resource pack) in stacking order; added on apply, removed on death / class change, re-added on rejoin.",
@@ -760,14 +761,17 @@
         "sprite": "minecraft:item/stone_axe"
       },
       "lost_msg": "The fury burned out.",
-      "blurb": "A battle axe that hits like a truck and makes you fast, unshakeable and regenerating. While it is out your armour counts for nothing.",
+      "blurb": "A light axe that swings very fast. While it is out: Resistance IV, no armour, unshakeable, every hit steals life, and the lower your health the harder you hit. Food never heals you.",
       "vision": [],
       "hooks": [
+        "tick",
         "second",
         "on_strip"
       ],
       "clear_effects": [
-        "minecraft:regeneration"
+        "minecraft:resistance",
+        "minecraft:strength",
+        "minecraft:hunger"
       ],
       "items": {
         "axe": {
@@ -787,14 +791,24 @@
               "text": ""
             },
             {
-              "text": "In hand: armour 0, fast, no knockback, regenerating",
+              "text": "In hand: Resistance IV, armour 0, no knockback, very fast swings",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Hit: steal life. Hurt: hit harder (75/50/25% health)",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Food never heals a Berserker",
               "color": "dark_green",
               "italic": false
             }
           ],
           "components": {
             "minecraft:enchantments": {
-              "minecraft:sharpness": 2
+              "nonios:class/berserk_lust": 1
             },
             "minecraft:weapon": {
               "item_damage_per_attack": 0
@@ -803,14 +817,14 @@
               {
                 "type": "minecraft:attack_damage",
                 "id": "minecraft:base_attack_damage",
-                "amount": 10,
+                "amount": 2,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
               {
                 "type": "minecraft:attack_speed",
                 "id": "minecraft:base_attack_speed",
-                "amount": -3.1,
+                "amount": 4.0,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
@@ -846,6 +860,162 @@
           }
         }
       },
+      "enchantments": {
+        "berserk_lust": {
+          "description": {
+            "text": "Bloodlust",
+            "color": "red"
+          },
+          "supported_items": "minecraft:stone_axe",
+          "weight": 1,
+          "max_level": 1,
+          "anvil_cost": 1,
+          "min_cost": {
+            "base": 1,
+            "per_level_above_first": 0
+          },
+          "max_cost": {
+            "base": 1,
+            "per_level_above_first": 0
+          },
+          "slots": [
+            "mainhand"
+          ],
+          "effects": {
+            "minecraft:post_attack": [
+              {
+                "enchanted": "attacker",
+                "affected": "attacker",
+                "effect": {
+                  "type": "minecraft:run_function",
+                  "function": "nonios:class/berserker/lifesteal"
+                },
+                "requirements": {
+                  "type": "minecraft:damage_source_properties",
+                  "predicate": {
+                    "is_direct": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "champion": {
+      "num": 11,
+      "tier": "shop",
+      "name": {
+        "text": "Champion",
+        "color": "yellow"
+      },
+      "price": 150,
+      "kill_tier": 1,
+      "shop": {
+        "sprite": "minecraft:item/golden_helmet"
+      },
+      "lost_msg": "Undefeated no more.",
+      "blurb": "Grows with every player it kills while undefeated: a heart and some damage per kill, up to 5. From 3 kills everyone sees it, and whoever brings it down takes the bounty. Iron locked on, golden crown.",
+      "vision": [],
+      "hooks": [
+        "on_apply",
+        "on_strip",
+        "second"
+      ],
+      "clear_effects": [
+        "minecraft:glowing"
+      ],
+      "items": {
+        "head": {
+          "slot": "armor.head",
+          "id": "minecraft:golden_helmet",
+          "name": {
+            "text": "Champion's Crown",
+            "color": "yellow"
+          },
+          "lore": [
+            {
+              "text": "Heavy is the head",
+              "color": "gray",
+              "italic": true
+            }
+          ],
+          "components": {
+            "minecraft:attribute_modifiers": [
+              {
+                "type": "minecraft:armor",
+                "id": "nonios:champ_crown",
+                "amount": 2,
+                "operation": "add_value",
+                "slot": "head"
+              }
+            ]
+          }
+        },
+        "chest": {
+          "slot": "armor.chest",
+          "id": "minecraft:iron_chestplate"
+        },
+        "legs": {
+          "slot": "armor.legs",
+          "id": "minecraft:iron_leggings"
+        },
+        "feet": {
+          "slot": "armor.feet",
+          "id": "minecraft:iron_boots"
+        },
+        "sword": {
+          "slot": "inventory",
+          "id": "minecraft:iron_sword",
+          "name": {
+            "text": "Champion's Blade",
+            "color": "yellow"
+          },
+          "lore": [
+            {
+              "text": "Every victory makes it heavier",
+              "color": "gray",
+              "italic": true
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": "Player kill: +1 heart, +0.5 damage (max 5)",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "3+ kills: you glow, your killer takes the bounty",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Die once and it is over",
+              "color": "dark_green",
+              "italic": false
+            }
+          ]
+        },
+        "pickaxe": {
+          "slot": "supply",
+          "id": "minecraft:stone_pickaxe"
+        },
+        "axe": {
+          "slot": "supply",
+          "id": "minecraft:stone_axe"
+        },
+        "cobblestone": {
+          "slot": "supply",
+          "id": "minecraft:cobblestone",
+          "count": 16
+        },
+        "beef": {
+          "slot": "supply",
+          "id": "minecraft:cooked_beef",
+          "count": 8
+        }
+      },
       "enchantments": {}
     },
     "reaper": {
@@ -861,17 +1031,20 @@
         "sprite": "minecraft:item/netherite_hoe"
       },
       "lost_msg": "Death came for the Reaper. Ironic.",
-      "blurb": "Glass cannon. Scythe heals you on hit, kills give souls and a few seconds of invisibility, right-click releases the souls as a burst. 5 hearts, armour locked.",
+      "blurb": "Glass cannon that flies. Scythe heals you and slows on hit, kills give souls, 4 s of invisibility and 8 s untouchable, right-click releases the souls as a burst. 5 hearts, armour locked.",
       "vision": [
         "nonios:reaper"
       ],
       "hooks": [
         "on_apply",
-        "on_strip"
+        "on_strip",
+        "tick"
       ],
       "clear_effects": [
         "minecraft:invisibility",
-        "minecraft:speed"
+        "minecraft:speed",
+        "minecraft:resistance",
+        "minecraft:slow_falling"
       ],
       "items": {
         "head": {
@@ -904,6 +1077,13 @@
                 "type": "minecraft:armor",
                 "id": "nonios:reaper_head_armor",
                 "amount": 6,
+                "operation": "add_value",
+                "slot": "head"
+              },
+              {
+                "type": "minecraft:fall_damage_multiplier",
+                "id": "nonios:reaper_no_fall",
+                "amount": -1,
                 "operation": "add_value",
                 "slot": "head"
               }
@@ -979,6 +1159,7 @@
         },
         "scythe": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:stick",
           "name": {
             "text": "Reaper's Scyce",
@@ -994,12 +1175,12 @@
               "text": ""
             },
             {
-              "text": "Hit: steal 2 hearts (once per swing)",
+              "text": "Hit: steal 2 hearts, slow (once per swing)",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Kill: +1 soul (max 5), 4s invisible",
+              "text": "Kill: +1 soul (max 5), 4s invisible, 8s untouchable",
               "color": "dark_green",
               "italic": false
             },
@@ -1056,10 +1237,13 @@
               "can_sprint": true,
               "speed_multiplier": 1.0
             },
+            "minecraft:custom_data": {
+              "nx_state": "dormant"
+            },
+            "minecraft:enchantment_glint_override": false,
             "minecraft:consumable": {
-              "consume_seconds": 0.5,
-              "animation": "bow",
-              "sound": "minecraft:entity.vex.charge",
+              "consume_seconds": 3600,
+              "animation": "none",
               "has_consume_particles": false
             },
             "minecraft:use_cooldown": {
@@ -1322,6 +1506,7 @@
         },
         "claws": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:flint",
           "name": {
             "text": "Monstruous Claws",
@@ -1583,6 +1768,7 @@
         },
         "whip": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:blaze_rod",
           "name": {
             "text": "Balrog's Whip",
@@ -1689,7 +1875,7 @@
         "confirm": "nonios:class/cracy_frog/ask_step {step:1}"
       },
       "lost_msg": "The frog croaked. #Useful",
-      "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that sends things anywhere. Leather armour locked on, and the world never stops melting.",
+      "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that drags people into the sky and lets them drop. Leather armour locked on, and the world never stops melting.",
       "vision": [
         "nonios:rainbow",
         "nonios:acid"
@@ -1807,6 +1993,7 @@
         },
         "broom": {
           "slot": "inventory",
+          "gear": "tool",
           "id": "minecraft:stick",
           "name": {
             "text": "Magic Broom",
@@ -1852,6 +2039,7 @@
         },
         "tongue": {
           "slot": "inventory",
+          "gear": "weapon",
           "id": "minecraft:slime_ball",
           "name": {
             "text": "Frog Tongue",
@@ -1867,12 +2055,17 @@
               "text": ""
             },
             {
-              "text": "Hit: something random happens to someone",
+              "text": "Right-click: tongue (12 blocks), yanks up whoever it catches",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Right-click: RIBBIT (wind bursts all around)",
+              "text": "Shift + right-click: RIBBIT (wind bursts all around)",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Hit: something random happens to someone",
               "color": "dark_green",
               "italic": false
             }
@@ -1906,7 +2099,7 @@
               "has_consume_particles": false
             },
             "minecraft:use_cooldown": {
-              "seconds": 6,
+              "seconds": 7,
               "cooldown_group": "nonios:frog_ribbit"
             },
             "minecraft:enchantments": {
@@ -1949,6 +2142,53 @@
                 "attribute": "minecraft:safe_fall_distance",
                 "amount": 12,
                 "operation": "add_value"
+              }
+            ],
+            "minecraft:tick": [
+              {
+                "effect": {
+                  "type": "minecraft:all_of",
+                  "effects": [
+                    {
+                      "type": "minecraft:apply_impulse",
+                      "direction": [
+                        0.0,
+                        0.0,
+                        -1.0
+                      ],
+                      "coordinate_scale": [
+                        1.0,
+                        0.0,
+                        1.0
+                      ],
+                      "magnitude": 1.3
+                    },
+                    {
+                      "type": "minecraft:apply_impulse",
+                      "direction": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ],
+                      "coordinate_scale": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ],
+                      "magnitude": 0.75
+                    }
+                  ]
+                },
+                "requirements": {
+                  "type": "minecraft:entity_scores",
+                  "entity": "this",
+                  "scores": {
+                    "nx.cls_leap": {
+                      "min": 1,
+                      "max": 1
+                    }
+                  }
+                }
               }
             ]
           }

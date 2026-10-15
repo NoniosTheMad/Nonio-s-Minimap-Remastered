@@ -33,7 +33,8 @@
         "minecraft:custom_data": {
          "nx_cls": "monster",
          "nx_item": "monster_claws",
-         "nx_cls_item": true
+         "nx_cls_item": true,
+         "nx_gear": "weapon"
         },
         "minecraft:enchantments": {
          "minecraft:vanishing_curse": 1

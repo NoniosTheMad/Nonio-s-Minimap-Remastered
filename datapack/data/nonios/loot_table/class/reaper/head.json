@@ -27,6 +27,13 @@
           "amount": 6,
           "operation": "add_value",
           "slot": "head"
+         },
+         {
+          "type": "minecraft:fall_damage_multiplier",
+          "id": "nonios:reaper_no_fall",
+          "amount": -1,
+          "operation": "add_value",
+          "slot": "head"
          }
         ],
         "minecraft:enchantments": {

@@ -1,7 +1,7 @@
 You are in survival with an Efficiency V pickaxe, a Silk Touch pickaxe and a sword. Actionbar = your purse.
-1. Mine the stone block east of spawn (ores inside and on the face): each ore adds coins (coal 3, iron 5, diamond 20...; stone/deepslate earn nothing). Actionbar shows Coins N and Weight -X% speed.
+1. Mine the stone block east of spawn (ores inside and on the face): each ore adds coins (coal 0.1, iron 0.5, diamond 3...: fractions add up; stone/deepslate earn nothing; newer test: server econ3). Actionbar shows Coins N and Weight -X% speed.
 2. G > "Demo: Coin Purse" > +300 coins: you walk 28% slower (first 20 coins are free, max 40%). "Weight 0.5%/coin" exaggerates it; "Empty purse" = full speed again.
-3. Anti-farm: silk-touch an ore, place it (coins go down by its value), mine it again (back up). Net zero.
+3. Anti-farm: silk-touch an ore, place it (costs its Fortune III value), mine it again: never a profit.
 4. Killer transfer, solo: get some coins, menu > Spawn Purse Thief (husk with a sword, north). Let it kill you
    (or let it hit you once and type /kill within 5 s). Chat: "Purse Thief took your purse"; its name shows the coins.
    Kill the thief: it drops a glowing gold nugget "N coins" bag; walk over it to get them back.

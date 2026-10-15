@@ -1,7 +1,7 @@
 # as + at a held node marker whose payout timer ran out
 scoreboard players operation @s nx.ar_t += @s nx.ar_iv
 execute if score @s nx.ar_t matches ..0 run scoreboard players operation @s nx.ar_t = @s nx.ar_iv
-data modify storage nonios:arena payout set value {team:"white"}
+data modify storage nonios:arena payout set value {team:"white",loot:""}
 execute if score @s nx.ar_own matches 2 run data modify storage nonios:arena payout.team set value "black"
 data modify storage nonios:arena payout.node set from entity @s data.id
 data modify storage nonios:arena payout.name set from entity @s data.name
@@ -19,8 +19,9 @@ execute store result storage nonios:arena payout.rolls int 1 run scoreboard play
 execute store result score #c nx.arena run data get entity @s data.coins
 scoreboard players operation #c nx.arena *= #mult nx.arena
 execute store result storage nonios:arena payout.coins int 1 run scoreboard players get #c nx.arena
-# hook first; default = drop the loot at the node
+# hook first; then the node's bonus; loot only for nodes that have one
 scoreboard players set #handled nx.arena 0
 function #nonios:arena/on_node_payout
-execute if score #handled nx.arena matches 0 run function nonios:arena/node/drop
+execute if data entity @s data{bonus:"interest"} run function nonios:arena/bonus/interest with storage nonios:arena payout
+execute if score #handled nx.arena matches 0 unless data storage nonios:arena payout{loot:""} run function nonios:arena/node/drop
 scoreboard players add #payouts nx.arena 1

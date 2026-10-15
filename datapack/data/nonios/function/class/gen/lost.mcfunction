@@ -5,6 +5,7 @@ execute if score @s nx.class matches 5 run return run tellraw @s [{"text":"☠ "
 execute if score @s nx.class matches 6 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Tank","color":"dark_aqua"},{"text":" is gone: Even iron rusts.","color":"gray"}]
 execute if score @s nx.class matches 7 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Ninja","color":"aqua"},{"text":" is gone: Your Naruto powers vanish.","color":"gray"}]
 execute if score @s nx.class matches 8 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Berserker","color":"red"},{"text":" is gone: The fury burned out.","color":"gray"}]
+execute if score @s nx.class matches 11 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Champion","color":"yellow"},{"text":" is gone: Undefeated no more.","color":"gray"}]
 execute if score @s nx.class matches 1 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Reaper","color":"dark_gray"},{"text":" is gone: Death came for the Reaper. Ironic.","color":"gray"}]
 execute if score @s nx.class matches 9 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Monster","color":"dark_red"},{"text":" is gone: Something bigger ate the Monster.","color":"gray"}]
 execute if score @s nx.class matches 10 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Balrog","color":"gold"},{"text":" is gone: The shadow is gone. For now.","color":"gray"}]

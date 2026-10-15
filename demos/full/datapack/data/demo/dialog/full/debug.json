@@ -1,0 +1,120 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Debug",
+  "color": "yellow"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Mobs, gear, inventory",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "Target dummies (3)",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Three still enemy husks in a row, 5 blocks ahead"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 42"
+   }
+  },
+  {
+   "label": {
+    "text": "Mob wave",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Husks, vindicators and a pillager on the enemy team, 8 blocks ahead (they fight back)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 43"
+   }
+  },
+  {
+   "label": {
+    "text": "Enemy dummy (still)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "2 enemy raiders"
+   },
+   "tooltip": {
+    "text": "Husks that attack you (one with a sword)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Clear mobs",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Kills every demo dummy and wave mob"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 45"
+   }
+  },
+  {
+   "label": {
+    "text": "Diamond gear"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 14"
+   }
+  },
+  {
+   "label": {
+    "text": "Clear inventory",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 55"
+   },
+   "tooltip": {
+    "text": "Empties inventory, armour and off-hand"
+   }
+  },
+  {
+   "label": {
+    "text": "Kill me"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 11"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

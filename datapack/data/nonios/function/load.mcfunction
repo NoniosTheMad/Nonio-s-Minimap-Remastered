@@ -12,3 +12,6 @@ function nonios:dream/load
 function nonios:arena/load
 function nonios:portal/load
 function nonios:class/load
+function nonios:altar/load
+function nonios:guard/load
+function nonios:talisman/load

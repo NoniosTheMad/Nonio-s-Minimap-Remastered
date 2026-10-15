@@ -23,7 +23,8 @@ execute unless score @s nx.ar_st = #code nx.arena run function nonios:arena/node
 scoreboard players operation #abs nx.arena = @s nx.ar_cap
 execute if score #abs nx.arena matches ..-1 run scoreboard players operation #abs nx.arena *= #-1 nx.arena
 function nonios:arena/node/bar with entity @s data
-# 5) payout
+# 5) held: count the bonus, payout timer
+execute if score @s nx.ar_own matches 1.. if data entity @s data.bonus run function nonios:arena/node/tally with entity @s data
 execute if score @s nx.ar_own matches 1.. run function nonios:arena/node/payout_timer
-# 6) once a second: hologram + particles
+# 6) once a second: hologram, indicator, particles
 execute if score #half nx.arena matches 0 run function nonios:arena/node/second

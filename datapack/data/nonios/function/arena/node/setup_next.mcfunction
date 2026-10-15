@@ -1,11 +1,13 @@
 # Recursive: build the node at tmp.nodes[0] (defaults from config, then the node's own fields), then the rest.
 execute unless data storage nonios:arena tmp.nodes[0] run return 0
-data modify storage nonios:arena n set value {r:2,h:3}
+data modify storage nonios:arena n set value {r:2,h:3,btxt:""}
+data modify storage nonios:arena n.bonus set from storage nonios:arena config.bonus
 data modify storage nonios:arena n.loot set from storage nonios:arena config.loot
 data modify storage nonios:arena n.every set from storage nonios:arena config.payout_every
 data modify storage nonios:arena n.coins set from storage nonios:arena config.coins
 data modify storage nonios:arena n.ind set from storage nonios:arena config.indicator_dy
 data modify storage nonios:arena n merge from storage nonios:arena tmp.nodes[0]
+function nonios:arena/node/btxt with storage nonios:arena n
 # zone box: x0 = x - r, z0 = z - r, dx = dz = 2r, dy = h - 1 (selector boxes span d + 1 blocks); hologram at y + h
 execute store result score #x nx.arena run data get storage nonios:arena n.x
 execute store result score #z nx.arena run data get storage nonios:arena n.z

@@ -1,0 +1,7 @@
+The V2 shop: every V2 item at V2 prices, on pages with the Shop Keeper's V2 lines. Buttons: G > "Demo: V2 shop".
+1. "+10000 coins", then "Open shop (anywhere)": the first page lists Blocks, Ores, Food, Utility, Enchanting, Tools, Alchemy, Ammo, Classes.
+2. Buy a few things per page; check the Shop Keeper line, icons, prices, and that the dialog stays on the page after a purchase.
+3. Tools: Tinkiwinki's Touch, Nonios's Weakness (chat line), Satan's Blade. Ammo: the 6 tipped arrows. Alchemy: Faker's Elixir, Mining Boost. Utility: Fireworks (Farting device). Check names, lore, effects.
+4. Enchanting: hold a pickaxe / sword / bow and buy an enchant. Wrong item or empty hand = refused, no coins taken.
+5. Fill your inventory and buy an item: refused, no coins taken. "Clear inventory" to start over.
+Feedback: prices, page order, names, anything that looks off next to V2.

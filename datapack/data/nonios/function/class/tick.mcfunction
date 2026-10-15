@@ -2,6 +2,9 @@
 execute as @a[scores={nx.cls_left=1..}] run function nonios:class/rejoin
 execute as @e[type=player,scores={nx.cls_restock=1..}] at @s run function nonios:class/restock
 function nonios:class/gen/tick
+# Cracy Frog tongue victims (any class): fall damage on landing, then 3 s of immunity
+execute as @e[type=player,tag=nx.frog_yanked] at @s run function nonios:class/cracy_frog/yanked_tick
+execute as @e[type=player,tag=nx.frog_immune] run function nonios:class/cracy_frog/immune_tick
 # Balrog trails outlive their Balrog (4.5 s)
 execute as @e[type=marker,tag=nx.bal_trail] at @s run function nonios:class/balrog/trail
 execute as @a[scores={nx.cls_ask=1..}] at @s run function nonios:class/cracy_frog/ask

@@ -4,12 +4,12 @@ function nonios:class/strip
 scoreboard players set @s nx.class 4
 function nonios:class/gen/archer/equip
 # kit supplies (plain items, given once)
-loot give @s loot nonios:class/archer/arrows
-loot give @s loot nonios:class/archer/pickaxe
-loot give @s loot nonios:class/archer/axe
-loot give @s loot nonios:class/archer/shovel
-loot give @s loot nonios:class/archer/sandstone
-loot give @s loot nonios:class/archer/carrots
+function nonios:gear/loot {table:"nonios:class/archer/arrows"}
+function nonios:gear/loot {table:"nonios:class/archer/pickaxe"}
+function nonios:gear/loot {table:"nonios:class/archer/axe"}
+function nonios:gear/loot {table:"nonios:class/archer/shovel"}
+function nonios:gear/loot {table:"nonios:class/archer/sandstone"}
+function nonios:gear/loot {table:"nonios:class/archer/carrots"}
 scoreboard players set @s nx.tier 0
 function nonios:class/gen/archer/vision
 tellraw @s [{"text":"✦ You are now an ","color":"gray"},{"text":"Archer","color":"green"},{"text":" (lost on death)","color":"dark_gray"}]

@@ -1,0 +1,107 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Voxel: ruined tower",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 260,
+    "contents": {
+      "text": "Built from scenes/ruined_tower.py",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "West meadow"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 1"
+      },
+      "tooltip": {
+        "text": "spawn_white view"
+      }
+    },
+    {
+      "label": {
+        "text": "North-east"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 2"
+      },
+      "tooltip": {
+        "text": "spawn_black view"
+      }
+    },
+    {
+      "label": {
+        "text": "Stair path"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 3"
+      },
+      "tooltip": {
+        "text": "cam_path view"
+      }
+    },
+    {
+      "label": {
+        "text": "Inside tower"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 4"
+      },
+      "tooltip": {
+        "text": "Ground floor"
+      }
+    },
+    {
+      "label": {
+        "text": "Creative"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 5"
+      },
+      "tooltip": {
+        "text": "Edit blocks; the agent can pull + diff your edits"
+      }
+    },
+    {
+      "label": {
+        "text": "Survival"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 6"
+      },
+      "tooltip": {
+        "text": "Back to survival"
+      }
+    },
+    {
+      "label": {
+        "text": "Spectator"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vx set 7"
+      },
+      "tooltip": {
+        "text": "Fly through walls"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "text": "Close"
+    }
+  }
+}

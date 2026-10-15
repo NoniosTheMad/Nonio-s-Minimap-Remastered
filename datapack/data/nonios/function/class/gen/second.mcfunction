@@ -4,5 +4,6 @@ execute as @e[type=player,scores={nx.class=4}] at @s run function nonios:class/a
 execute as @e[type=player,scores={nx.class=5}] at @s run function nonios:class/miner/second
 execute as @e[type=player,scores={nx.class=7}] at @s run function nonios:class/ninja/second
 execute as @e[type=player,scores={nx.class=8}] at @s run function nonios:class/berserker/second
+execute as @e[type=player,scores={nx.class=11}] at @s run function nonios:class/champion/second
 execute as @e[type=player,scores={nx.class=9}] at @s run function nonios:class/monster/second
 execute as @e[type=player,scores={nx.class=10}] at @s run function nonios:class/balrog/second

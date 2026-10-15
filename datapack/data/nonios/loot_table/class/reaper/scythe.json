@@ -56,10 +56,17 @@
          "can_sprint": true,
          "speed_multiplier": 1.0
         },
+        "minecraft:custom_data": {
+         "nx_state": "dormant",
+         "nx_cls": "reaper",
+         "nx_item": "reaper_scythe",
+         "nx_cls_item": true,
+         "nx_gear": "weapon"
+        },
+        "minecraft:enchantment_glint_override": false,
         "minecraft:consumable": {
-         "consume_seconds": 0.5,
-         "animation": "bow",
-         "sound": "minecraft:entity.vex.charge",
+         "consume_seconds": 3600,
+         "animation": "none",
          "has_consume_particles": false
         },
         "minecraft:use_cooldown": {
@@ -70,11 +77,6 @@
          "nonios:class/reaper_scythe": 1,
          "minecraft:fire_aspect": 1,
          "minecraft:vanishing_curse": 1
-        },
-        "minecraft:custom_data": {
-         "nx_cls": "reaper",
-         "nx_item": "reaper_scythe",
-         "nx_cls_item": true
         },
         "minecraft:unbreakable": {},
         "minecraft:custom_name": {
@@ -92,12 +94,12 @@
           "text": ""
          },
          {
-          "text": "Hit: steal 2 hearts (once per swing)",
+          "text": "Hit: steal 2 hearts, slow (once per swing)",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Kill: +1 soul (max 5), 4s invisible",
+          "text": "Kill: +1 soul (max 5), 4s invisible, 8s untouchable",
           "color": "dark_green",
           "italic": false
          },

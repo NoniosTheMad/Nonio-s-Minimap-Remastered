@@ -1,0 +1,245 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Demo: Arena gates + core",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 320,
+    "contents": {
+      "text": "V2 arena portals and regrowing centre block. Both only run during the battle. Real controls: G > Nonios's Map.",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "Start + battle now",
+        "color": "green"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 2"
+      },
+      "tooltip": {
+        "text": "Joins a team if needed, skips the preparation"
+      }
+    },
+    {
+      "label": {
+        "text": "Start match"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 1"
+      },
+      "tooltip": {
+        "text": "Normal start (preparation first)"
+      }
+    },
+    {
+      "label": {
+        "text": "Skip phase",
+        "color": "yellow"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 3"
+      },
+      "tooltip": {
+        "text": "Prep -> Battle -> (draw) End -> Lobby"
+      }
+    },
+    {
+      "label": {
+        "text": "Stop match",
+        "color": "red"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 4"
+      }
+    },
+    {
+      "label": {
+        "text": "Switch my team"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 5"
+      }
+    },
+    {
+      "label": {
+        "text": "Pickaxe + axe"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 6"
+      }
+    },
+    {
+      "label": {
+        "text": "Time x10 (toggle)"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 7"
+      },
+      "tooltip": {
+        "text": "Gate rotation, core regrow delay, payouts, events, generators"
+      }
+    },
+    {
+      "label": {
+        "text": "Prep time 20 s"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 19"
+      }
+    },
+    {
+      "label": {
+        "text": "TP: my gate",
+        "color": "light_purple"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 8"
+      },
+      "tooltip": {
+        "text": "Stand on your team's gate pad"
+      }
+    },
+    {
+      "label": {
+        "text": "TP: active exit",
+        "color": "light_purple"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 9"
+      },
+      "tooltip": {
+        "text": "Stand in the exit of the active slot"
+      }
+    },
+    {
+      "label": {
+        "text": "Re-roll gate slot",
+        "color": "light_purple"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 10"
+      },
+      "tooltip": {
+        "text": "Pick a new active slot now"
+      }
+    },
+    {
+      "label": {
+        "text": "Gate status",
+        "color": "light_purple"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 11"
+      },
+      "tooltip": {
+        "text": "Open, active slot, landing/exit, next roll, uses"
+      }
+    },
+    {
+      "label": {
+        "text": "TP: core",
+        "color": "aqua"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 12"
+      },
+      "tooltip": {
+        "text": "Next to the centre block"
+      }
+    },
+    {
+      "label": {
+        "text": "Break the core",
+        "color": "aqua"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 13"
+      },
+      "tooltip": {
+        "text": "Empty it as if mined (no drop)"
+      }
+    },
+    {
+      "label": {
+        "text": "Core: 810 rolls",
+        "color": "aqua"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 14"
+      },
+      "tooltip": {
+        "text": "Roll without placing; counts vs V2 odds"
+      }
+    },
+    {
+      "label": {
+        "text": "Core status",
+        "color": "aqua"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 15"
+      }
+    },
+    {
+      "label": {
+        "text": "TP: arena (overview)"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 20"
+      }
+    },
+    {
+      "label": {
+        "text": "Full arena status"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 16"
+      },
+      "tooltip": {
+        "text": "Nodes, gates, core"
+      }
+    },
+    {
+      "label": {
+        "text": "Rebuild map"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 17"
+      }
+    },
+    {
+      "label": {
+        "text": "Admin panel"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ar2 set 18"
+      }
+    }
+  ]
+}

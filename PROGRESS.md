@@ -89,3 +89,100 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 ## Backlog ideas (user feedback, not commitments)
 - Healer-class vision shader (M5): HP visualization (infrared-like), hearts >20 glow (log-scaled)
 - RTX-like shaders (M5): advanced ray tracing effects (reference: https://www.youtube.com/watch?v=AdTxrggo8e8)
+
+## Integration smoke test of main (6db932a, server `full`, demo `full`)
+- [x] Clean load (no function/loot/advancement/tag errors), check_server trigger lint clean (demos m5-classes, m4-match, arena2, classes2, full).
+- [x] `nonios:load` / `nonios:tick` call each module once (10 loads; 10 ticks + `death`); no objective criteria clashes (126 objectives, 128 referenced, none undefined);
+  triggers unique (nx.team, nx.admin, nx.shop, nx.bankt/d/w, nx.genup, nx.portal_t, nx.cls_ask); generated class/generator files match their sources.
+- [x] RCON lifecycle with test husks (temporary `integ` pack in the server world, not in git): lobby -> prep -> battle -> end -> lobby, plus skip in every
+  phase, stop in battle, a second match, /reload mid-battle. Generators tick only in prep/battle; interest pays only in prep/battle; walls up in prep,
+  down in battle; arena loop, gates (`#gon`) and core regrowth only in battle; nexus shields/cores spawned at start and removed in the lobby;
+  Dream portals locked again at start. Fixed: the end phase showed the battle clock for its first second (`game/end/begin`).
+- Not RCON-testable (need a real player): class apply/strip on death, Dream force-exit, gate teleports, kill rewards on a player kill.
+- Test trick: `tick sprint N` runs ticks on an empty, paused server (pause-when-empty), so lifecycle tests don't need a player online.
+- `demos/full` = classes2 buttons + arena2 gate/core buttons (46-52): one demo for everything on main.
+- V2 gap inventory: `docs/v2-gap-inventory.md` (built / partly / missing, autonomous vs needs user).
+
+## Shop Special page + integration smoke test #2 (main, server `full`)
+- [x] Shop page 10 "Special" (V2 page 11, line + prices from the V2 world): Emerald Talisman 200, Tinkiwinki's Touch 200, Nonios's Weakness 500,
+  Monster Skull 1800 (= the Monster class, price from src/classes.json, kept off the Classes page), Satan's Blade 2000, Dragon Skull [Disabled] 3200.
+  src/shop.json references: `{same: v2}`, `{special: id}` (src/specials.json -> `shop/buy_special`), `{class: id, name, v2}`. "Destroy Magical barriers" not ported (open question).
+- [x] Static: load 13 modules / tick 11, each once; 129 objectives, no criteria clash; triggers unique (same 9); no undefined objectives; clean log.
+- [x] RCON lifecycle (tick sprint, husks; temp `integ` pack in the `full` world, not in git): altar levels only in prep/battle, enemy clicks ignored,
+  silent in lobby/end; altar paid reset at start; guard + talisman counters run only in prep/battle; shop pages build (Special 6 + Back, Classes without
+  Monster Skull), talisman/dragon/monster buy paths (broke, ok, already, 3.2M joke). /reload mid-battle fine.
+- Fixed: lobby altars showed the last match's kit level (levels now back to 1 in `game/to_lobby`); `nx.shop_sec` carried over between matches (`game/lobby_player`).
+- Note: a world built before team-v2 has no altar entities until `map/build` (admin Rebuild / next lobby return). `full` was rebuilt.
+- `demos/full`: + shop2 buttons 53-55, team2 buttons 56-64 (team2's 53-61 shifted by 3).
+
+## Economy v3 (`feat/econ-v3`, server `econ3`, demo `economy`; feedback #35 #36 #41)
+- [x] Yields (#36): `src/yields.json` -> `tools/build_yields.py` -> `purse/gen/{yields,check}`. Coal 0.1, copper 0.2, iron 0.5, gold 1, redstone 2,
+  lapis 4, diamond 3, emerald 5 (nether gold 0.5, emerald block 20: my picks); stone/deepslate/cobble 0 both ways. Hundredths kept in `nx.pfrac`.
+  Fortune +40%/level (item predicate on the main hand). Placing a coin block costs its Fortune III value (2.2x) -> no silk/place/fortune profit; debt as before.
+- [x] Weight (#35): coins weighed at money scale S = min(max(100 + 10%/min, 100 + team avg earned / 5), 1000%); config `#w_grow #w_iref #w_smax nx.purse`.
+- [x] Interest (#41): rate 1.0% + 0.1%/min up to 5.0%, cap 50 + 10/min per payout (storage nonios:config interest_*). No chat: team sidebar
+  (Bank / Interest / Last payout (+"max") / Next in). Admin Economy page shows the growth terms.
+- [x] Bank dialog: fixed layout (2 sliders, 4 buttons always), greyed = dark_gray label, tooltip, no action. Altar hologram icons: list root was
+  "OFFERINGS" (light purple) and sprites inherit + are tinted by the colour -> plain "" root, sprites color white.
+- RCON-verified: yields/fortune/placement/debt maths on a husk, interest growth + schedule loop, sidebar storage, bank dialog both states, altar text, clean log.
+  Not verified in the client: sidebar look, greyed buttons, mining feel, altar icons.
+
+## Shop v3 + gear slots + bow vs Nexus (`feat/shop-v3`, server `shop3`, demo `shop3`; #32 #34 #37)
+- [x] Shop v3 (#32): categories/subcategories/pages from `src/shop.json` (build_shop.py, any size: stress build 452 items / 37 screens);
+  fixed 4x6 grid (nav row, quantity row x1/x8/x64/Stack, 16 slots), "Again" repeats the last purchase, unaffordable = grey + "Need Nc more",
+  partial buys when the bag is nearly full, body = purse + last result. Reopens where the player left it.
+- [x] Gear slots (#34): `gear/give` / `gear/loot` used by kits, respawn, classes (build_classes.py), shop, talisman, demo. CLAUDE.md "Gear slots".
+- [x] Bow vs Nexus (#37): arrows from enemy players near the core deal 20% of their damage (speed x damage x Power, x10 scale): full shot 11-12,
+  Power V ~29, a diamond sword hit is ~70.
+- mcdev lint: trigger check looks at all the server's packs together (a demo catalog uses the game's `nx.shop`).
+- RCON-verified (no player online, test armor stand + probes): dialog SNBT parses on every screen, nav/modes/grey/again, gear categories
+  of 17 items, probe copy + drop, arrow speed (2.92 b/t) and damage (Power V = 29 HP), clean log + lint.
+  Not verified with a real player: hotbar placement, partial fit, the dialog look at GUI scale 2.
+
+## Arena v3 (`feat/arena-v3`, servers `arena3` + `events`; #39 #40 #41 #42 #43)
+- [x] Field generators (#39): mineable, V2 odds per team/level (`src/generators.json` -> build_generators.py -> `generator/grow/<team>_lvlN`),
+  regrow 300/200/140 ticks (Lv 1/2/3), faster with more players (x(1+(n-1)/4)); coins only through the purse yields. Upgrade 200/500 from the purse
+  (compact dialog, greyed when poor / max). Lucky block (proposal, `#lucky_def` 0 = off): 1 in 15 regrowths, coins / item / trap.
+- [x] Centre generator: shared pot at `arena_cfg.cgen`, level and rolls from both banks B (Lv 1/2/3 at 0/1000/3000, rolls = min(5, 1 + B/1000),
+  every 10 s, pot caps 100/300/800, Golden Hour x3); items as well as coins (loot `arena/cgen_lvlN`). Click = collect.
+- [x] Node bonuses (#40): config `bonus` per node: West Haste in your field, Centre bank +0.5% (cap 10) per payout, East field generator regrows x1.5.
+  Node loot drops off by default (`loot:""`).
+- [x] Events (#42): announced (bossbar countdown `config.event_warn`, 30 s), then run. Emerald Surge, Supply Drop (falling loot chest), Golden Hour,
+  Bounty Hunt (kills inside the arena +50), Low Gravity, Frog Rain (troll, `config.trolls` 0b). Demo `events` (#41).
+- [x] Centre protection (#43): the arena's blocks are backed up at y -40 on setup; broken ones come back the same tick (`clone masked`), drops removed,
+  coin blocks pay nothing (`nx.mn.*` cancelled nearby); placed blocks stay; core + node indicators are holes.
+- RCON-verified (no player): grow/regrow, lucky grow + break, cgen pot scaling with banks, node bonus counters + interest, announce -> go,
+  every event, supply chest lands with its loot table, protection restore + drop removal, stop/reset, clean log + lint on both servers.
+  Not verified with a real player: mining feel, Haste, bounty kill, gravity, dialog look.
+
+## Bank v4 (`feat/bank-v4`, server `bank4`, demo `economy`; feedback #47)
+- [x] Interest every second (V2-like): rate slides 1% -> 10% over 30 match minutes (`interest_start` 100 / `interest_end` 1000 bp,
+  `interest_ramp` 1800 s), max `interest_cap_s` 20 coins/s; fractions carried per team (1/10000 coin), capped second drops the rest.
+  Paid from `economy/tick` (no schedule loop, no chime). Sidebar rows Bank / Interest / Income +N/s ("max"). Old config keys removed on load.
+- [x] Deposit on contact: 8 gold pressure plates around each vault (`map/gen/bank`); stepping on one (edge, tag `nx.bk.on`) banks the whole
+  purse (own team, prep/battle). Cues: depositor subtitle + vault/level-up sounds + particles; team chat + chime; enemy actionbar
+  "<Team> banked N" + bell. Enemy pad = vault reject sound. Deposit slider/trigger `nx.bankd` removed.
+- [x] Withdraw: vault dialog with fixed buttons 10 | 50 / 100 | 200 / 500 | 1000 / Half | All, greyed when the bank holds less; redraws after each click.
+  Teammates get an actionbar line. Admin Economy page: start/end rate, cap per second.
+- [x] Demos: economy ("Interest: +60 s", status shows carried fractions), full (65 TP: my bank, 66 match clock +10 min), try.txt.
+- RCON-verified (husk): pad deposit + edge, enemy pad refused, presets/half/all/stale click, greyed states, ramp (1% -> 10%), cap, overflow guard,
+  60 s fast-forward, admin page, clean log + lint. Not verified with a real player: plate detection while walking, cues, dialog at GUI scale 2.
+
+## Generators + Barrier + Dream (`feat/gen-dream`, servers `gd3` (arena3) + `gdream` (emerald-dream); feedback #47 #48 #49)
+- [x] Single-block generator mode (`src/generators.json` `single`, off by default, `generator/mode/toggle`): gilded blackstone, V2 odds as a
+  loot table + purse yields. Replaces the lucky block (removed).
+- [x] Barrier projectiles hit geometrically (`nexus/proj`): arrows, spectral, tridents (dropped at the shell), rockets with stars,
+  wind charges, fireballs. Exploding ones look two moves ahead (they blow up on the obsidian inside their own move).
+- [x] #49 melee charge (`nexus/charge`): x(0.2 + 0.8 c^2), c = ticks since the player's last Barrier hit / 20 / attack_speed (vanilla's own
+  charge is unreadable: the interaction swallows the attack).
+- [x] #48 (`nexus/press/*`, once a second in battle): centre holder drains the enemy Barrier, max HP x `#press_pm` 120 per mille/min x r^2,
+  r = hold / `#press_ramp` 300 s (30 s hold = 1% rate, 5 min = full 12%/min); losing the node resets. Drain blocks regen like a hit.
+  From battle minute `#decay_min` 20 the ceiling `nx.hp_cap` drops `#decay_pm` 100 per mille/min (untouched = broken at 30).
+  There was no timed barrier disappearance in the code: the "BARRIERS BROKEN" title is the prep walls dropping.
+- [x] Richer dream: more veins (16 in 11), raw emerald 3%, crystal vein, lapis/diamond/emerald clusters, crystal spires, lamps, amethyst,
+  firefly bushes, wildflowers, azaleas, lichen; parrots/frogs/bats; spore/firefly/glow particles. Ruins (shrine/well/arch) with loot,
+  placed at runtime (`dream/ruin/*`, `tools/build_dream.py`).
+- [x] Demos: arena3 11 single-block, 23-27 (ranged kit, tp enemy Nexus, centre hold sim, hold +4 min, minute-20 decay); full 67-71; try.txt.
+- RCON-verified: every projectile type (miss at 1.5 off-centre), rocket fix, brief hold 33 s = 0.25 HP, full hold 2 HP/s, decay 100/min and
+  break at cap 0, charge maths (no non-player entity has attack_speed, so not run end-to-end), ruin chest loot, clean logs + lint.
+  Not verified with a real player: melee spam vs full swing, demo dialogs at GUI scale 2.

@@ -3,4 +3,6 @@
 function nonios:class/gen/reaper/vision_off
 effect clear @s minecraft:invisibility
 effect clear @s minecraft:speed
+effect clear @s minecraft:resistance
+effect clear @s minecraft:slow_falling
 function nonios:class/reaper/on_strip

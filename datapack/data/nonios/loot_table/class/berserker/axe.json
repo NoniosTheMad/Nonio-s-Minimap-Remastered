@@ -11,7 +11,7 @@
        "type": "minecraft:set_components",
        "components": {
         "minecraft:enchantments": {
-         "minecraft:sharpness": 2,
+         "nonios:class/berserk_lust": 1,
          "minecraft:vanishing_curse": 1
         },
         "minecraft:weapon": {
@@ -21,14 +21,14 @@
          {
           "type": "minecraft:attack_damage",
           "id": "minecraft:base_attack_damage",
-          "amount": 10,
+          "amount": 2,
           "operation": "add_value",
           "slot": "mainhand"
          },
          {
           "type": "minecraft:attack_speed",
           "id": "minecraft:base_attack_speed",
-          "amount": -3.1,
+          "amount": 4.0,
           "operation": "add_value",
           "slot": "mainhand"
          },
@@ -82,7 +82,17 @@
           "text": ""
          },
          {
-          "text": "In hand: armour 0, fast, no knockback, regenerating",
+          "text": "In hand: Resistance IV, armour 0, no knockback, very fast swings",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Hit: steal life. Hurt: hit harder (75/50/25% health)",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Food never heals a Berserker",
           "color": "dark_green",
           "italic": false
          },

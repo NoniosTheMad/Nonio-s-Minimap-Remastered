@@ -5,5 +5,6 @@ execute if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"ninj
 execute if items entity @s player.cursor *[minecraft:custom_data~{nx_item:"ninja_genjutsu"}] run return 0
 execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"ninja_genjutsu"}] run return 0
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"ninja_genjutsu"}}}}]
+# used up (consumable): back into the hand that used it
 execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot nonios:class/ninja/genjutsu
-loot give @s loot nonios:class/ninja/genjutsu
+function nonios:gear/loot {table:"nonios:class/ninja/genjutsu"}
