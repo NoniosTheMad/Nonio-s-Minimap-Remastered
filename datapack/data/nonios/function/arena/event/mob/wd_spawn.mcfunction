@@ -1,0 +1,6 @@
+# macro {x, y, z, hp}: the guard post (marker nx.ev_guard, the Warden's leash centre) and the Warden on it
+$summon minecraft:marker $(x) $(y) $(z) {Tags:["nx.ev_guard"]}
+$summon minecraft:wither_skeleton $(x) $(y) $(z) {Tags:["nx.ev_mob","nx.ev_warden"],PersistenceRequired:1b,Glowing:1b,CustomName:{text:"Gilded Warden",color:"gold",bold:true},CustomNameVisible:1b,DeathLootTable:"nonios:arena/warden",Health:$(hp)f,equipment:{mainhand:{id:"minecraft:golden_axe",count:1},head:{id:"minecraft:golden_helmet",count:1},chest:{id:"minecraft:golden_chestplate",count:1},legs:{id:"minecraft:golden_leggings",count:1}},drop_chances:{mainhand:0.0f,head:0.0f,chest:0.0f,legs:0.0f},attributes:[{id:"minecraft:max_health",base:$(hp)d},{id:"minecraft:scale",base:1.6d},{id:"minecraft:armor",base:12d},{id:"minecraft:knockback_resistance",base:0.8d},{id:"minecraft:follow_range",base:14d},{id:"minecraft:attack_damage",base:9d}],active_effects:[{id:"minecraft:fire_resistance",amplifier:0b,duration:-1,show_particles:0b}]}
+$playsound minecraft:entity.lightning_bolt.thunder hostile @a $(x) $(y) $(z) 4 0.8
+$particle minecraft:electric_spark $(x) $(y) $(z) 0.8 2 0.8 0.3 120 force
+$particle minecraft:totem_of_undying $(x) $(y) $(z) 0.6 1.5 0.6 0.4 80

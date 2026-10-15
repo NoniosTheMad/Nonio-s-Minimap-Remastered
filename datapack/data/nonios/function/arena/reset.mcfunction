@@ -12,6 +12,7 @@ scoreboard players set #frog_t nx.arena 0
 scoreboard players set #bounty_t nx.arena 0
 scoreboard players set #grav_t nx.arena 0
 function nonios:arena/event/frogs_despawn
+function nonios:arena/event/mob/clear
 tag @e[type=marker,tag=nx.surge] remove nx.surge
 # supply drops: falling or landed chests near the nodes go (contents too)
 kill @e[type=falling_block,tag=nx.ev_supply]

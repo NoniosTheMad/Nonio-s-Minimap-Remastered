@@ -5,6 +5,7 @@ execute store result bossbar nonios:arena/event value run scoreboard players get
 bossbar set nonios:arena/event players @a
 bossbar set nonios:arena/event visible true
 function nonios:arena/event/bar_sec
+function nonios:arena/event/mark
 title @a times 5 50 15
 title @a title ""
 $title @a subtitle [{text:"$(name)",color:"$(color)",bold:true},{text:"  $(where)",color:"yellow",bold:false}]
