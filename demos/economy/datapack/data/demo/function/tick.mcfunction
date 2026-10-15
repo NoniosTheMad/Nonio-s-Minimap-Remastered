@@ -18,5 +18,18 @@ execute as @a[scores={demo.ec=16}] at @s run function demo:ores
 execute as @a[scores={demo.ec=17}] run function demo:clock
 execute as @a[scores={demo.ec=18}] run function demo:status
 execute as @a[scores={demo.ec=19}] run function demo:altar
+execute as @a[scores={demo.ec=20}] run function demo:im/open
+execute as @a[scores={demo.ec=21}] run function demo:im/mode {m:1}
+execute as @a[scores={demo.ec=22}] run function demo:im/mode {m:2}
+execute as @a[scores={demo.ec=23}] run function demo:im/mode {m:3}
+execute as @a[scores={demo.ec=24}] run function demo:im/clock {t:0}
+execute as @a[scores={demo.ec=25}] run function demo:im/clock {t:12000}
+execute as @a[scores={demo.ec=26}] run function demo:im/clock {t:24000}
+execute as @a[scores={demo.ec=27}] run function demo:im/clock {t:36000}
+execute as @a[scores={demo.ec=28}] run function demo:im/bank {n:500}
+execute as @a[scores={demo.ec=29}] run function demo:im/bank {n:2000}
+execute as @a[scores={demo.ec=30}] run function demo:im/bank {n:10000}
+execute as @a[scores={demo.ec=31}] run function demo:im/pay
+execute as @a[scores={demo.ec=32}] run dialog show @s demo:economy
 scoreboard players reset @a[scores={demo.ec=1..}] demo.ec
 scoreboard players enable @a demo.ec

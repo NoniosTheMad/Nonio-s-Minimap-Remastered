@@ -48,6 +48,12 @@ execute unless data storage nonios:config interest_period run data modify storag
 execute unless data storage nonios:config interest_curve run data modify storage nonios:config interest_curve set value [{t:0,r:0},{t:600,r:5000},{t:1200,r:10000},{t:1800,r:20000}]
 execute unless data storage nonios:config interest_base run data modify storage nonios:config interest_base set value 2000
 execute unless data storage nonios:config interest_scale run data modify storage nonios:config interest_scale set value 100
+# interest mode (#110): 1 = A flat interest_a_rate per second, at most interest_a_cap coins/s (a curve over the match clock,
+#   r = 1/1000 coin per second); 2 = B interest_curve per interest_period, every banked coin earns (no base);
+#   3 = C interest_curve per interest_period on at most interest_base coins (the #108 scheme)
+execute unless data storage nonios:config interest_mode run data modify storage nonios:config interest_mode set value 1
+execute unless data storage nonios:config interest_a_rate run data modify storage nonios:config interest_a_rate set value 1000
+execute unless data storage nonios:config interest_a_cap run data modify storage nonios:config interest_a_cap set value [{t:0,r:0},{t:600,r:1000},{t:1200,r:5000},{t:1800,r:20000}]
 # bank: usable within bank_range blocks of your own team's vault
 execute unless data storage nonios:config bank_range run data modify storage nonios:config bank_range set value 5
 # kills: kill_reward + bounty (victim streak >= bounty_min_streak: streak * bounty_per_kill, max bounty_cap, 0 = no cap)

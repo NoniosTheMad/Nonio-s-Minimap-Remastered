@@ -63,3 +63,11 @@ Admin page: base -/+500, curve x -/+25%, per second / per minute.
 
 ## #109: generators
 Single block (gilded blackstone) is the default style; mined, it regrows the same tick (generator/tick). Upgrades only change the loot pool. Interaction 2.02 high so its top face wins the pick over the base: top click opens the upgrade dialog, the block on it stays mineable.
+
+## #110: interest modes
+`interest_mode` in storage nonios:config (economy/load): 1 = A (default, recommended) `interest_a_rate` 1000 ppm per second
+on the bank, at most `interest_a_cap` coins/s (curve, 1/1000 coin: 0 -> 1 at min 10 -> 5 at min 20 -> 20 at min 30);
+2 = B `interest_curve` per `interest_period`, no base (ppm and threshold / 100, `#idiv`, so huge banks fit); 3 = C the #108
+scheme (curve on <= `interest_base`). `bank/curve/build` builds both curves; `bank/curve/eval_cap` swaps the cap curve in.
+Demo picker `demo:im/open` (trigger 20-32): modes A/B/C (live, marked), match clock 0/10/20/30 min, team bank 500/2000/10000,
++60 s; body = each mode's coins/s now and x60 for one minute.

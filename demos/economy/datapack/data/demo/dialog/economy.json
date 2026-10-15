@@ -109,6 +109,20 @@
       }
     },
     {
+      "label": {
+        "text": "Interest modes",
+        "color": "aqua"
+      },
+      "tooltip": {
+        "text": "Compare A / B / C at any match minute and bank size; pick the live one"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 20"
+      }
+    },
+    {
       "label": "Go to my bank",
       "width": 150,
       "action": {
