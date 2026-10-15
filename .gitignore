@@ -9,3 +9,7 @@ __pycache__/
 docs/references/elitecraft/*.png
 docs/references/elitecraft/*.jpg
 docs/references/elitecraft/small/
+
+# Third-party moodboard images (Varuna, Planet Minecraft, YouTube, Nipale-ai) - local private reference only, never pushed
+docs/references/voxel/*.png
+docs/references/voxel/*.jpg
