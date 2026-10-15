@@ -1,0 +1,5 @@
+# as an invisible Reaper, each tick: invisibility hides the body but not worn/held items, so the pumpkin and the
+# scythe in either hand take an empty model (minecraft:air) until it ends (unvanish). Attributes and binding stay.
+execute if items entity @s armor.head *[minecraft:custom_data~{nx_item:"reaper_head"}] unless items entity @s armor.head *[minecraft:custom_data~{nx_hidden:1b}] run item modify entity @s armor.head nonios:class/reaper/hide
+execute if items entity @s weapon.mainhand *[minecraft:custom_data~{nx_item:"reaper_scythe"}] unless items entity @s weapon.mainhand *[minecraft:custom_data~{nx_hidden:1b}] run item modify entity @s weapon.mainhand nonios:class/reaper/hide
+execute if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"reaper_scythe"}] unless items entity @s weapon.offhand *[minecraft:custom_data~{nx_hidden:1b}] run item modify entity @s weapon.offhand nonios:class/reaper/hide

@@ -1,0 +1,20 @@
+{
+ "criteria": {
+  "use": {
+   "trigger": "minecraft:consume_item",
+   "conditions": {
+    "item": {
+     "predicates": {
+      "minecraft:custom_data": {
+       "nx_item": "reaper_scythe",
+       "nx_state": "charged"
+      }
+     }
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/reaper/burst_use"
+ }
+}

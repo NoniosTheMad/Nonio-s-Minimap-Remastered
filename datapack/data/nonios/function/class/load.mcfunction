@@ -11,6 +11,13 @@ scoreboard objectives add nx.cls_tmp dummy
 # Reaper souls / lifesteal gate (gametime of the last heal)
 scoreboard objectives add nx.cls_souls dummy
 scoreboard objectives add nx.cls_heal dummy
+# Reaper: untouchable-until gametime, last "No souls" tick, flight state (1 = in the air), last 2 heights (milliblocks), gravity sent
+scoreboard objectives add nx.cls_ward dummy
+scoreboard objectives add nx.cls_nos dummy
+scoreboard objectives add nx.cls_rfly dummy
+scoreboard objectives add nx.cls_ry1 dummy
+scoreboard objectives add nx.cls_ry2 dummy
+scoreboard objectives add nx.cls_rg dummy
 # Cracy Frog broom: fuel (ticks), >0 while right-click is held, forward-impulse gate read by the frog_broom enchantment
 scoreboard objectives add nx.cls_fuel dummy
 scoreboard objectives add nx.cls_fly dummy
@@ -28,4 +35,6 @@ execute unless score #white nx.cls_lvl matches 1.. run scoreboard players set #w
 execute unless score #black nx.cls_lvl matches 1.. run scoreboard players set #black nx.cls_lvl 1
 execute unless score #solo nx.cls_lvl matches 1.. run scoreboard players set #solo nx.cls_lvl 1
 scoreboard players set #6 nx.cls_tmp 6
+scoreboard players set #2 nx.cls_tmp 2
+scoreboard players set #10 nx.cls_tmp 10
 function nonios:class/gen/catalog

@@ -21,7 +21,7 @@
     "color": "dark_purple"
    },
    "tooltip": {
-    "text": "Shop class (V2 Reaper Invocation, 200). Scythe lifesteal, souls, burst, reaper vision"
+    "text": "Shop class (V2 Reaper Invocation, 200). Scythe lifesteal + slow, souls, burst, kill = vanish + 8 s untouchable, flight (Space up, Shift down), reaper vision"
    },
    "action": {
     "type": "minecraft:run_command",

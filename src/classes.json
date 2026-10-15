@@ -18,10 +18,10 @@
       "name": {"text": "Reaper", "color": "dark_gray"},
       "price": 200,
       "lost_msg": "Death came for the Reaper. Ironic.",
-      "blurb": "Glass cannon. Scythe heals you on hit, kills give souls and a few seconds of invisibility, right-click releases the souls as a burst. 5 hearts, armour locked.",
+      "blurb": "Glass cannon that flies. Scythe heals you and slows on hit, kills give souls, 4 s of invisibility and 8 s untouchable, right-click releases the souls as a burst. 5 hearts, armour locked.",
       "vision": ["nonios:reaper"],
-      "hooks": ["on_apply", "on_strip"],
-      "clear_effects": ["minecraft:invisibility", "minecraft:speed"],
+      "hooks": ["on_apply", "on_strip", "tick"],
+      "clear_effects": ["minecraft:invisibility", "minecraft:speed", "minecraft:resistance", "minecraft:slow_falling"],
       "items": {
         "head": {
           "slot": "armor.head", "id": "minecraft:jack_o_lantern",
@@ -31,7 +31,8 @@
             "minecraft:equippable": {"slot": "head"},
             "minecraft:attribute_modifiers": [
               {"type": "minecraft:max_health", "id": "nonios:reaper_head_hp", "amount": -10, "operation": "add_value", "slot": "head"},
-              {"type": "minecraft:armor", "id": "nonios:reaper_head_armor", "amount": 6, "operation": "add_value", "slot": "head"}
+              {"type": "minecraft:armor", "id": "nonios:reaper_head_armor", "amount": 6, "operation": "add_value", "slot": "head"},
+              {"type": "minecraft:fall_damage_multiplier", "id": "nonios:reaper_no_fall", "amount": -1, "operation": "add_value", "slot": "head"}
             ],
             "minecraft:enchantments": {"nonios:class/reaper_shroud": 1, "minecraft:projectile_protection": 4}
           }
@@ -60,8 +61,8 @@
           "lore": [
             {"text": "Only the souls of the living can grant eternal life... or Death", "color": "gray", "italic": true},
             {"text": ""},
-            {"text": "Hit: steal 2 hearts (once per swing)", "color": "dark_green", "italic": false},
-            {"text": "Kill: +1 soul (max 5), 4s invisible", "color": "dark_green", "italic": false},
+            {"text": "Hit: steal 2 hearts, slow (once per swing)", "color": "dark_green", "italic": false},
+            {"text": "Kill: +1 soul (max 5), 4s invisible, 8s untouchable", "color": "dark_green", "italic": false},
             {"text": "Right-click: release souls (2 + 2/soul dmg, 6 blocks)", "color": "dark_green", "italic": false}
           ],
           "components": {
@@ -76,7 +77,9 @@
               {"type": "minecraft:knockback_resistance", "id": "nonios:reaper_kbres", "amount": 0.5, "operation": "add_value", "slot": "mainhand"}
             ],
             "minecraft:use_effects": {"can_sprint": true, "speed_multiplier": 1.0},
-            "minecraft:consumable": {"consume_seconds": 0.5, "animation": "bow", "sound": "minecraft:entity.vex.charge", "has_consume_particles": false},
+            "minecraft:custom_data": {"nx_state": "dormant"},
+            "minecraft:enchantment_glint_override": false,
+            "minecraft:consumable": {"consume_seconds": 3600, "animation": "none", "has_consume_particles": false},
             "minecraft:use_cooldown": {"seconds": 8, "cooldown_group": "nonios:reaper_burst"},
             "minecraft:enchantments": {"nonios:class/reaper_scythe": 1, "minecraft:fire_aspect": 1}
           }

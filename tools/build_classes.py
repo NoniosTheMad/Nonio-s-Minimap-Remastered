@@ -11,7 +11,6 @@ code lives in function/class/<class>/ and is never touched):
   function/class/gen/*.mcfunction               dispatchers on the nx.class score + catalog (storage nonios:class)
 """
 import json
-import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -23,7 +22,15 @@ EQUIP = ARMOR | {"weapon.offhand"}
 HOLD_SECONDS = 60  # consumables longer than this are "hold to use" (using_item) instead of "use once" (consume_item)
 
 
+WRITTEN = set()
+
+
 def write(path, text):
+    """Write only when the content changed: the mcdev daemon watches mtimes and restarts a server when a registry
+    file (enchantment) is touched, so a rebuild must leave unchanged files alone."""
+    WRITTEN.add(path.resolve())
+    if path.exists() and path.read_bytes() == text.encode("utf-8"):
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
 
@@ -39,7 +46,7 @@ def jtext(c):
 def item_components(cid, c, key, it):
     comp = dict(it.get("components", {}))
     tag = f"{cid}_{key}"
-    comp["minecraft:custom_data"] = {"nx_cls": cid, "nx_item": tag, "nx_cls_item": True}
+    comp["minecraft:custom_data"] = {**comp.get("minecraft:custom_data", {}), "nx_cls": cid, "nx_item": tag, "nx_cls_item": True}
     ench = dict(comp.get("minecraft:enchantments", {}))
     ench["minecraft:vanishing_curse"] = 1  # class items never drop on death (keep_inventory off) - they are re-given
     if c["tier"] == "shop" and it["slot"] in ARMOR:
@@ -81,8 +88,7 @@ def slot_match(tag):
 def build():
     d = json.loads(SRC.read_text(encoding="utf-8"))
     classes = d["classes"]
-    for sub in ("function/class/gen", "loot_table/class", "enchantment/class", "advancement/class/use"):
-        shutil.rmtree(OUT / sub, ignore_errors=True)
+    gen_dirs = [OUT / sub for sub in ("function/class/gen", "loot_table/class", "enchantment/class", "advancement/class/use")]
     nums = [c["num"] for c in classes.values()]
     assert len(nums) == len(set(nums)) and min(nums) >= 1, "class nums must be unique and >= 1"
 
@@ -199,6 +205,12 @@ def build():
     snbt = json.dumps(catalog, ensure_ascii=False)
     fn("class/gen/catalog", ["# class catalog for menus/shop: storage nonios:class catalog[] {id,num,tier,price,name,blurb}",
                              f"data modify storage nonios:class catalog set value {snbt}"])
+    for d in gen_dirs:  # generated files nothing wrote this time (renamed/removed items or classes)
+        for f in sorted(d.rglob("*"), reverse=True) if d.exists() else []:
+            if f.is_file() and f.resolve() not in WRITTEN:
+                f.unlink()
+            elif f.is_dir() and not any(f.iterdir()):
+                f.rmdir()
     print("classes built:", ", ".join(classes))
 
 
