@@ -4,3 +4,8 @@
 __pycache__/
 .claude/
 __pycache__/
+
+# Third-party video stills (ElRichMC) - local private reference only, never pushed
+docs/references/elitecraft/*.png
+docs/references/elitecraft/*.jpg
+docs/references/elitecraft/small/
