@@ -130,3 +130,31 @@ Weakest three now:
 1. The bailey is still a dark canyon in daylight (cam_bailey). There is no legible ring route and no courtyard moment.
 2. The Forge Hall reads as a plain brick box with a black door (cam_hall), and the heart chamber is a lava strip in darkness (cam_heart).
 3. Large plain basalt flanks on the NE (an obsidian chute stripe in cam_ash_ne), and plane breaks are just under the floor.
+
+## P8: access, the Ember Stair, gameplay sanity
+Fixed (P7 weakest #1–2 and the open zone check). A walk-graph check (4-neighbour moves, up 1, drop up to 3, from spawn_approach, forward plus way-back) started with 5 of 9 zones unreachable and found traps:
+- **The Ember Stair** (`heart_helix`): a helix from the heart-sanctum floor to the throne lantern (y 149), 6 rises per turn, wound round the lava heart inside an iron-bar cage. Above the cage top it runs round a gilded newel in the upper well and surfaces through the throne floor.
+  - The valley slits are barred where they cut the shaft, so you can't step out onto the collars (that was a trap with no way back).
+  - Wall balustrades fill the six throne arches.
+- **Access** (`access`):
+  - a vaulted passage from the hall's north door to the sanctum;
+  - a 9-step stair from the hall's west aisle down to the undercroft, with a wall rail;
+  - each spire room opens toward the bailey through a carved passage (door recorded in zone meta).
+- **Forge Hall shell** (`hall_shell`, no furniture): pilasters on a 4-block bay rhythm, pointed transverse ribs, a barred clerestory between the bays, and cinnabar kerbs along the lava channel.
+- **Ember path** (`bailey_path`): a cinnabar inlay on the bailey's medial line marks the ring route. cam_bailey now stands at the widest bailey spot and looks along the ring. New cams: cam_helix, cam_throne.
+- **Traps removed**:
+  - the slag yard gets two gates (it was a closed pen);
+  - the bridge parapets get wall copings between the merlons (they could be hopped);
+  - ladders run from the outer pier ledges back over the parapet;
+  - `fill_pockets` drifts ash into every outer-plain hollow that can be entered but not left (iterated until there are none).
+
+Result: all 9 zones are reachable from spawn. 30 walkable cells remain that are entered but not left:
+- 22 are the pier ledges, which the ladders serve (the walk graph doesn't model ladders);
+- the rest are 1–4 cell lake-shore and shaft nooks.
+
+Stats: 8/14 (partial 0.35, top-5 0.38, metal 17 from the cage); stability PASS.
+
+Weakest three now:
+1. The bailey is still a canyon: the star wall, the spire bases and the horn roots crowd it. It is legible now, but there is no courtyard moment.
+2. The throne lantern's six arches read as black fins against the sky. They need tracery or a crown band, and the throne dais shape (shell only).
+3. Plane breaks are 193/200 on the big plain basalt flanks, and the helix shaft interior is very dark by day (autolight is interior-only at minimum 8).

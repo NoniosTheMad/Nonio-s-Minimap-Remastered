@@ -288,6 +288,9 @@ def slag_works(s, h):
         cx, cz = x0 + dx, z0 + dz
         s.fill(shapes.cylinder((cx + 0.5, 0, cz + 0.5), 2.6, g - 2, g + ht, 1.9), WALL)
         s.fill(shapes.cylinder((cx + 0.5, 0, cz + 0.5), 1.2, g + 2, g + ht + 1), "air")
+    if PASS >= 8:     # yard gates toward the citadel (the yard was a closed pen)
+        s.box((x0 + 18, g, z0 + 6), (x0 + 18, g + 3, z0 + 8), "air")
+        s.box((x0 + 8, g, z0 + 14), (x0 + 10, g + 3, z0 + 14), "air")
     rng = np.random.default_rng(SEED + 21)
     for k in range(5):
         a, rr = rng.uniform(222, 252), rng.uniform(70, 92)
@@ -1111,11 +1114,21 @@ def bridge2(s):
         if z % 2 == 0:
             s.box((99, yt + 2, z), (99, yt + 2, z), WALL)
             s.box((109, yt + 2, z), (109, yt + 2, z), WALL)
+        elif PASS >= 8:   # a coping wall between the merlons: the parapet can't be hopped
+            s.box((99, yt + 2, z), (99, yt + 2, z), "polished_blackstone_brick_wall")
+            s.box((109, yt + 2, z), (109, yt + 2, z), "polished_blackstone_brick_wall")
         s.box((98, yt - 3, z), (98, yt - 3, z), TRIM)
         s.box((110, yt - 3, z), (110, yt - 3, z), TRIM)
     for a, b in piers:
         s.box((97, 12, a), (111, prof[a] - 4, b), WALL)
         s.box((96, 12, a), (112, LAKE_Y + 2, b), Mix({"basalt": 2, "polished_blackstone": 1}))
+    if PASS >= 8:   # rungs from the outer pier ledges back up over the parapet (no stranding on a pier top)
+        a = piers[1][0]
+        for x, xw, f in ((98, 99, "west"), (110, 109, "east")):
+            top = max(y for y in range(H) if s.idx[xw, y, a] != 0 and y < prof[a] + 4)
+            for y in range(prof[a] - 3, top + 1):
+                if s.idx[x, y, a] == 0:
+                    s.set(x, y, a, f"ladder[facing={f}]")
     lay_steps(s, 100, 102, prof, "polished_tuff", "polished_tuff_stairs", facing="north")
     lay_steps(s, 106, 108, prof, "polished_tuff", "polished_tuff_stairs", facing="north")
     lay_steps(s, 103, 105, prof, "polished_cinnabar", "polished_cinnabar_stairs", facing="north")
@@ -1307,6 +1320,7 @@ def relief(s):
     keep_out[84:125, :GATE_F + 66, ZF - 26:ZF + 5] = True             # the Maw keeps its own composition
     keep_out[95:114, :, ZP:] |= True                                   # stair, road and bridge treads
     keep_out |= zone_air
+    keep_out |= (polar(s.shape, C)[0] < 6.5)[:, None, :]              # the heart shaft and its helix
     keep_out[:, :PLAIN + 1, :] = True
     up_air = _shift(air, 0, 1, 0)
     up_m, dn_m = _shift(mas, 0, 1, 0), _shift(mas, 0, -1, 0)
@@ -1571,6 +1585,230 @@ def shards(s, h):
     s.meta["_shards"] = len(placed)
 
 
+# ================================================================== P8: access (every zone reachable), the helix
+FACING_OF = {(1, 0): "east", (-1, 0): "west", (0, 1): "south", (0, -1): "north"}
+
+
+def stairify(s, tread, full, stair):
+    """Tread cells -> full blocks, or stairs facing the neighbour whose tread is one higher (walk up without jumping)."""
+    xs, ys, zs = np.nonzero(tread)
+    for x, y, z in zip(xs, ys, zs):
+        st = full
+        for (dx, dz), f in FACING_OF.items():
+            nx, nz = x + dx, z + dz
+            if 0 <= nx < W and 0 <= nz < D and y + 1 < H and tread[nx, y + 1, nz]:
+                st = f"{stair}[facing={f},half=bottom]"
+                break
+        s.set(int(x), int(y), int(z), st)
+
+
+def heart_helix(s):
+    """The Ember Stair: a helix from the heart sanctum floor to the throne lantern, wound around the caged lava heart.
+    Below the cage top it runs in the ring between the iron cage and the shaft wall; above it, round a newel in the
+    upper well, and it surfaces through the throne-room floor. One block of rise per ~3 blocks of travel, 6 per turn."""
+    r, th = polar(s.shape, C)
+    P = 6
+    y_lo, y_hi, y_cap = DECK, 148, 129
+    tn = (((th - 100.0) % 360.0) / 360.0)
+    tread = np.zeros(s.shape, bool)
+    head = np.zeros(s.shape, bool)
+    for t in range(0, (y_hi - y_lo) // P + 2):
+        yt = np.floor(y_lo + P * (tn + t)).astype(int)
+        band = np.where(yt < y_cap + 2, (r >= 2.9) & (r <= 5.0), (r >= 1.0) & (r <= 3.25))
+        ok = band & (yt <= y_hi) & (yt >= y_lo)
+        xs, zs = np.nonzero(ok)
+        tread[xs, yt[xs, zs], zs] = True
+        for k in (1, 2, 3):
+            head[xs, np.minimum(yt[xs, zs] + k, H - 1), zs] = True
+    cage = np.zeros(s.shape, bool)
+    cage[:, DECK + 1:y_cap, :] = ((r >= 2.4) & (r < 2.9))[:, None, :]
+    s.fill(cage & ~tread, "iron_bars")
+    capm = np.zeros(s.shape, bool)
+    capm[:, y_cap, :] = (r < 2.9)
+    s.fill(capm, "polished_blackstone_bricks")
+    newel = np.zeros(s.shape, bool)
+    newel[:, y_cap + 1:y_hi + 1, :] = (r < 1.0)[:, None, :]
+    s.fill(newel, Mix({"polished_blackstone_bricks": 2, "gilded_blackstone": 1}, seed=SEED + 130))
+    s.fill(head & ~tread & ~newel, "air")
+    # the valley slits are glazed with bars where they cut the shaft wall: the heart still shows from outside, but the
+    # stair cannot be left onto the Fang's collars (no way back up from there)
+    grille = np.zeros(s.shape, bool)
+    tw = 55 * ((np.arange(H) - (DECK - 6)) / (FANG_TOP - DECK + 6))
+    for k in range(6):                       # the same six twisted valley slits that keep() cut
+        a_ = 60 + k * 60
+        grille |= np.abs(wrap_deg(th[:, None, :] - (a_ + tw[None, :, None]))) * np.pi / 180 * r[:, None, :] < 1.6
+    grille &= ((r >= 4.9) & (r < 7.5))[:, None, :]
+    grille[:, :DECK + 6, :] = False
+    grille[:, y_hi:, :] = False
+    s.fill(grille & s.match("air") & ~head & ~tread, "iron_bars")
+    stairify(s, tread, "polished_blackstone_bricks", "polished_blackstone_brick_stairs")
+    # balustrades in the six throne-lantern arches (the crown is open to the sky, not to a 90-block fall)
+    bal = np.zeros(s.shape, bool)
+    gx, gz = cols2d(s.shape)
+    for k in range(6):
+        ax_, az_ = pol(70 + k * 60, 7.5)
+        bal[:, 150, :] |= (np.hypot(gx - ax_, gz - az_) < 2.4) & (r >= 6.2)
+    s.fill(bal & s.match("air"), "polished_blackstone_wall")
+    s.meta["_helix_treads"] = int(tread.sum())
+
+
+def access(s):
+    """Every zone gets a way in: the hall's north door runs on to the heart sanctum; a stair drops from the hall floor to
+    the undercroft; each spire room opens toward the bailey through a short pointed passage."""
+    x0, x1, z0, z1 = HALL
+    # hall north door -> sanctum: a 5-wide passage under a pointed vault
+    s.fill(((102, DECK + 1, int(C[1]) + 5), (106, DECK + 5, z0 + 1)), "air")
+    s.fill(((103, DECK + 6, int(C[1]) + 5), (105, DECK + 6, z0 + 1)), "air")
+    s.fill(((102, DECK, int(C[1]) + 6), (106, DECK, z0 + 1)), PAVE)
+    # undercroft stair: west aisle of the hall, descending south, one block per step
+    zt = z0 + 4
+    prof = {zt + i: DECK - 1 - i for i in range(9)}
+    for z, yt in prof.items():
+        s.fill(((99, yt + 1, z), (100, DECK + 4, z)), "air")
+    lay_steps(s, 99, 100, prof, "polished_blackstone_bricks", "polished_blackstone_brick_stairs", under="polished_blackstone_bricks", depth=2)
+    s.fill(((101, DECK + 1, zt), (101, DECK + 1, zt + 9)), "polished_blackstone_wall")
+    s.fill(((99, DECK + 1, zt + 9), (100, DECK + 1, zt + 9)), "polished_blackstone_wall")
+    # spire rooms: walk toward the Fang until the bailey floor is reached
+    for zn in ZONES:
+        if not zn["name"].startswith("spire_"):
+            continue
+        bx0, by0, bz0, bx1, by1, bz1 = zn["box"]
+        cx, cz = (bx0 + bx1) / 2, (bz0 + bz1) / 2
+        dx, dz = C[0] - cx, C[1] - cz
+        if abs(dx) >= abs(dz):
+            step = (int(np.sign(dx)), 0)
+            x = bx1 + 1 if dx > 0 else bx0 - 1
+            z = int(round(cz))
+        else:
+            step = (0, int(np.sign(dz)))
+            z = bz1 + 1 if dz > 0 else bz0 - 1
+            x = int(round(cx))
+        door = None
+        for i in range(14):
+            px, pz = x + step[0] * i, z + step[1] * i
+            open_ = all(s.idx[px + step[1] * j, by0, pz + step[0] * j] == 0 for j in (-1, 0, 1)) \
+                and s.idx[px, by0 - 1, pz] != 0
+            if i > 0 and open_:
+                break
+            a0 = (px - abs(step[1]), by0, pz - abs(step[0]))
+            a1 = (px + abs(step[1]), by0 + 2, pz + abs(step[0]))
+            s.fill((a0, a1), "air")
+            s.fill(((px, by0 + 3, pz), (px, by0 + 3, pz)), "air")
+            s.fill(((a0[0], by0 - 1, a0[2]), (a1[0], by0 - 1, a1[2])), PAVE)
+            door = door or (px, by0, pz)
+        zn["doors"].append([int(v) for v in door])
+
+
+def reach(s, start):
+    """Forward walk from start (4-neighbour, up 1, down up to 3), then which of those cells can walk back.
+    Returns (walkable, forward, returnable)."""
+    from collections import deque
+    from tools.voxel.light import walkable
+    Wk = walkable(s)
+    X_, Y_, Z_ = Wk.shape
+
+    def moves(x, y, z):
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, nz = x + dx, z + dz
+            if 0 <= nx < X_ and 0 <= nz < Z_:
+                for dy in (0, 1, -1, -2, -3):
+                    ny = y + dy
+                    if 0 <= ny < Y_ and Wk[nx, ny, nz]:
+                        yield nx, ny, nz
+                        break
+    F = np.zeros(Wk.shape, bool)
+    F[start] = True
+    q = deque([start])
+    rev = {}
+    while q:
+        c = q.popleft()
+        for n in moves(*c):
+            rev.setdefault(n, []).append(c)
+            if not F[n]:
+                F[n] = True
+                q.append(n)
+    B = np.zeros(Wk.shape, bool)
+    B[start] = True
+    q = deque([start])
+    while q:
+        c = q.popleft()
+        for p_ in rev.get(c, ()):
+            if not B[p_]:
+                B[p_] = True
+                q.append(p_)
+    return Wk, F, B
+
+
+def spawn_cell(s):
+    zsp = min(s.meta["_barb"] + 14, D - 6)
+    return (104, ground_y(s, 104, zsp), zsp)
+
+
+def fill_pockets(s, rounds=5):
+    """No inescapable pits: ash drifts into every hollow of the outer plain that a player could drop into but not climb
+    out of (between causeway columns, behind boulders), one block per round until it is escapable."""
+    r, _ = polar(s.shape, C)
+    outer = (r > RIM_R + 4)[:, None, :]
+    n = 0
+    for _ in range(rounds):
+        _, F, B = reach(s, spawn_cell(s))
+        trap = F & ~B & outer
+        if not trap.any():
+            break
+        n += int(trap.sum())
+        s.fill(trap, ASH)
+    s.meta["_pockets_filled"] = n
+
+
+def hall_shell(s):
+    """The Forge Hall as architecture (still unfurnished): wall pilasters on a 4-block bay rhythm carrying pointed
+    transverse ribs, a clerestory of barred lancets between them, a cinnabar kerb along the lava channel."""
+    x0, x1, z0, z1 = HALL
+    xa, xb = x0 + 2, x1 - 2                     # interior x 99..109
+    za, zb = z0 + 3, z1 - 4
+    yt = DECK + 14
+    for z in range(za, zb + 1, 4):
+        for x in (xa, xb):
+            s.box((x, DECK + 1, z), (x, yt, z), "polished_blackstone_bricks")
+            s.set(x, DECK + 1, z, "chiseled_polished_blackstone")
+        # pointed rib across the vault: springs at DECK+10 on each pilaster, apex at the ceiling
+        half = (xb - xa) / 2
+        for x in range(xa + 1, xb):
+            u = abs(x - (xa + xb) / 2) / half
+            yr = int(round(DECK + 10 + (yt - (DECK + 10)) * (1 - u ** 1.6) ** 0.5))
+            s.box((x, yr, z), (x, yt, z), "polished_blackstone_bricks")
+            if yr > DECK + 10 and s.idx[x, yr - 1, z] == 0:
+                side = "east" if x < (xa + xb) / 2 else "west"
+                s.set(x, yr - 1, z, f"polished_blackstone_brick_stairs[facing={side},half=top]")
+    for z in range(za + 2, zb, 4):               # clerestory lancets between the pilasters
+        for x, xo in ((xa - 1, xa - 2), (xb + 1, xb + 2)):
+            s.box((x, DECK + 8, z), (x, DECK + 11, z), "air")
+            s.box((xo, DECK + 8, z), (xo, DECK + 11, z), "iron_bars")
+    s.fill(((102, DECK, z0 + 1), (102, DECK, z1 - 3)), "polished_cinnabar")
+    s.fill(((106, DECK, z0 + 1), (106, DECK, z1 - 3)), "polished_cinnabar")
+
+
+def bailey_path(s):
+    """The ember path: a cinnabar inlay along the medial line of the bailey floor, so the ring route round the Fang
+    reads at a glance (and at night under the garrison lanterns)."""
+    from scipy import ndimage
+    r, _ = polar(s.shape, C)
+    y = DECK + 1
+    floor = (s.idx[:, y, :] == 0) & (s.idx[:, y + 1, :] == 0) & (s.idx[:, y - 1, :] != 0) & (r < PLUG_R) & (r > 6.5)
+    hx0, hx1, hz0, hz1 = HALL
+    floor[hx0 - 1:hx1 + 2, hz0 - 3:hz1 + 2] = False          # not inside the hall or its north passage
+    dist = ndimage.distance_transform_edt(floor)
+    ridge = floor & (dist >= 2.0) & (dist >= ndimage.maximum_filter(dist, size=3) - 0.01)
+    ridge = ndimage.binary_dilation(ridge, iterations=1) & floor & (dist >= 1.5)
+    m = np.zeros(s.shape, bool)
+    m[:, y - 1, :] = ridge
+    s.fill(m, Mix({"polished_cinnabar": 3, "cinnabar_bricks": 2}, seed=SEED + 140))
+    s.meta["_bailey_path"] = int(ridge.sum())
+    # the widest bailey spot (for the bailey camera): look along the ring, counter-clockwise
+    bx, bz = np.unravel_index(int(np.argmax(np.where(floor, dist, 0))), dist.shape)
+    s.meta["_bailey_wide"] = [int(bx), int(bz)]
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
@@ -1630,8 +1868,15 @@ def build():
         road(s, h)
     breach_fall(s)
     interiors(s)
+    if PASS >= 8:
+        heart_helix(s)
+        access(s)
+        hall_shell(s)
+        bailey_path(s)
     if PASS >= 4:
         weather(s)
+    if PASS >= 8:
+        fill_pockets(s)
     if PASS >= 7:
         relief(s)
         bone_grain(s)
@@ -1654,9 +1899,21 @@ def cameras(s):
     s.markers["spawn_approach"]["fov"] = 70
     s.mark("cam_stairfoot", (104, ground_y(s, 104, zs + 1), zs + 1), look_at=(104, 70, 140))
     s.mark("cam_gate", (104, GATE_I, ZB + 1), look_at=(104, 110, 100))
-    bx, bz = (int(v) for v in pol(152, 17.5))
-    lx, lz = pol(95, 19)
-    s.mark("cam_bailey", (bx, DECK + 1, bz), look_at=(lx, DECK + 16, lz))
+    if "_bailey_wide" in s.meta:
+        bx, bz = s.meta.pop("_bailey_wide")
+        a0 = math.degrees(math.atan2(bz + 0.5 - C[1], bx + 0.5 - C[0]))
+        rr0 = math.hypot(bx + 0.5 - C[0], bz + 0.5 - C[1])
+        lx, lz = pol(a0 + 50, rr0)
+        s.mark("cam_bailey", (bx, DECK + 2, bz), look_at=(lx, DECK + 9, lz))
+        s.markers["cam_bailey"]["fov"] = 80
+        s.mark("cam_helix", (100, 91, 100), look_at=(104, 140, 100))
+        s.markers["cam_helix"]["fov"] = 85
+        s.mark("cam_throne", (104, 150, int(C[1]) + 4), look_at=(104, 152, int(C[1]) - 6))
+        s.markers["cam_throne"]["fov"] = 85
+    else:
+        bx, bz = (int(v) for v in pol(152, 17.5))
+        lx, lz = pol(95, 19)
+        s.mark("cam_bailey", (bx, DECK + 1, bz), look_at=(lx, DECK + 16, lz))
     s.mark("cam_maw", (104, ground_y(s, 104, ZF + 16), ZF + 16), look_at=(104, GATE_F + 20, ZF))
     s.mark("cam_heart", (104, DECK + 1, CZ + 5), look_at=(104, 100, 100.5))
     if "_bridge_prof" in s.meta:
@@ -1664,7 +1921,7 @@ def cameras(s):
         s.mark("cam_bridge", (104, s.meta["_bridge_prof"][bz] + 1, bz), look_at=(104, DECK + 8, ZP - 4))
     s.mark("cam_hall", (104, DECK + 1, HALL[3] - 3), look_at=(104, DECK + 6, HALL[2]))
     s.mark("cam_ash_west", (14, ground_y(s, 14, 112), 112), look_at=(60, 40, 96))
-    nx, nz = (int(v) for v in pol(-40, 96))
+    nx, nz = (int(v) for v in pol(-33 if PASS >= 8 else -40, 96))
     s.mark("cam_ash_ne", (nx, ground_y(s, nx, nz) + 2, nz), look_at=(104, 80, 100))
     bx, bz = (int(v) for v in pol(BREACH, 52))
     lx, lz = pol(BREACH, 110)
