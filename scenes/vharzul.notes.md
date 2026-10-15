@@ -99,3 +99,34 @@ Weakest three now:
 1. No fixtures and no night read (P7): black rooms, no lamps on the Tongue, bridge or bailey, a dark throne lantern, and an unlit Maw throat.
 2. The bailey is a canyon 5 to 8 wide between the Fang, the horn roots and a 14-high star wall. It is dramatic but dark and has no hero courtyard. It needs light, and an opened, legible route around the ring.
 3. Zones are unchecked: reachability, windows, and the spawn and defender markers.
+
+## P7: relief, ember slits, night read, shattered rim
+Fixed (P6 weakest #1, no night read; also the stats facade/decoration floors):
+- **Relief by rule** (`relief`) on every flat masonry face outside the Maw, treads and zones:
+  - copings as stairs, with a corbel table under every other coping;
+  - drip courses (upside-down stairs) at three courses in seven;
+  - putlog holes on a 5x6 lattice;
+  - 118 **ember slits**: 3-high iron bars over ochre froglights, with an iron-trapdoor hood and sill, centred in vertical face runs of 5 or more. The fortress glows from inside at night (cam_ash_west, night).
+  - Masonry families now include cinnabar, sulfur and polished blackstone.
+- **Fixtures** (`night_fixtures`):
+  - lanterns on every 4th Tongue parapet post, on the landing pedestals and on the bridge merlons;
+  - chained lanterns in the Maw throat;
+  - an ochre ember ring in the throne-lantern floor;
+  - 42 wither skulls on the star-wall copings (one per 7.5-degree bay, facing out over the lava);
+  - skeleton skulls on the pyre-road spear posts.
+- **Garrison lighting** (`light_interiors`): auto-light for the interiors, plus outdoor auto-light restricted to the held ground (walls, bailey, Tongue, bridge, road; never on the treads). 544 fixtures; the ash plain stays dark on purpose.
+- **Bone grain** (`bone_grain`): every bone block takes the axis of its longest run, so the horns and ribs show their grain.
+- **Shattered Rim** (`shards`): 34 basalt rafts float around the island (not on the approach axis), some carrying spear bundles or a fallen obsidian obelisk. Scenery that can't be reached.
+- **Ash dunes**: low dunes on the outer plain (faded near the road). Materials diversified to bring the facade top-5 share down to 0.40.
+
+Stats: 8/14 floors (PASS on height, tiers, tier ratio, partial 0.32, top-5 0.40, facade lights 1.43, metal, skulls 0.34); stability PASS. Structural or out-of-scope FAILs:
+- footprint 0.53: the island covers 0.72 of the canvas, so about 0.58 is the ceiling;
+- containers and BE props: that is furnishing, which this brief forbids;
+- lights and joinery: per-exposed floors calibrated for furnished builds.
+
+Breaks are 193/200; P8 deals with them.
+
+Weakest three now:
+1. The bailey is still a dark canyon in daylight (cam_bailey). There is no legible ring route and no courtyard moment.
+2. The Forge Hall reads as a plain brick box with a black door (cam_hall), and the heart chamber is a lava strip in darkness (cam_heart).
+3. Large plain basalt flanks on the NE (an obsidian chute stripe in cam_ash_ne), and plane breaks are just under the floor.

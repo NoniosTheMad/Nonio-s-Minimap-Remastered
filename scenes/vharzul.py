@@ -51,7 +51,7 @@ LAKE_R = 50         # foot of the inner crater wall
 RIM_R = 61          # rim crest
 PLUG_R = 31
 DECK = 58           # plug top (bailey paving); standing level DECK+1
-FANG_TOP = 200
+FANG_TOP = 207
 GATE_F = 38         # Maw threshold (outer) floor level; passage floor blocks at GATE_F-1
 GATE_I = 46         # Maw inner end = bridge head floor
 GX0, GX1 = 99, 109  # gate passage (11 wide, axis x=104)
@@ -97,7 +97,7 @@ HORN = Gradient("height", [(0.30, Mix({"obsidian": 4, "crying_obsidian": 0.3})),
                            (0.74, Mix({"blackstone": 2, "basalt": 2})), (0.86, Mix({"basalt": 1, "smooth_basalt": 1, "calcite": 1})),
                            (999, BONE)], jitter=0.04, jitter_scale=5, seed=SEED + 4)
 ROOF = Mix({"cinnabar_bricks": 3, "polished_cinnabar": 1})
-PAVE = Mix({"polished_blackstone": 2, "polished_basalt": 1, "deepslate_tiles": 1}, seed=SEED + 5)
+PAVE = Mix({"polished_blackstone": 1, "polished_basalt": 1, "deepslate_tiles": 1, "polished_deepslate": 1}, seed=SEED + 5)
 
 
 def pol(a, r, c=C):
@@ -146,6 +146,9 @@ def terrain(s):
     plain = PLAIN + 1.3 * fbm2(gx, gz, 13, SEED + 6) + 0.8 * fbm2(gx, gz, 5, SEED + 16)
     h = np.where(r < RIM_R, inner, np.where(r < foot, outer, plain))
     h += 1.3 * fbm2(gx, gz, 5, SEED + 7) * (r > LAKE_R - 2)
+    if PASS >= 7:       # P7: ash dunes, long and low, fading in below the flank and sloping down to the road
+        fade = np.clip((r - (RIM_R + 8)) / 16, 0, 1) * np.where(gz > ZF - 4, np.clip((np.abs(gx - 104) - 9) / 7, 0, 1), 1)
+        h = h + (2.4 * np.abs(fbm2(gx, gz, 21, SEED + 17)) + 1.4) * fade
     # cooled lava tongues: lobes raised 1-3 over the flank, widening downhill, rounded fronts on the plain
     flow2d = np.zeros(h.shape, bool)
     for a0, wfoot in FLOWS:
@@ -319,7 +322,7 @@ def plug(s):
     top = np.where(rng.random(len(pts)) < 0.12, top + rng.uniform(3, 9, len(pts)), top)
     htop = np.where(cid >= 0, top[np.maximum(cid, 0)], -1)
     col = heightmask(s.shape, np.round(htop).astype(int), np.full(htop.shape, 8))
-    s.fill(col, Gradient("y", [(LAKE_Y + 3, Mix({"magma_block": 1, "basalt": 3})), (999, Mix({"basalt": 5, "polished_basalt": 1}))],
+    s.fill(col, Gradient("y", [(LAKE_Y + 3, Mix({"magma_block": 1, "basalt": 3})), (999, Mix({"basalt": 5, "smooth_basalt": 1}))],
                          jitter=2, jitter_scale=4, seed=SEED))
     for a, rr, ht in ((70, 42, 44), (200, 40, 38), (275, 44, 50), (115, 43, 34)):
         x, z = pol(a, rr)
@@ -837,7 +840,7 @@ def rim_facade(s, r, th):
 
 
 # ================================================================== P3: rooflines, spikes, collars, skyline
-def thorn(s, p0, p1, p2, r0, r1, tip_frac=0.45, base=Mix({"basalt": 2, "polished_basalt": 1}), tip=BONE, n=12):
+def thorn(s, p0, p1, p2, r0, r1, tip_frac=0.45, base=Mix({"basalt": 2, "smooth_basalt": 1}), tip=BONE, n=12):
     """A curved spike: bezier p0->p1->p2, radius r0->r1; the last tip_frac of it in `tip`."""
     path = bezier([p0, p1, p2], n)
     parts = tube(path, r0, r1)
@@ -903,7 +906,7 @@ def horn_ridges(s):
             rr = 9.0 + (0.6 - 9.0) * ((i + 0.5) / 46) ** 1.1
             ring = shapes.capsule(path[i], path[i + 1], rr + 0.75)
             s.fill(ring, Gradient("y", [(DECK + 22, "obsidian"), (DECK + 44, Mix({"obsidian": 1, "polished_blackstone": 1})),
-                                        (108, "polished_basalt"), (999, BONE)], seed=SEED + a), replace="air")
+                                        (108, "smooth_basalt"), (999, BONE)], seed=SEED + a), replace="air")
         u = np.array([math.cos(math.radians(a)), 0, math.sin(math.radians(a))])
         for i in (9, 15, 21):
             p = path[i]
@@ -970,10 +973,11 @@ def weather(s):
     s.fill(plinth, Mix({"blackstone": 2, "polished_blackstone_bricks": 3, "basalt": 1}, seed=SEED + 70))
     body = m & (run > 3)
     s.fill(body, Gradient(lambda c: run[c.xs, c.ys, c.zs], [
-        (9, Mix({"deepslate_bricks": 4, "cracked_deepslate_bricks": 1, "polished_blackstone_bricks": 1})),
-        (16, Mix({"deepslate_bricks": 4, "deepslate_tiles": 1, "tuff_bricks": 1, "cracked_deepslate_bricks": 1})),
-        (999, Noise([(-0.25, Mix({"tuff_bricks": 3, "deepslate_bricks": 2})),
-                     (0.3, Mix({"deepslate_bricks": 3, "tuff_bricks": 2, "deepslate_tiles": 1})),
+        (9, Mix({"deepslate_bricks": 2, "cracked_deepslate_bricks": 1, "polished_blackstone_bricks": 1, "polished_deepslate": 1,
+                 "deepslate_tiles": 1})),
+        (16, Mix({"deepslate_bricks": 2, "deepslate_tiles": 2, "tuff_bricks": 1, "cracked_deepslate_bricks": 1, "polished_deepslate": 1})),
+        (999, Noise([(-0.25, Mix({"tuff_bricks": 3, "deepslate_bricks": 1, "polished_tuff": 1})),
+                     (0.3, Mix({"deepslate_bricks": 2, "tuff_bricks": 2, "deepslate_tiles": 2})),
                      (1, Mix({"deepslate_tiles": 2, "cracked_deepslate_bricks": 1, "deepslate_bricks": 2}))], scale=9, seed=SEED + 71))],
         jitter=2.5, seed=SEED + 72))
     cope = m & ~above & (run > 1)
@@ -1130,7 +1134,7 @@ def throat_steps(s):
 
 
 # ================================================================== P6: terrain transitions, the outer ring
-COLUMN = Mix({"basalt": 5, "polished_basalt": 2}, seed=SEED + 90)
+COLUMN = Mix({"basalt": 5, "smooth_basalt": 2}, seed=SEED + 90)
 
 
 def causeway(s, h, r, th):
@@ -1244,7 +1248,7 @@ def spear_clusters(s, h):
             path = [(bx, g - 2, bz), ((bx + tip[0]) / 2, g + ht * 0.5, (bz + tip[2]) / 2), tip]
             tipm = BONE if (j == 0 and ci % 3 == 0) else ("polished_basalt" if j == 0 else Mix({"basalt": 3, "blackstone": 1}))
             thorn(s, path[0], path[1], path[2], rad, 0.35, tip_frac=0.25 if j == 0 else 0.0,
-                  base=Mix({"basalt": 3, "blackstone": 1, "polished_basalt": 1}, seed=ci * 7 + j), tip=tipm, n=10)
+                  base=Mix({"basalt": 3, "blackstone": 1, "smooth_basalt": 1}, seed=ci * 7 + j), tip=tipm, n=10)
     for k in range(45):
         a, rr = rng.uniform(-180, 180), rng.uniform(RIM_R + 8, 92)
         if abs(wrap_deg(a - 90)) < 15:
@@ -1258,6 +1262,315 @@ def spear_clusters(s, h):
                Mix({"blackstone": 2, "basalt": 2, "magma_block": 0.4}))
 
 
+# ================================================================== P7: relief, ember slits, fixtures, night read
+STAIR_OF = {"deepslate_bricks": "deepslate_brick_stairs", "cracked_deepslate_bricks": "deepslate_brick_stairs",
+            "deepslate_tiles": "deepslate_tile_stairs", "tuff_bricks": "tuff_brick_stairs",
+            "polished_blackstone_bricks": "polished_blackstone_brick_stairs", "polished_tuff": "polished_tuff_stairs",
+            "blackstone": "blackstone_stairs", "polished_deepslate": "polished_deepslate_stairs",
+            "cinnabar_bricks": "cinnabar_brick_stairs", "polished_cinnabar": "polished_cinnabar_stairs",
+            "sulfur_bricks": "sulfur_brick_stairs", "polished_sulfur": "polished_sulfur_stairs",
+            "polished_blackstone": "polished_blackstone_stairs"}
+DIRS = (((1, 0), "east", "west"), ((-1, 0), "west", "east"), ((0, 1), "south", "north"), ((0, -1), "north", "south"))
+
+
+def _shift(a, dx, dy, dz):
+    """b[x,y,z] = a[x+dx, y+dy, z+dz] (False outside)."""
+    b = np.zeros_like(a)
+    src = tuple(slice(max(d, 0), n + min(d, 0)) for d, n in zip((dx, dy, dz), a.shape))
+    dst = tuple(slice(max(-d, 0), n - max(d, 0)) for d, n in zip((dx, dy, dz), a.shape))
+    b[dst] = a[src]
+    return b
+
+
+def relief(s):
+    """Masonry relief on every flat wall, by rule (so every outwork gets the same grammar):
+    - copings: sky-facing wall edges become outward-sloping stairs;
+    - drip courses: every 7th course is a groove of upside-down stairs (a shadow line);
+    - ember slits: 3-high slits on an 8-block bay rhythm, iron bars in front of ochre froglights (the fortress glows from
+      inside at night), each with an iron hood above and a sill below;
+    - putlog holes: a sparse lattice of 1-deep holes (scale and shadow on the big plain faces)."""
+    idx = s.idx
+    air = idx == 0
+    names = s.palette
+    fam = {}
+    for i, p in enumerate(names):
+        nm = p.split(":")[-1].split("[")[0]
+        if nm in STAIR_OF:
+            fam[i] = STAIR_OF[nm]
+    mas = np.isin(idx, list(fam))
+    solid = s.solid()
+    zone_air = np.zeros(s.shape, bool)
+    for zn in ZONES:
+        x0, y0, z0, x1, y1, z1 = zn["box"]
+        zone_air[x0 - 1:x1 + 2, y0 - 1:y1 + 2, z0 - 1:z1 + 2] = True
+    keep_out = np.zeros(s.shape, bool)
+    keep_out[84:125, :GATE_F + 66, ZF - 26:ZF + 5] = True             # the Maw keeps its own composition
+    keep_out[95:114, :, ZP:] |= True                                   # stair, road and bridge treads
+    keep_out |= zone_air
+    keep_out[:, :PLAIN + 1, :] = True
+    up_air = _shift(air, 0, 1, 0)
+    up_m, dn_m = _shift(mas, 0, 1, 0), _shift(mas, 0, -1, 0)
+    plans = []
+    for (dx, dz), out_name, in_name in DIRS:
+        front = _shift(air, dx, 0, dz)
+        back = _shift(solid, -dx, 0, -dz)
+        side = (0, 1) if dx else (1, 0)
+        flat = _shift(mas, side[0], 0, side[1]) & _shift(mas, -side[0], 0, -side[1]) \
+            & _shift(front, side[0], 0, side[1]) & _shift(front, -side[0], 0, -side[1])
+        face = mas & front & back & ~keep_out
+        n_air = sum(_shift(air, a, 0, b).astype(np.int8) for (a, b), _, _ in DIRS)
+        single = n_air == 1
+        plans.append(((dx, dz), out_name, in_name, face, flat, single, front, back))
+    U = lambda dx: (np.arange(D)[None, None, :] if dx else np.arange(W)[:, None, None])
+    yy = np.arange(H)[None, :, None]
+    set_ops = []                                      # (mask, state or fn)
+    slit_count = 0
+    done = np.zeros(s.shape, bool)
+    for (dx, dz), out_name, in_name, face, flat, single, front, back in plans:
+        u = U(dx)
+        face &= ~done
+        cope = face & up_air & (_shift(solid, 0, -1, 0))
+        drip = face & up_m & dn_m & ((yy % 7 == 3) | (yy % 7 == 0) | (yy % 7 == 5))
+        back2 = _shift(solid, -2 * dx, 0, -2 * dz)
+        slit_col = face & back2 & (u % 8 == 4)
+        slit = np.zeros_like(face)
+        cx, cz = np.nonzero(slit_col.any(1))
+        for x, z in zip(cx, cz):          # a 3-high slit centred in every vertical face run of 5+, one per 10 blocks
+            col = slit_col[x, :, z]
+            y = 0
+            while y < H:
+                if not col[y]:
+                    y += 1
+                    continue
+                y1 = y
+                while y1 < H and col[y1]:
+                    y1 += 1
+                n_ = y1 - y
+                if n_ >= 5:
+                    for k0 in range(y + 1 + ((n_ - 2) % 10) // 2, y1 - 3, 10):
+                        slit[x, k0:k0 + 3, z] = True
+                y = y1
+        slit_count += int(slit[:, ::1, :].sum()) // 3
+        hole = face & back2 & (u % 5 == 1) & (yy % 6 == 1) & ~slit & ~_shift(slit, 0, 1, 0) & ~_shift(slit, 0, -1, 0)
+        drip &= ~slit & ~hole
+        done |= cope | drip | slit | hole
+        set_ops.append(("cope", cope & ~slit, in_name, None))
+        # corbel table: a bracket under every other coping block, in front of the wall
+        below_front = _shift(_shift(air, dx, 0, dz), 0, -1, 0) & _shift(_shift(air, dx, 0, dz), 0, -2, 0)
+        corb = _shift(cope & (u % 2 == 0), 0, 1, 0) & below_front & ~keep_out
+        set_ops.append(("corbel", corb, in_name, (dx, dz)))
+        set_ops.append(("drip", drip, in_name, None))
+        set_ops.append(("slit", slit, (dx, dz), out_name))
+        set_ops.append(("hole", hole, None, None))
+    bars_side = {(1, 0): "north=true,south=true", (-1, 0): "north=true,south=true",
+                 (0, 1): "east=true,west=true", (0, -1): "east=true,west=true"}
+    for kind, m, a, b in set_ops:
+        xs, ys, zs = np.nonzero(m)
+        if kind in ("cope", "drip"):
+            half = "bottom" if kind == "cope" else "top"
+            for x, y, z in zip(xs, ys, zs):
+                st = fam.get(int(idx[x, y, z]))
+                if st:
+                    s.set(int(x), int(y), int(z), f"{st}[facing={a},half={half}]")
+        elif kind == "corbel":
+            dx, dz = b
+            for x, y, z in zip(xs, ys, zs):
+                st = fam.get(int(idx[x, y + 1, z])) or "deepslate_brick_stairs"
+                fx, fz = int(x + dx), int(z + dz)
+                if 0 <= fx < W and 0 <= fz < D and s.idx[fx, y, fz] == 0:
+                    s.set(fx, int(y), fz, f"{st}[facing={a},half=top]")
+        elif kind == "slit":
+            dx, dz = a
+            for x, y, z in zip(xs, ys, zs):
+                s.set(int(x), int(y), int(z), f"iron_bars[{bars_side[(dx, dz)]}]")
+                s.set(int(x - dx), int(y), int(z - dz), "ochre_froglight")
+                fx, fz = int(x + dx), int(z + dz)
+                if 0 <= fx < W and 0 <= fz < D:
+                    for yy_, cond in ((int(y) + 1, not m[x, min(H - 1, y + 1), z]), (int(y) - 1, not m[x, max(0, y - 1), z])):
+                        if cond and s.idx[fx, yy_, fz] == 0:
+                            s.set(fx, yy_, fz, f"iron_trapdoor[facing={b},half=top,open=false]")
+        else:
+            for x, y, z in zip(xs, ys, zs):
+                s.set(int(x), int(y), int(z), "air")
+    s.meta["_slits"] = slit_count
+
+
+def skull_rot(theta):
+    return int(round(((theta - 90) % 360) / 22.5)) % 16
+
+
+def night_fixtures(s):
+    """Designed lights for the night read: lanterns on the Tongue and bridge parapets, the throne lantern's ember ring,
+    wither skulls on the star merlons and the Pylons, lanterns hung in the Maw throat."""
+    # Tongue parapet lanterns (every 4th post) and landing pedestal braziers
+    for x in (97, 111):
+        for z in range(ZF + 2, s.meta["_stair_foot"], 4):
+            y = ground_y(s, x, z)
+            if "wall" in s.palette[s.idx[x, y - 1, z]]:
+                s.set(x, y, z, "lantern[hanging=false]")
+    for zl in s.meta.get("_landings", []):
+        for x0 in (93, 113):
+            for dx, dz in ((0, 0), (2, 0), (0, 2), (2, 2)):
+                y = ground_y(s, x0 + dx, zl + dz)
+                s.set(x0 + dx, y, zl + dz, "lantern[hanging=false]")
+    # Ember Bridge: lanterns on every 4th merlon
+    for z in range(ZP + 2, ZB, 4):
+        for x in (99, 109):
+            y = ground_y(s, x, z)
+            if y < DECK + 6:
+                s.set(x, y, z, "lantern[hanging=false]")
+    # Maw throat: lanterns hung from the vault on chains
+    for z in range(ZB + 3, ZF - 2, 5):
+        top = None
+        for y in range(GATE_I + 2, GATE_F + 20):
+            if s.idx[104, y, z] != 0:
+                top = y
+                break
+        if top:
+            s.set(104, top - 1, z, "iron_chain[axis=y]")
+            s.set(104, top - 2, z, "lantern[hanging=true]")
+    # throne lantern: an ember ring in the floor shows through the six arches
+    r, th = polar(s.shape, C)
+    ring = (r >= 4.5) & (r < 6.0)
+    for y in (148,):
+        m = np.zeros(s.shape, bool)
+        m[:, y, :] = ring
+        s.fill(m & s.match("solid"), "ochre_froglight")
+    # skulls on the star wall copings: one per 7.5-degree bay (alternate bays), on the highest sky-facing coping in
+    # the bay, facing out over the lava
+    idx = s.idx
+    air = idx == 0
+    tops = (idx != 0) & np.concatenate([air[:, 1:], np.ones_like(air[:, :1])], 1)
+    cope = s.match(lambda nm: "polished_tuff" in nm or "tuff_brick" in nm) & tops
+    cope[:, :DECK + 10, :] = False
+    cope[:, DECK + 20:, :] = False
+    xs, ys, zs = np.nonzero(cope)
+    best = {}
+    for x, y, z in zip(xs, ys, zs):
+        rr_ = math.hypot(x + 0.5 - C[0], z + 0.5 - C[1])
+        if not 16 <= rr_ <= 38:
+            continue
+        th_ = math.degrees(math.atan2(z + 0.5 - C[1], x + 0.5 - C[0]))
+        if abs(wrap_deg(th_ - 90)) < 8:            # keep the hall door axis clear
+            continue
+        b_ = int((th_ + 180) // 7.5)
+        key = (y, rr_)
+        if b_ not in best or key > best[b_][0]:
+            best[b_] = (key, int(x), int(y), int(z), th_)
+    n = 0
+    for _, x, y, z, th_ in best.values():
+        if s.idx[x, y + 1, z] == 0:
+            s.set(x, y + 1, z, f"wither_skeleton_skull[rotation={skull_rot(th_)}]")
+            n += 1
+    # skulls on the Tongue landing pedestals and on the spear posts of the road (facing the approach)
+    for z in range(s.meta["_stair_foot"] + 2, D, 5):
+        for x in (96, 112):
+            y = ground_y(s, x, z)
+            if PLAIN + 3 <= y <= PLAIN + 12 and s.idx[x, y - 1, z] != 0:
+                s.set(x, y, z, "skeleton_skull[rotation=0]")
+                n += 1
+    s.meta["_skulls"] = n
+
+
+def light_interiors(s):
+    """Interiors and the bailey canyon: the voxel auto-light (hanging lanterns on chains, wall lanterns) in the
+    'noble' kit (polished blackstone, dark oak), so every walkable room cell reaches light 7 (no spawns)."""
+    import tools.voxel.light as L
+    added = L.autolight(s, "noble", minimum=8, max_new=260, outdoor=False)
+    # the citadel and its approach are lit for the night too (walls, bailey, Tongue, bridge, road): the garrison's
+    # lanterns; the ash plain stays dark (the island glows only where it is held)
+    r, _ = polar(s.shape, C)
+    held = np.zeros(s.shape, bool)
+    held[:, DECK - 2:, :] = (r < PLUG_R + 6)[:, None, :]
+    held[93:116, PLAIN - 2:, ZB - 2:] = True
+    held[98:111, :, ZB - 2:] = False          # never a lantern on the treads: the parapet lanterns light them
+    walk0 = L.walkable
+    L.walkable = lambda sc: walk0(sc) & held
+    try:
+        added += L.autolight(s, "noble", minimum=8, max_new=500, outdoor=True)
+    finally:
+        L.walkable = walk0
+    s.meta["_autolights"] = len(added)
+
+
+def _runs(m, axis):
+    """Length of the contiguous run of m along `axis` through each cell."""
+    a = np.moveaxis(m, axis, 0)
+    fwd = np.zeros(a.shape, np.int16)
+    bwd = np.zeros(a.shape, np.int16)
+    acc = np.zeros(a.shape[1:], np.int16)
+    for i in range(a.shape[0]):
+        acc = np.where(a[i], acc + 1, 0)
+        fwd[i] = acc
+    acc[:] = 0
+    for i in range(a.shape[0] - 1, -1, -1):
+        acc = np.where(a[i], acc + 1, 0)
+        bwd[i] = acc
+    return np.moveaxis(fwd + bwd - 1, 0, axis)
+
+
+def bone_grain(s):
+    """Bone grows along its length: every bone block takes the axis of the longest bone run through it, so horns,
+    ribs and thorn tips show their grain (side texture along, ring ends at the tips)."""
+    m = s.match(lambda n: "bone_block" in n)
+    rx, ry, rz = _runs(m, 0), _runs(m, 1), _runs(m, 2)
+    ax = np.argmax(np.stack([rx, ry, rz]), 0)
+    for k, name in enumerate("xyz"):
+        s.fill(m & (ax == k), f"bone_block[axis={name}]")
+
+
+def shards(s, h):
+    """The Shattered Rim: basalt shards torn off the island drift around it (corners and flanks), each a column-capped
+    raft with a tapering underside, a few carrying a spear bundle or a fallen obelisk. Unreachable scenery."""
+    rng = np.random.default_rng(SEED + 120)
+    edge = s.meta["_edge"]
+    gx, gz = cols2d(s.shape)
+    r, th = polar(s.shape, C)
+    placed = []
+    free = r > edge + 5
+    tries = 0
+    while len(placed) < 34 and tries < 6000:
+        tries += 1
+        x, z = rng.uniform(4, W - 4), rng.uniform(4, D - 4)
+        if not free[int(x), int(z)]:
+            continue
+        rr_ = math.hypot(x - C[0], z - C[1])
+        a = math.degrees(math.atan2(z - C[1], x - C[0]))
+        room = rr_ - edge_radius(np.array(a)) - 3
+        rad = min(rng.uniform(4, 15), room, x - 1, W - 2 - x, z - 1, D - 2 - z)
+        if rad < 3 or any(math.hypot(x - px, z - pz) < rad + pr + 1.5 for px, pz, pr in placed):
+            continue
+        if abs(wrap_deg(a - 90)) < 22 and z > ZF:     # keep the approach axis clear
+            continue
+        placed.append((x, z, rad))
+    for k, (x, z, rad) in enumerate(placed):
+        top = PLAIN + (rng.uniform(4, 26) if k % 2 else rng.uniform(-16, -3))
+        depth = rad * rng.uniform(1.6, 3.2)
+        tilt = rng.uniform(-0.25, 0.25, 2)
+        raft = shapes.SDF(lambda X, Y, Z, x=x, z=z, rad=rad, top=top, depth=depth, tilt=tilt, k=k:
+                          np.maximum(np.hypot(X - x, Z - z) - rad * np.clip((Y - (top - depth)) / depth, 0, 1) ** 0.6
+                                     - 0.9 * np.sin((X + 2 * Z) * 0.7 + k), Y - (top + tilt[0] * (X - x) + tilt[1] * (Z - z))),
+                          ((x - rad - 2, top - depth - 1, z - rad - 2), (x + rad + 2, top + rad * 0.3 + 2, z + rad + 2)))
+        s.fill(raft, UNDER)
+        m = raft.mask(s.shape)
+        topm = m & ~np.concatenate([m[:, 1:], np.zeros_like(m[:, :1])], 1)
+        s.fill(topm, ASH)
+        if k % 3 == 0:          # a spear bundle torn off with its shard
+            g = int(top)
+            for j in range(3):
+                ang = rng.uniform(0, 2 * math.pi)
+                ht = rng.uniform(6, 13)
+                thorn(s, (x, g - 1, z), (x + math.cos(ang) * 1.5, g + ht * 0.5, z + math.sin(ang) * 1.5),
+                      (x + math.cos(ang) * ht * 0.3, g + ht, z + math.sin(ang) * ht * 0.3), 1.3, 0.35, tip_frac=0.2,
+                      base=Mix({"basalt": 3, "blackstone": 1}), n=8)
+        elif k % 5 == 1 and rad > 5:   # a fallen obelisk lying across it
+            ang = rng.uniform(0, math.pi)
+            p0 = (x - math.cos(ang) * rad * 0.7, top + 1.2, z - math.sin(ang) * rad * 0.7)
+            p1 = (x + math.cos(ang) * rad * 0.8, top + 1.0, z + math.sin(ang) * rad * 0.8)
+            s.fill(shapes.capsule(p0, p1, 1.4), "obsidian")
+    s.meta["_shards"] = len(placed)
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
@@ -1265,6 +1578,8 @@ def build():
     if PASS >= 6:
         h = causeway(s, h, r, th)
         spear_clusters(s, h)
+    if PASS >= 7:
+        shards(s, h)
     else:
         spikes_field(s, h)
     obelisks(s, h)
@@ -1317,6 +1632,11 @@ def build():
     interiors(s)
     if PASS >= 4:
         weather(s)
+    if PASS >= 7:
+        relief(s)
+        bone_grain(s)
+        night_fixtures(s)
+        light_interiors(s)
     cameras(s)
     s.meta.pop("_bridge_prof", None)
     s.meta.pop("_edge", None)
