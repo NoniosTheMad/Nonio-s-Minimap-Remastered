@@ -10,6 +10,7 @@
   pull    --server NAME (--box X0 Y0 Z0 X1 Y1 Z1 | --scene SCENE) [--out F.npz]
   light   SCENE [--min 7] [--render] [--auto STYLE] [--patch]   light audit (block+sky flood fill), overlay, auto-light
   stats   SCENE [--json F]                       quantitative floors (playbook §5): canvas, facades, decoration density
+  protect SCENE [--at X Y Z] [--install SERVER [--setup]]   datapack: build unbreakable, players' own blocks free
   diff    SCENE (--server NAME [--at X Y Z] | --against F.npz|F.nbt) [--patch] [--no-render] [--strict]
 
 SCENE = scenes/x.py (build() -> Scene, or a module-level SCENE), a .npz saved by Scene.save, or a structure .nbt.
@@ -159,6 +160,16 @@ def main(argv=None):
     a.add_argument("--outdoor", action="store_true", help="--auto also lights cells that are only dark at night")
     a.add_argument("--max", type=int, default=200); a.add_argument("--patch", action="store_true",
                    help="with --auto: append the new fixtures to <scene>.patch.json")
+    a = sub.add_parser("protect"); a.add_argument("scene"); a.add_argument("--at", nargs=3, type=int)
+    a.add_argument("--out", help="datapack root (default .mcdev/voxel/out/<scene>/protect_pack)")
+    a.add_argument("--ns", default="vprot"); a.add_argument("--id"); a.add_argument("--sweep", type=int, default=40,
+                   help="ticks per full sweep of the build (default 40 = 2 s)")
+    a.add_argument("--backup", nargs=3, type=int, help="backup corner (default: same x/z at y -64 if it fits)")
+    a.add_argument("--store", nargs=3, type=int, help="loose-block store corner (default: beside the backup)")
+    a.add_argument("--free", default="", help="extra id substrings never protected (comma list)")
+    a.add_argument("--loose", default="", help="extra id substrings protected by id only (comma list)")
+    a.add_argument("--install", metavar="SERVER", help="merge into <world>/datapacks/voxel_protect and /reload")
+    a.add_argument("--setup", action="store_true", help="with --install: run <ns>:<id>/setup (backs up the build as it is now)")
     args = ap.parse_args(argv)
 
     if args.cmd == "serve":
@@ -182,6 +193,30 @@ def main(argv=None):
         return
 
     s = load_scene(args.scene)
+    if args.cmd == "protect":
+        from . import protect
+        at = _origin(args, s, args.install)
+        sp = lambda v: tuple(x for x in v.split(",") if x)
+        pl = protect.plan(s, at, args.backup, args.store, sp(args.free), sp(args.loose))
+        if args.install:
+            from .server import Server
+            srv = Server(args.install)
+            root = srv.world / "datapacks" / "voxel_protect"
+        else:
+            root = Path(args.out) if args.out else out_dir(s.name) / "protect_pack"
+        meta = protect.write_pack(s, pl, root, ns=args.ns, ident=args.id, sweep=args.sweep)
+        print(f"[voxel] protect pack {root}: {json.dumps(meta)}")
+        if meta.get("unstable_soil"):
+            print(f"[voxel] note: {meta['unstable_soil']} grass/dirt cell(s) will flip on random ticks (grass under a full "
+                  "block face, lit dirt next to grass); each flip costs a tile restore. Fix them in the scene.")
+        if args.install:
+            srv.cmd("reload"); time.sleep(3)
+            if args.setup:
+                t0 = time.time()
+                print("[voxel] setup:", srv.cmd(f"function {meta['function']}/setup"), f"({time.time() - t0:.1f}s)")
+            else:
+                print(f"[voxel] next: /function {meta['function']}/setup on the pristine build")
+        return
     if args.cmd == "stats":
         from . import stats
         m = stats.compute(s)
