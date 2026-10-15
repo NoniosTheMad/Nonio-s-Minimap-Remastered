@@ -357,8 +357,9 @@ def nav_dialog(reg, here=None):
 def todo_heads(todo):
     """Servers tooltip: the "Your role:" line of try.txt, else step headlines ("2. Generator: ..." -> "2. Generator")."""
     for ln in todo.splitlines():
-        if ln.strip().lower().startswith("your role:"):
-            return [ln.strip()]
+        if ln.strip().lower().startswith("your role:"):  # wrapped: tip_lines would cut it at TIP_COLS
+            import textwrap
+            return textwrap.wrap(ln.strip(), TIP_COLS)[:4]
     heads = []
     for ln in todo.splitlines():
         m = re.match(r"\s*(\d+)[.)]\s*(.+)", ln)
@@ -1881,7 +1882,13 @@ def read_spawn(src, demo):
 def read_todo(src, demo):
     """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
     f = Path(src) / "demos" / str(demo) / "try.txt"
-    return f.read_text(encoding="utf-8").strip() if demo and f.exists() else ""
+    if not (demo and f.exists()):
+        return ""
+    raw = f.read_bytes()
+    try:
+        return raw.decode("utf-8-sig").strip()
+    except UnicodeDecodeError:  # saved by a Windows editor in the ANSI codepage
+        return raw.decode("cp1252", "replace").strip()
 
 def cmd_review(a):
     reg = load_reg()
