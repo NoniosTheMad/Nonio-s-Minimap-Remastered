@@ -87,6 +87,8 @@ WALL = Gradient("y", [(DECK - 6, Mix({"blackstone": 2, "polished_blackstone_bric
                       (DECK + 4, Mix({"deepslate_bricks": 3, "polished_blackstone_bricks": 1, "cracked_deepslate_bricks": 1})),
                       (999, Mix({"deepslate_bricks": 3, "tuff_bricks": 2, "polished_basalt": 1, "deepslate_tiles": 1, "cracked_deepslate_bricks": 1}))],
                 jitter=2, jitter_scale=5, seed=SEED + 2)
+if PASS >= 4:       # P4: walls are one masonry family; weather() grades them by height above their own foot
+    WALL = Mix({"deepslate_bricks": 3, "tuff_bricks": 1, "deepslate_tiles": 1}, seed=SEED + 2)
 PILASTER = Mix({"polished_basalt": 4, "basalt": 1})
 TRIM = Mix({"sulfur_bricks": 3, "polished_sulfur": 1})
 BONE = "bone_block"
@@ -398,6 +400,16 @@ def keep_collars(s):
         s.fill(star(ro - 2.5, ri - 2, yc - 5, yc - 4, ro - 1.5, ri - 1.5, phase=ph), "polished_blackstone_bricks")
 
 
+def band_slab(path, i, half):
+    """Slab of thickness 2*half across a path at segment i (for crisp rings on tubes)."""
+    mid = (np.asarray(path[i]) + np.asarray(path[i + 1])) / 2
+    tg = np.asarray(path[i + 1]) - np.asarray(path[i])
+    tg = tg / np.linalg.norm(tg)
+    R = 14
+    return shapes.SDF(lambda x, y, z: np.abs((x - mid[0]) * tg[0] + (y - mid[1]) * tg[1] + (z - mid[2]) * tg[2]) - half,
+                      ((mid[0] - R, mid[1] - R, mid[2] - R), (mid[0] + R, mid[1] + R, mid[2] + R)))
+
+
 def horn_path(a):
     u = (math.cos(math.radians(a)), math.sin(math.radians(a)))
     cp = lambda rr, y: (C[0] + u[0] * rr, y, C[1] + u[1] * rr)
@@ -417,7 +429,8 @@ def horns(s):
         for i in (24,):    # one gold tribute band
             p0, p1 = path[i], path[i + 1]
             rr = 9.0 + (0.6 - 9.0) * ((i + 0.5) / 46) ** 1.1
-            s.fill(shapes.capsule(p0, p1, rr + 0.7) - shapes.capsule(path[i - 1], path[i + 2], rr - 0.6), "gold_block")
+            s.fill(band_slab(path, i, 0.9) & (shapes.capsule(path[i - 1], path[i + 2], rr + 0.8)
+                                              - shapes.capsule(path[i - 2], path[i + 3], rr - 0.8)), "gold_block")
 
 
 def spires(s):
@@ -937,6 +950,53 @@ def fang_crowns(s):
             s.box((x, DECK + 16, z), (x, DECK + 16, z + 1), "cinnabar_brick_wall")
 
 
+# ================================================================== P4: palette gradients, texture mixing, light copings
+MASONRY_IDS = ("deepslate_bricks", "cracked_deepslate_bricks", "deepslate_tiles", "polished_deepslate", "tuff_bricks")
+
+
+def weather(s):
+    """Re-material all masonry by its height above its own foot (not by world y), so every outwork gets the same read:
+    dark plinth (0-2) -> deepslate body -> lighter tuff-mixed upper body; every sky-facing top edge gets a pale coping
+    (polished tuff) so silhouettes and steps read in daylight; cracked patches by noise."""
+    m = np.isin(s.idx, [s.id(n) for n in MASONRY_IDS])
+    run = np.zeros(s.shape, np.int16)
+    acc = np.zeros((W, D), np.int16)
+    for y in range(H):
+        acc = np.where(m[:, y], acc + 1, 0)
+        run[:, y] = acc
+    above = np.zeros_like(m)
+    above[:, :-1] = s.solid()[:, 1:]
+    plinth = m & (run <= 3)
+    s.fill(plinth, Mix({"blackstone": 2, "polished_blackstone_bricks": 3, "basalt": 1}, seed=SEED + 70))
+    body = m & (run > 3)
+    s.fill(body, Gradient(lambda c: run[c.xs, c.ys, c.zs], [
+        (9, Mix({"deepslate_bricks": 4, "cracked_deepslate_bricks": 1, "polished_blackstone_bricks": 1})),
+        (16, Mix({"deepslate_bricks": 4, "deepslate_tiles": 1, "tuff_bricks": 1, "cracked_deepslate_bricks": 1})),
+        (999, Noise([(-0.25, Mix({"tuff_bricks": 3, "deepslate_bricks": 2})),
+                     (0.3, Mix({"deepslate_bricks": 3, "tuff_bricks": 2, "deepslate_tiles": 1})),
+                     (1, Mix({"deepslate_tiles": 2, "cracked_deepslate_bricks": 1, "deepslate_bricks": 2}))], scale=9, seed=SEED + 71))],
+        jitter=2.5, seed=SEED + 72))
+    cope = m & ~above & (run > 1)
+    s.fill(cope, Mix({"polished_tuff": 3, "tuff_bricks": 1}, seed=SEED + 73))
+
+
+def horn_bands(s):
+    """Cinnabar growth rings on the horns' dark lower half (the red of the roofs carried onto the horns)."""
+    for a in HORNS:
+        path = horn_path(a)
+        for i in (5, 11, 17):
+            rr = 9.0 + (0.6 - 9.0) * ((i + 0.5) / 46) ** 1.1
+            mid = (np.asarray(path[i]) + np.asarray(path[i + 1])) / 2
+            tg = np.asarray(path[i + 1]) - np.asarray(path[i])
+            tg = tg / np.linalg.norm(tg)
+            slab = shapes.SDF(lambda x, y, z, m=mid, g=tg: np.abs((x - m[0]) * g[0] + (y - m[1]) * g[1] + (z - m[2]) * g[2]) - 1.1,
+                              ((mid[0] - rr - 2, mid[1] - rr - 2, mid[2] - rr - 2), (mid[0] + rr + 2, mid[1] + rr + 2, mid[2] + rr + 2)))
+            ring = slab & (shapes.capsule(path[i - 1], path[i + 2], rr + 1.0)
+                                                         - shapes.capsule(path[i - 2], path[i + 3], rr - 0.8))
+            s.fill(ring, Mix({"cinnabar_bricks": 2, "polished_cinnabar": 1}, seed=SEED + a),
+                   replace=lambda n: "obsidian" in n or "blackstone" in n or "basalt" in n)
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
@@ -955,6 +1015,8 @@ def build():
     if PASS >= 3:
         horn_ridges(s)
         spires3(s)
+    if PASS >= 4:
+        horn_bands(s)
     else:
         spires(s)
     keep(s)
@@ -976,6 +1038,8 @@ def build():
     road(s, h)
     breach_fall(s)
     interiors(s)
+    if PASS >= 4:
+        weather(s)
     cameras(s)
     s.meta.pop("_edge", None)
     s.meta.pop("_flow", None)

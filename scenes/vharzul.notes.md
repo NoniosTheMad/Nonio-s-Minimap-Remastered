@@ -56,3 +56,21 @@ Weakest three (P3 sheet):
 2. The approach is still black at eye level: the WALL gradient is by absolute y, so pylons, cheek piers, stair and the
    Maw's lower body all use the darkest stop; the stair is a featureless dark ramp.
 3. Rim fangs and the field of spears are one repeated grey cone; they make noise rather than places.
+
+## P4: palette gradients, texture mixing, light copings
+Fixes for P3's list:
+1. Horns: three crisp cinnabar growth rings each (slab-cut so they are 2 blocks wide, not blotches; a first try with
+   ridge-replacement turned the horns into red/black camouflage and was thrown away), the gold band re-cut the same way.
+   The red ties the horns to the hall roof, the Alembic dome and the Bell needle. Fang kept black on purpose (the focal
+   dark), its arrises carry the light.
+2. Walls are now one masonry family and `weather()` grades them by height above their OWN foot (column run), not by
+   world y: dark plinth (0-3) -> deepslate body -> tuff-mixed upper body in noise patches -> cracked variants. Every
+   sky-facing masonry edge gets a pale polished-tuff coping, so steps, merlons, buttress tops and jaw shoulders read as
+   lines in daylight. The pylons, Maw and walls are now mid-grey with light edges instead of black.
+3. Ember render checked: lava ring + falls + Maw eyes carry it; fixtures still missing (P7).
+
+Weakest three (P4 sheet):
+1. The processional stair is a 25-block dark ramp with no landings, parapets, lamps or statues; the road is a flat strip.
+2. Outer ring: NE fumaroles are yellow boxes at eye level, rim fangs and spears are one repeated cone, the ash plain is
+   flat noise, the island edge is a straight cut.
+3. Night read: no fixtures at all; the throne lantern is dark; rooms are black.
