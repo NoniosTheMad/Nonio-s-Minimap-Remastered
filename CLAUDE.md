@@ -64,14 +64,15 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   **What to try here** (try.txt) is a button inside the demo's own G dialog (#34): `write_demo_dialogs` copies each dialog in the demo's
   `quick_actions` tag into the self pack (loads after `demo`, so it overrides) with that button appended; its Back returns to the demo dialog.
   Demo authors: nothing to do, just keep the demo dialog a `multi_action` listed in the demo's quick_actions tag.
-  G → Servers rows are all `[★] name (running|asleep, ~10s)`; tooltip ≤6 lines of ≤34 chars (`tip_lines`): desc, branch/demo, step headlines.
+  G → Servers rows are all `[▸][★] name [✔]`, status = colour only (user request): gold/aqua running, dark gray asleep; no status words.
+  ▸ = the server you're on (the list is built per server), ✔ = approved. Tooltip ≤6 lines of ≤34 chars (`tip_lines`): desc, branch/demo, step headlines.
   G → Servers / Archive are built by the daemon in storage `devnav:ui nav|arch` (`dialog_commands`, one RCON command per button) on every
   registry change and after each start, shown by `$dialog show @s $(nav)`. Nothing is /reloaded when a server sleeps/wakes.
 - **Spawn (void worlds, #27)**: `s["spawn"]` = `up --spawn "x y z [yaw]"` / `demos/<demo>/spawn.txt` / kept / default 0 64 0. Self pack `devnav:spawn_set` (on load):
   setworldspawn there, `respawn_radius 0`, forceload its chunk, 7x7 smooth stone under it if air (`keep`). On join/transfer `devnav:ground_check` runs for 2 s:
   no block anywhere in the player's column (or below the world) → `devnav:to_spawn`. Spectators skipped.
   Menu buttons are `trigger devnav.act set N` (1 servers, 2 repack (legacy), 3 reload (legacy), 4 and 9 feedback book, 5 reset, 6 inbox, 7 back to menu,
-  8 todo, 10 archive, 11 back to the demo dialog).
+  8 todo, 10 archive, 11 back to the demo dialog, 12 this-server dialog: handled by the self pack's tick; the shared nav_tick only resets 1..11).
 - **Feedback** (`.mcdev/feedback.log`, entries `#N ...`; read with `mcdev feedback`, `--ack`):
   - Text box (legacy, no longer in the menu, #33; the daemon still parses it): topic + multiline text; Send = `dynamic/custom` id `devnav:feedback`.
     The server logs it only at DEBUG ("Received custom click action <id> with payload <snbt>"), so servers launch with
@@ -95,7 +96,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - Every dev server sets `gamerule send_command_feedback false` (self pack `devnav:quiet`, on load): no "Triggered [devnav.act] ..." spam from menu clicks.
   Only success feedback of commands a player runs is hidden; errors, tellraw and RCON replies are unaffected.
 - **Idle sleep**: the daemon checks `list` over RCON every 15s; a server (never `hub`) empty for `IDLE_SLEEP_SECS` (10 min) is stopped
-  and marked `status: "sleeping"` (kept in `ls` and G → Servers, dimmed "(asleep, ~10s)", ★ kept). Clicking it = `trigger devnav.wake set <port>`
+  and marked `status: "sleeping"` (kept in `ls` and G → Servers, dark gray, ★ kept). Clicking it = `trigger devnav.wake set <port>`
   → {verb:"wake",uuid,port} in devnav:req → daemon starts it with its saved settings; meanwhile an actionbar countdown (`countdown`, estimate =
   the server's last `boot_secs`) shows wherever the player is, and `start(on_ready=...)` transfers them the moment "Done" appears.
   **Player targets from the daemon are UUIDs: always `execute as <uuid> run <cmd> @s`** (`transfer`/`tellraw`/`title` take player-only
@@ -106,6 +107,20 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   `mcdev unarchive <name>` / `up <name>` revives it: worktree re-added from the branch (or from the commit if the branch is gone), new free port.
   `ls` lists archived ones at the bottom; idle sleep ignores them. G → Servers → "Archive (N)" (`devnav.act 10`, inline dialog in `devnav:archive`):
   click = `trigger devnav.revive set <aid>` → {verb:"revive",uuid,id} → daemon unarchives + starts + transfers (same path as wake).
+- **Approve / Shelve** (user request 2026-10-15; the user's way to close a review). G → Servers → own row (▸) → dialog `devnav:this`
+  [✔ Approve] [Shelve] / [Back] → confirmation (optional Note text input, Yes = `dynamic/custom` `devnav:approve|shelve`, logged like the
+  feedback text box) → the daemon runs `retire()` in the background:
+  - **Approve** = "I like it as is": feedback entry `✔ APPROVED <name> <branch>@<short> (merge)` (body = note, ctx = full commit, warns on
+    uncommitted worktree changes), registry `approved: {date, commit, note, fid}`, then archived with `archive.kind = "approved"`.
+    **Claude: merge that branch@commit into main** at the next checkpoint, then `mcdev feedback --resolve N`.
+  - **Shelve** = review closed, NOT adopted (the user's feedback on it is considered handled; follow-up demos go to NEW servers):
+    entry `■ CLOSED <name> <branch>@<short> (not adopted)`, archived with `kind = "shelved"`. Don't merge; don't reuse the server.
+  - Players on it are transferred first (hub, else any other up server), and it is only stopped once empty; if they can't be moved
+    the entry is still written but the server stays up. Greyed with a tooltip: both on hub/main/test, Approve on branch `main`.
+  - CLI parity: `mcdev approve <name> [--note ..]`, `mcdev archive <name> [--note ..]` (= shelve; re-archiving an archived one only
+    updates the note). `mcdev feedback` ends with a `server decisions:` line listing APPROVED/CLOSED entries; `ls` marks + / APPROVED / closed.
+  - The own-row button needs a self pack written by this code (`s["ui_ver"] >= UI_VER`); on servers started earlier it is greyed
+    ("Restart it to approve here") until their next start.
   Archived 2026-10-14: nexus, shop, purse (merged into m2/econ), fx (old posteffect probe). 2026-10-15: m4 (#51).
 - `start` waits (≤30s) until the game + RCON ports are free (bind test) before launching: fixes `restart` failing with "port in use".
 - The daemon restarts itself when `tools/mcdev.py` changes (quiet 3 s, compiles, no start/stop in flight; logged "mcdev.py changed: restarting").
