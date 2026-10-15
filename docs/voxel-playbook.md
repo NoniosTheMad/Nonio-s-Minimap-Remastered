@@ -268,6 +268,23 @@ concept; the *structure* of the rules is what transfers.
 - **Asymmetry with intent.** Keep the axis symmetric and vary the wings: a different roof form, tower type or
   material emphasis per wing.
 
+- **Stability (a gate, not a style).** Every built map region is protected (`protect`), and each block that changes
+  by itself costs a restore forever. `stats` shows a stability FAIL, and `protect --install` refuses the build until it
+  passes. Check these:
+  - Grass: never put `grass_block` under a full block face (a full block, bottom slab or bottom stairs). It dies to dirt.
+  - Dirt: never leave lit `dirt` touching grass. It turns to grass. Use `coarse_dirt` or `rooted_dirt` there.
+    `stability.fix_soil(scene)` does both as a last pass.
+  - Vines spread on every random tick. Use them only where spread is acceptable (outside the protected box) or capped,
+    i.e. every face around them is covered. Prefer glow lichen, moss carpet or hanging roots for growth that stays put.
+  - Other blocks that change by themselves:
+    - grow: mushrooms (spread in low light), saplings, kelp, bamboo, sugar cane, cactus, cave/twisting/weeping vines
+      (unless at max age), chorus flowers;
+    - decay or turn: leaves without `persistent=true`, unwaxed copper (use `waxed_*`), farmland, budding amethyst, fire.
+- **Interaction loot.** Blocks that hand out an item when used (flower pots, chiseled bookshelves, lecterns, jukeboxes,
+  campfires, composters, cauldrons, suspicious sand, beehives, decorated pots, berry bushes, pumpkins, rooted dirt,
+  cakes) are locked by `protect`: they can't be used. Containers restore empty, so their loot is handed out once.
+  Place them as decoration with that in mind.
+
 Optional grammars when the concept calls for them (from research-2 §2.4):
 - Gothic: arcade/triforium/clerestory; rib vaults; flying buttresses with pinnacles; rose; twin-tower front with a
   triple portal.
@@ -454,4 +471,5 @@ Rules of thumb:
 - [ ] Light from fixtures; dusk/night read checked; gameplay floors ≥ 7.
 - [ ] ≥ 4 critic rounds; median weighted ≥ 7.0, no category < 5; blind pick rate recorded.
 - [ ] Gameplay (arenas): lanes, chokes, equal travel, no all-seeing spot, cover on long lines.
+- [ ] `stats` stability PASS (no unstable soil, nothing spreading or decaying).
 - [ ] Placed with 0-diff, in-game stills taken, user walked it.

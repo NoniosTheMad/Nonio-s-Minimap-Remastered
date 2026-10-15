@@ -11,10 +11,14 @@ Generates a vanilla datapack (functions only, no command blocks) for one placed 
   change are cleared to air in C (`fill ... air replace #<ns>:<id>/free strict`), so `masked` ignores them:
     - FREE (never protected): air, fluids, fire, replaceable plants and snow layers (a player placing a block there
       replaces them; restoring them would delete the player's block).
-    - LOOSE (protected by block id only): doors, trapdoors, gates, containers, beds, candles, levers, crops, pots,
-      copper (oxidises)... anything players use or random ticks change. Each loose group (a door's two halves, a bed,
-      a double chest) is copied once into a small store S; a tile check `execute unless block <pos> <id>` clones it
-      back (a broken chest comes back with its original contents).
+    - LOOSE (protected by block id only): doors, trapdoors, gates, buttons, containers, beds, candles, crops... blocks
+      players may use without gaining an item. Each loose group (door halves, bed, double chest) is copied once into
+      a small store S; a tile check `execute unless block <pos> <id>` clones it back. Containers come back EMPTY
+      (their contents drop when broken; the loot is handed out once, never twice).
+    - LOCK (exact, untouchable): blocks whose interaction hands out an item (flower pots, chiseled bookshelves,
+      lecterns, jukeboxes, campfires, composters, cauldrons, suspicious sand/gravel, beehives, decorated pots, berry
+      bushes and vines, pumpkins, rooted dirt, cakes). Kept in C like solid blocks, and each is covered by an invisible
+      `interaction` entity (tag vp.<id>) that swallows use and attack.
   Air cells of the build are air in C too: everything players place there stays.
 * Detection, three paths, all in one tick function:
     1. a player whose `minecraft.mined:<id>` score rose (one objective per protected block id) -> tiles within reach;
@@ -51,6 +55,19 @@ LOOSE_PARTS = (
     "creaking_heart", "dried_ghast", "end_portal_frame", "pumpkin_stem", "melon_stem", "cocoa", "nether_wart",
     "sugar_cane", "bamboo", "cactus", "chorus_flower", "pitcher_crop", "torchflower_crop", "big_dripleaf", "small_dripleaf",
 )
+# LOCK: an interaction would hand the player an item (pot plant, shelf/lectern book, disc, cauldron fluid, bone meal,
+# brushing loot, honey/honeycomb, berries, pumpkin seeds, hanging roots, cake slices). Protected exactly (state + NBT)
+# AND covered by an invisible `interaction` entity, which swallows both use and attack: the block can't be touched.
+LOCK_PARTS = (
+    "flower_pot", "potted_", "chiseled_bookshelf", "lectern", "jukebox", "campfire", "composter", "cauldron",
+    "suspicious_sand", "suspicious_gravel", "beehive", "bee_nest", "decorated_pot", "sweet_berry_bush", "cave_vines",
+    "rooted_dirt", "cake", "end_portal_frame", "respawn_anchor",
+)
+LOCK_EXACT = {"pumpkin"}
+# containers among LOOSE: restored EMPTY (the store copy keeps the original loot, but handing it out again would dupe);
+# their contents drop normally when broken, only the container's own item drop is removed.
+CONTAINERS = ("chest", "barrel", "shulker_box", "hopper", "dispenser", "dropper", "furnace", "smoker", "brewing_stand",
+              "crafter")
 TILE = 16
 
 
@@ -59,6 +76,8 @@ def category(state, free=(), loose=()):
     name = bs.name_of(state).split(":", 1)[1]
     if name in FREE_IDS or any(p in name for p in free):
         return "free"
+    if name in LOCK_EXACT or any(p in name for p in LOCK_PARTS):
+        return "lock"
     if name.startswith("waxed_") and "copper" in name and not any(p in name for p in ("door", "trapdoor", "bulb", "chest", "golem")):
         return "solid"     # waxed copper never oxidises
     if any(p in name for p in LOOSE_PARTS) or any(p in name for p in loose):
@@ -130,27 +149,17 @@ def plan(scene, at, backup=None, store=None, free=(), loose=()):
                 sl = (slice(tx, min(tx + TILE, X)), slice(ty, min(ty + TILE, Y)), slice(tz, min(tz + TILE, Z)))
                 if prot_mask[sl].any():
                     tiles.append(((tx, ty, tz), (sl[0].stop - 1, sl[1].stop - 1, sl[2].stop - 1)))
-    # soil that random ticks will flip (grass under an opaque block dies; lit dirt next to grass grows grass): each flip
-    # costs one tile restore, forever. Reported so the scene can be fixed (dirt under cover, grass in the open).
-    from .light import _opacity
-    names = np.array([bs.name_of(s) for s in scene.palette], object)[scene.idx]
-    def covers(st):      # full bottom face: kills grass below (vanilla canBeGrass)
-        n, p = bs.parse(st)
-        return (_opacity(st) >= 15 or (n.endswith("_slab") and p.get("type") != "top")
-                or (n.endswith("_stairs") and p.get("half") == "bottom"))
-    opq = np.array([covers(s) for s in scene.palette])[scene.idx]
-    above = np.zeros_like(opq); above[:, :-1] = opq[:, 1:]
-    grass = names == "minecraft:grass_block"; dirt = names == "minecraft:dirt"
-    near_grass = np.zeros_like(grass)
-    for ax_, d in ((0, 1), (0, -1), (2, 1), (2, -1), (1, 1), (1, -1)):
-        near_grass |= np.roll(grass, d, ax_)
-    unstable = int((grass & above).sum() + (dirt & ~above & near_grass).sum())
+    from .stability import analyze
+    stab = analyze(scene)
+    locks = [tuple(int(v) for v in c) for c in np.argwhere(cat == "lock")]
     ids = sorted({bs.name_of(s) for s, c in zip(scene.palette, cats) if c != "free"})
-    free_ids = sorted({bs.name_of(s) for s, c in zip(scene.palette, cats) if c != "solid"} - {"minecraft:air"})
+    free_ids = sorted({bs.name_of(s) for s, c in zip(scene.palette, cats) if c in ("free", "loose")} - {"minecraft:air"})
     return {"at": at, "size": [X, Y, Z], "backup": backup, "store": store, "store_size": list(store_size),
-            "groups": groups, "slots": slots, "tiles": tiles, "mined_ids": ids, "clear_ids": free_ids,
+            "groups": groups, "slots": slots, "tiles": tiles, "mined_ids": ids, "clear_ids": free_ids, "locks": locks, "stability": stab,
             "counts": {"protected": int((cat == "solid").sum()), "loose": int(loose_mask.sum()),
-                       "free_nonair": int(((cat == "free") & (scene.idx != 0)).sum()), "unstable_soil": unstable}}
+                       "locked": len(locks),
+                       "free_nonair": int(((cat == "free") & (scene.idx != 0)).sum()),
+                       "unstable_soil": stab["unstable_soil"], "spreading": sum(stab["spreading"].values())}}
 
 
 def write_pack(scene, pl, root, ns="vprot", ident=None, sweep=40):
@@ -193,8 +202,14 @@ def write_pack(scene, pl, root, ns="vprot", ident=None, sweep=40):
         for c in cells:
             t = (c[0] // TILE * TILE, c[1] // TILE * TILE, c[2] // TILE * TILE)
             nm = bs.name_of(scene.palette[scene.idx[c]])
-            loose_by_tile.setdefault(t, []).append(
-                f"execute unless block {ax + c[0]} {ay + c[1]} {az + c[2]} {nm} run function {F}/fix {arg}")
+            if any(k in nm for k in CONTAINERS):
+                # only the broken cell (the other half of a double chest keeps its current contents)
+                o = (slot[0] + c[0] - g0[0], slot[1] + c[1] - g0[1], slot[2] + c[2] - g0[2])
+                carg = f"{{a:{o[0]},b:{o[1]},c:{o[2]},x:{ax + c[0]},y:{ay + c[1]},z:{az + c[2]},i:\"{nm}\"}}"
+                line = f"execute unless block {ax + c[0]} {ay + c[1]} {az + c[2]} {nm} run function {F}/fixc {carg}"
+            else:
+                line = f"execute unless block {ax + c[0]} {ay + c[1]} {az + c[2]} {nm} run function {F}/fix {arg}"
+            loose_by_tile.setdefault(t, []).append(line)
     tiles = list(pl["tiles"])
     tile_set = {t0 for t0, _ in tiles}
     for t in loose_by_tile:            # a loose-only tile still needs its checks
@@ -236,6 +251,12 @@ def write_pack(scene, pl, root, ns="vprot", ident=None, sweep=40):
         setup.append(f"clone {ax + g0[0]} {ay + g0[1]} {az + g0[2]} {ax + g1[0]} {ay + g1[1]} {az + g1[2]} "
                      f"{slot[0]} {slot[1]} {slot[2]} strict replace")
     eb = box(ax, ay, az, ax + X - 1, ay + Y - 1, az + Z - 1, 0)
+    locks = [f"kill @e[type=interaction,tag={O}]"]
+    for c in pl["locks"]:
+        locks.append(f"summon interaction {ax + c[0] + 0.5} {ay + c[1] - 0.005} {az + c[2] + 0.5} "
+                     f"{{width:1.01f,height:1.01f,Tags:[\"{O}\",\"vp.lock\"]}}")
+    W("locks.mcfunction", locks)
+    setup.append(f"function {F}/locks")
     setup += [
         f"execute as @e[type=armor_stand,{eb}] run data merge entity @s {{Invulnerable:1b,DisabledSlots:4144959}}",
         f"execute as @e[type=item_frame,{eb}] run data merge entity @s {{Invulnerable:1b,Fixed:1b}}",
@@ -256,6 +277,12 @@ def write_pack(scene, pl, root, ns="vprot", ident=None, sweep=40):
     W("hit.mcfunction", [f"scoreboard players reset @s {O}.m{i}" for i in range(len(mined))] + [f"function {F}/near_p"])
     W("near_p.mcfunction", near_p)
     W("near_i.mcfunction", near_i)
+    W("fixc.mcfunction", [
+        "# macro: a broken container comes back EMPTY (no loot dupe); its contents dropped normally, its own item is removed",
+        "$clone $(a) $(b) $(c) $(a) $(b) $(c) $(x) $(y) $(z) replace",
+        "$data remove block $(x) $(y) $(z) Items",
+        f"$execute positioned $(x) $(y) $(z) run kill @e[type=item,tag={new},distance=..3,nbt={{Item:{{id:\"$(i)\"}}}}]",
+        f"scoreboard players add #fixes {O} 1"])
     W("fix.mcfunction", [
         "# macro: put a loose group back from the store (a..f = its copy, x y z = its min corner)",
         "$clone $(a) $(b) $(c) $(d) $(e) $(f) $(x) $(y) $(z) replace",
@@ -277,8 +304,8 @@ def write_pack(scene, pl, root, ns="vprot", ident=None, sweep=40):
         f"execute as @e[type=item,tag={new}] at @s run function {F}/near_i",
         f"function {F}/sweep",
         f"tag @e[type=item,tag={new}] remove {new}"])
-    W("on.mcfunction", [f"scoreboard players set #on {O} 1"])
-    W("off.mcfunction", [f"scoreboard players set #on {O} 0"])
+    W("on.mcfunction", [f"scoreboard players set #on {O} 1", f"function {F}/locks"])
+    W("off.mcfunction", [f"scoreboard players set #on {O} 0", f"kill @e[type=interaction,tag={O}]"])
     W("status.mcfunction", [
         f'tellraw @s ["",{{"text":"{scene.name} protection: "}},{{"score":{{"name":"#on","objective":"{O}"}}}},'
         f'{{"text":" on, restores "}},{{"score":{{"name":"#restores","objective":"{O}"}}}},'

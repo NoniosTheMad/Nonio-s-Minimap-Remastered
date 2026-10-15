@@ -245,6 +245,8 @@ def compute(scene):
     interior = walk & roof
     out["interior_floor"] = int(interior.sum())
     out["props_per_8m2"] = props / (out["interior_floor"] / 8.0) if out["interior_floor"] else 0.0
+    from .stability import analyze
+    out["stability"] = analyze(scene)
     return out
 
 
@@ -269,6 +271,9 @@ def report(m, name=""):
             L.append(f"  [{group}]"); g0 = group
         fv = f"{v:.2f}" if isinstance(v, float) and abs(v) < 100 else f"{v:,.0f}" if isinstance(v, float) else str(v)
         L.append(f"  {label:<46} {fv:>9}   {op} {floor:<6} {'PASS' if ok else 'FAIL'}")
+    if "stability" in m:
+        from .stability import format_line
+        L.append(format_line(m["stability"]))
     n_ok = sum(r[-1] for r in rows)
     L.append(f"  {n_ok}/{len(rows)} floors met. Not measured here (judge by eye): distinct sub-places (4-6), "
              f"named elements (>= 25), depth planes (>= 4), props types per room (>= 5).")

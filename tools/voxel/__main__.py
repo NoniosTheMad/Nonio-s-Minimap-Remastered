@@ -171,6 +171,7 @@ def main(argv=None):
     a.add_argument("--loose", default="", help="extra id substrings protected by id only (comma list)")
     a.add_argument("--install", metavar="SERVER", help="merge into <world>/datapacks/voxel_protect and /reload")
     a.add_argument("--setup", action="store_true", help="with --install: run <ns>:<id>/setup (backs up the build as it is now)")
+    a.add_argument("--allow-unstable", action="store_true", help="install even if stability FAILs (soil flips, spreading plants)")
     args = ap.parse_args(argv)
 
     if args.cmd == "serve":
@@ -205,11 +206,16 @@ def main(argv=None):
             root = srv.world / "datapacks" / "voxel_protect"
         else:
             root = Path(args.out) if args.out else out_dir(s.name) / "protect_pack"
+        if pl["stability"]["fail"] and args.install and not args.allow_unstable:
+            from .stability import format_line
+            print("[voxel]" + format_line(pl["stability"]))
+            raise SystemExit("[voxel] FAIL, not installed: the build changes by itself (every change = a restore, "
+                             "forever). Fix the scene (stability.fix_soil, no spreading plants) or pass --allow-unstable.")
         meta = protect.write_pack(s, pl, root, ns=args.ns, ident=args.id, sweep=args.sweep)
         print(f"[voxel] protect pack {root}: {json.dumps(meta)}")
-        if meta.get("unstable_soil"):
-            print(f"[voxel] note: {meta['unstable_soil']} grass/dirt cell(s) will flip on random ticks (grass under a full "
-                  "block face, lit dirt next to grass); each flip costs a tile restore. Fix them in the scene.")
+        from .stability import format_line
+        print("[voxel]" + format_line(pl["stability"]))
+
         if args.install:
             srv.cmd("reload"); time.sleep(3)
             if args.setup:

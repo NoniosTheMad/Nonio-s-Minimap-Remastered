@@ -197,10 +197,19 @@ How it works:
     ignore them.
   - **free** cells are never protected: air, fluids, fire, replaceable plants, snow layers, vines. A player block
     placed there replaces them.
-  - **loose** cells are protected by block id only: doors, trapdoors, gates, containers, beds, candles, levers,
-    crops, pots, unwaxed copper. Players can open, light and fill them. Each loose group (door halves, bed, double
-    chest) is copied once into a small store S. If its id changes, S is cloned back, and a broken chest returns
-    with its original contents.
+  - **loose** cells are protected by block id only: doors, trapdoors, gates, buttons, containers, beds, candles and
+    crops. Players can open, light and fill them. Each loose group (door halves, bed, double chest) is copied once
+    into a small store S. If its id changes, S is cloned back.
+    - Containers come back **empty**. Their contents drop when broken and only the container's own item drop is
+      removed, so loot is handed out once. Only the broken cell comes back: the other half of a double chest keeps
+      its contents.
+  - **lock** cells are blocks whose interaction hands out an item: flower pots, chiseled bookshelves, lecterns,
+    jukeboxes, campfires, composters, cauldrons, suspicious sand and gravel, beehives, decorated pots, berry bushes
+    and cave vines, pumpkins, rooted dirt, cakes and respawn anchors.
+    - They are protected exactly, state and NBT included.
+    - Each one is covered by an invisible `interaction` entity (tag `vp.<id>`, function `vprot:<id>/locks`) that
+      takes both use and attack, so it can't be touched.
+    - `off` removes these entities and `on` puts them back.
 - **Detection,** every tick:
   1. A player near the build whose `minecraft.mined:<id>` score rose for one of the build's block ids triggers the
      tiles within reach.
@@ -209,19 +218,24 @@ How it works:
      stripping and tilling.
 - **Restore.** A mismatching tile gets `clone C tile masked` (at most 4096 blocks), and the item entities first seen
   that tick in the tile are killed, so breaking gives nothing.
-- **Entities.** Armour stands, item frames and paintings in the box get Invulnerable, Fixed or DisabledSlots.
+- **Entities.** Armour stands get Invulnerable and DisabledSlots (gear can't be taken or swapped). Item frames get
+  Fixed (no rotation or removal). Paintings get Invulnerable.
+- **Stability gate.** `protect --install` refuses a build whose stability FAILs (see below and playbook §6) unless
+  `--allow-unstable` is passed. The same check appears as a line in `stats`.
 - **Cost.** Castle (128x84x128): 176 non-empty tiles, 5 tiles per tick, about 1.1 ms per tick; setup takes 0.9 s.
   Arena v3's single box would mean comparing 1.3M blocks every tick.
 - **Control.** `vprot:<id>/off`, `on`, and `status` (restore and fix counters).
 
 Limits:
-- Soil flips on random ticks: grass under a full block face dies, and lit dirt next to grass grows grass. Each flip
-  costs one tile restore, forever. `protect` counts these cells (`unstable_soil`; castle: 16, about 5 restores a
-  minute). Fix them in the scene.
+- `stability.analyze(scene)` finds blocks that change by themselves:
+  - unstable soil: grass under a full face, lit dirt next to grass;
+  - spreading or growing plants, decaying leaves, unwaxed copper, farmland, fire.
+
+  On a protected build each change is a restore forever, so these count as a FAIL. Castle v1: 16 soil cells and 536
+  vines. `stability.fix_soil(scene)` turns covered grass into dirt and lit dirt next to grass into coarse dirt.
 - Restores revert player-made state changes on protected blocks, such as fence or pane connections to a player's
   fence, waterlogging, or a sign edit.
-- Loose blocks restore by id, so interacting can duplicate items: taking the plant out of a pot, or a book out of a
-  chiseled bookshelf, brings the pot or shelf back full while the player keeps the item.
+- Lock entities stop players, not machines. A piston, an explosion or fire still triggers a restore; drops are removed.
 - A tile restore kills every item entity that appeared in that tile in the same tick, including items a player
   throws there at that moment.
 - C and S are ordinary blocks. They are unreachable only because they sit under the build or at the world floor.
