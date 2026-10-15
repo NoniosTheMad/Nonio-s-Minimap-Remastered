@@ -11,12 +11,13 @@ like dialogs/worldgen changed). In game, press G (Quick Actions) or open the pau
 "Nonios Dev" to jump between servers, read the inbox or leave feedback.
 
 Usage:
-  mcdev up <name> [--branch B] [--demo D] [--desc TEXT] [--mem 2G]
-  mcdev up hub|main|test              presets (ports 25565/25566/25567)
+  mcdev up <name> [--branch B] [--demo D] [--desc TEXT] [--mem 2G] [--kind playground|eval|infra]
+  mcdev up hub|main|test              presets (ports 25565/25566/25567), kind infra
+  mcdev kind <name> playground|eval|infra   playground: stays up, never reviewed; eval: needs a Desk decision; infra: hub/main/test
   mcdev down <name> [--purge]         stop (ephemeral servers are deleted)
   mcdev restart <name>
   mcdev reset test                    re-copy main's world into test
-  mcdev ls
+  mcdev ls [--json]                   grouped by kind (Infra/Playgrounds/Evaluations/Archived); --json: name/kind/status/branch
   mcdev reload [name|all]             /reload datapacks via RCON
   mcdev cmd <name> <command...>       run a console command via RCON
   mcdev logs <name> [-n 40]
@@ -76,10 +77,31 @@ IDLE_CHECK_SECS = 15
 VOID = '{"layers":[{"block":"minecraft:air","height":1}],"biome":"minecraft:the_void"}'
 FLAT = '{"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:stone","height":3},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains"}'
 
+# Server kinds (user request 2026-10-15): playground = permanent, open-ended content that stays up and never needs a
+# decision (shaders, classes2, full); eval = built for the user to judge ONE thing, needs a pending Desk board item
+# while live and gets archived once decided; infra = hub/main/test. `mcdev kind <name> K` sets it; `up --kind K`
+# defaults new demo servers to eval, hub/main/test to infra.
+KINDS = ("playground", "eval", "infra")
+PLAYGROUND_DEFAULTS = {"shaders", "classes2", "full"}  # migration: servers that predate the `kind` field
+
+def default_kind(name, s):
+    """kind for a registry entry written before `kind` existed."""
+    if name in PRESETS:
+        return "infra"
+    if name in PLAYGROUND_DEFAULTS:
+        return "playground"
+    return "eval"
+
+def kind_of(name, s):
+    return s.get("kind") or default_kind(name, s)
+
 
 # ---------------------------------------------------------------- registry
 def load_reg():
-    return json.loads(REG.read_text()) if REG.exists() else {}
+    reg = json.loads(REG.read_text()) if REG.exists() else {}
+    for n, s in reg.items():
+        s.setdefault("kind", default_kind(n, s))  # migrates on first read, persisted by the next save_reg
+    return reg
 
 def save_reg(reg):
     STATE.mkdir(exist_ok=True)
@@ -319,40 +341,65 @@ def tip_lines(*parts):
 
 UI_VER = 2  # self-pack generation: 2 = has the this-server dialogs (approve / shelve); older servers need a restart
 
-def nav_dialog(reg, here=None):
-    """G > Servers as seen from server `here`: its own row (▸) opens the this-server dialog (approve / shelve).
-    Status is the colour only (user request): gold/aqua = running, dark gray = asleep."""
+def nav_row(n, s, here):
+    """One row of G > Servers: [▸][★] name [✔]. Status is the colour only (user request): gold/aqua = running,
+    dark gray = asleep. ★ (awaiting review) is suppressed for `playground` servers (user request 2026-10-15):
+    they're permanent/open-ended, never "waiting on a decision"."""
+    asleep = s["status"] == "sleeping"
+    mine = n == here
+    show_star = s.get("review") and kind_of(n, s) != "playground"
+    # same shape for every row: [▸][★] name [✔]; the description lives in the tooltip (long labels overflow the button)
+    label = ([text("▸ ", "yellow")] if mine else []) + ([text("★ ", "yellow")] if show_star else []) + [
+        text(n, "dark_gray" if asleep else "gold" if s["persistent"] else "aqua", bold=True)] + (
+        [text(" ✔", "green")] if s.get("approved") else [])
+    heads = todo_heads(s.get("todo") or "")
+    new_ui = s.get("ui_ver", 0) >= UI_VER
+    click = (("Click: approve / shelve" if new_ui else "Restart it to approve here") if mine else
+             f"Click: starts (~{s.get('boot_secs', 8) + 3}s), sends you" if asleep else "")
+    tip = tip_lines((s["desc"] or n, "white"), (s["branch"] + (f" / {s['demo']}" if s.get("demo") else ""), "dark_gray"),
+                    ("✔ approved" if s.get("approved") else "", "green"), (click, "gray"), ("\n".join(heads[:6]), "gray"))
+    row = {"label": label, "tooltip": tip, "width": 310}
+    if not mine:
+        row["action"] = {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}
+    elif new_ui:  # the self pack's tick shows devnav:this; older self packs don't have it (greyed, tooltip says why)
+        row["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 12"}
+    return row
+
+def nav_rows(reg, here, kind):
     live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: (not kv[1].get("review"), kv[1]["port"]))
-            if s.get("status") in ("up", "sleeping")]
-    actions = []
-    for n, s in live:
-        asleep = s["status"] == "sleeping"
-        mine = n == here
-        # same shape for every row: [▸][★] name [✔]; the description lives in the tooltip (long labels overflow the button)
-        label = ([text("▸ ", "yellow")] if mine else []) + ([text("★ ", "yellow")] if s.get("review") else []) + [
-            text(n, "dark_gray" if asleep else "gold" if s["persistent"] else "aqua", bold=True)] + (
-            [text(" ✔", "green")] if s.get("approved") else [])
-        heads = todo_heads(s.get("todo") or "")
-        new_ui = s.get("ui_ver", 0) >= UI_VER
-        click = (("Click: approve / shelve" if new_ui else "Restart it to approve here") if mine else
-                 f"Click: starts (~{s.get('boot_secs', 8) + 3}s), sends you" if asleep else "")
-        tip = tip_lines((s["desc"] or n, "white"), (s["branch"] + (f" / {s['demo']}" if s.get("demo") else ""), "dark_gray"),
-                        ("✔ approved" if s.get("approved") else "", "green"), (click, "gray"), ("\n".join(heads[:6]), "gray"))
-        row = {"label": label, "tooltip": tip, "width": 310}
-        if not mine:
-            row["action"] = {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}
-        elif new_ui:  # the self pack's tick shows devnav:this; older self packs don't have it (greyed, tooltip says why)
-            row["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 12"}
-        actions.append(row)
+            if s.get("status") in ("up", "sleeping") and kind_of(n, s) == kind]
+    return [nav_row(n, s, here) for n, s in live]
+
+def nav_dialog(reg, here=None):
+    """G > Servers as seen from server `here`: infra rows (hub/main/test) inline, Playgrounds/Evaluations as their own
+    pages (user request 2026-10-15: too many eval servers to list together), then Archive. Its own row (▸) opens the
+    this-server dialog (approve / shelve)."""
+    actions = nav_rows(reg, here, "infra")
+    n_pg, n_ev = len(nav_rows(reg, here, "playground")), len(nav_rows(reg, here, "eval"))
     n_arch = sum(s.get("status") == "archived" for s in reg.values())
+    pg = {"label": text(f"Playgrounds ({n_pg})", "aqua" if n_pg else "dark_gray"), "width": 150,
+          "tooltip": text("Open-ended demos that stay up" if n_pg else "None up right now")}
+    if n_pg:
+        pg["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 13"}
+    ev = {"label": text(f"Evaluations ({n_ev})", "aqua" if n_ev else "dark_gray"), "width": 150,
+          "tooltip": text("Waiting on your call" if n_ev else "None up right now")}
+    if n_ev:
+        ev["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 14"}
     arch = {"label": text(f"Archive ({n_arch})", "gray" if n_arch else "dark_gray"), "width": 150,
             "tooltip": text("Old tests, stopped. Click one there to revive it." if n_arch else "Nothing archived")}
     if n_arch:  # no action = greyed-out button in the same place (Dialog UI rules)
         arch["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 10"}
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
             "body": [{"type": "minecraft:plain_message", "contents": text("★ to review   ▸ here: approve / shelve", "gray"), "width": 300}],
-            "actions": actions + [arch, {"label": "Back", "width": 150, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 7"}}],
+            "actions": actions + [pg, ev, arch, {"label": "Back", "width": 150, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 7"}}],
             "columns": 1, "pause": False}
+
+def nav_page_dialog(reg, here, kind, title):
+    """Playgrounds / Evaluations page (devnav.act 13 / 14 -> devnav:nav_pg|nav_ev): same rows as the main list, filtered."""
+    back = {"label": "Back", "width": 150, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 1"}}
+    return {"type": "minecraft:multi_action", "title": text(title, "gold"),
+            "body": [{"type": "minecraft:plain_message", "contents": text("▸ here: approve / shelve", "gray"), "width": 300}],
+            "actions": nav_rows(reg, here, kind) + [back], "columns": 1, "pause": False}
 
 def todo_heads(todo):
     """Servers tooltip: the "Your role:" line of try.txt, else step headlines ("2. Generator: ..." -> "2. Generator")."""
@@ -426,7 +473,8 @@ def write_devnav(reg=None):
     # G > Servers and its Archive page are built by the daemon in storage devnav:ui (nav, arch) over RCON whenever the
     # registry changes, and shown inline by a macro: no /reload of every server when one sleeps/wakes (a reload re-runs
     # the game's load functions on the server the user is playing on).
-    for f, key, what in (("list", "nav", "Server list"), ("archive", "arch", "Archive")):
+    for f, key, what in (("list", "nav", "Server list"), ("archive", "arch", "Archive"),
+                        ("list_pg", "nav_pg", "Playgrounds"), ("list_ev", "nav_ev", "Evaluations")):
         (fn / f"{f}.mcfunction").write_text(
             f'execute unless data storage devnav:ui {key} run tellraw @s {{"text":"[dev] {what} not ready yet (daemon down?)","color":"gray"}}\n'
             f"execute if data storage devnav:ui {key} run function devnav:show_{key} with storage devnav:ui\n")
@@ -473,7 +521,10 @@ def write_devnav(reg=None):
         "execute as @a[scores={devnav.act=6}] run function devnav:inbox\n"
         "execute as @a[scores={devnav.act=7}] run dialog show @s devnav:menu\n"
         "execute as @a[scores={devnav.act=8}] run function devnav:todo\n"
-        "scoreboard players reset @a[scores={devnav.act=1..11}] devnav.act\n")  # 12+: self pack (this-server dialogs)
+        "execute as @a[scores={devnav.act=13}] run function devnav:list_pg\n"
+        "execute as @a[scores={devnav.act=14}] run function devnav:list_ev\n"
+        "scoreboard players reset @a[scores={devnav.act=1..11}] devnav.act\n"  # 12: self pack (this-server dialog)
+        "scoreboard players reset @a[scores={devnav.act=13..14}] devnav.act\n")
     # Inbox: the daemon keeps the whole dialog (a compound) in storage devnav:ui d; a macro shows it inline.
     (fn / "inbox.mcfunction").write_text(
         'execute unless data storage devnav:ui d run tellraw @s {"text":"[dev] Inbox not ready yet (daemon down?)","color":"gray"}\n'
@@ -1317,10 +1368,14 @@ class Mailroom:
                 "text": f"[{topic}] {body}" if topic else body}
 
     def push_ui(self, reg, up):
-        """G > Servers + Archive dialogs into storage devnav:ui (nav, arch) on every up server: on change and after each start."""
+        """G > Servers + its Playgrounds/Evaluations pages + Archive into storage devnav:ui (nav, nav_pg, nav_ev, arch)
+        on every up server: on change and after each start."""
         arch = dialog_commands("arch", archive_dialog(reg))
-        for n, s in up.items():  # G > Servers differs per server: its own row (▸) opens the this-server dialog
-            cmds = dialog_commands("nav", nav_dialog(reg, n)) + arch
+        for n, s in up.items():  # nav/nav_pg/nav_ev differ per server: its own row (▸) opens the this-server dialog
+            cmds = (dialog_commands("nav", nav_dialog(reg, n))
+                    + dialog_commands("nav_pg", nav_page_dialog(reg, n, "playground", "Playgrounds"))
+                    + dialog_commands("nav_ev", nav_page_dialog(reg, n, "eval", "Evaluations"))
+                    + arch)
             key = (hash(tuple(cmds)), s.get("started"))
             if self.pushed_ui.get(n) != key:
                 try:
@@ -1808,6 +1863,7 @@ def cmd_up(a):
     if sp:
         s["spawn"] = sp
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
+    s["kind"] = getattr(a, "kind", None) or reg.get(name, {}).get("kind") or ("infra" if name in PRESETS else "eval")
     for k in ("archive", "approved"):  # archive note + id, approval survive revive/re-archive
         if reg.get(name, {}).get(k):
             s[k] = reg[name][k]
@@ -1908,6 +1964,14 @@ def cmd_review(a):
     save_reg(reg)
     refresh_nav(sync_status(reg))
     print(a.name, "marked", "reviewed" if a.done else "awaiting review")
+
+def cmd_kind(a):
+    reg = load_reg()
+    if a.name not in reg:
+        sys.exit(f"unknown server {a.name}")
+    reg[a.name]["kind"] = a.value
+    save_reg(reg)
+    print(f"{a.name} kind -> {a.value}")
 
 def stop(name, s):
     if pid_alive(s.get("pid")):
@@ -2123,21 +2187,33 @@ def cmd_reset(a):
     a.branch = a.demo = a.desc = a.mem = None
     cmd_up(a)
 
+KIND_LABEL = {"infra": "Infra", "playground": "Playgrounds", "eval": "Evaluations"}
+
 def cmd_ls(a):
     reg = sync_status(load_reg())
     save_reg(reg)
+    if getattr(a, "json", False):  # for a board agent: every live eval server should have a Desk item
+        print(json.dumps([{"name": n, "kind": kind_of(n, s), "status": s["status"], "branch": s["branch"]}
+                          for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"])], indent=2))
+        return
     print(f"{'name':<22}{'state':<10}{'addr':<17}{'branch':<22}{'demo':<16}desc")
-    for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"]):
-        if s.get("status") != "archived":
-            print(f"{n:<22}{s['status'] + ('*' if s.get('review') else '') + ('+' if s.get('approved') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+    live = {n: s for n, s in reg.items() if s.get("status") != "archived"}
+    for kind in ("infra", "playground", "eval"):  # grouped: Infra / Playgrounds / Evaluations
+        rows = sorted(((n, s) for n, s in live.items() if kind_of(n, s) == kind), key=lambda kv: kv[1]["port"])
+        if not rows:
+            continue
+        print(f"\n{KIND_LABEL[kind]}:")
+        for n, s in rows:
+            star = "" if kind == "playground" else ("*" if s.get("review") else "")  # playgrounds never await review
+            print(f"{n:<22}{s['status'] + star + ('+' if s.get('approved') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
     arch = archived(reg)
     if arch:
-        print(f"\narchived ({len(arch)}): `mcdev unarchive <name>` or G > Servers > Archive revives one")
+        print(f"\nArchived ({len(arch)}): `mcdev unarchive <name>` or G > Servers > Archive revives one")
         for n, s in arch:
             ar = s["archive"]
             kind = "APPROVED" if ar.get("kind") == "approved" else "closed" if ar.get("kind") == "shelved" else "-"
             print(f"{n:<22}{ar['date']:<18}{kind:<10}{s['branch'] + '@' + (ar.get('commit') or '?')[:7]:<35}{s.get('demo') or '-':<17}{ar.get('note') or s['desc']}")
-    print(f"pack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})"
+    print(f"\npack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})"
           f"   * = awaiting review, + = approved; sleeping = stopped after {IDLE_SLEEP_SECS // 60} min empty, `mcdev up <name>` or G > Servers wakes it")
 
 def targets(name):
@@ -2192,13 +2268,17 @@ def main():
     u = sp.add_parser("up"); u.add_argument("name"); u.add_argument("--branch"); u.add_argument("--demo")
     u.add_argument("--desc"); u.add_argument("--mem"); u.add_argument("--todo", help="what the user should try (else demos/<demo>/try.txt)")
     u.add_argument("--spawn", help="'x y z [yaw]' where players land (else demos/<demo>/spawn.txt, else kept, else 0 64 0)")
+    u.add_argument("--kind", choices=KINDS, help="playground|eval|infra (default: eval for a new demo server, infra for hub/main/test)")
     u.set_defaults(f=cmd_up)
     rv = sp.add_parser("review", help="star a server as awaiting review, or --done")
     rv.add_argument("name"); rv.add_argument("--done", action="store_true"); rv.set_defaults(f=cmd_review)
+    kd = sp.add_parser("kind", help="set a server's kind: playground (permanent, open-ended) | eval (needs a Desk decision) | infra")
+    kd.add_argument("name"); kd.add_argument("value", choices=KINDS); kd.set_defaults(f=cmd_kind)
     d = sp.add_parser("down"); d.add_argument("name"); d.add_argument("--purge", action="store_true"); d.set_defaults(f=cmd_down)
     for nm, f in (("restart", cmd_restart), ("reset", cmd_reset)):
         x = sp.add_parser(nm); x.add_argument("name"); x.set_defaults(f=f)
-    sp.add_parser("ls").set_defaults(f=cmd_ls)
+    lsp = sp.add_parser("ls"); lsp.add_argument("--json", action="store_true", help="name/kind/status/branch per server, for a board agent")
+    lsp.set_defaults(f=cmd_ls)
     ar = sp.add_parser("archive", help="stop a server and keep it in the archive (port freed)")
     ar.add_argument("name"); ar.add_argument("--note", default=""); ar.set_defaults(f=cmd_archive)
     ap = sp.add_parser("approve", help="'I like it as is': feedback entry APPROVED name branch@commit (merge), then archive it")

@@ -47,6 +47,16 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
 - `python tools/mcdev.py up hub|main|test` — persistent: hub :25565 (lobby, void), main :25566 (the map, build here), test :25567 (copy of main's world).
 - `mcdev up <name> --branch feat/x --demo <demo> --desc "..."` — ephemeral server on :25570+, worktree `.worktrees/feat-x`; `mcdev down <name>` deletes it.
 - `ls`, `reload [name]`, `cmd <name> <cmd>` (RCON, port+10000), `logs <name>`, `feedback`, `restart`, `reset test`.
+- **Kind (user request 2026-10-15):** every server has `kind`: `playground` (permanent, open-ended, stays up, never needs a decision:
+  shaders, classes2, full), `eval` (built to get the user's verdict on ONE thing; must have a pending item on their Desk board
+  while live, archived once they decide — this is every other demo/branch server), `infra` (hub/main/test). `mcdev up --kind K` sets it
+  (default: `eval` for a new demo server, `infra` for the hub/main/test presets); `mcdev kind <name> K` changes it later.
+  `mcdev ls` groups output by kind (Infra/Playgrounds/Evaluations/Archived); Playgrounds never show the `*` awaiting-review mark.
+  `mcdev ls --json` prints `[{name, kind, status, branch}, ...]` for a board agent (`desk-keeper`) to check that every live
+  `eval` server has a Desk item. G > Servers mirrors this: infra rows inline + "Playgrounds (n)" / "Evaluations (n)" buttons opening
+  their own page (`devnav.act` 13/14 -> `devnav:nav_pg`/`nav_ev`, dispatched in the shared devnav pack's `nav_tick.mcfunction`) — a
+  server already running needs a restart to pick up the new dispatch; never force that on a server the user might be on
+  (check `mcdev ls` for "up" first), the daemon/pack just carries the old single-list UI until its next natural start.
 - Datapacks are **junctions** into the checkout. **Auto reload (#33, `DataWatch`)**: the daemon watches each up server's game + demo
   datapack sources; once they change and stay quiet 5 s it `/reload`s the server (reload errors → daemon.log `WARNING`, players get a gray
   actionbar note). If a registry-only file changed (anything under `data/<ns>/` except function, advancement, loot_table, predicate,
