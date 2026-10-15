@@ -69,7 +69,20 @@ def lint(s):
         fl[:, 0, :] = False
         if fl.any():
             pts = np.argwhere(fl)
-            msgs.append(f"{len(pts)} gravity block(s) over air will fall, e.g. {pts[:3].tolist()}")
+            # hanging dripstone is held from above: only flag it when its column does not reach a solid ceiling
+            drip = np.array([n == "minecraft:pointed_dripstone" for n in names])
+            keep = []
+            for x, y, z in pts:
+                if drip[s.idx[x, y, z]]:
+                    yy = y + 1
+                    while yy < s.shape[1] and drip[s.idx[x, yy, z]]:
+                        yy += 1
+                    if yy < s.shape[1] and s.idx[x, yy, z] != 0:
+                        continue
+                keep.append((x, y, z))
+            pts = np.array(keep)
+            if len(pts):
+                msgs.append(f"{len(pts)} gravity block(s) over air will fall, e.g. {pts[:3].tolist()}")
     for k, m in s.markers.items():
         x, y, z = (int(v) for v in m["pos"])
         if not (0 <= x < s.shape[0] and 0 <= z < s.shape[2]):
