@@ -1,0 +1,185 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Vharzul",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 260,
+    "contents": {
+      "text": "The Ember Throne",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "Approach"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 1"
+      },
+      "tooltip": {
+        "text": "Island tip, facing the Maw"
+      }
+    },
+    {
+      "label": {
+        "text": "Stair foot"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 2"
+      },
+      "tooltip": {
+        "text": "The Tongue"
+      }
+    },
+    {
+      "label": {
+        "text": "Ember Bridge"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 3"
+      },
+      "tooltip": {
+        "text": "Over the lava lake"
+      }
+    },
+    {
+      "label": {
+        "text": "Forge Hall"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 4"
+      },
+      "tooltip": {
+        "text": "Defenders' muster"
+      }
+    },
+    {
+      "label": {
+        "text": "Heart"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 5"
+      },
+      "tooltip": {
+        "text": "Foot of the Ember Stair"
+      }
+    },
+    {
+      "label": {
+        "text": "Throne"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 6"
+      },
+      "tooltip": {
+        "text": "Top of the Fang"
+      }
+    },
+    {
+      "label": {
+        "text": "Bailey"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 7"
+      },
+      "tooltip": {
+        "text": "Ring round the Fang"
+      }
+    },
+    {
+      "label": {
+        "text": "Undercroft"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 8"
+      },
+      "tooltip": {
+        "text": "Under the hall"
+      }
+    },
+    {
+      "label": {
+        "text": "Sulfur terraces"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 9"
+      },
+      "tooltip": {
+        "text": "North-east plain"
+      }
+    },
+    {
+      "label": {
+        "text": "Ash west"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 10"
+      },
+      "tooltip": {
+        "text": "West plain"
+      }
+    },
+    {
+      "label": {
+        "text": "Noon"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 11"
+      },
+      "tooltip": {
+        "text": "Fixed daylight"
+      }
+    },
+    {
+      "label": {
+        "text": "Night"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 12"
+      },
+      "tooltip": {
+        "text": "Fixed night"
+      }
+    },
+    {
+      "label": {
+        "text": "Creative"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 13"
+      }
+    },
+    {
+      "label": {
+        "text": "Survival"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.vz set 14"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "text": "Close"
+    }
+  }
+}

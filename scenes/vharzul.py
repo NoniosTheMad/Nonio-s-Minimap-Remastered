@@ -1664,6 +1664,11 @@ def heart_helix(s):
         ax_, az_ = pol(70 + k * 60, 7.5)
         bal[:, 150, :] |= (np.hypot(gx - ax_, gz - az_) < 2.4) & (r >= 6.2)
     s.fill(bal & s.match("air"), "polished_blackstone_wall")
+    if PASS >= 10:   # ember rings: froglight courses in the shaft wall every 12 blocks light the climb
+        ring = np.zeros(s.shape, bool)
+        for y in range(DECK + 8, y_cap, 12):
+            ring[:, y, :] = (r >= 5.0) & (r < 5.9)
+        s.fill(ring & s.match("solid") & ~s.match("iron_bars"), "ochre_froglight")
     s.meta["_helix_treads"] = int(tread.sum())
 
 
@@ -1683,6 +1688,12 @@ def access(s):
     lay_steps(s, 99, 100, prof, "polished_blackstone_bricks", "polished_blackstone_brick_stairs", under="polished_blackstone_bricks", depth=2)
     s.fill(((101, DECK + 1, zt), (101, DECK + 1, zt + 9)), "polished_blackstone_wall")
     s.fill(((99, DECK + 1, zt + 9), (100, DECK + 1, zt + 9)), "polished_blackstone_wall")
+    for zn in ZONES:
+        if zn["name"] == "undercroft":
+            zn["doors"].append([99, DECK - 8, zt + 8])            # foot of the stair from the hall's west aisle
+        elif zn["name"] == "throne_lantern":
+            hx, hz = pol(100, 4.0)
+            zn["doors"].append([int(hx), 149, int(hz)])           # the Ember Stair surfaces here
     # spire rooms: walk toward the Fang until the bailey floor is reached
     for zn in ZONES:
         if not zn["name"].startswith("spire_"):
@@ -1940,6 +1951,10 @@ def cameras(s):
     zsp = min(s.meta["_barb"] + 14, D - 6)
     s.mark("spawn_approach", (104, ground_y(s, 104, zsp), zsp), look_at=(104, 112, 100))
     s.markers["spawn_approach"]["fov"] = 70
+    if PASS >= 10:   # defenders muster in the Forge Hall, facing the bridge door
+        x0, x1, z0, z1 = HALL
+        s.mark("spawn_defender", (101, DECK + 1, z0 + 3), look_at=(101, DECK + 4, z1))
+        s.markers["spawn_defender"]["fov"] = 75
     s.mark("cam_stairfoot", (104, ground_y(s, 104, zs + 1), zs + 1), look_at=(104, 70, 140))
     s.mark("cam_gate", (104, GATE_I, ZB + 1), look_at=(104, 110, 100))
     if "_bailey_wide" in s.meta:

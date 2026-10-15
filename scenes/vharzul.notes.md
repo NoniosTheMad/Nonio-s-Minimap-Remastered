@@ -171,3 +171,15 @@ Weakest three now:
 1. The bailey is still a crowded canyon (structural: the star-wall valleys pinch against the Fang points). Opening it would mean re-phasing the star wall or the Fang, which is a concept-level change, deferred.
 2. The helix shaft is very dark by day. Fixtures only come from auto-light; a designed light (an ember band on the cage) would read better.
 3. Breaks are 197/200, just under the floor. Lights and joinery floors are for furnished builds.
+
+## P10: night read of the climb, spawns
+- **Ember rings**: froglight courses run in the shaft wall every 12 blocks, so the Ember Stair reads as a lit climb at night and by day through the barred slits.
+- **Spawns**: `spawn_approach` is the attackers' spawn on the island tip, facing the Maw. `spawn_defender` is new: the defenders muster in the Forge Hall, facing the bridge door. The sightline map shows the approach axis covered from the hall and the Maw.
+
+Final stats: 8/14 floors, stability PASS. The six FAILs:
+- footprint 0.54: geometry cap (the island is 72% of the canvas);
+- breaks 197/200;
+- lights 6.5 and joinery 1.3;
+- containers and BE props.
+
+Lights, joinery, containers and BE props are furnishing-scope floors; this brief forbids furnishing.
