@@ -11,7 +11,7 @@ from tools.voxel import shapes
 from tools.voxel.palette import Gradient, Mix
 
 from .common import (C, FLOOR, GLASS_V, GLASS_V_PANE, HUB_Y, SEED, SPIRE_BODY, SPIRE_TOP, TRIM, Box, at_polar,
-                     box_around, cu, helix_path, ramp, slab_states)
+                     box_around, cu, helix_path, ramp, skin, slab_states)
 
 Y0 = FLOOR - 4
 HALL = (FLOOR + 1, FLOOR + 20)          # feet .. last air row (20 tall)
@@ -240,6 +240,8 @@ def lantern(s):
 def build(s, ctx):
     body(s)
     ribs(s)
+    skin(s, (C[0] - 17, FLOOR + 2, C[1] - 17), (C[0] + 18, LANTERN_Y - 1, C[1] + 18),       # shingle the taper + rib tops
+         mask=lambda x, y, z: np.hypot(x - C[0], z - C[1]) > radius(y) - 0.8)
     hall_openings(s)
     galleries(s)
     windows_upper(s)

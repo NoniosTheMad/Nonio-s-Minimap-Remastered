@@ -25,9 +25,11 @@ RING_C = (C[0], HUB_Y + 0.5, C[1])
 #        R    hw   ht   tilt  yaw  age          glyph set
 # tilt/yaw chosen by a clearance search against the castle + Spire (no voxel within 1 block of a tower crown, the
 # turret or the gallery decks); hinge (axle) directions 0/180, 240/60, 330/150 deg: three distinct gimbal axes
-RINGS = [(61, 3.5, 1.5, 16, 0, "oxidized", "signs"),
-         (47, 3.5, 1.3, 30, 120, "weathered", "hours"),
-         (28, 3.5, 1.2, 48, 30, "exposed", "planets")]
+RINGS = [(61, 3.0, 1.2, 16, 0, "oxidized", "signs"),
+         (47, 2.6, 1.1, 30, 120, "weathered", "hours"),
+         (28, 2.6, 1.0, 48, 30, "exposed", "planets")]
+# per ring: accent age (rungs + teeth) and degree tick (rung spacing)
+RING_STYLE = [("", 5.0), ("exposed", 5.0), ("oxidized", 10.0)]
 
 # 5x5 glyphs, rows top (w>0) to bottom; '#' = relief pixel
 _G = {
@@ -80,8 +82,9 @@ def ring_frame(R, tilt, yaw):
     return M
 
 
-def band(s, R, hw, ht, tilt, yaw, age, glyphs, k):
-    """Voxelise one ring with its full cross-section."""
+def band(s, R, hw, ht, tilt, yaw, age, glyphs, k, accent, tick_deg):
+    """Voxelise one ring as an open truss: two rails, rungs at every degree tick, proud teeth on the outer face every
+    major tick, glyph plates at the plate angles. Sky shows between the rungs, so the ring reads as fine metalwork."""
     M = ring_frame(R, tilt, yaw)
     ext = R + ht + 3
     yext = ext * math.sin(math.radians(tilt)) + hw + 3
@@ -91,49 +94,47 @@ def band(s, R, hw, ht, tilt, yaw, age, glyphs, k):
     q = rho - R
     w = ly
     th = (np.degrees(np.arctan2(lz, lx)) + 360) % 360
-    u = np.radians(th) * R                       # arc length (blocks)
-    # glyph plates: centre angles; distance in blocks along the arc
     centres = np.array([g[0] for g in glyphs])
     dth = (th[..., None] - centres + 180) % 360 - 180
     gi = np.argmin(np.abs(dth), axis=-1)
     du = np.take_along_axis(dth, gi[..., None], -1)[..., 0] * math.pi / 180 * R
-    plate = np.abs(du) <= 4.0
-    aw = np.abs(w)
-    rim = (aw > hw - 1) & (aw <= hw) & (np.abs(q) <= ht + 1.0)
-    web = (aw <= hw - 1) & (np.abs(q) <= 0.75)
-    rib5 = (np.abs(((th + 2.5) % 5) - 2.5) * math.pi / 180 * R <= 0.55)
-    ribs = (aw <= hw) & (np.abs(q) <= ht) & rib5
-    plate_body = plate & (aw <= hw) & (np.abs(q) <= ht)
-    # 10-deg teeth: rim extension outward and sideways
-    tooth10 = (np.abs(((th + 5) % 10) - 5) * math.pi / 180 * R <= 0.6)
-    teeth = tooth10 & (aw > hw - 1.2) & (aw <= hw + 1.0) & (q > -0.5) & (q <= ht + 2.0)
-    # 2-deg ticks: chiseled on the rim's outer proud layer
-    tick2 = (np.abs(((th + 1) % 2) - 1) * math.pi / 180 * R <= 0.5)
+    aw, aq = np.abs(w), np.abs(q)
+    deg2u = math.pi / 180 * R
+    inband = (aw <= hw) & (aq <= ht)
+    plate = (np.abs(du) <= 3.5) & inband
+    rail_t = 1.3
+    rail = inband & (aw > hw - rail_t)
+    # rungs at every tick (in degrees), offset half a tick from the plates so they frame them
+    tk = np.abs(((th + tick_deg / 2) % tick_deg) - tick_deg / 2) * deg2u
+    rung = inband & (tk <= 0.55) & (np.abs(du) > 4.2)
+    # major ticks every 3 ticks: a proud tooth across the outer face
+    maj = np.abs(((th + tick_deg * 1.5) % (tick_deg * 3)) - tick_deg * 1.5) * deg2u
+    tooth = (maj <= 0.55) & (aw <= hw - 0.3) & (q > ht - 0.5) & (q <= ht + 1.25) & (np.abs(du) > 4.2)
     # glyph pixels: rows across w (top row = +w), columns along u
     col = np.round(du + 2).astype(int)
     row = np.round(2 - w).astype(int)
-    inside_g = plate & (col >= 0) & (col < 5) & (row >= 0) & (row < 5)
+    inside_g = (np.abs(du) <= 3.5) & (col >= 0) & (col < 5) & (row >= 0) & (row < 5)
     pix = np.zeros(q.shape, bool)
     for i, (_, g) in enumerate(glyphs):
         bm = np.array([[c == "#" for c in r] for r in g])
         sel = inside_g & (gi == i)
         pix[sel] = bm[row[sel], col[sel]]
-    relief_out = pix & (q > ht - 0.5) & (q <= ht + 1.0) & (aw <= hw - 1)
-    inlay_in = pix & (q >= -ht - 0.2) & (q < -ht + 0.8) & (aw <= hw - 1)
-    solid = rim | web | ribs | plate_body | teeth | relief_out
+    relief_out = pix & (q > ht - 0.5) & (q <= ht + 1.0)
+    solid = rail | rung | plate | tooth | relief_out
     if not solid.any():
         return None
-    # materials
     names = np.empty(q.shape, object)
     names[...] = None
-    names[web] = cu(age, "grate")
-    names[ribs] = cu(age, "chiseled")
-    names[plate_body] = cu(age, "block")
-    names[rim] = cu(age, "cut")
-    names[rim & tick2 & ((q > ht) | (q < -ht))] = cu(age, "chiseled")
-    names[teeth] = cu(age, "cut")
+    names[rail] = cu(age, "cut")
+    # outer face of the rails: a calcite tick at every degree tick (the graduated scale)
+    names[rail & (tk <= 0.55) & (q > ht - 1.0)] = "calcite"
+    names[rung] = cu(accent, "chiseled")
+    names[rail & rung & (q > ht - 1.0)] = "calcite"
+    names[plate] = cu(age, "block")
+    names[plate & (aw > hw - rail_t)] = cu(age, "cut")
+    names[tooth] = cu(accent, "cut")
     names[relief_out] = "calcite"
-    names[plate_body & inlay_in] = "amethyst_block"
+    names[plate & pix & (q < -ht + 1.0)] = "amethyst_block"
     m = b.full(solid)
     vals = names[solid]
     xs, ys, zs = np.nonzero(m)
@@ -144,12 +145,14 @@ def band(s, R, hw, ht, tilt, yaw, age, glyphs, k):
         mm = np.zeros(s.shape, bool)
         mm[xs[sel], ys[sel], zs[sel]] = True
         s.fill(mm, state)
-    # lit bulbs on both rims at each plate centre and lanterns hanging under the lowest plates
+    # lit bulbs on both rails at each plate centre
     for ang, _ in glyphs:
         for side in (-1, 1):
-            p = np.array([math.cos(math.radians(ang)) * R, side * (hw + 0.7), math.sin(math.radians(ang)) * R])
-            wp = M @ p + np.array(RING_C)
-            s.set(int(math.floor(wp[0])), int(math.floor(wp[1])), int(math.floor(wp[2])), cu(age, "bulb", lit="true", powered="false"))
+            for du_ in (-3.0, 3.0):
+                a2 = math.radians(ang) + du_ / R
+                p = np.array([math.cos(a2) * R, side * (hw - 0.6), math.sin(a2) * R])
+                wp = M @ p + np.array(RING_C)
+                s.set(int(math.floor(wp[0])), int(math.floor(wp[1])), int(math.floor(wp[2])), cu(age, "bulb", lit="true", powered="false"))
     return M
 
 
@@ -220,7 +223,7 @@ def build(s, ctx):
     inner_shafts(s)
     old = s.idx.copy()
     for k, (R, hw, ht, tilt, yaw, age, gl) in enumerate(RINGS):
-        band(s, R, hw, ht, tilt, yaw, age, glyph_set(gl), k)
+        band(s, R, hw, ht, tilt, yaw, age, glyph_set(gl), k, *RING_STYLE[k])
     for k, (R, hw, ht, tilt, yaw, age, gl) in enumerate(RINGS):
         axle(s, R, ht, tilt, yaw, age, hub_r=12.0)
     # collisions: ring/axle voxels written over cells that were solid before the bands (castle, Spire, turret);

@@ -13,7 +13,7 @@ from tools.voxel.palette import Gradient, Mix, Noise
 from scenes.concepts._kit import pointed_arch_2d
 
 from .common import (C, FLOOR, GLASS_V_PANE, MASONRY, PAVING, SEED, TRIM, Box, at_polar, box_around, cu, ramp,
-                     slab_states, wrap_deg)
+                     skin, slab_states, wrap_deg)
 
 WALL_IN, WALL_OUT = 28.5, 31.5
 WALK = FLOOR + 8                    # wall-walk top cell (feet WALK + 1)
@@ -36,14 +36,22 @@ WINGS = {   # name: (x0, x1, z0, z1, interior height, long axis)
 ROOF = Mix({"deepslate_tiles": 3, "cracked_deepslate_tiles": 0.6, "deepslate_bricks": 0.5})
 
 
-def banded(y0, step=2, ages=("weathered", "oxidized", "weathered", "exposed"), kind="cut", ring_every=0):
-    """Banded copper shingles: horizontal bands of different ages (fixes 'plain green cones')."""
-    states = np.array([cu(a, kind) for a in ages] + [cu("", "chiseled")], object)
+def banded(y0, step=2, ages=("weathered", "oxidized", "weathered", "exposed"), kind="cut", ring_every=0, ribs=None,
+           rib_state=None):
+    """Banded copper shingles: horizontal bands of different ages; ribs=(cx, cz, n): n vertical ribs (rib_state)."""
+    states = np.array([cu(a, kind) for a in ages] + [cu("", "chiseled"), rib_state or cu("", "cut")], object)
 
     def f(ctx):
         k = ((ctx.ys - y0) // step) % len(ages)
         if ring_every:
             k = np.where(((ctx.ys - y0) % ring_every) == 0, len(ages), k)
+        if ribs:
+            cx, cz, n = ribs
+            th = np.degrees(np.arctan2(ctx.zs + 0.5 - cz, ctx.xs + 0.5 - cx)) + 360
+            rr = np.hypot(ctx.xs + 0.5 - cx, ctx.zs + 0.5 - cz)
+            per = 360.0 / n
+            k = np.where(np.abs((th % per) - per / 2) * np.pi / 180 * np.maximum(rr, 0.5) > per / 2 * np.pi / 180 * np.maximum(rr, 0.5) - 0.6,
+                         len(ages) + 1, k)
         return states[k].astype(str)
     return f
 
@@ -152,6 +160,10 @@ def tower(s, ctx, a, rc, rad, top, crown):
     s.fill(shapes.cylinder(c, rad + 1.3, y_top, y_top + 1), TRIM)
     crown_fn = CROWNS[crown]
     crown_fn(s, c, rad, y_top + 1, a)
+    # shingle the eave and the crown (the armillary model on top stays crisp)
+    R = rad + 4
+    skin(s, (x - R, y_top - 2, z - R), (x + R + 1, y_top + (6 if crown == "armillary" else 60), z + R + 1),
+         mask=lambda X, Y, Z: np.hypot(X - x, Z - z) > ri + 0.5)
     return dict(c=(x, z), rad=rad, top=y_top, crown=crown, room=ri)
 
 
@@ -162,7 +174,8 @@ def _finial(s, x, y, z, age=""):
 def crown_needle(s, c, rad, y0, a):
     """Tallest: banded copper needle with four dormers and a lightning-rod finial."""
     h = rad * 6.0
-    s.fill(shapes.cylinder(c, rad + 2.0, y0, y0 + h, 0.3), banded(y0, 2))
+    s.fill(shapes.cylinder(c, rad + 2.0, y0, y0 + h, 0.3),
+           banded(y0, 3, ("oxidized", "oxidized", "exposed"), ribs=(c[0], c[2], 8), rib_state=cu("", "cut")))
     for k in range(4):
         ang = math.radians(a + 45 + 90 * k)
         dx, dz = c[0] + math.cos(ang) * (rad + 0.5), c[2] + math.sin(ang) * (rad + 0.5)
@@ -175,7 +188,8 @@ def crown_needle(s, c, rad, y0, a):
 def crown_banded(s, c, rad, y0, a):
     h = rad * 4.4
     s.fill(shapes.cylinder(c, rad + 1.7, y0, y0 + 2, rad + 1.4), cu("oxidized", "cut"))
-    s.fill(shapes.cylinder(c, rad + 1.4, y0 + 2, y0 + h, 0.25), banded(y0, 2, ("oxidized", "weathered", "oxidized", "exposed")))
+    s.fill(shapes.cylinder(c, rad + 1.4, y0 + 2, y0 + h, 0.25), banded(y0, 2, ("oxidized", "oxidized", "exposed"), ribs=(c[0], c[2], 6),
+                                                                        rib_state=cu("weathered", "cut")))
     _finial(s, c[0], int(y0 + h), c[2], "weathered")
 
 
@@ -326,6 +340,8 @@ def roof(s, x0, x1, z0, z1, y0, axis, name):
     b.fill(body & (d + rise > half - 0.5), ROOF)
     ridge = body & (d < 1.0) & (d + rise > half - 0.5)
     b.fill(ridge, cu("oxidized", "cut"))
+    skin(s, (x0 - 1, y0, z0 - 1), (x1 + 2, y0 + 12, z1 + 2), corners=None,
+         dirs=("west", "east") if axis == "z" else ("north", "south"))
 
 
 # ------------------------------------------------------------------ gatehouse
@@ -385,6 +401,7 @@ def gatehouse(s, ctx):
             s.fill(shapes.box((px - 0.5, FLOOR + 2, pz - 0.5), (px + 0.5, y_top + 3, pz + 0.5)), TRIM)
         s.fill(shapes.cylinder(c, rad + 1.3, y_top - 2, y_top + 1) - shapes.cylinder(c, rad - 0.2, 0, 999), MASONRY)
         crown_pagoda(s, c, rad, y_top + 1, 90)
+        skin(s, (gx - rad - 4, y_top - 2, gz - rad - 4), (gx + rad + 5, y_top + 30, gz + rad + 5))
         # lit lanterns on the jambs (paired fixtures)
         towers.append(dict(c=(gx, gz), rad=rad, top=y_top))
     for sx in (-4, 4):

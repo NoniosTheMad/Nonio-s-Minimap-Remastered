@@ -57,18 +57,18 @@ SOIL = Mix({"dirt": 3, "coarse_dirt": 1, "rooted_dirt": 1})
 ROCK = Gradient("y", [(GROUND - 24, Mix({"deepslate": 3, "cobbled_deepslate": 1})),
                       (GROUND - 10, Mix({"tuff": 3, "deepslate": 1, "andesite": 0.5})),
                       (999, Mix({"tuff": 3, "andesite": 1.2, "calcite": 0.6, "stone": 0.6}))], jitter=4, jitter_scale=7, seed=SEED)
-UNDERSIDE = Gradient("y", [(ISLAND_TIP + 12, Mix({"deepslate": 3, "cobbled_deepslate": 1, "tuff": 1})),
-                           (FLOOR - 26, Mix({"tuff": 3, "deepslate": 1.2, "calcite": 0.4})),
-                           (FLOOR - 8, Mix({"tuff": 3, "andesite": 1, "calcite": 0.8})),
-                           (999, Mix({"calcite": 1, "tuff": 2, "dripstone_block": 0.4}))],
+UNDERSIDE = Gradient("y", [(ISLAND_TIP + 10, Mix({"deepslate": 2, "cobbled_deepslate": 1, "tuff": 2, "smooth_basalt": 0.6})),
+                           (FLOOR - 30, Mix({"tuff": 3, "dripstone_block": 1.2, "deepslate": 0.8, "calcite": 0.4})),
+                           (FLOOR - 10, Mix({"tuff": 3, "dripstone_block": 1.5, "andesite": 1, "calcite": 0.8})),
+                           (999, Mix({"calcite": 1.2, "tuff": 2, "dripstone_block": 1}))],
                      jitter=4, jitter_scale=6, seed=SEED + 1)
 MASONRY = Gradient("y", [(FLOOR + 3, Mix({"deepslate_bricks": 3, "polished_deepslate": 1, "cracked_deepslate_bricks": 0.4})),
                          (FLOOR + 14, Mix({"tuff_bricks": 3, "polished_tuff": 1, "deepslate_bricks": 0.6})),
-                         (FLOOR + 36, Mix({"tuff_bricks": 2, "polished_tuff": 1, "calcite": 0.5})),
-                         (999, Mix({"calcite": 2, "tuff_bricks": 1, "smooth_quartz": 0.4}))], jitter=3, jitter_scale=6, seed=SEED + 2)
+                         (FLOOR + 36, Mix({"tuff_bricks": 2, "polished_tuff": 1, "deepslate_bricks": 0.3})),
+                         (999, Mix({"polished_tuff": 2, "tuff_bricks": 1, "calcite": 0.25}))], jitter=3, jitter_scale=6, seed=SEED + 2)
 SPIRE_BODY = Gradient("y", [(FLOOR + 10, Mix({"polished_deepslate": 2, "deepslate_tiles": 1, "deepslate_bricks": 1})),
                             (142, Mix({"deepslate_bricks": 2, "tuff_bricks": 1.2, "polished_deepslate": 0.5})),
-                            (170, Mix({"tuff_bricks": 2, "polished_tuff": 1, "calcite": 0.6})),
+                            (170, Mix({"tuff_bricks": 2, "polished_tuff": 1, "calcite": 0.12})),
                             (999, Mix({"calcite": 2, "quartz_bricks": 1, "polished_tuff": 0.4}))], jitter=4, jitter_scale=8, seed=SEED + 3)
 TRIM = Mix({"calcite": 4, "polished_diorite": 0.0001, "smooth_quartz": 1})   # pilasters, linings, crowns
 TRIM_SOLID = "calcite"
@@ -258,3 +258,70 @@ def facing_of(dx, dz):
 
 
 OPP = {"north": "south", "south": "north", "east": "west", "west": "east"}
+
+
+# ------------------------------------------------------------------ stair skin
+_SKIN = {   # full block -> (stairs, slab) base ids
+    "deepslate_tiles": ("deepslate_tile_stairs", "deepslate_tile_slab"),
+    "cracked_deepslate_tiles": ("deepslate_tile_stairs", "deepslate_tile_slab"),
+    "deepslate_bricks": ("deepslate_brick_stairs", "deepslate_brick_slab"),
+    "cracked_deepslate_bricks": ("deepslate_brick_stairs", "deepslate_brick_slab"),
+    "polished_deepslate": ("polished_deepslate_stairs", "polished_deepslate_slab"),
+    "tuff_bricks": ("tuff_brick_stairs", "tuff_brick_slab"),
+    "polished_tuff": ("polished_tuff_stairs", "polished_tuff_slab"),
+    "tuff": ("tuff_stairs", "tuff_slab"),
+    "smooth_quartz": ("smooth_quartz_stairs", "smooth_quartz_slab"),
+    "quartz_bricks": ("quartz_stairs", "quartz_slab"),
+    "stone_bricks": ("stone_brick_stairs", "stone_brick_slab"),
+    "mossy_stone_bricks": ("mossy_stone_brick_stairs", "mossy_stone_brick_slab"),
+}
+for _a in AGES:
+    _p = f"waxed_{_a}_" if _a else "waxed_"
+    _SKIN[f"{_p}cut_copper"] = (f"{_p}cut_copper_stairs", f"{_p}cut_copper_slab")
+
+
+def skin(s, lo, hi, corners="slab", mask=None, dirs=("west", "east", "north", "south")):
+    """Stair skin for stepped roofs and cones inside the box [lo, hi): every roof cell with air above and air on one
+    side becomes a stair rising inward (facing away from the air); cells with air on two or more sides become bottom
+    slabs (corners="slab") or stay. mask(x, y, z) (voxel-centre grids) -> bool limits it; dirs limits the facings. Smooths voxel cones into shingled roofs and adds partial blocks to the facade."""
+    x0, y0, z0 = [max(1, int(v)) for v in lo]
+    x1, y1, z1 = [min(n - 1, int(v)) for v, n in zip(hi, s.shape)]
+    if x1 <= x0 or y1 <= y0 or z1 <= z0:
+        return 0
+    A = s.idx[x0 - 1:x1 + 1, y0 - 1:y1 + 1, z0 - 1:z1 + 1]
+    names = s.palette
+    src = {}
+    for i, st in enumerate(names):
+        n = st.split("[")[0].replace("minecraft:", "")
+        if n in _SKIN:
+            src[i] = _SKIN[n]
+    if not src:
+        return 0
+    c = A[1:-1, 1:-1, 1:-1]
+    cand = np.isin(c, list(src))
+    air = A == 0
+    cand &= air[1:-1, 2:, 1:-1] & ~air[1:-1, :-2, 1:-1]
+    if mask is not None:
+        gx, gy, gz = np.ogrid[x0:x1, y0:y1, z0:z1]
+        cand &= np.broadcast_to(mask(gx + 0.5, gy + 0.5, gz + 0.5), cand.shape)
+    e, w = air[2:, 1:-1, 1:-1], air[:-2, 1:-1, 1:-1]
+    so, no = air[1:-1, 1:-1, 2:], air[1:-1, 1:-1, :-2]
+    nair = e.astype(int) + w + so + no
+    out = 0
+    for (dirm, facing) in ((e, "west"), (w, "east"), (so, "north"), (no, "south")):
+        if facing not in dirs:
+            continue
+        m = cand & dirm & (nair == 1)
+        for i, (st, sl) in src.items():
+            mm = m & (c == i)
+            if mm.any():
+                c[mm] = s.id(f"{st}[facing={facing},half=bottom,shape=straight,waterlogged=false]")
+                out += int(mm.sum())
+    if corners == "slab":
+        m = cand & (nair >= 2) & (nair <= 3)
+        for i, (st, sl) in src.items():
+            mm = m & (c == i)
+            if mm.any():
+                c[mm] = s.id(f"{sl}[type=bottom,waterlogged=false]")
+                out += int(mm.sum())
+    return out

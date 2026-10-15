@@ -12,3 +12,26 @@ Weakest three after pass 1 (fixed in pass 2 onward):
 1. The rings read as three identical dark-teal tubes. There is no metalwork, no graduation and no different oxidation per ring.
 2. From every eye view below the island, the underside is one dark, uniform cone. The amethyst drips are thin, and there are no roots, chains or foundations.
 3. Castle facades are dark and flat, with almost no partial blocks or lights. The stats show partial-block share 0.04 and 0.18 lights per 100 m2.
+
+## Pass 2: rings, underside, facades
+Fixes for pass 1's weakest three:
+1. Rings → open truss.
+   - Two cut-copper rails, chiseled rungs at every degree tick (5°/5°/10°), and proud teeth every third tick.
+   - Calcite tick marks on the outer face, and glyph plates with amethyst inlay and paired bulbs.
+   - Each ring has its own body age plus an accent age: oxidized+fresh, weathered+exposed, exposed+oxidized.
+   - Bands are thinner (hw 3.0/2.6/2.6, ht 1.2/1.1/1.0). The sky shows between the rungs.
+2. Underside.
+   - Lighter strata palette (tuff/dripstone), with bright double calcite seams every 9 blocks.
+   - 12+ bleached pale-oak root trunks that split and end in pale moss. They are kept under the overhang, so they catch no falling player.
+   - Three giant mooring chains (`moorings.py`, links 5 wide with alternating planes) run from hawses deep under the belly to capstan anchors on the crater slope. They pass the rim more than 23 blocks below it, so they are a fall, not a trap.
+   - The torn cellars are now real sections: walls stop at the rim instead of hanging off it as brick boxes.
+3. Facades.
+   - Stair skin (`common.skin`) on every crown, eave, wing roof, gate pagoda and the Spire taper.
+   - Needle and banded cones get copper ribs (8 and 6) over age bands.
+   - The random calcite mottling is gone from MASONRY and SPIRE_BODY; the light stone is now only in structured trims.
+- Walk: 0 hard and 0 soft traps.
+
+Weakest three after pass 2:
+1. The eye views from the crater floor and spawns are still dominated by the dark belly. The castle reads as a small crown on a tall dark column.
+2. The gate approach: the top of the floating stair cuts a trench into the forecourt (eye_cam_gate), so the arrival at the gate is a hole, not a threshold.
+3. The court and gallery views are dark and cramped. Few lights (0.29 per 100 m2 near facades), and the court has no focal light.

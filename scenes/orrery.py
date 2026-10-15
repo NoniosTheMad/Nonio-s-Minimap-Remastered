@@ -12,7 +12,7 @@ from tools.voxel.scene import Scene
 
 from scenes.orrery_parts import common as K
 
-PARTS = ("terrain", "island", "castle", "spire", "rings", "stair", "rooms", "finish")
+PARTS = ("terrain", "island", "castle", "spire", "rings", "stair", "moorings", "rooms", "finish")
 
 
 def _mod(name):
@@ -30,7 +30,7 @@ def build():
                 continue
             raise
         m.build(s, ctx)
-    s.meta["report"] = {k: ctx[k] for k in ("ring_hits", "ring_hit_cells", "plugged", "fix_soil") if k in ctx}
+    s.meta["report"] = {k: ctx[k] for k in ("ring_hits", "ring_hit_cells", "plugged", "fix_soil", "moorings") if k in ctx}
     s.meta["mood"] = "dusk"
     s.meta["origin"] = [-104, 20, -104]
     return s

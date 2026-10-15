@@ -61,9 +61,11 @@ def body(s, f):
     y = np.arange(H)[None, :, None]
     # strata seams, bowed with the island (they were horizontal before the summit was torn off, now tilted ~6 deg)
     tilt = (f["gx"] - C[0]) * 0.1 + (f["gz"] - C[1]) * 0.04 + 2.0 * fbm2(f["gx"], f["gz"], 13, SEED + 72)
-    band = (y + tilt[:, None, :]) % 7
-    s.fill(m & (band < 1.0) & (y < FLOOR - 4), Mix({"calcite": 3, "dripstone_block": 1.5, "smooth_basalt": 0.5}))
-    s.fill(m & (band >= 3.5) & (band < 4.2) & (y < FLOOR - 10), Mix({"deepslate": 1, "cobbled_deepslate": 1, "tuff": 1}))
+    band = (y + tilt[:, None, :]) % 9
+    # bright double seams (calcite over dripstone) and one dark seam per 9: the torn strata read from the crater floor
+    s.fill(m & (band < 1.3) & (y < FLOOR - 4), Mix({"calcite": 4, "smooth_quartz": 0.5, "diorite": 0.6}))
+    s.fill(m & (band >= 1.3) & (band < 2.2) & (y < FLOOR - 4), Mix({"dripstone_block": 3, "calcite": 1}))
+    s.fill(m & (band >= 5.0) & (band < 5.9) & (y < FLOOR - 10), Mix({"deepslate": 1, "smooth_basalt": 1, "cobbled_deepslate": 0.5}))
     # the deck surface (castle paving and court come later; this is the outer lawn and rim)
     top = (y == FLOOR) & f["inside"][:, None, :]
     s.fill(top, Noise([(-0.15, Mix({"moss_block": 1, "grass_block": 2})), (1, "grass_block")], scale=6, seed=SEED))
@@ -87,16 +89,19 @@ def torn_foundations(s, f):
         # local coordinates: along the rim (v) and outward (u)
         u = (b.x - x) * ux + (b.z - z) * uz
         v = -(b.x - x) * uz + (b.z - z) * ux
-        shell = (np.abs(v) <= w / 2 + 1) & (u >= -d - 1) & (b.y >= y0 - 1) & (b.y <= y1 + 0.5)
+        # the cut face: the walls stop at the rim (u ~ 3.5) with a ragged edge, so the cellar reads as a section
+        # (ragged only below the vault: the wall heads stay behind the rim, so no ledge catches a falling player)
+        cut = np.where(b.y < y1 - 1, 2.4 + 1.0 * noise.hash01(b.xi, b.yi // 2, b.zi, seed=k + 7), 2.4)
+        shell = (np.abs(v) <= w / 2 + 1) & (u >= -d - 1) & (u <= cut) & (b.y >= y0 - 1) & (b.y <= y1 + 0.5)
         room = (np.abs(v) <= w / 2) & (u >= -d) & (b.y >= y0) & (b.y <= y1 - 1)
         brick = Mix({"stone_bricks": 3, "cracked_stone_bricks": 2, "mossy_stone_bricks": 1.5, "tuff_bricks": 1})
         b.fill(shell, brick)
         # the wall heads rise to the lawn (FLOOR - 1): the ledge they make under the rim is one step below the deck
-        head = (np.abs(v) <= w / 2 + 1) & (u >= -d - 1) & (b.y > y1) & (b.y < FLOOR)
+        head = (np.abs(v) <= w / 2 + 1) & (u >= -d - 1) & (u <= cut) & (b.y > y1) & (b.y < FLOOR)
         b.fill(head, brick, replace="air")
         b.fill(room & (u < 6), "air")
         # vaulted ceiling: a barrel arch across the room
-        arch = room & ((v / (w / 2)) ** 2 + ((b.y - (y1 - 1)) / 2.2) ** 2 > 1) & (b.y > y1 - 3)
+        arch = room & (u <= cut) & ((v / (w / 2)) ** 2 + ((b.y - (y1 - 1)) / 2.2) ** 2 > 1) & (b.y > y1 - 3)
         b.fill(arch, brick)
         # floor: old tiles; broken off at the outer edge
         b.fill((np.abs(v) <= w / 2) & (u >= -d) & (u < 1.5 + 2 * noise.hash01(b.xi, 0, b.zi, seed=k)) &
@@ -204,6 +209,55 @@ def root_ropes(s, f):
                 s.set(xi + dx, yb, zi + dz, "hanging_roots")
 
 
+def root_trunks(s, f):
+    """The old summit trees' roots, torn out with the rock: thick bleached trunks that break out of the rim's underside,
+    bend outward and down, split, and end in hanging roots and pale moss. They read from the crater floor and the far
+    highland (the island is alive, not a cone of stone)."""
+    rng = np.random.default_rng(SEED + 95)
+    wood = Mix({"pale_oak_wood": 3, "stripped_pale_oak_wood": 1, "mangrove_wood": 0.6})
+    ends = []
+    for k in range(16):
+        a = k * 22.5 + rng.uniform(-7, 7)
+        if any(abs(wrap_deg(a - m)) < 9 for m in (300, 15, 105)):   # leave the moorings clear
+            continue
+        e = float(edge_r(np.array([a]))[0])
+        rr = e - rng.uniform(9, 13)                  # under the overhang: a player falling off the rim misses them
+        x, z = at_polar(a, rr)
+        y = float(f["bot"][int(x), int(z)]) + 2
+        r0 = rng.uniform(1.3, 1.9)
+        L = rng.uniform(14, 26)
+        n = 5
+        p = np.array([x, y, z])
+        ux, uz = math.cos(math.radians(a)), math.sin(math.radians(a))
+        for i in range(n):
+            out = 0.36 - 0.07 * i                     # outward first, then hanging (ends stay inside the rim)
+            d = np.array([ux * out + rng.uniform(-0.15, 0.15), -1.0, uz * out + rng.uniform(-0.15, 0.15)])
+            d /= np.linalg.norm(d)
+            q = p + d * (L / n)
+            r = r0 * (1 - i / n) + 0.45
+            s.fill(shapes.capsule(tuple(p), tuple(q), r), wood)
+            if i == 2:                               # a side root splits off
+                sd = np.array([-uz, -0.8, ux]) * (1 if k % 2 else -1)
+                sd /= np.linalg.norm(sd)
+                q2 = p + sd * 7
+                s.fill(shapes.capsule(tuple(p), tuple(q2), 0.6), wood)
+                ends.append(q2)
+            p = q
+        ends.append(p)
+    for q in ends:
+        xi, yi, zi = int(q[0]), int(q[1]), int(q[2])
+        # walk down to the lowest wood cell in that column and hang roots / moss under it
+        col = s.idx[xi, 30:FLOOR, zi]
+        nz = np.nonzero(col)[0]
+        if not len(nz):
+            continue
+        lo = int(nz.min()) + 30
+        if s.idx[xi, lo - 1, zi] == 0:
+            s.set(xi, lo - 1, zi, "pale_hanging_moss[tip=false]")
+            s.set(xi, lo - 2, zi, "pale_hanging_moss[tip=true]")
+    return ends
+
+
 def throat_grotto_shaft(s, f):
     """Route B inside the island: the Throat (open tip) -> Root Grotto -> Root Shaft -> Orrery Hall oculus.
     The amethyst heart column runs up the middle of all three."""
@@ -254,4 +308,5 @@ def build(s, ctx):
     ctx["foundations"] = torn_foundations(s, f)
     stalactites(s, f)
     root_ropes(s, f)
+    root_trunks(s, f)
     throat_grotto_shaft(s, f)
