@@ -1,3 +1,4 @@
-1. Press G, pick "Demo: /posteffect".
-2. Click effects (they stack); "list mine" shows active ones.
-3. Then die (/kill), relog, or travel away and back: do effects survive?
+Your role: are vanilla post effects worth using in-game?
+Check:
+- Stack a few: is any useful mid-match?
+- Die, relog, travel away and back: do they persist?
