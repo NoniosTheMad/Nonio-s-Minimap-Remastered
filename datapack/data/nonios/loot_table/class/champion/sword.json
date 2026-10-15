@@ -1,0 +1,70 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_sword",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:custom_data": {
+         "nx_cls": "champion",
+         "nx_item": "champion_sword",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Champion's Blade",
+         "color": "yellow",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Every victory makes it heavier",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Player kill: +1 heart, +0.5 damage (max 5)",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "3+ kills: you glow, your killer takes the bounty",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Die once and it is over",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Champion \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

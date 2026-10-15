@@ -5,6 +5,7 @@ execute if score @s nx.cls_req matches 5 run return run function nonios:class/ge
 execute if score @s nx.cls_req matches 6 run return run function nonios:class/gen/tank/apply
 execute if score @s nx.cls_req matches 7 run return run function nonios:class/gen/ninja/apply
 execute if score @s nx.cls_req matches 8 run return run function nonios:class/gen/berserker/apply
+execute if score @s nx.cls_req matches 11 run return run function nonios:class/gen/champion/apply
 execute if score @s nx.cls_req matches 1 run return run function nonios:class/gen/reaper/apply
 execute if score @s nx.cls_req matches 9 run return run function nonios:class/gen/monster/apply
 execute if score @s nx.cls_req matches 10 run return run function nonios:class/gen/balrog/apply

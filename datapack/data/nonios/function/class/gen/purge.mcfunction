@@ -5,6 +5,7 @@ execute unless score @s nx.class matches 5 run clear @s *[minecraft:custom_data~
 execute unless score @s nx.class matches 6 run clear @s *[minecraft:custom_data~{nx_cls:"tank"}]
 execute unless score @s nx.class matches 7 run clear @s *[minecraft:custom_data~{nx_cls:"ninja"}]
 execute unless score @s nx.class matches 8 run clear @s *[minecraft:custom_data~{nx_cls:"berserker"}]
+execute unless score @s nx.class matches 11 run clear @s *[minecraft:custom_data~{nx_cls:"champion"}]
 execute unless score @s nx.class matches 1 run clear @s *[minecraft:custom_data~{nx_cls:"reaper"}]
 execute unless score @s nx.class matches 9 run clear @s *[minecraft:custom_data~{nx_cls:"monster"}]
 execute unless score @s nx.class matches 10 run clear @s *[minecraft:custom_data~{nx_cls:"balrog"}]

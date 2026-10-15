@@ -849,6 +849,122 @@
       },
       "enchantments": {}
     },
+    "champion": {
+      "num": 11,
+      "tier": "shop",
+      "name": {
+        "text": "Champion",
+        "color": "yellow"
+      },
+      "price": 150,
+      "kill_tier": 1,
+      "shop": {
+        "sprite": "minecraft:item/golden_helmet"
+      },
+      "lost_msg": "Undefeated no more.",
+      "blurb": "Grows with every player it kills while undefeated: a heart and some damage per kill, up to 5. From 3 kills everyone sees it, and whoever brings it down takes the bounty. Iron locked on, golden crown.",
+      "vision": [],
+      "hooks": [
+        "on_apply",
+        "on_strip",
+        "second"
+      ],
+      "clear_effects": [
+        "minecraft:glowing"
+      ],
+      "items": {
+        "head": {
+          "slot": "armor.head",
+          "id": "minecraft:golden_helmet",
+          "name": {
+            "text": "Champion's Crown",
+            "color": "yellow"
+          },
+          "lore": [
+            {
+              "text": "Heavy is the head",
+              "color": "gray",
+              "italic": true
+            }
+          ],
+          "components": {
+            "minecraft:attribute_modifiers": [
+              {
+                "type": "minecraft:armor",
+                "id": "nonios:champ_crown",
+                "amount": 2,
+                "operation": "add_value",
+                "slot": "head"
+              }
+            ]
+          }
+        },
+        "chest": {
+          "slot": "armor.chest",
+          "id": "minecraft:iron_chestplate"
+        },
+        "legs": {
+          "slot": "armor.legs",
+          "id": "minecraft:iron_leggings"
+        },
+        "feet": {
+          "slot": "armor.feet",
+          "id": "minecraft:iron_boots"
+        },
+        "sword": {
+          "slot": "inventory",
+          "id": "minecraft:iron_sword",
+          "name": {
+            "text": "Champion's Blade",
+            "color": "yellow"
+          },
+          "lore": [
+            {
+              "text": "Every victory makes it heavier",
+              "color": "gray",
+              "italic": true
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": "Player kill: +1 heart, +0.5 damage (max 5)",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "3+ kills: you glow, your killer takes the bounty",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Die once and it is over",
+              "color": "dark_green",
+              "italic": false
+            }
+          ]
+        },
+        "pickaxe": {
+          "slot": "supply",
+          "id": "minecraft:stone_pickaxe"
+        },
+        "axe": {
+          "slot": "supply",
+          "id": "minecraft:stone_axe"
+        },
+        "cobblestone": {
+          "slot": "supply",
+          "id": "minecraft:cobblestone",
+          "count": 16
+        },
+        "beef": {
+          "slot": "supply",
+          "id": "minecraft:cooked_beef",
+          "count": 8
+        }
+      },
+      "enchantments": {}
+    },
     "reaper": {
       "num": 1,
       "tier": "shop",

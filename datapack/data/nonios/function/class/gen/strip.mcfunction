@@ -5,6 +5,7 @@ execute if score @s nx.class matches 5 run return run function nonios:class/gen/
 execute if score @s nx.class matches 6 run return run function nonios:class/gen/tank/strip
 execute if score @s nx.class matches 7 run return run function nonios:class/gen/ninja/strip
 execute if score @s nx.class matches 8 run return run function nonios:class/gen/berserker/strip
+execute if score @s nx.class matches 11 run return run function nonios:class/gen/champion/strip
 execute if score @s nx.class matches 1 run return run function nonios:class/gen/reaper/strip
 execute if score @s nx.class matches 9 run return run function nonios:class/gen/monster/strip
 execute if score @s nx.class matches 10 run return run function nonios:class/gen/balrog/strip
