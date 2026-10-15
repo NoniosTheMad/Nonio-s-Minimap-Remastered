@@ -1,6 +1,6 @@
 Your role: does each class feel like V2's, at its price?
 Check:
-- Buy each one: kit and price right?
-- Berserker: Rage builds as you fight; deadly when full?
-- Angel (shop, 150): staff beam on the "Wounded" (target dummies), Sanctuary Bell?
-- Flasks: cooldown sweep, never lost? Miner brew shows ores?
+- Buy one with a full hotbar: class items in slots 1-2?
+- Reaper: lantern bind + scythe heal worth banking souls?
+- Cracy Frog: ride the broom; tongue drags flyers down?
+- Berserker rage, Angel beam/bell, flasks: still right?

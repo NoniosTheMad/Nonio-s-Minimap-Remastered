@@ -2,6 +2,9 @@
 scoreboard players add @s nx.cls_yk 1
 execute if entity @s[gamemode=!survival,gamemode=!adventure] run return run function nonios:class/cracy_frog/yank_end
 execute if score @s nx.cls_yk matches 200.. run return run function nonios:class/cracy_frog/yank_end
+# dragged down: nothing keeps them up
+execute if entity @s[tag=nx.frog_hooked] run effect clear @s minecraft:levitation
+execute if entity @s[tag=nx.frog_hooked] run effect clear @s minecraft:slow_falling
 # the counters: water, lava, cobweb, slow falling
 execute if block ~ ~ ~ #nonios:class/reaper_fluid run return run function nonios:class/cracy_frog/yank_end
 execute if block ~ ~ ~ minecraft:cobweb run return run function nonios:class/cracy_frog/yank_end

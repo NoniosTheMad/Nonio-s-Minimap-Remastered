@@ -122,6 +122,7 @@ def build():
         for lvl, items in levels.items():
             sub = f"l{lvl}/" if lvl else ""
             lines = []
+            first = 0  # #135: shop-class signature items take hotbar 1, 2, ... (gear/force_loot bumps what was there)
             for key, it in items.items():
                 if it["slot"] == "supply":
                     assert not basic, f"{cid}.{key}: supply items are for shop classes (given once)"
@@ -134,8 +135,11 @@ def build():
                 if it["slot"] in EQUIP:
                     lines.append(f'function nonios:class/stash {{slot:"{it["slot"]}"}}')
                     lines.append(f"loot replace entity @s {it['slot']} loot {table}")
-                else:
+                elif basic:
                     lines.append(f'function nonios:gear/loot {{table:"{table}"}}')
+                else:
+                    lines.append(f'function nonios:gear/force_loot {{table:"{table}",slot:{first}}}')
+                    it["_hot"], first = first, first + 1
                 if not basic:
                     _uses(cid, key, it, comp, hooks)
             name = f"{g}/equip" + (f"_l{lvl}" if lvl else "")
@@ -207,7 +211,7 @@ def build():
                         *([f"# used up (consumable): back into the hand that used it",
                            f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}"]
                           if "minecraft:consumable" in item_components(cid, c, key, it) else []),
-                        f'function nonios:gear/loot {{table:"{table}"}}'])
+                        f'function nonios:gear/force_loot {{table:"{table}",slot:{it["_hot"]}}}'])
             fn(f"{g}/check", lines)
             disp["check"].append(f"execute if score @s nx.class matches {n} run return run function nonios:{g}/check")
 

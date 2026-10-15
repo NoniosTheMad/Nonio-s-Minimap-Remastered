@@ -19,31 +19,44 @@ Status key: **done** = playable and reviewed by the user. **built** = playable, 
 | Berserker | 120 | strength, speed, regen, armour stripped | #93 Rage (0..100): +5 per hit landed (at most every 5 ticks), +2 per health point lost; cools 10/s after 3 s out of combat. Tier = Rage/25 (0..4): Resistance IV/III/II/I/none, axe damage +0..+4, attack speed 5..8 (+0.75 per tier), lifesteal 2 hearts per 2/1.5/1 s, then 4 hearts per 1.5/1 s. Red mist thickens with the tier (not drawn for the Berserker), war-drum heartbeat at full Rage. Axe out = armour 0 + speed + no knockback; heal guard (#89) unchanged: only lifesteal heals | built |
 | **Champion** | 150 | none | grows with player kills while undefeated (see below) | **new**, built |
 | **Angel** | 150 | none | #94 healer: gold armour + Seraph Wings (elytra, glide only), Seraph Staff (hold on an ally: locks on within 16 blocks, Regeneration IV beam, sneak = Strength I + Speed I; ally health on the action bar), Sanctuary Bell (45 s: allies within 8 get 4 absorption hearts, Resistance I 5 s, ailments cleared; golden shockwave ring), halo (text-display ring kept over the head), Angel post effect from spike/shaders (copied, HP signatures not wired) | **new**, built |
-| Reaper | 200 | pumpkin, scythe, permanent invisibility + speed II, 3 s resistance V per kill | see below (#70/#71 rework) | built |
+| Reaper | 200 | pumpkin, scythe, permanent invisibility + speed II, 3 s resistance V per kill | see below (#137 rework) | built |
 | Monster | 1800 | Monster Transformation (300) / Skull (1800): devour on kill, hunger | +10 hearts, bigger, faster, claws with short reach, 80% knockback resistance; every kill devoured (strength, speed, heal) | built (main) |
 | Balrog | 10000 | jump boost, fire res., lava trail (bad luck, cursed, wither II), wall climb, custom sound | 150 hearts, armour 20, fireproof, cannot jump, climbs walls, 5.5-block lash at 0.6 hits/s, own aura hidden from itself, wither trail. No custom sound yet (needs audio) | built (main) |
 | Cracy Frog | free (3 "are you sure?") | frog head, Frog Skin, Frog Spring boots, Magic Broom | see below ("annoying" rework) | built |
 
-### Reaper (rework #70/#71)
-- Scythe: 2-heart lifesteal per swing and Slowness I for 3 s on hit.
-- Kill: +1 soul (max 5), 4 s invisibility, 8 s Resistance V. Resistance doesn't refresh while it's active, so kills can't chain it.
+### Reaper (rework #137; price 200 confirmed by the user in #135, one use per purchase as every shop class)
+- Identity: frail (5 hearts), high cost, high reward. Kills bank souls (max 5); souls are spent on two abilities.
+- Reaper's Scythe: +8 damage, 0.9 attacks/s, Fire Aspect, Slowness I 3 s on hit, `attack_range` max_reach 3.6 (a sword reaches 3).
+  No lifesteal any more. Right-click while it glints (souls > 0): spend a soul, heal 2 hearts. 0.25 s use, no cooldown.
+- Grave Lantern (goat horn, 5 s cooldown): spend a soul, bind the first enemy along the aim (8 blocks, walls stop it) for 2 s:
+  pinned in place every tick (also in mid-air), no walking or jumping, and players see the Reaper's post effect for those 2 s.
+  A miss keeps the soul.
+- Kill: +1 soul, 8 s invisible (a faint smoke trace still shows), 3 s Resistance V (doesn't refresh while active).
+- No healing from food (hunger held at 17, under vanilla's 18), permanent Regeneration I instead.
 - Invisible means invisible: the pumpkin and the scythe models are hidden too (`item_model` air) and come back afterwards.
-- Right-click the charged scythe (it glints) to burst the souls. With no souls you get "No souls" and the scythe is never consumed.
 - Flight in the air:
   - Holding Space rises, Shift sinks, and holding nothing hovers.
   - Horizontal speed is about walk/sprint (5.2 / 6.7 b/s).
   - It can only rise within 10 blocks of the ground. Higher than that it sinks slowly.
-  - No fall damage. Water, lava or landing ends the flight.
+  - No fall damage. Water, lava or landing ends the flight. A Cracy Frog tongue grounds it.
+- 1v1 balance: `python tools/sim/reaper_vs_warrior.py --scan` (Warrior L1, 10k duels, Warrior hit rate 60/70%, 0/1/3 banked souls).
 
 ### Cracy Frog ("the definition of annoying", #73)
 - Frog Tongue, right-click (0.35 s wind-up, 7 s cooldown):
   - The tongue travels 1.5 blocks/tick, up to 12 blocks. You can see it and dodge it.
   - When it catches someone, a wind burst throws them up and toward the frog while the frog springs backwards.
   - Players take fall damage on landing: blocks fallen from the peak minus 3, capped at 3 hearts.
+  - A player caught in mid-air (2+ blocks of air below: elytra, Reaper, broom, jumpers) is dragged DOWN instead (#136): knocked off any
+    mount, a wind burst above the head, doubled gravity and no slow falling / levitation / Reaper flight until they land, then a fixed
+    2-heart thud (vanilla fall damage is off meanwhile).
   - Counters: water, lava, cobweb, slow falling and feather falling. Allies are ignored, and the victim is immune to tongues for 3 s.
 - Shift + right-click: RIBBIT (the old wind bursts all around). It shares the cooldown.
 - Melee hit: a random chaos effect (yeet, levitate, spin, nausea, sticky).
-- Magic Broom: hold to fly by pitch, 3 s fuel. Frog Legs: big jumps, 12 blocks of safe fall.
+- Magic Broom (#136, locked in the off-hand): right-click to climb on a ridden broom: an invisible quarter-size happy ghast in a harness
+  (vanilla's only flying mount a player steers: look + WASD, jump climbs, sneak hops off) with a broom display under the rider.
+  8 s of fuel (was 3 s), refills 4/tick on the ground off the broom; needs 50 to mount; out of fuel = thrown off with a short slow fall.
+  One seat (other players are shaken off), the mount is killed as soon as nobody rides it.
+- Frog Legs: big jumps, 12 blocks of safe fall. The 3 "are you sure?" questions are 2-column multi_action dialogs (#138 layout).
 
 ### Champion (new, #74)
 - Kit: iron armour locked on, a golden Champion's Crown, Champion's Blade (iron sword), stone tools, cobblestone, beef.
@@ -51,6 +64,10 @@ Status key: **done** = playable and reviewed by the user. **built** = playable, 
 - At 3 kills it glows for everyone and its crown sparkles. Everyone sees "<name> ⚔ 3" at 3 and "⚔ 5" at 5.
 - Bounty: whoever kills a Champion with 3+ kills gets 10 coins per kill.
 - Death ends the run. It's a shop class, so it's lost and starts again from 0.
+
+### Class items in the hotbar (#135)
+A shop class's own items (weapon, flask, staff, broom...) always land in hotbar 1, 2, ... in `src/classes.json` order (`gear/force_loot`):
+whatever was there moves to free space, or drops at the feet when the inventory is full. Supplies still follow the #34 convention.
 
 ## Basic class (re-applied on every respawn)
 

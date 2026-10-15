@@ -7,4 +7,4 @@ execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"a
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"angel_staff"}}}}]
 # used up (consumable): back into the hand that used it
 execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot nonios:class/angel/staff
-function nonios:gear/loot {table:"nonios:class/angel/staff"}
+function nonios:gear/force_loot {table:"nonios:class/angel/staff",slot:0}

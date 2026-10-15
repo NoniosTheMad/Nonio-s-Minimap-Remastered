@@ -8,4 +8,4 @@ function nonios:class/stash {slot:"armor.legs"}
 loot replace entity @s armor.legs loot nonios:class/balrog/legs
 function nonios:class/stash {slot:"armor.feet"}
 loot replace entity @s armor.feet loot nonios:class/balrog/feet
-function nonios:gear/loot {table:"nonios:class/balrog/whip"}
+function nonios:gear/force_loot {table:"nonios:class/balrog/whip",slot:0}

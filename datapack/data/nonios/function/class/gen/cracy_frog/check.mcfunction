@@ -4,5 +4,5 @@ execute unless items entity @s armor.head *[minecraft:custom_data~{nx_item:"crac
 execute unless items entity @s armor.chest *[minecraft:custom_data~{nx_item:"cracy_frog_chest"}] run function nonios:class/gen/cracy_frog/need_chest
 execute unless items entity @s armor.legs *[minecraft:custom_data~{nx_item:"cracy_frog_legs"}] run function nonios:class/gen/cracy_frog/need_legs
 execute unless items entity @s armor.feet *[minecraft:custom_data~{nx_item:"cracy_frog_feet"}] run function nonios:class/gen/cracy_frog/need_feet
-function nonios:class/gen/cracy_frog/need_broom
+execute unless items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"cracy_frog_broom"}] run function nonios:class/gen/cracy_frog/need_broom
 function nonios:class/gen/cracy_frog/need_tongue

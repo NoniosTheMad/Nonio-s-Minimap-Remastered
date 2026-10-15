@@ -5,3 +5,4 @@ execute unless items entity @s armor.chest *[minecraft:custom_data~{nx_item:"rea
 execute unless items entity @s armor.legs *[minecraft:custom_data~{nx_item:"reaper_legs"}] run function nonios:class/gen/reaper/need_legs
 execute unless items entity @s armor.feet *[minecraft:custom_data~{nx_item:"reaper_feet"}] run function nonios:class/gen/reaper/need_feet
 function nonios:class/gen/reaper/need_scythe
+function nonios:class/gen/reaper/need_lantern

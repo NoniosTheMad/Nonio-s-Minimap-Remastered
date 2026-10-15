@@ -15,6 +15,6 @@
   }
  },
  "rewards": {
-  "function": "nonios:class/reaper/burst_use"
+  "function": "nonios:class/reaper/heal_use"
  }
 }

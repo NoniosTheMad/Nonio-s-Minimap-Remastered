@@ -31,13 +31,6 @@
           "slot": "mainhand"
          },
          {
-          "type": "minecraft:entity_interaction_range",
-          "id": "nonios:reaper_reach",
-          "amount": 0.75,
-          "operation": "add_value",
-          "slot": "mainhand"
-         },
-         {
           "type": "minecraft:movement_speed",
           "id": "nonios:reaper_haste",
           "amount": 0.2,
@@ -69,14 +62,13 @@
          "animation": "none",
          "has_consume_particles": false
         },
-        "minecraft:use_cooldown": {
-         "seconds": 8,
-         "cooldown_group": "nonios:reaper_burst"
-        },
         "minecraft:enchantments": {
          "nonios:class/reaper_scythe": 1,
          "minecraft:fire_aspect": 1,
          "minecraft:vanishing_curse": 1
+        },
+        "minecraft:attack_range": {
+         "max_reach": 3.6
         },
         "minecraft:unbreakable": {},
         "minecraft:custom_name": {
@@ -94,17 +86,22 @@
           "text": ""
          },
          {
-          "text": "Hit: steal 2 hearts, slow (once per swing)",
+          "text": "Reaches a little further than a sword",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Kill: +1 soul (max 5), 4s invisible, 8s untouchable",
+          "text": "Hit: slow",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Right-click: release souls (2 + 2/soul dmg, 6 blocks)",
+          "text": "Kill: +1 soul (max 5), 8s unseen, 3s untouchable",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Right-click: spend a soul, heal 2 hearts",
           "color": "dark_green",
           "italic": false
          },
@@ -119,24 +116,6 @@
           "minecraft:dyed_color",
           "minecraft:unbreakable"
          ]
-        }
-       }
-      },
-      {
-       "type": "minecraft:set_components",
-       "components": {
-        "minecraft:use_cooldown": {
-         "seconds": 8,
-         "cooldown_group": "nonios:reaper_burst_alt"
-        }
-       },
-       "condition": {
-        "type": "minecraft:entity_scores",
-        "entity": "this",
-        "scores": {
-         "nx.cls_cdalt": {
-          "min": 1
-         }
         }
        }
       }

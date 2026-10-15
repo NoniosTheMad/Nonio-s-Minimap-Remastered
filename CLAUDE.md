@@ -136,6 +136,11 @@ then the other reserved slots); no room = dropped at the feet. Anything else is 
   (class items on plain bases: `"gear"` in `src/classes.json`). How: an `item_display` probe (`nx.gear_probe`) holds the item,
   `gear/category` classifies it, `item replace ... from entity <probe> contents` copies it.
 - `item` is pasted raw into the commands: pass it `with storage` when it comes from data (components may hold quotes).
+- **Priority mode (#135, class signature items):** `nonios:gear/force {item,slot}` / `nonios:gear/force_loot {table,slot}` put one copy
+  in `hotbar.<slot>` (0-based) no matter what: the item already there is bumped to the first free slot (hotbar 6-9, inventory, then
+  hotbar 1-5) or dropped at the feet if the inventory is full (`gear/bump`). `tools/build_classes.py` uses it for every non-armour
+  item of a shop class (kit equip + the "missing item" re-give), in `src/classes.json` order: first item hotbar 1, second hotbar 2…
+  Basic-class kits (Warrior) and class supplies (food, blocks, tools) still follow the #34 convention above.
 
 ## Shop v3 (#32)
 `src/shop.json` (+ optional `--extra` json) -> `tools/build_shop.py` -> `shop/catalog` (storage `nonios:shop items[]`, `nodes[]`).

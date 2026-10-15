@@ -12,6 +12,9 @@ scoreboard objectives add nx.tier dummy
 scoreboard objectives add nx.cls_tmp dummy
 # Reaper souls / lifesteal gate (gametime of the last heal)
 scoreboard objectives add nx.cls_souls dummy
+scoreboard objectives add nx.cls_bid dummy
+scoreboard objectives add nx.cls_bnd dummy
+scoreboard objectives add nx.food food
 scoreboard objectives add nx.cls_heal dummy
 # Reaper: untouchable-until gametime, last "No souls" tick, flight state (1 = in the air), last 2 heights (milliblocks), gravity sent
 scoreboard objectives add nx.cls_ward dummy

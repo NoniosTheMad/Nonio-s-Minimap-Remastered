@@ -1,4 +1,5 @@
 # as/at every Reaper, each tick
+function nonios:class/reaper/food
 # scythe state follows the souls (charged = glint + burst on right-click, dormant = "No souls")
 execute if score @s nx.cls_souls matches 1.. if items entity @s container.* *[minecraft:custom_data~{nx_item:"reaper_scythe",nx_state:"dormant"}] run function nonios:class/reaper/charge
 execute if score @s nx.cls_souls matches 1.. if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"reaper_scythe",nx_state:"dormant"}] run function nonios:class/reaper/charge
@@ -11,6 +12,8 @@ execute unless predicate nonios:class/reaper/invisible if items entity @s contai
 # flight: off on the ground, in fluids and outside survival/adventure
 execute if entity @s[gamemode=!survival,gamemode=!adventure] run return run function nonios:class/reaper/fly_off
 execute if predicate nonios:class/on_ground run return run function nonios:class/reaper/fly_off
+# dragged down by a Cracy Frog tongue: no flight until it lands
+execute if entity @s[tag=nx.frog_hooked] run return run function nonios:class/reaper/fly_off
 execute if block ~ ~ ~ #nonios:class/reaper_fluid run return run function nonios:class/reaper/fly_off
 execute unless score @s nx.cls_rfly matches 1 run function nonios:class/reaper/fly_on
 function nonios:class/reaper/fly

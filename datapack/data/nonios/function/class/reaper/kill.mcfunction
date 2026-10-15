@@ -4,8 +4,8 @@ execute unless items entity @s armor.head *[minecraft:custom_data~{nx_item:"reap
 scoreboard players add @s nx.cls_souls 1
 execute if score @s nx.cls_souls matches 6.. run scoreboard players set @s nx.cls_souls 5
 function nonios:class/reaper/charge
-effect give @s minecraft:invisibility 4 0 true
-# 8 s untouchable (V2: 3 s resistance V). A kill while it lasts does not extend it: no endless chain through a team.
+effect give @s minecraft:invisibility 8 0 true
+# 3 s untouchable (#137; V2: 3 s resistance V). A kill while it lasts does not extend it: no endless chain through a team.
 execute store result score #now nx.cls_tmp run time query gametime
 execute unless score @s nx.cls_ward > #now nx.cls_tmp run function nonios:class/reaper/ward
 execute at @s run playsound minecraft:entity.wither.spawn player @a[distance=..32] ~ ~ ~ 0.5 1.6

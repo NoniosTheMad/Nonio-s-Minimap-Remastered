@@ -1033,7 +1033,7 @@
         "sprite": "minecraft:item/netherite_hoe"
       },
       "lost_msg": "Death came for the Reaper. Ironic.",
-      "blurb": "Glass cannon that flies. Scythe heals you and slows on hit, kills give souls, 4 s of invisibility and 8 s untouchable, right-click releases the souls as a burst. 5 hearts, armour locked.",
+      "blurb": "Frail, flies, hits hard from a little further away. Kills bank souls: 8 s unseen, 3 s untouchable. Spend a soul to heal 2 hearts (scythe, right-click) or to bind an enemy in place for 2 s (lantern). Never heals from food, slowly regenerates. 5 hearts, armour locked.",
       "vision": [
         "nonios:reaper"
       ],
@@ -1043,10 +1043,12 @@
         "tick"
       ],
       "clear_effects": [
+        "minecraft:hunger",
         "minecraft:invisibility",
-        "minecraft:speed",
+        "minecraft:regeneration",
         "minecraft:resistance",
-        "minecraft:slow_falling"
+        "minecraft:slow_falling",
+        "minecraft:speed"
       ],
       "items": {
         "head": {
@@ -1177,17 +1179,22 @@
               "text": ""
             },
             {
-              "text": "Hit: steal 2 hearts, slow (once per swing)",
+              "text": "Reaches a little further than a sword",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Kill: +1 soul (max 5), 4s invisible, 8s untouchable",
+              "text": "Hit: slow",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Right-click: release souls (2 + 2/soul dmg, 6 blocks)",
+              "text": "Kill: +1 soul (max 5), 8s unseen, 3s untouchable",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Right-click: spend a soul, heal 2 hearts",
               "color": "dark_green",
               "italic": false
             }
@@ -1210,13 +1217,6 @@
                 "type": "minecraft:attack_speed",
                 "id": "minecraft:base_attack_speed",
                 "amount": -3.1,
-                "operation": "add_value",
-                "slot": "mainhand"
-              },
-              {
-                "type": "minecraft:entity_interaction_range",
-                "id": "nonios:reaper_reach",
-                "amount": 0.75,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
@@ -1248,13 +1248,58 @@
               "animation": "none",
               "has_consume_particles": false
             },
-            "minecraft:use_cooldown": {
-              "seconds": 8,
-              "cooldown_group": "nonios:reaper_burst"
-            },
             "minecraft:enchantments": {
               "nonios:class/reaper_scythe": 1,
               "minecraft:fire_aspect": 1
+            },
+            "minecraft:attack_range": {
+              "max_reach": 3.6
+            }
+          }
+        },
+        "lantern": {
+          "slot": "inventory",
+          "id": "minecraft:goat_horn",
+          "name": {
+            "text": "Grave Lantern",
+            "color": "dark_purple"
+          },
+          "lore": [
+            {
+              "text": "It burns what the dead left behind.",
+              "color": "gray",
+              "italic": true
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": "Right-click: spend a soul, bind the enemy you look at (8 blocks) for 2s",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Cooldown 5s",
+              "color": "dark_green",
+              "italic": false
+            }
+          ],
+          "components": {
+            "minecraft:item_model": "minecraft:soul_lantern",
+            "minecraft:max_stack_size": 1,
+            "minecraft:use_effects": {
+              "can_sprint": true,
+              "speed_multiplier": 1.0
+            },
+            "minecraft:use_cooldown": {
+              "seconds": 5,
+              "cooldown_group": "nonios:reaper_bind"
+            },
+            "minecraft:instrument": {
+              "sound_event": "minecraft:particle.soul_escape",
+              "use_duration": 5,
+              "range": 16,
+              "description": ""
             }
           }
         }
@@ -1282,20 +1327,6 @@
           ],
           "effects": {
             "minecraft:post_attack": [
-              {
-                "enchanted": "attacker",
-                "affected": "attacker",
-                "effect": {
-                  "type": "minecraft:run_function",
-                  "function": "nonios:class/reaper/lifesteal"
-                },
-                "requirements": {
-                  "type": "minecraft:damage_source_properties",
-                  "predicate": {
-                    "is_direct": true
-                  }
-                }
-              },
               {
                 "enchanted": "attacker",
                 "affected": "victim",
@@ -1356,6 +1387,30 @@
                           "minecraft:effects": {
                             "minecraft:invisibility": {}
                           }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "effect": {
+                  "type": "minecraft:run_function",
+                  "function": "nonios:class/reaper/aura_faint"
+                },
+                "requirements": {
+                  "type": "minecraft:all_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:random_chance",
+                      "chance": 0.08
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "minecraft:effects": {
+                          "minecraft:invisibility": {}
                         }
                       }
                     }
@@ -1891,7 +1946,7 @@
         "confirm": "nonios:class/cracy_frog/ask_step {step:1}"
       },
       "lost_msg": "The frog croaked. #Useful",
-      "blurb": "#Useful. Huge jumps, a broom that (sort of) flies, a tongue that drags people into the sky and lets them drop. Leather armour locked on, and the world never stops melting.",
+      "blurb": "#Useful. Huge jumps, a broom you ride through the air, a tongue that drags people into the sky and lets them drop (flyers get dragged down). Leather armour locked on, and the world never stops melting.",
       "vision": [
         "nonios:rainbow",
         "nonios:acid"
@@ -2008,8 +2063,7 @@
           }
         },
         "broom": {
-          "slot": "inventory",
-          "gear": "tool",
+          "slot": "weapon.offhand",
           "id": "minecraft:stick",
           "name": {
             "text": "Magic Broom",
@@ -2025,12 +2079,12 @@
               "text": ""
             },
             {
-              "text": "Hold right-click: fly where you look",
+              "text": "Right-click: climb on and fly where you look",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "3s of flight, refills on the ground",
+              "text": "8s of flight, refills on the ground. Sneak: hop off",
               "color": "dark_green",
               "italic": false
             }
@@ -2047,9 +2101,6 @@
               "animation": "none",
               "sound": "minecraft:entity.phantom.flap",
               "has_consume_particles": false
-            },
-            "minecraft:enchantments": {
-              "nonios:class/frog_broom": 1
             }
           }
         },
@@ -2071,7 +2122,7 @@
               "text": ""
             },
             {
-              "text": "Right-click: tongue (12 blocks), yanks up whoever it catches",
+              "text": "Right-click: tongue (12 blocks), yanks up whoever it catches, drags flyers down",
               "color": "dark_green",
               "italic": false
             },
@@ -2205,72 +2256,6 @@
                       "max": 1
                     }
                   }
-                }
-              }
-            ]
-          }
-        },
-        "frog_broom": {
-          "description": {
-            "text": "Broomstick Flight",
-            "color": "light_purple"
-          },
-          "supported_items": "minecraft:stick",
-          "weight": 1,
-          "max_level": 1,
-          "anvil_cost": 1,
-          "min_cost": {
-            "base": 1,
-            "per_level_above_first": 0
-          },
-          "max_cost": {
-            "base": 1,
-            "per_level_above_first": 0
-          },
-          "slots": [
-            "hand"
-          ],
-          "effects": {
-            "minecraft:tick": [
-              {
-                "effect": {
-                  "type": "minecraft:apply_impulse",
-                  "direction": [
-                    0.0,
-                    0.0,
-                    1.0
-                  ],
-                  "coordinate_scale": [
-                    1.0,
-                    0.0,
-                    1.0
-                  ],
-                  "magnitude": 0.22
-                },
-                "requirements": {
-                  "type": "minecraft:all_of",
-                  "terms": [
-                    {
-                      "type": "minecraft:entity_properties",
-                      "entity": "this",
-                      "predicate": {
-                        "minecraft:movement": {
-                          "horizontal_speed": {
-                            "max": 8.0
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "type": "minecraft:entity_scores",
-                      "entity": "this",
-                      "scores": {
-                        "nx.cls_kick": {
-                          "min": 1
-                        }
-                      }
-                    }
-                  ]
                 }
               }
             ]

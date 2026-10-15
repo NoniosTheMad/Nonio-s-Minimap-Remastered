@@ -1,5 +1,5 @@
 {
- "type": "minecraft:confirmation",
+ "type": "minecraft:multi_action",
  "title": {
   "text": "Cracy Frog",
   "color": "dark_purple"
@@ -21,30 +21,36 @@
    ]
   }
  ],
- "yes": {
-  "label": {
-   "text": "Yes",
-   "color": "dark_red",
-   "strikethrough": true
+ "actions": [
+  {
+   "label": {
+    "text": "Yes",
+    "color": "dark_red",
+    "strikethrough": true
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger nx.cls_ask set 4"
+   },
+   "tooltip": {
+    "text": "4 real? Are you stupid?"
+   },
+   "width": 100
   },
-  "action": {
-   "type": "minecraft:run_command",
-   "command": "trigger nx.cls_ask set 4"
-  },
-  "tooltip": {
-   "text": "4 real? Are you stupid?"
+  {
+   "label": {
+    "text": "No",
+    "color": "green",
+    "bold": true
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger nx.cls_ask set 7"
+   },
+   "width": 100
   }
- },
- "no": {
-  "label": {
-   "text": "No",
-   "color": "green",
-   "bold": true
-  },
-  "action": {
-   "type": "minecraft:run_command",
-   "command": "trigger nx.cls_ask set 7"
-  }
- },
+ ],
+ "columns": 2,
+ "can_close_with_escape": true,
  "pause": false
 }

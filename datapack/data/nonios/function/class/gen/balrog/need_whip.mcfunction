@@ -5,4 +5,4 @@ execute if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"balr
 execute if items entity @s player.cursor *[minecraft:custom_data~{nx_item:"balrog_whip"}] run return 0
 execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"balrog_whip"}] run return 0
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"balrog_whip"}}}}]
-function nonios:gear/loot {table:"nonios:class/balrog/whip"}
+function nonios:gear/force_loot {table:"nonios:class/balrog/whip",slot:0}

@@ -5,4 +5,4 @@ execute if items entity @s weapon.offhand *[minecraft:custom_data~{nx_item:"bers
 execute if items entity @s player.cursor *[minecraft:custom_data~{nx_item:"berserker_axe"}] run return 0
 execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"berserker_axe"}] run return 0
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"berserker_axe"}}}}]
-function nonios:gear/loot {table:"nonios:class/berserker/axe"}
+function nonios:gear/force_loot {table:"nonios:class/berserker/axe",slot:0}

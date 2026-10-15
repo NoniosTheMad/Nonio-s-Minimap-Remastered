@@ -46,6 +46,30 @@
       }
      ]
     }
+   },
+   {
+    "effect": {
+     "type": "minecraft:run_function",
+     "function": "nonios:class/reaper/aura_faint"
+    },
+    "requirements": {
+     "type": "minecraft:all_of",
+     "terms": [
+      {
+       "type": "minecraft:random_chance",
+       "chance": 0.08
+      },
+      {
+       "type": "minecraft:entity_properties",
+       "entity": "this",
+       "predicate": {
+        "minecraft:effects": {
+         "minecraft:invisibility": {}
+        }
+       }
+      }
+     ]
+    }
    }
   ]
  }

@@ -8,5 +8,6 @@ function nonios:class/stash {slot:"armor.legs"}
 loot replace entity @s armor.legs loot nonios:class/cracy_frog/legs
 function nonios:class/stash {slot:"armor.feet"}
 loot replace entity @s armor.feet loot nonios:class/cracy_frog/feet
-function nonios:gear/loot {table:"nonios:class/cracy_frog/broom"}
-function nonios:gear/loot {table:"nonios:class/cracy_frog/tongue"}
+function nonios:class/stash {slot:"weapon.offhand"}
+loot replace entity @s weapon.offhand loot nonios:class/cracy_frog/broom
+function nonios:gear/force_loot {table:"nonios:class/cracy_frog/tongue",slot:0}

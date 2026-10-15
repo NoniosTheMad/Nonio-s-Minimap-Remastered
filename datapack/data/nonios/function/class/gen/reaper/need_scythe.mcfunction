@@ -7,4 +7,4 @@ execute if items entity @s player.crafting.* *[minecraft:custom_data~{nx_item:"r
 kill @e[type=item,nbt={Item:{components:{"minecraft:custom_data":{nx_item:"reaper_scythe"}}}}]
 # used up (consumable): back into the hand that used it
 execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot nonios:class/reaper/scythe
-function nonios:gear/loot {table:"nonios:class/reaper/scythe"}
+function nonios:gear/force_loot {table:"nonios:class/reaper/scythe",slot:0}
