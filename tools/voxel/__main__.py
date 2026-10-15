@@ -7,6 +7,7 @@
   place   SCENE --server NAME [--at X Y Z] [--no-air] [--verify N] [--pristine]      place over RCON (+ execute-if-block sample)
   verify  SCENE --server NAME [--at X Y Z] [-n N]
   pull    --server NAME (--box X0 Y0 Z0 X1 Y1 Z1 | --scene SCENE) [--out F.npz]
+  stats   SCENE [--json F]                       quantitative floors (playbook §5): canvas, facades, decoration density
   diff    SCENE (--server NAME [--at X Y Z] | --against F.npz|F.nbt) [--patch] [--no-render] [--strict]
 
 SCENE = scenes/x.py (build() -> Scene, or a module-level SCENE), a .npz saved by Scene.save, or a structure .nbt.
@@ -109,6 +110,7 @@ def main(argv=None):
     a = sub.add_parser("diff"); a.add_argument("scene"); a.add_argument("--server"); a.add_argument("--at", nargs=3, type=int)
     a.add_argument("--against"); a.add_argument("--patch", action="store_true", help="write <scene>.patch.json beside the scene")
     a.add_argument("--no-render", action="store_true"); a.add_argument("--strict", action="store_true", help="compare neighbour-shape props too")
+    a = sub.add_parser("stats"); a.add_argument("scene"); a.add_argument("--json", help="also write the metrics here")
     args = ap.parse_args(argv)
 
     if args.cmd == "pull":
@@ -128,6 +130,14 @@ def main(argv=None):
         return
 
     s = load_scene(args.scene)
+    if args.cmd == "stats":
+        from . import stats
+        m = stats.compute(s)
+        print(stats.report(m, s.name))
+        jf = Path(args.json) if args.json else out_dir(s.name) / "stats.json"
+        jf.write_text(stats.to_json(m))
+        print(f"[voxel] {jf}")
+        return
     if args.cmd == "info":
         print(s)
         print("bounds (non-air):", s.bounds())
