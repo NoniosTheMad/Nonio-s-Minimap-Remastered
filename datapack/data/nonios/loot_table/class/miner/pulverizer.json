@@ -5,7 +5,7 @@
    "entries": [
     {
      "type": "minecraft:item",
-     "name": "minecraft:paper",
+     "name": "minecraft:goat_horn",
      "modifier": [
       {
        "type": "minecraft:set_components",
@@ -13,11 +13,12 @@
         "minecraft:item_model": "minecraft:potion",
         "minecraft:max_stack_size": 1,
         "minecraft:potion_contents": {
-         "custom_color": 6094840
+         "custom_color": 16766720
         },
         "minecraft:tooltip_display": {
          "hidden_components": [
           "minecraft:dyed_color",
+          "minecraft:instrument",
           "minecraft:potion_contents",
           "minecraft:unbreakable"
          ]
@@ -26,15 +27,15 @@
          "can_sprint": true,
          "speed_multiplier": 1.0
         },
-        "minecraft:consumable": {
-         "consume_seconds": 0.8,
-         "animation": "drink",
-         "sound": "minecraft:entity.generic.drink",
-         "has_consume_particles": false
-        },
         "minecraft:use_cooldown": {
-         "seconds": 45,
+         "seconds": 15,
          "cooldown_group": "nonios:miner_pulverizer"
+        },
+        "minecraft:instrument": {
+         "sound_event": "minecraft:entity.witch.drink",
+         "use_duration": 15,
+         "range": 16,
+         "description": ""
         },
         "minecraft:custom_data": {
          "nx_cls": "miner",
@@ -46,13 +47,13 @@
         },
         "minecraft:unbreakable": {},
         "minecraft:custom_name": {
-         "text": "Block Pulverizer",
+         "text": "Spelunker Brew",
          "color": "yellow",
          "italic": false
         },
         "minecraft:lore": [
          {
-          "text": "Still a prototype",
+          "text": "Tastes like wet stone.",
           "color": "gray",
           "italic": true
          },
@@ -60,12 +61,12 @@
           "text": ""
          },
          {
-          "text": "Drink: Haste III 8s (you glow)",
+          "text": "Drink: sense nearby ores through rock for 6s",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Cooldown 45s",
+          "text": "Cooldown 15s",
           "color": "dark_green",
           "italic": false
          },
@@ -74,85 +75,14 @@
           "color": "dark_gray",
           "italic": false
          }
-        ],
-        "minecraft:use_remainder": {
-         "id": "minecraft:paper",
-         "count": 1,
-         "components": {
-          "minecraft:item_model": "minecraft:potion",
-          "minecraft:max_stack_size": 1,
-          "minecraft:potion_contents": {
-           "custom_color": 6094840
-          },
-          "minecraft:tooltip_display": {
-           "hidden_components": [
-            "minecraft:dyed_color",
-            "minecraft:potion_contents",
-            "minecraft:unbreakable"
-           ]
-          },
-          "minecraft:use_effects": {
-           "can_sprint": true,
-           "speed_multiplier": 1.0
-          },
-          "minecraft:consumable": {
-           "consume_seconds": 0.8,
-           "animation": "drink",
-           "sound": "minecraft:entity.generic.drink",
-           "has_consume_particles": false
-          },
-          "minecraft:use_cooldown": {
-           "seconds": 45,
-           "cooldown_group": "nonios:miner_pulverizer"
-          },
-          "minecraft:custom_data": {
-           "nx_cls": "miner",
-           "nx_item": "miner_pulverizer",
-           "nx_cls_item": true
-          },
-          "minecraft:enchantments": {
-           "minecraft:vanishing_curse": 1
-          },
-          "minecraft:unbreakable": {},
-          "minecraft:custom_name": {
-           "text": "Block Pulverizer",
-           "color": "yellow",
-           "italic": false
-          },
-          "minecraft:lore": [
-           {
-            "text": "Still a prototype",
-            "color": "gray",
-            "italic": true
-           },
-           {
-            "text": ""
-           },
-           {
-            "text": "Drink: Haste III 8s (you glow)",
-            "color": "dark_green",
-            "italic": false
-           },
-           {
-            "text": "Cooldown 45s",
-            "color": "dark_green",
-            "italic": false
-           },
-           {
-            "text": "Miner \u00b7 shop class: lost on death",
-            "color": "dark_gray",
-            "italic": false
-           }
-          ]
-         }
-        }
+        ]
        }
       },
       {
        "type": "minecraft:set_components",
        "components": {
         "minecraft:use_cooldown": {
-         "seconds": 45,
+         "seconds": 15,
          "cooldown_group": "nonios:miner_pulverizer_alt"
         }
        },

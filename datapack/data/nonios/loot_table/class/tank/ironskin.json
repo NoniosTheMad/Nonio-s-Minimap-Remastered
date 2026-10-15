@@ -5,7 +5,7 @@
    "entries": [
     {
      "type": "minecraft:item",
-     "name": "minecraft:paper",
+     "name": "minecraft:goat_horn",
      "modifier": [
       {
        "type": "minecraft:set_components",
@@ -18,6 +18,7 @@
         "minecraft:tooltip_display": {
          "hidden_components": [
           "minecraft:dyed_color",
+          "minecraft:instrument",
           "minecraft:potion_contents",
           "minecraft:unbreakable"
          ]
@@ -26,15 +27,15 @@
          "can_sprint": true,
          "speed_multiplier": 1.0
         },
-        "minecraft:consumable": {
-         "consume_seconds": 1.2,
-         "animation": "drink",
-         "sound": "minecraft:entity.generic.drink",
-         "has_consume_particles": false
-        },
         "minecraft:use_cooldown": {
          "seconds": 60,
          "cooldown_group": "nonios:tank_ironskin"
+        },
+        "minecraft:instrument": {
+         "sound_event": "minecraft:entity.witch.drink",
+         "use_duration": 60,
+         "range": 16,
+         "description": ""
         },
         "minecraft:custom_data": {
          "nx_cls": "tank",
@@ -74,78 +75,7 @@
           "color": "dark_gray",
           "italic": false
          }
-        ],
-        "minecraft:use_remainder": {
-         "id": "minecraft:paper",
-         "count": 1,
-         "components": {
-          "minecraft:item_model": "minecraft:potion",
-          "minecraft:max_stack_size": 1,
-          "minecraft:potion_contents": {
-           "custom_color": 11579568
-          },
-          "minecraft:tooltip_display": {
-           "hidden_components": [
-            "minecraft:dyed_color",
-            "minecraft:potion_contents",
-            "minecraft:unbreakable"
-           ]
-          },
-          "minecraft:use_effects": {
-           "can_sprint": true,
-           "speed_multiplier": 1.0
-          },
-          "minecraft:consumable": {
-           "consume_seconds": 1.2,
-           "animation": "drink",
-           "sound": "minecraft:entity.generic.drink",
-           "has_consume_particles": false
-          },
-          "minecraft:use_cooldown": {
-           "seconds": 60,
-           "cooldown_group": "nonios:tank_ironskin"
-          },
-          "minecraft:custom_data": {
-           "nx_cls": "tank",
-           "nx_item": "tank_ironskin",
-           "nx_cls_item": true
-          },
-          "minecraft:enchantments": {
-           "minecraft:vanishing_curse": 1
-          },
-          "minecraft:unbreakable": {},
-          "minecraft:custom_name": {
-           "text": "Lesser Ironskin",
-           "color": "gray",
-           "italic": false
-          },
-          "minecraft:lore": [
-           {
-            "text": "Tastes like a bucket.",
-            "color": "gray",
-            "italic": true
-           },
-           {
-            "text": ""
-           },
-           {
-            "text": "Drink: Resistance II + Regeneration 15s",
-            "color": "dark_green",
-            "italic": false
-           },
-           {
-            "text": "Cooldown 60s",
-            "color": "dark_green",
-            "italic": false
-           },
-           {
-            "text": "Tank \u00b7 shop class: lost on death",
-            "color": "dark_gray",
-            "italic": false
-           }
-          ]
-         }
-        }
+        ]
        }
       },
       {

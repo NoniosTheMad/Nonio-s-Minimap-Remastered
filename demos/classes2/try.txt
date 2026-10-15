@@ -3,4 +3,4 @@ Check:
 - Buy each one: kit and price right?
 - Berserker hurt: hits harder, steals more, nothing else heals it?
 - Monster (short reach, no knockback), Balrog (slow lash, wall climb): too strong?
-- Flasks stay in hand on a cooldown ("Reset class cooldowns").
+- Flasks: cooldown sweep, never lost? Miner brew shows ores?

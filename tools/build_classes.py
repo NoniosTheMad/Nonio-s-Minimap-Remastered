@@ -64,13 +64,8 @@ def item_components(cid, c, key, it):
     lore.append({"text": f"{c['name']['text']} · {tier}", "color": "dark_gray", "italic": False})
     comp["minecraft:lore"] = lore
     hidden = set(comp.get("minecraft:tooltip_display", {}).get("hidden_components", []))
-    hidden |= {"minecraft:unbreakable", "minecraft:dyed_color"}
+    hidden |= {"minecraft:unbreakable", "minecraft:dyed_color"} | ({"minecraft:instrument"} if "minecraft:instrument" in comp else set())
     comp["minecraft:tooltip_display"] = {"hidden_components": sorted(hidden)}
-    cons = comp.get("minecraft:consumable")
-    if cons and cons.get("consume_seconds", 1.6) < HOLD_SECONDS and "minecraft:use_remainder" not in comp:
-        # use-once class items are never used up: finishing leaves an identical copy in the hand (its use_cooldown
-        # still starts). The copy has no use_remainder of its own, so check/need_<item> swaps in a fresh one next tick.
-        comp["minecraft:use_remainder"] = {"id": it["id"], "count": 1, "components": json.loads(json.dumps(comp))}
     return comp
 
 
@@ -204,10 +199,6 @@ def build():
                     lines.append(f"function nonios:{g}/need_{key}")
                     fn(f"{g}/need_{key}", [
                         f"# {key} must stay with its owner: missing from inventory/offhand/cursor/crafting grid -> back in hand",
-                        *([f"# just used: the hand holds the use_remainder copy (no remainder of its own) -> a fresh one",
-                           *[f"execute if items entity @s {h} *[minecraft:custom_data~{{nx_item:\"{tag}\"}},!minecraft:use_remainder] run loot replace entity @s {h} loot {table}"
-                             for h in ("weapon.mainhand", "weapon.offhand")]]
-                          if "minecraft:use_remainder" in item_components(cid, c, key, it) else []),
                         f"execute if items entity @s container.* {slot_match(tag)} run return 0",
                         f"execute if items entity @s weapon.offhand {slot_match(tag)} run return 0",
                         f"execute if items entity @s player.cursor {slot_match(tag)} run return 0",
@@ -275,6 +266,8 @@ def build():
 
 def _uses(cid, key, it, comp, hooks):
     """Right-click detection for a consumable class item -> function class/<cid>/use_<key> (hand-written)."""
+    if "minecraft:instrument" in comp:
+        return _horn(cid, key, comp)
     cons = comp.get("minecraft:consumable")
     if not cons:
         return
@@ -289,10 +282,32 @@ def _uses(cid, key, it, comp, hooks):
     if hold:
         lines.insert(0, "# fires every tick while right-click is held")
     else:
-        lines.insert(0, "# fires when the use finishes: the hand keeps a use_remainder copy, refreshed next tick (class/restock -> check)")
+        lines.insert(0, "# fires when the use finishes: the item was consumed (survival), so it is given back next tick")
         lines.append("scoreboard players set @s nx.cls_restock 1")
     lines.append(f"execute at @s run function nonios:class/{cid}/use_{key}")
     fn(f"class/gen/{cid}/used_{key}", lines)
+
+
+def _horn(cid, key, comp):
+    """Cooldown items (#92): a goat horn wearing another model, with an inline instrument whose use_duration is the
+    cooldown. Right-click puts the whole cooldown group on cooldown at once (the client draws the sweep, like an
+    ender pearl) and nothing is ever used up. The use is detected on its first using_item tick (held = one use)."""
+    tag = f"{cid}_{key}"
+    assert comp.get("minecraft:use_cooldown", {}).get("cooldown_group"), f"{tag}: a cooldown item needs use_cooldown.cooldown_group"
+    adv = f"nonios:class/use/{tag}"
+    write(OUT / "advancement" / "class" / "use" / f"{tag}.json", json.dumps({
+        "criteria": {"use": {"trigger": "minecraft:using_item",
+                             "conditions": {"item": {"predicates": {"minecraft:custom_data": {"nx_item": tag}}}}}},
+        "rewards": {"function": f"nonios:class/gen/{cid}/used_{key}"}}, indent=1) + "\n")
+    fn(f"class/gen/{cid}/used_{key}", [
+        "# fires every tick while the cooldown item is held up; only the first tick of a press is the use",
+        f"advancement revoke @s only {adv}",
+        "execute store result score #now nx.cls_tmp run time query gametime",
+        "scoreboard players operation #d nx.cls_tmp = #now nx.cls_tmp",
+        "scoreboard players operation #d nx.cls_tmp -= @s nx.cls_use",
+        "scoreboard players operation @s nx.cls_use = #now nx.cls_tmp",
+        "execute if score #d nx.cls_tmp matches 0..2 run return 0",
+        f"execute at @s run function nonios:class/{cid}/use_{key}"])
 
 
 if __name__ == "__main__":

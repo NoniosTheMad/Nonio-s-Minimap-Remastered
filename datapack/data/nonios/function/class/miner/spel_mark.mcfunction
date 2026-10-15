@@ -1,0 +1,10 @@
+execute if block ~ ~ ~ #minecraft:coal_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_coal"]}
+execute if block ~ ~ ~ #minecraft:iron_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_iron"]}
+execute if block ~ ~ ~ #minecraft:copper_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_copper"]}
+execute if block ~ ~ ~ #minecraft:gold_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_gold"]}
+execute if block ~ ~ ~ #minecraft:redstone_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_redstone"]}
+execute if block ~ ~ ~ #minecraft:lapis_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_lapis"]}
+execute if block ~ ~ ~ #minecraft:diamond_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_diamond"]}
+execute if block ~ ~ ~ #minecraft:emerald_ores run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_emerald"]}
+execute if block ~ ~ ~ minecraft:nether_quartz_ore run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_quartz"]}
+execute if block ~ ~ ~ minecraft:ancient_debris run return run summon minecraft:marker ~0.5 ~0.5 ~0.5 {Tags:["nx.spel","nx.spel_new","nx.spel_debris"]}

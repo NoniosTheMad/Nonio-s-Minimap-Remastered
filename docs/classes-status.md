@@ -12,10 +12,10 @@ Status key: **done** = playable and reviewed by the user. **built** = playable, 
 
 | class | price | V2 original | remaster | status |
 |---|---|---|---|---|
-| Archer | 50 | chain armour, bow, stone tools | Hunter's Bow marks hits (glow 6 s), a quiver that refills 1 arrow / 3 s up to 16 | built (main) |
-| Miner | 80 | leather, pickaxe, night vision | night vision + mining grit, Block Pulverizer flask (haste III + glowing 8 s, 45 s cd) | built (main) |
+| Archer | 50 | chain armour, bow, stone tools | Hunter's Bow marks hits (glow 6 s), a quiver that refills 1 arrow / 3 s up to 8 | built (main) |
+| Miner | 80 | leather, pickaxe, night vision | night vision + mining grit, Spelunker Brew (#92: 6 s of ore sense, coloured dots per ore type towards every ore within 8 blocks, only the Miner sees them; 15 s cd) | built (main) |
 | Tank | 100 | iron + shield | iron + locked shield, +2 hearts, 40% knockback resistance, Ironskin flask | built (main) |
-| Ninja | 100 | armour stripped, Chunin Sandals | sandals only: fast, step-up, frost walker, light fall; Genjutsu flask (invisible + fast; never used up, 20 s cooldown) | built (main) |
+| Ninja | 100 | armour stripped, Chunin Sandals | sandals only: fast, step-up, frost walker, light fall; Genjutsu flask (invisible + fast; never used up, 20 s cooldown)<br>#92: every class flask (and the Frog tongue) is a goat horn underneath: an inline instrument whose use_duration is the cooldown, so the client draws the cooldown sweep and the item is never consumed | built (main) |
 | Berserker | 120 | strength, speed, regen, armour stripped | #84/#89: light axe (3 dmg, attack speed 8), axe out = armour 0 + speed + no knockback; health bands >75/<=75/<=50/<=25 %: Resistance IV/III/II/II, Strength -/I/II/III, axe +0/+1/+2/+3, lifesteal 2 hearts per 1.5 s / 1 s, 4 hearts per 1.5 s / 1 s; heal guard: any other health gain (food, saturation, potions, regen) is undone by clamping max health to the last allowed health for 3 s (no damage, no flash) | built |
 | **Champion** | 150 | none | grows with player kills while undefeated (see below) | **new**, built |
 | Reaper | 200 | pumpkin, scythe, permanent invisibility + speed II, 3 s resistance V per kill | see below (#70/#71 rework) | built |

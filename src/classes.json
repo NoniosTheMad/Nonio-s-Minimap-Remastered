@@ -120,7 +120,7 @@
               "italic": false
             },
             {
-              "text": "Quiver: an arrow back every 3s (up to 16)",
+              "text": "Quiver: an arrow back every 3s (up to 8)",
               "color": "dark_green",
               "italic": false
             }
@@ -139,7 +139,7 @@
         "arrows": {
           "slot": "supply",
           "id": "minecraft:arrow",
-          "count": 16
+          "count": 8
         },
         "pickaxe": {
           "slot": "supply",
@@ -232,10 +232,12 @@
         "sprite": "minecraft:item/iron_pickaxe"
       },
       "lost_msg": "Dug a little too deep.",
-      "blurb": "Sees in the dark, digs faster, Block Pulverizer for bursts (it makes you glow). Leather locked on, torches, cobblestone and steak.",
+      "blurb": "Sees in the dark, digs faster, a Spelunker Brew that senses nearby ores through rock. Leather locked on, torches, cobblestone and steak.",
       "vision": [],
       "hooks": [
-        "second"
+        "on_strip",
+        "second",
+        "tick"
       ],
       "clear_effects": [
         "minecraft:night_vision",
@@ -300,14 +302,14 @@
         },
         "pulverizer": {
           "slot": "inventory",
-          "id": "minecraft:paper",
+          "id": "minecraft:goat_horn",
           "name": {
-            "text": "Block Pulverizer",
+            "text": "Spelunker Brew",
             "color": "yellow"
           },
           "lore": [
             {
-              "text": "Still a prototype",
+              "text": "Tastes like wet stone.",
               "color": "gray",
               "italic": true
             },
@@ -315,12 +317,12 @@
               "text": ""
             },
             {
-              "text": "Drink: Haste III 8s (you glow)",
+              "text": "Drink: sense nearby ores through rock for 6s",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Cooldown 45s",
+              "text": "Cooldown 15s",
               "color": "dark_green",
               "italic": false
             }
@@ -329,7 +331,7 @@
             "minecraft:item_model": "minecraft:potion",
             "minecraft:max_stack_size": 1,
             "minecraft:potion_contents": {
-              "custom_color": 6094840
+              "custom_color": 16766720
             },
             "minecraft:tooltip_display": {
               "hidden_components": [
@@ -340,15 +342,15 @@
               "can_sprint": true,
               "speed_multiplier": 1.0
             },
-            "minecraft:consumable": {
-              "consume_seconds": 0.8,
-              "animation": "drink",
-              "sound": "minecraft:entity.generic.drink",
-              "has_consume_particles": false
-            },
             "minecraft:use_cooldown": {
-              "seconds": 45,
+              "seconds": 15,
               "cooldown_group": "nonios:miner_pulverizer"
+            },
+            "minecraft:instrument": {
+              "sound_event": "minecraft:entity.witch.drink",
+              "use_duration": 15,
+              "range": 16,
+              "description": ""
             }
           }
         },
@@ -454,7 +456,7 @@
         },
         "ironskin": {
           "slot": "inventory",
-          "id": "minecraft:paper",
+          "id": "minecraft:goat_horn",
           "name": {
             "text": "Lesser Ironskin",
             "color": "gray"
@@ -494,15 +496,15 @@
               "can_sprint": true,
               "speed_multiplier": 1.0
             },
-            "minecraft:consumable": {
-              "consume_seconds": 1.2,
-              "animation": "drink",
-              "sound": "minecraft:entity.generic.drink",
-              "has_consume_particles": false
-            },
             "minecraft:use_cooldown": {
               "seconds": 60,
               "cooldown_group": "nonios:tank_ironskin"
+            },
+            "minecraft:instrument": {
+              "sound_event": "minecraft:entity.witch.drink",
+              "use_duration": 60,
+              "range": 16,
+              "description": ""
             }
           }
         },
@@ -640,7 +642,7 @@
         },
         "genjutsu": {
           "slot": "inventory",
-          "id": "minecraft:paper",
+          "id": "minecraft:goat_horn",
           "name": {
             "text": "Genjutsu Booster",
             "color": "yellow"
@@ -680,15 +682,15 @@
               "can_sprint": true,
               "speed_multiplier": 1.0
             },
-            "minecraft:consumable": {
-              "consume_seconds": 0.4,
-              "animation": "drink",
-              "sound": "minecraft:entity.witch.drink",
-              "has_consume_particles": false
-            },
             "minecraft:use_cooldown": {
               "seconds": 20,
               "cooldown_group": "nonios:ninja_genjutsu"
+            },
+            "minecraft:instrument": {
+              "sound_event": "minecraft:entity.witch.drink",
+              "use_duration": 20,
+              "range": 16,
+              "description": ""
             }
           }
         },
@@ -2054,7 +2056,7 @@
         "tongue": {
           "slot": "inventory",
           "gear": "weapon",
-          "id": "minecraft:slime_ball",
+          "id": "minecraft:goat_horn",
           "name": {
             "text": "Frog Tongue",
             "color": "light_purple"
@@ -2106,18 +2108,19 @@
               "can_sprint": true,
               "speed_multiplier": 1.0
             },
-            "minecraft:consumable": {
-              "consume_seconds": 0.35,
-              "animation": "toot_horn",
-              "sound": "minecraft:entity.frog.ambient",
-              "has_consume_particles": false
-            },
             "minecraft:use_cooldown": {
               "seconds": 7,
               "cooldown_group": "nonios:frog_ribbit"
             },
             "minecraft:enchantments": {
               "nonios:class/frog_tongue": 1
+            },
+            "minecraft:item_model": "minecraft:slime_ball",
+            "minecraft:instrument": {
+              "sound_event": "minecraft:entity.frog.tongue",
+              "use_duration": 7,
+              "range": 16,
+              "description": ""
             }
           }
         }

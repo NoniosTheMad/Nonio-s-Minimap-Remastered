@@ -4,3 +4,4 @@ function nonios:class/gen/miner/vision_off
 effect clear @s minecraft:night_vision
 effect clear @s minecraft:haste
 effect clear @s minecraft:glowing
+function nonios:class/miner/on_strip

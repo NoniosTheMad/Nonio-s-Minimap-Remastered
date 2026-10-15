@@ -16,6 +16,11 @@ scoreboard objectives add nx.cls_heal dummy
 # Reaper: untouchable-until gametime, last "No souls" tick, flight state (1 = in the air), last 2 heights (milliblocks), gravity sent
 scoreboard objectives add nx.cls_ward dummy
 scoreboard objectives add nx.cls_nos dummy
+# last game tick a cooldown item (goat-horn based, build_classes _horn) was held up
+scoreboard objectives add nx.cls_use dummy
+# Miner ore sense ticks left (miner/spel_*)
+scoreboard objectives add nx.cls_spel dummy
+scoreboard players set #3 nx.cls_tmp 3
 scoreboard objectives add nx.cls_rfly dummy
 scoreboard objectives add nx.cls_ry1 dummy
 scoreboard objectives add nx.cls_ry2 dummy
