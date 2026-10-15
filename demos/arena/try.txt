@@ -1,4 +1,4 @@
-Your role: judge the arena as a whole, is it worth fighting in
+Your role: judge if the arena is worth fighting in
 Check:
 - Runes: readable from 30 blocks? bar fills smoothly?
 - Fountain + Golden Hour now: worth fighting over?
