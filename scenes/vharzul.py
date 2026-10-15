@@ -1283,6 +1283,11 @@ STAIR_OF = {"deepslate_bricks": "deepslate_brick_stairs", "cracked_deepslate_bri
             "cinnabar_bricks": "cinnabar_brick_stairs", "polished_cinnabar": "polished_cinnabar_stairs",
             "sulfur_bricks": "sulfur_brick_stairs", "polished_sulfur": "polished_sulfur_stairs",
             "polished_blackstone": "polished_blackstone_stairs"}
+WALL_OF = {"deepslate_brick_stairs": "deepslate_brick_wall", "deepslate_tile_stairs": "deepslate_tile_wall",
+           "tuff_brick_stairs": "tuff_brick_wall", "polished_tuff_stairs": "polished_tuff_wall",
+           "polished_deepslate_stairs": "polished_deepslate_wall", "blackstone_stairs": "blackstone_wall",
+           "cinnabar_brick_stairs": "cinnabar_brick_wall", "polished_cinnabar_stairs": "polished_cinnabar_wall",
+           "sulfur_brick_stairs": "sulfur_brick_wall", "polished_sulfur_stairs": "polished_sulfur_wall"}
 DIRS = (((1, 0), "east", "west"), ((-1, 0), "west", "east"), ((0, 1), "south", "north"), ((0, -1), "north", "south"))
 
 
@@ -1376,6 +1381,9 @@ def relief(s):
         set_ops.append(("drip", drip, in_name, None))
         set_ops.append(("slit", slit, (dx, dz), out_name))
         set_ops.append(("hole", hole, None, None))
+        if PASS >= 9:     # lesenes: a slender wall-block rib up the face every 8 blocks (between the slit bays)
+            rib = face & (u % 8 == 0) & ~slit & ~hole & ~cope & (yy > PLAIN + 2)                 & _shift(front, 0, -1, 0) & _shift(front, 0, -2, 0) & _shift(front, 0, -3, 0)   # never at head height
+            set_ops.append(("rib", rib, (dx, dz), None))
     bars_side = {(1, 0): "north=true,south=true", (-1, 0): "north=true,south=true",
                  (0, 1): "east=true,west=true", (0, -1): "east=true,west=true"}
     for kind, m, a, b in set_ops:
@@ -1393,6 +1401,13 @@ def relief(s):
                 fx, fz = int(x + dx), int(z + dz)
                 if 0 <= fx < W and 0 <= fz < D and s.idx[fx, y, fz] == 0:
                     s.set(fx, int(y), fz, f"{st}[facing={a},half=top]")
+        elif kind == "rib":
+            dx, dz = a
+            for x, y, z in zip(xs, ys, zs):
+                fx, fz = int(x + dx), int(z + dz)
+                if 0 <= fx < W and 0 <= fz < D and s.idx[fx, y, fz] == 0:
+                    st = fam.get(int(idx[x, y, z]), "")
+                    s.set(fx, int(y), fz, WALL_OF.get(st, "polished_blackstone_brick_wall"))
         elif kind == "slit":
             dx, dz = a
             for x, y, z in zip(xs, ys, zs):
@@ -1490,7 +1505,7 @@ def light_interiors(s):
     """Interiors and the bailey canyon: the voxel auto-light (hanging lanterns on chains, wall lanterns) in the
     'noble' kit (polished blackstone, dark oak), so every walkable room cell reaches light 7 (no spawns)."""
     import tools.voxel.light as L
-    added = L.autolight(s, "noble", minimum=8, max_new=260, outdoor=False)
+    added = L.autolight(s, "noble", minimum=8, max_new=420 if PASS >= 9 else 260, outdoor=False)
     # the citadel and its approach are lit for the night too (walls, bailey, Tongue, bridge, road): the garrison's
     # lanterns; the ash plain stays dark (the island glows only where it is held)
     r, _ = polar(s.shape, C)
@@ -1809,6 +1824,32 @@ def bailey_path(s):
     s.meta["_bailey_wide"] = [int(bx), int(bz)]
 
 
+def throne_crown(s):
+    """The throne lantern as a room (shell only): gilded surrounds on the six arches, a three-step half-round dais on
+    the north side facing the Tongue, a cinnabar band where the arches spring."""
+    r, th = polar(s.shape, C)
+    gx, gz = cols2d(s.shape)
+    YYf = YY.astype(float)
+    sur = np.zeros(s.shape, bool)
+    for k in range(6):
+        ax_, az_ = pol(70 + k * 60, 7.5)
+        d = np.hypot(gx - ax_, gz - az_)[:, None, :]
+        # distance to the arch's vertical capsule axis (151.5..159)
+        dy = np.maximum(np.maximum(151.5 - YYf, YYf - 159), 0)
+        dist = np.sqrt(d ** 2 + dy ** 2)
+        sur |= (dist >= 1.7) & (dist < 2.7)
+    sur &= s.match("solid") & ~s.match("lava")
+    sur[:, :149, :] = False
+    s.fill(sur, Mix({"gilded_blackstone": 2, "polished_blackstone_bricks": 1}, seed=SEED + 150))
+    band = s.match("solid") & ((r >= 6.0) & (r < 7.0))[:, None, :] & (YY == 162)
+    s.fill(band, "polished_cinnabar")
+    north = (gz < C[1] - 0.5) & (np.abs(wrap_deg(th + 90)) < 70)
+    for i, rad in enumerate((5.6, 4.2, 2.8)):
+        m = np.zeros(s.shape, bool)
+        m[:, 149 + i, :] = north & (r < rad)
+        s.fill(m & s.match("air"), "polished_blackstone_bricks" if i < 2 else "polished_cinnabar")
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
@@ -1873,6 +1914,8 @@ def build():
         access(s)
         hall_shell(s)
         bailey_path(s)
+    if PASS >= 9:
+        throne_crown(s)
     if PASS >= 4:
         weather(s)
     if PASS >= 8:
@@ -1915,7 +1958,8 @@ def cameras(s):
         lx, lz = pol(95, 19)
         s.mark("cam_bailey", (bx, DECK + 1, bz), look_at=(lx, DECK + 16, lz))
     s.mark("cam_maw", (104, ground_y(s, 104, ZF + 16), ZF + 16), look_at=(104, GATE_F + 20, ZF))
-    s.mark("cam_heart", (104, DECK + 1, CZ + 5), look_at=(104, 100, 100.5))
+    if PASS < 9:     # superseded by cam_helix
+        s.mark("cam_heart", (104, DECK + 1, CZ + 5), look_at=(104, 100, 100.5))
     if "_bridge_prof" in s.meta:
         bz = ZB - 2
         s.mark("cam_bridge", (104, s.meta["_bridge_prof"][bz] + 1, bz), look_at=(104, DECK + 8, ZP - 4))

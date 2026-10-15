@@ -158,3 +158,16 @@ Weakest three now:
 1. The bailey is still a canyon: the star wall, the spire bases and the horn roots crowd it. It is legible now, but there is no courtyard moment.
 2. The throne lantern's six arches read as black fins against the sky. They need tracery or a crown band, and the throne dais shape (shell only).
 3. Plane breaks are 193/200 on the big plain basalt flanks, and the helix shaft interior is very dark by day (autolight is interior-only at minimum 8).
+
+## P9: the throne room, lesenes, light
+Fixed (P8 weakest #2–3):
+- **Throne crown** (`throne_crown`, shell only): gilded-blackstone surrounds frame the six arches, a cinnabar band runs where they spring, and a three-step half-round dais on the north side faces down the Tongue's axis. The helix surfaces at the south, opposite the dais.
+- **Lesenes** (relief rule): a slender wall-block rib runs up every 8th column of each flat masonry face, between the slit bays. It always starts 4 or more above a floor (never at head height in the bailey or on the walks). Breaks 193 to 197; partial 0.38; top-5 0.35.
+- Interior auto-light budget raised (shaft and rooms); cam_heart dropped (cam_helix replaces it).
+
+Stats: 8/14; stability PASS; all 9 zones are reachable.
+
+Weakest three now:
+1. The bailey is still a crowded canyon (structural: the star-wall valleys pinch against the Fang points). Opening it would mean re-phasing the star wall or the Fang, which is a concept-level change, deferred.
+2. The helix shaft is very dark by day. Fixtures only come from auto-light; a designed light (an ember band on the cage) would read better.
+3. Breaks are 197/200, just under the floor. Lights and joinery floors are for furnished builds.
