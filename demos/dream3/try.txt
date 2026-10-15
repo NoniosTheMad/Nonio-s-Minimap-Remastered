@@ -1,0 +1,6 @@
+Your role: explore the Dream v3 (G > Demo: Emerald Dream v3)
+Check:
+- glide anywhere; jump mid-air for a boost (3 charges)
+- fly to sites: chests, beams, vaults (Dream Key)
+- mine site ores (regrow, spread); pixie shop; animals
+Unique controls: jump in a glide = boost, sneak 10 s = wake

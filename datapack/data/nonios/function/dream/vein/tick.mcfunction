@@ -1,11 +1,9 @@
-# as a vein marker, at it, every 5 ticks
-execute if entity @a[distance=..64] run scoreboard players operation @s nx.dvs = #now nx.dream
-scoreboard players operation #age nx.dream = #now nx.dream
-scoreboard players operation #age nx.dream -= @s nx.dvs
-execute if score #age nx.dream > #ttl nx.dream run return run kill @s
+# as a vein marker, at it, every 5 ticks (veins belong to exploration sites; markers only tick while their chunk is loaded)
+# v1/v2 veins (planted around arrival points) are gone in v3: only site deposits regrow
+execute unless entity @s[tag=nx.dv3] run return run kill @s
 # intact: sparkle now and then
 execute if block ~ ~-1 ~ #nonios:dream_vein_ore run return run function nonios:dream/vein/idle
-# just mined: start the regrow timer
+# just mined: start the regrow timer (and maybe spread)
 execute if score @s nx.dvt matches 0 run return run function nonios:dream/vein/mined
 # still regrowing
 execute if score #now nx.dream < @s nx.dvt run return run function nonios:dream/vein/wait

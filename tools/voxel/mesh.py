@@ -13,7 +13,10 @@ GRASS, FOLIAGE, WATER = (0x91, 0xBD, 0x59), (0x77, 0xAB, 0x2F), (0x3F, 0x76, 0xE
 TINTS = {"spruce_leaves": (0x61, 0x99, 0x61), "birch_leaves": (0x80, 0xA7, 0x55), "lily_pad": (0x20, 0x80, 0x30),
          "water": WATER, "bubble_column": WATER, "water_cauldron": WATER, "redstone_wire": (0xB0, 0x10, 0x00),
          "attached_melon_stem": (0xE0, 0xC7, 0x1C), "attached_pumpkin_stem": (0xE0, 0xC7, 0x1C),
-         "melon_stem": (0x7F, 0xB0, 0x38), "pumpkin_stem": (0x7F, 0xB0, 0x38)}
+         "melon_stem": (0x7F, 0xB0, 0x38), "pumpkin_stem": (0x7F, 0xB0, 0x38),
+         # untinted in game (no block colour provider) although their models carry a tintindex
+         "cherry_leaves": (0xFF, 0xFF, 0xFF), "pale_oak_leaves": (0xFF, 0xFF, 0xFF), "azalea_leaves": (0xFF, 0xFF, 0xFF),
+         "flowering_azalea_leaves": (0xFF, 0xFF, 0xFF)}
 FOLIAGE_BLOCKS = ("oak_leaves", "jungle_leaves", "acacia_leaves", "dark_oak_leaves", "mangrove_leaves", "vine")
 SELF_CULL = ("glass", "ice", "water", "lava", "slime_block", "honey_block")  # same-block faces between them vanish
 AO_CURVE = np.array([0.42, 0.62, 0.8, 1.0], np.float32)

@@ -1,0 +1,175 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Emerald Dream v3",
+  "color": "green"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 300,
+   "contents": {
+    "text": "Sites appear as you fly near them. Site buttons work in the Dream only.",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "Enter the Dream",
+    "color": "green"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Wake up now",
+    "color": "red"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Minor site here",
+    "color": "aqua"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 14"
+   }
+  },
+  {
+   "label": {
+    "text": "Major site here",
+    "color": "aqua"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 15"
+   }
+  },
+  {
+   "label": {
+    "text": "Grand site here",
+    "color": "light_purple"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 16"
+   }
+  },
+  {
+   "label": {
+    "text": "Nightmare here",
+    "color": "dark_red"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 17"
+   }
+  },
+  {
+   "label": {
+    "text": "Dream Key",
+    "color": "yellow"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 18"
+   }
+  },
+  {
+   "label": {
+    "text": "Gear",
+    "color": "yellow"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 12"
+   }
+  },
+  {
+   "label": {
+    "text": "Gleaming sheep",
+    "color": "yellow"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 19"
+   }
+  },
+  {
+   "label": {
+    "text": "Hurt me",
+    "color": "dark_red"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Regrow veins",
+    "color": "gray"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Yields",
+    "color": "gold"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 11"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset my coins",
+    "color": "gold"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 13"
+   }
+  },
+  {
+   "label": {
+    "text": "Site log on/off",
+    "color": "gray"
+   },
+   "width": 150,
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 20"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

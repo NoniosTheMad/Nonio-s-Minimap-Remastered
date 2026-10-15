@@ -700,7 +700,8 @@ def clean_hud(r):
 
 def tp(r, pose):
     x, y, z, yaw, pitch = pose
-    r(f"tp {USER} {x:.3f} {y:.3f} {z:.3f} {yaw % 360:.2f} {pitch:.2f}")
+    # at @s: stay in the camera's dimension (RCON runs in the overworld; a --setup "execute in <dim> run tp {cam} ..." sticks)
+    r(f"execute as {USER} at @s run tp @s {x:.3f} {y:.3f} {z:.3f} {yaw % 360:.2f} {pitch:.2f}")
 
 
 # ---------------------------------------------------------------- setup / filming

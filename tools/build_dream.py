@@ -1,131 +1,180 @@
-"""Emerald Dream ruins (feedback #47): structure templates placed at runtime by nonios:dream/ruin/*.
+"""Emerald Dream exploration sites: voxel scenes -> structure templates + placement functions.
 
-    python tools/build_dream.py      (needs nbtlib)
+    python tools/build_dream.py            (all scenes/dream/*.py except _*.py)
+    python tools/build_dream.py --list     (just print the table)
 
-Writes datapack/data/nonios/structure/dream/ruin_<name>.nbt (26.3 template format: palette entries are {id, properties}).
-Each is a small ruin with a loot container (LootTable nonios:dream/ruin). Positions not listed are structure void
-(the terrain stays). Floors are at y 0 and replace the ground block (dream/ruin/place puts the origin at ~ ~-1 ~).
-Not a worldgen structure on purpose: the map world is created with generate-structures=false, so jigsaw structures
-would never appear there; the dream plants ruins around each arrival point instead, like its regrowing veins.
+Each scene follows the contract in scenes/dream/_dream.py (meta["dream"] = {tier, kind, anchor}).
+Writes
+  datapack/data/nonios/structure/dream/site/<name>.nbt   (plain air omitted = the world stays; cave_air carves)
+  datapack/data/nonios/function/dream/site/gen/*         (generated, don't edit)
+      pick         as the new site marker at (x, 250, z): try a template of tier #tier, starting at #pick
+      try_<name>   ground: drop onto the surface, check corners;  sky: random height, check the box is empty
+      place_<name> random rotation, anchor kept on the site point
+  Result in #res nx.dream: 1 placed, 2 can't go here (cell done, nothing), 3 chunks not loaded yet (try again later).
+Not worldgen structures on purpose: servers run generate-structures=false (see CLAUDE.md).
 """
+import argparse, json, math, sys
 from pathlib import Path
 
-import nbtlib
-from nbtlib.tag import Compound, Int, List, String
+import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "datapack" / "data" / "nonios" / "structure" / "dream"
-DATA_VERSION = 5023  # 26.3 (server jar version.json world_version)
-LOOT = "nonios:dream/ruin"
+sys.path.insert(0, str(ROOT))
+from tools.voxel.__main__ import load_scene  # noqa: E402
+from tools.voxel.nbtio import structure_bytes  # noqa: E402
+from tools.voxel.scene import AIR  # noqa: E402
+
+DP = ROOT / "datapack" / "data" / "nonios"
+OUT = DP / "structure" / "dream" / "site"
+FN = DP / "function" / "dream" / "site" / "gen"
+TIERS = ["minor", "major", "grand", "nightmare"]
+SKY_Y = (120, 200)
+SKY_TRIES = 8
+SKY_AIR = 21
+TOP = 250
 
 
-class T:
-    def __init__(self, sx, sy, sz):
-        self.size = (sx, sy, sz)
-        self.blocks = {}
-
-    def put(self, x, y, z, name, nbt=None, **props):
-        self.blocks[(x, y, z)] = (name, tuple(sorted(props.items())), nbt)
-
-    def box(self, x0, y0, z0, x1, y1, z1, name, **props):
-        for x in range(x0, x1 + 1):
-            for y in range(y0, y1 + 1):
-                for z in range(z0, z1 + 1):
-                    self.put(x, y, z, name, **props)
-
-    def save(self, path):
-        palette, index, blocks = [], {}, []
-        for (x, y, z), (name, props, nbt) in sorted(self.blocks.items(), key=lambda kv: (kv[0][1], kv[0][2], kv[0][0])):
-            key = (name, props)
-            if key not in index:
-                index[key] = len(palette)
-                e = Compound({"id": String("minecraft:" + name)})
-                if props:
-                    e["properties"] = Compound({k: String(v) for k, v in props})
-                palette.append(e)
-            b = Compound({"pos": List[Int]([Int(x), Int(y), Int(z)]), "state": Int(index[key])})
-            if nbt:
-                b["nbt"] = Compound({k: String(v) for k, v in nbt.items()})
-            blocks.append(b)
-        root = Compound({
-            "DataVersion": Int(DATA_VERSION),
-            "size": List[Int]([Int(v) for v in self.size]),
-            "palette": List[Compound](palette),
-            "blocks": List[Compound](blocks),
-            "entities": List[Compound]([]),
-        })
-        path.parent.mkdir(parents=True, exist_ok=True)
-        nbtlib.File(root, gzipped=True).save(path)
+def crop(s):
+    """Trim empty margins (plain air, no entities) and shift the anchor; returns (idx, be, ents, anchor)."""
+    a = list(s.meta["dream"]["anchor"])
+    built = s.idx != 0
+    for e in s.entities:
+        x, y, z = (int(math.floor(v)) for v in e["pos"])
+        if 0 <= x < s.shape[0] and 0 <= y < s.shape[1] and 0 <= z < s.shape[2]:
+            built[x, y, z] = True
+    xs, ys, zs = np.nonzero(built)
+    lo = [int(xs.min()), int(ys.min()), int(zs.min())]
+    hi = [int(xs.max()) + 1, int(ys.max()) + 1, int(zs.max()) + 1]
+    idx = np.ascontiguousarray(s.idx[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]])
+    be = {(x - lo[0], y - lo[1], z - lo[2]): t for (x, y, z), t in s.block_entities().items()}
+    ents = [{"pos": [e["pos"][0] - lo[0], e["pos"][1] - lo[1], e["pos"][2] - lo[2]], "nbt": e["nbt"]} for e in s.entities]
+    return idx, be, ents, [a[0] - lo[0], a[1] - lo[1], a[2] - lo[2]]
 
 
-def chest(t, x, y, z, facing="south"):
-    t.put(x, y, z, "chest", nbt={"id": "minecraft:chest", "LootTable": LOOT}, facing=facing, type="single", waterlogged="false")
+def offsets(a):
+    """place-template origin so that the anchor lands on the site point, per rotation (pivot 0: cw90 maps (x,z)->(-z,x))."""
+    ax, ay, az = a
+    return {"none": (-ax, -ay, -az), "clockwise_90": (az, -ay, -ax), "180": (ax, -ay, az), "counterclockwise_90": (-az, -ay, ax)}
 
 
-def shrine():
-    """7x7 mossy floor, four broken corner pillars (one crowned with a froglight), chest on a glowing slab in the middle."""
-    t = T(7, 6, 7)
-    t.box(0, 0, 0, 6, 0, 6, "stone_bricks")
-    for x, z in ((1, 1), (5, 5), (1, 5), (5, 1), (3, 0), (0, 3)):
-        t.put(x, 0, z, "mossy_stone_bricks")
-    t.put(3, 0, 3, "verdant_froglight", axis="y")
-    for (x, z), h in {(0, 0): 4, (6, 0): 2, (0, 6): 3, (6, 6): 1}.items():
-        t.box(x, 1, z, x, h, z, "stone_bricks")
-        t.put(x, h, z, "chiseled_stone_bricks")
-    t.put(0, 5, 0, "verdant_froglight", axis="y")
-    t.put(0, 4, 6, "stone_brick_slab", type="bottom", waterlogged="false")
-    chest(t, 3, 1, 3)
-    for x, z in ((1, 3), (5, 3), (3, 5)):
-        t.put(x, 1, z, "amethyst_cluster", facing="up", waterlogged="false")
-    for x, z in ((2, 1), (4, 5), (1, 4), (5, 2)):
-        t.put(x, 1, z, "moss_carpet")
-    t.put(6, 1, 3, "stone_brick_stairs", facing="west", half="bottom", shape="straight", waterlogged="false")
-    return t
+def rel(v):
+    return "~" if v == 0 else f"~{v}"
 
 
-def well():
-    """Crystal well: calcite and basalt ring around an emerald pedestal with an amethyst cluster; glass lamps; chest."""
-    t = T(5, 5, 5)
-    t.box(0, 0, 0, 4, 0, 4, "smooth_basalt")
-    t.box(1, 0, 1, 3, 0, 3, "calcite")
-    t.put(2, 0, 2, "emerald_block")
-    t.put(2, 1, 2, "amethyst_block")
-    t.put(2, 2, 2, "amethyst_cluster", facing="up", waterlogged="false")
-    for x, z in ((0, 0), (4, 4)):
-        t.box(x, 1, z, x, 2, z, "lime_stained_glass")
-        t.put(x, 3, z, "verdant_froglight", axis="y")
-    for x, z in ((4, 0), (0, 4)):
-        t.put(x, 1, z, "calcite")
-        t.put(x, 2, z, "end_rod", facing="up")
-    chest(t, 2, 1, 0, facing="south")
-    t.put(1, 1, 2, "small_amethyst_bud", facing="up", waterlogged="false")
-    t.put(3, 1, 2, "medium_amethyst_bud", facing="up", waterlogged="false")
-    return t
+def gen_site(name, meta, size, a, fn):
+    tier, kind = meta["tier"], meta["kind"]
+    W, H, D = size
+    ax, ay, az = a
+    # rotation-independent horizontal reach from the anchor
+    R = int(max(ax, W - 1 - ax, az, D - 1 - az)) + 1
+    up = H - ay
+    rots = list(offsets(a).items())
+    place = [f"# generated by tools/build_dream.py: {name} ({tier}, {kind}, {W}x{H}x{D}, anchor {a})",
+             "execute store result score #rot nx.dream run random value 0..3"]
+    for k, (rot, (dx, dy, dz)) in enumerate(rots):
+        place.append(f"execute if score #rot nx.dream matches {k} run place template nonios:dream/site/{name} "
+                     f"{rel(dx)} {rel(dy)} {rel(dz)} {rot}")
+    place.append(f"data modify storage nonios:dream site.placed set value {{name:\"{name}\",tier:\"{tier}\",r:{R + 2}}}")
+    place.append("function nonios:dream/site/placed")
+    fn[f"place_{name}"] = place
+
+    loaded = [f"execute unless loaded ~{sx * R} ~ ~{sz * R} run return run scoreboard players set #res nx.dream 3"
+              for sx in (-1, 1) for sz in (-1, 1)]
+    if kind == "ground":
+        r = max(3, int(min(ax, W - 1 - ax, az, D - 1 - az) * 0.6))
+        fn[f"try_{name}"] = [
+            "# as the site marker at (x, 250, z): drop onto the island surface (spreadplayers fails over the void)",
+            *loaded,
+            "execute store success score #ok nx.dream run spreadplayers ~ ~ 0 1 under 250 false @s",
+            "execute unless score #ok nx.dream matches 1 run return run scoreboard players set #res nx.dream 2",
+            f"execute at @s run function nonios:dream/site/gen/ground_{name}",
+        ]
+        g = [f"# at the first air block above the ground at the site point",
+             "execute if entity @s[y=0,dy=23] run return run scoreboard players set #res nx.dream 2"]
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                p = f"~{sx * r} ~{{}} ~{sz * r}"
+                g.append("execute " + " ".join(f"if block {p.format(-k)} #nonios:dream_passable" for k in range(1, 5))
+                         + " run return run scoreboard players set #res nx.dream 2")
+        g += [f"function nonios:dream/site/gen/place_{name}", "scoreboard players set #res nx.dream 1"]
+        fn[f"ground_{name}"] = g
+    else:
+        lo, hi = max(SKY_Y[0], ay + 12), min(SKY_Y[1], TOP - up)
+        assert lo <= hi, f"{name}: no room in the sky for {H} tall (anchor y {ay})"
+        # the sky is busy with islands: a few random heights before giving the cell up
+        fn[f"try_{name}"] = [f"# as the site marker: up to {SKY_TRIES} random heights {lo}..{hi}, each checked for open air",
+                             "scoreboard players set #res nx.dream 2"]
+        fn[f"try_{name}"] += [f"execute if score #res nx.dream matches 2 run function nonios:dream/site/gen/sky1_{name}"] * SKY_TRIES
+        fn[f"sky1_{name}"] = [
+            f"execute store result storage nonios:dream site.y int 1 run random value {lo}..{hi}",
+            f"function nonios:dream/site/gen/sky_{name} with storage nonios:dream site",
+        ]
+        fn[f"sky_{name}"] = [f"$execute positioned ~ $(y) ~ run function nonios:dream/site/gen/skyat_{name}"]
+        chk = ["scoreboard players set #air nx.dream 0"]
+        for fx in (-1, 0, 1):
+            for fz in (-1, 0, 1):
+                for fy in (-ay, (up - ay) // 2, up - 1):
+                    chk.append(f"execute if block ~{fx * R} ~{fy} ~{fz * R} #minecraft:air run "
+                               "scoreboard players add #air nx.dream 1")
+        chk.append(f"execute unless score #air nx.dream matches {SKY_AIR}.. run return run scoreboard players set #res nx.dream 2")
+        fn[f"skyat_{name}"] = [f"# sky site {name}: its box ({2 * R}x{H}x{2 * R}) must be mostly open air "
+                               f"({SKY_AIR}/27 samples; islands inside its silhouette get carved)", *loaded, *chk,
+                               "tp @s ~ ~ ~", f"execute at @s run function nonios:dream/site/gen/place_{name}",
+                               "scoreboard players set #res nx.dream 1"]
 
 
-def arch():
-    """Fallen arch: two mossy legs and a broken lintel, a barrel and a lantern under it, rubble around."""
-    t = T(7, 6, 3)
-    for x in (0, 6):
-        t.box(x, 0, 1, x, 4, 1, "mossy_stone_bricks")
-    t.box(0, 5, 1, 3, 5, 1, "stone_bricks")
-    t.put(4, 5, 1, "stone_brick_slab", type="bottom", waterlogged="false")
-    t.put(1, 4, 1, "stone_brick_stairs", facing="east", half="top", shape="straight", waterlogged="false")
-    t.box(1, 0, 0, 5, 0, 2, "mossy_cobblestone")
-    t.put(3, 0, 1, "verdant_froglight", axis="y")
-    t.put(3, 1, 1, "barrel", nbt={"id": "minecraft:barrel", "LootTable": LOOT}, facing="up", open="false")
-    t.put(2, 1, 1, "lantern", hanging="false", waterlogged="false")
-    t.put(5, 1, 0, "cobblestone_wall", east="none", north="none", south="none", west="none", up="true", waterlogged="false")
-    t.put(4, 1, 2, "mossy_stone_bricks")
-    t.put(1, 1, 2, "moss_carpet")
-    return t
-
-
-def build():
-    for name, fn in (("shrine", shrine), ("well", well), ("arch", arch)):
-        fn().save(OUT / f"ruin_{name}.nbt")
-    print("dream ruins built:", ", ".join(p.name for p in sorted(OUT.glob("*.nbt"))))
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--list", action="store_true")
+    args = ap.parse_args()
+    scenes = sorted(p for p in (ROOT / "scenes" / "dream").glob("*.py") if not p.name.startswith("_"))
+    rows, fn, by_tier = [], {}, {t: [] for t in TIERS}
+    for p in scenes:
+        s = load_scene(p, quiet=True)
+        meta = s.meta.get("dream")
+        if not meta:
+            print(f"skip {p.name}: no meta['dream']")
+            continue
+        idx, be, ents, a = crop(s)
+        name = p.stem
+        rows.append((name, meta["tier"], meta["kind"], idx.shape, a, int((idx != 0).sum())))
+        if args.list:
+            continue
+        data, n = structure_bytes(idx, s.palette, False, be, ents)
+        OUT.mkdir(parents=True, exist_ok=True)
+        (OUT / f"{name}.nbt").write_bytes(data)
+        gen_site(name, meta, idx.shape, a, fn)
+        by_tier[meta["tier"]].append(name)
+    for r in rows:
+        print(f"{r[0]:20} {r[1]:9} {r[2]:6} size {r[3]} anchor {r[4]} blocks {r[5]}")
+    if args.list:
+        return
+    pick = ["# generated: as the new site marker, #tier (1 minor 2 major 3 grand 4 nightmare) and #pick (0..) set.",
+            "# Tries the tier's templates in turn from #pick until one fits (#res 1) or needs loaded chunks (#res 3).",
+            "scoreboard players set #res nx.dream 2"]
+    for ti, t in enumerate(TIERS, 1):
+        names = by_tier[t]
+        if not names:
+            continue
+        pick.append(f"scoreboard players set #n nx.dream {len(names)}")
+        pick.append(f"execute if score #tier nx.dream matches {ti} run scoreboard players operation #pick nx.dream %= #n nx.dream")
+        for k in range(len(names)):
+            pick.append(f"execute if score #tier nx.dream matches {ti} if score #pick nx.dream matches {k} run "
+                        f"return run function nonios:dream/site/gen/order_{t}_{k}")
+            order = []
+            for j in range(len(names)):
+                nm = names[(k + j) % len(names)]
+                order.append(f"execute if score #res nx.dream matches 2 run function nonios:dream/site/gen/try_{nm}")
+            fn[f"order_{t}_{k}"] = order
+    fn["pick"] = pick
+    if FN.exists():
+        for f in FN.glob("*.mcfunction"):
+            f.unlink()
+    FN.mkdir(parents=True, exist_ok=True)
+    for k, lines in fn.items():
+        (FN / f"{k}.mcfunction").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {sum(len(v) for v in by_tier.values())} templates, {len(fn)} functions")
 
 
 if __name__ == "__main__":
-    build()
+    main()

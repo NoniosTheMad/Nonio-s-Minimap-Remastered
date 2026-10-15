@@ -5,7 +5,10 @@ scoreboard players set @s nx.dch 0
 execute at @s run particle minecraft:happy_villager ~ ~1 ~ 0.5 1 0.5 0 40
 execute at @s run playsound minecraft:block.beacon.deactivate player @a ~ ~ ~ 1 1.4
 effect clear @s minecraft:jump_boost
+function nonios:dream/wings/strip
+function nonios:dream/pixie/dismiss
 effect give @s minecraft:blindness 1 0 true
+effect give @s minecraft:slow_falling 3 0 true
 function #nonios:dream/on_exit
 function nonios:dream/pid
 execute store result storage nonios:dream tmp.id int 1 run scoreboard players get @s nx.pid

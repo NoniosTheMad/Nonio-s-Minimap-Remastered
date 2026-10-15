@@ -1,0 +1,15 @@
+{
+ "type": "minecraft:sequence",
+ "functions": [
+  {
+   "type": "minecraft:set_components",
+   "components": {
+    "!minecraft:glider": {}
+   }
+  },
+  {
+   "type": "minecraft:set_custom_data",
+   "tag": "{nx_dg:0b}"
+  }
+ ]
+}

@@ -1,0 +1,103 @@
+{
+ "type": "minecraft:entity",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:emerald",
+     "weight": 1,
+     "modifier": [
+      {
+       "type": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 6,
+        "max": 10
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:trial_key",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:custom_data": "{nx_dkey:1b}",
+        "minecraft:item_model": "minecraft:ominous_trial_key",
+        "minecraft:item_name": {
+         "text": "Dream Key",
+         "color": "#7dffc8"
+        },
+        "minecraft:rarity": "rare"
+       }
+      }
+     ]
+    }
+   ],
+   "condition": {
+    "type": "minecraft:random_chance",
+    "chance": 0.35
+   }
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:glow_berries",
+     "weight": 2,
+     "modifier": [
+      {
+       "type": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 4
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:golden_carrot",
+     "weight": 2,
+     "modifier": [
+      {
+       "type": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:experience_bottle",
+     "weight": 1,
+     "modifier": [
+      {
+       "type": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "random_sequence": "nonios:dream/fauna_gleam"
+}

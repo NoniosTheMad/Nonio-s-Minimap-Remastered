@@ -1,0 +1,37 @@
+{
+  "description": {"text": "Dream Wings", "color": "#7dffc8"},
+  "supported_items": "#nonios:dream_wings",
+  "weight": 1,
+  "max_level": 1,
+  "min_cost": {"base": 999, "per_level_above_first": 0},
+  "max_cost": {"base": 999, "per_level_above_first": 0},
+  "anvil_cost": 0,
+  "slots": ["chest"],
+  "effects": {
+    "minecraft:tick": [
+      {
+        "effect": {
+          "type": "minecraft:all_of",
+          "effects": [
+            {"type": "minecraft:apply_impulse", "direction": [0, 0, 1], "coordinate_scale": [1, 1, 1],
+             "magnitude": {"type": "minecraft:linear", "base": 0.12, "per_level_above_first": 0}},
+            {"type": "minecraft:spawn_particles", "particle": {"type": "minecraft:happy_villager"},
+             "horizontal_position": {"type": "in_bounding_box"}, "vertical_position": {"type": "in_bounding_box"},
+             "horizontal_velocity": {"movement_scale": -0.4}, "vertical_velocity": {"movement_scale": -0.4}, "speed": 1.0}
+          ]
+        },
+        "requirements": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {"type": "minecraft:entity_scores", "entity": "this", "scores": {"nx.dboost": {"min": 1}}},
+            {"type": "minecraft:entity_properties", "entity": "this",
+             "predicate": {"minecraft:flags": {"is_fall_flying": true}, "minecraft:movement": {"speed": {"max": 34.0}}}}
+          ]
+        }
+      }
+    ],
+    "minecraft:item_damage": [
+      {"effect": {"type": "minecraft:set", "value": 0}}
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:sequence",
+ "functions": [
+  {
+   "type": "minecraft:set_enchantments",
+   "enchantments": {
+    "nonios:dream_wings": 0
+   },
+   "add": false
+  },
+  {
+   "type": "minecraft:set_custom_data",
+   "tag": "{nx_dw:0b}"
+  }
+ ]
+}

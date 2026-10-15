@@ -186,3 +186,17 @@ Resume DESIGN.md §5 milestones: M1 spikes. §6 design questions answered (2026-
 - RCON-verified: every projectile type (miss at 1.5 off-centre), rocket fix, brief hold 33 s = 0.25 HP, full hold 2 HP/s, decay 100/min and
   break at cap 0, charge maths (no non-player entity has attack_speed, so not run end-to-end), ruin chest loot, clean logs + lint.
   Not verified with a real player: melee spam vs full swing, demo dialogs at GUI scale 2.
+
+## Emerald Dream v3 (`feat/dream-v3`, server `dream3`; feedback #79-#83)
+- [x] Sites: 7 voxel scenes (`scenes/dream/`, kit `_dream.py`) -> templates + placers (`tools/build_dream.py`); one site per 192-block cell at a
+  hashed point, decided within 112 blocks of a dreamer (`dream/site/*`). minor wayshrine/moonwell/lantern_tree, major crystal_grotto/sky_garden,
+  grand inverted_sanctum (vault + Dream Key), nightmare_spire (once per world). Beams mark unlooted loot. Sky sites carve islands in their silhouette.
+- [x] Deposits only at sites (#80), regrow 30 s, 25% spread to a neighbour (cap 10 within 6); pre-v3 veins retire themselves.
+- [x] Dream ores pay coins only (#82): diamond/gold/lapis/redstone ore loot conditioned off in the Dream.
+- [x] Dream Wings: glider on any chest item / vanishing elytra; jump while gliding = boost (enchantment apply_impulse), 3 charges; stripped outside.
+- [x] Void catch (the "fell out of the world"): y < 6 -> back to last solid ground + slow falling.
+- [x] Pixie (#80): allay + shop interaction at the shoulder, opens shop v3. Animals drop emeralds; 10% gleam (+key). Babies nothing.
+- [x] #81: Jump Boost II, no endermen (+sheep, foxes), nightmare keep: 6 guard types incl. 2 wardens, mining fatigue, Exodia once per team (stub).
+- [x] #83: wake channel 10 s (cfg_v 3 pushes it).
+- RCON/cam-verified: floorDiv on negatives, site placement all tiers (filmed in-world), vault key components = loot key, markers placed by
+  `place template`, impulse on a test mob, void catch, pixie spawn, Jump Boost II. Not verified with a real player: glide/boost feel, pixie click, vault open.

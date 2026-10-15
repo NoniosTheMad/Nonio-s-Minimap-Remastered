@@ -1,0 +1,29 @@
+{
+ "type": "minecraft:generic",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:trial_key",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:custom_data": "{nx_dkey:1b}",
+        "minecraft:item_model": "minecraft:ominous_trial_key",
+        "minecraft:item_name": {
+         "text": "Dream Key",
+         "color": "#7dffc8"
+        },
+        "minecraft:rarity": "rare"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "random_sequence": "nonios:dream/key"
+}
