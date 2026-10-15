@@ -12,7 +12,7 @@ from tools.voxel.kits import rooms
 
 # kind, interior W x D x H, style, door side
 ROOMS = [
-    ("hall", (17, 9, 6), "keep", "S"),
+    ("hall", (17, 9, 6), "keep", "W"),
     ("bedroom", (9, 7, 5), "noble", "S"),
     ("library", (11, 8, 5), "noble", "S"),
     ("kitchen", (9, 8, 5), "cottage", "S"),
@@ -40,11 +40,15 @@ def build():
         s.box((x0 - 1, 1, z0 - 1), (x1 + 1, y1, z1 + 1), "minecraft:stone_bricks", hollow=True)
         s.box((x0, 1, z0), (x1, y1, z1), "minecraft:air")
         s.box((x0 - 1, y1 + 1, z0 - 1), (x1 + 1, y1 + 1, z1 + 1), CEIL)
-        dx = (x0 + x1) // 2
-        s.box((dx, 1, z1 + 1), (dx, 2, z1 + 1), "minecraft:air")      # door opening
-        rep = rooms.furnish(s, (x0, y0, z0, x1, y1, z1), kind, st, doors=[(dx, 1, z1 + 1)], seed=7)
+        dx, dz = (x0 + x1) // 2, (z0 + z1) // 2
+        door = {"S": (dx, 1, z1 + 1), "W": (x0 - 1, 1, dz)}[side]
+        s.box(door, (door[0], 2, door[2]), "minecraft:air")      # door opening
+        rep = rooms.furnish(s, (x0, y0, z0, x1, y1, z1), kind, st, doors=[door], seed=7)
         reports[kind] = rep
-        s.mark(f"cam_{kind}", (dx + 0.5, 1, z1 + 0.3), look_at=(dx + 0.5, 1.8, z0 + 1))
+        if side == "S":
+            s.mark(f"cam_{kind}", (dx + 0.5, 1, z1 + 0.3), look_at=(dx + 0.5, 1.8, z0 + 1))
+        else:
+            s.mark(f"cam_{kind}", (x0 + 0.3, 1, dz + 0.5), look_at=(x1, 1.8, dz + 0.5))
         x = x1 + 2 + gap
     if os.environ.get("ROOMS_OPEN"):
         s.replace(CEIL, "minecraft:air")

@@ -440,7 +440,7 @@ def sconce(st, kind="bracket"):
         k.set(0, 1, 0, st.w2("fence"))
         k.set(0, 0, 0, P(st.lantern, hanging=True))
     else:
-        k.set(0, 0, 0, P(st.s("stairs"), facing="north", half="top"))
+        k.set(0, 0, 0, P(st.s("stairs") if st.extra.get("corbel") == "stone" else st.w2("stairs"), facing="north", half="top"))
         k.set(0, 1, 0, st.candles(3))
     return k
 

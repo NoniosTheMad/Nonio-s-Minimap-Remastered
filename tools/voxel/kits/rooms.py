@@ -308,9 +308,10 @@ def _hall(r):
     L = (r.W if r.long_x else r.D)
     r.on_wall("throne", F.throne(st), [r.back]) or r.on_wall("high table", F.table(st, 5, 1, seats=None, seed=r.seed), [r.back])
     r.on_wall("tapestry", F.tapestry(st, 1, design=0), [r.back], y=r.y0 + 2, n=2, uses=False, need_floor=False)
-    tl = max(3, L - 10)
-    r.centre("feast table", F.table(st, tl, 2 if min(r.W, r.D) >= 9 else 1, kind="cloth", seats="benches", head=True,
-                                    seed=r.seed), facing="south" if r.long_x else "east")
+    for tl in range(max(3, L - 10), 2, -2):
+        if r.centre("feast table", F.table(st, tl, 2 if min(r.W, r.D) >= 9 else 1, kind="cloth", seats="benches",
+                                           head=True, seed=r.seed), facing="south" if r.long_x else "east"):
+            break
     for side in r.side_walls():
         r.on_wall("tapestry", F.tapestry(st, 1, design=r.rng.randrange(5)), [side], y=r.y0 + 2, n=max(1, L // 6),
                   uses=False, need_floor=False, order="ends")
@@ -318,7 +319,7 @@ def _hall(r):
     for side in r.side_walls():
         r.on_wall("bench", F.bench(st, 3), [side], n=max(1, L // 8), order="ends")
         r.on_wall("shelf", F.shelf(st, 2, r.rng.randrange(99)), [side], y=r.y0 + 1, n=1, uses=False, need_floor=False)
-    r.ceiling("chandelier", F.chandelier(st, 2 if min(r.W, r.D) >= 9 else 1, 1), spacing=6)
+    r.ceiling("chandelier", F.chandelier(st, 2 if min(r.W, r.D) >= 9 else 1, max(0, r.H - 6)), spacing=6)
     r.beams(5)
     r.sconces("bracket", 5)
     r.corners(["barrels", "pots", "candles", "plants"], 4)
