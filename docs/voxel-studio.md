@@ -42,7 +42,11 @@ The outputs go to `.mcdev/voxel/out/<scene name>/`: `*.png`, `sheet.png`, `viewe
 |---|---|
 | `info SCENE` | Prints the size, bounds, palette counts, markers and meta. Lint flags gravity blocks over air, markers inside blocks and markers standing on air. |
 | `render SCENE [--only iso,top,eye] [--size WxH] [--no-shadows]` | Writes the PNG views and the contact sheet. |
-| `view SCENE` | Writes `viewer.html`: a single offline file with three.js r147 inlined and real textures. Drag to orbit, right-drag to pan, wheel to zoom, keys 1-4 for the iso corners, T for top. |
+| `view SCENE [--no-merge]` | Writes `viewer.html`: one offline file (plain WebGL1, no libraries) with real textures. See "Viewer" below. |
+| `serve [--port 8765] [--host 127.0.0.1]` | Serves `.mcdev/voxel/out/` over HTTP with an index of every scene's viewer and sheet. `--host 0.0.0.0` for a phone on the LAN. |
+| `stats SCENE [--json F]` | Quantitative floors (playbook §5): canvas use, facade area and break ratio, partial-block share, decoration density. Writes `stats.json`. They catch emptiness; they don't prove beauty. |
+| `light SCENE [--min 7] [--render] [--auto STYLE [--outdoor] [--max N] [--patch]]` | Light audit (see "Lighting"). Writes `light.json`, and with `--render` the overlay views in `light/`. |
+| `protect SCENE [--at X Y Z] [--install SERVER [--setup]]` | Writes the datapack that makes a placed scene unbreakable while players build freely (see "Protected builds"). |
 | `export SCENE [--out DIR] [--tile 64] [--no-air]` | Writes structure `.nbt` tiles (DataVersion 5023, `{id, properties}` palette). |
 | `place SCENE --server N [--at X Y Z] [--no-air] [--verify N] [--pristine]` | Places the scene at `--at`, else at the last placement, else at `meta["origin"]`. Air cells carve unless `--no-air`; `structure_void` cells leave the world alone. `--pristine` snapshots the world so mcdev's "Reset this server" restores the build. |
 | `verify SCENE --server N [-n 300]` | Runs `execute if block` on random cells, half of them solid. Neighbour-shape properties are ignored. |
@@ -116,6 +120,114 @@ s.meta["origin"] = [-40, 40, -40]                             # default placemen
 - **Diff** (`diff.py`): `diff(a, b, ignore_shape=True)`, then `.summary()`, `.patch()`, `.write_patch()` and
   `.render()`. `apply_patch(scene, path|list)` applies a patch.
 
+## Block entities and entities (`nbt.py`)
+
+`s.set(x, y, z, state, nbt=...)` and `s.entity(nbt, pos)` take SNBT strings, Compounds or the builders: `item`,
+`container`, `sign`, `banner`, `head`, `pot`, `book`, `lectern`, `item_frame`, `painting`, `armor_stand`. They are
+written to the structure tiles, survive `stamp`/`rotate`/`mirror`, are read back by `pull` and compared by `diff`.
+The renderer draws chests, banners, heads, pots, shulkers, bells, item frames (with their item), paintings and armour
+stands. The formats verified on 26.3 are listed in the module docstring.
+
+## Kits and rooms (`tools/voxel/kits/`)
+
+Parametric furniture in five styles (`STYLES`: keep, noble, cottage, chapel, arcane; `style.py` maps roles such as
+wood, stone, cloth and metal to blocks). Every kit is a small Scene built facing south (+z), with its back at z=0
+against a wall at z=-1. `furniture.place(s, kit, at, facing)` rotates and stamps it.
+
+| group | kits (main parameters) |
+|---|---|
+| seating | `chair(arms)`, `bench(n, back, arms)`, `throne(dais)` |
+| tables | `table(w, d, kind=plank/cloth, seats=chairs/benches/None, head, setting)`, `desk` |
+| sleeping and storage | `bed(double, canopy, nightstand, foot_chest)`, `bookshelf(w, h, chiseled, cornice, pilasters)`, `wardrobe(w)`, `shelf(w)` |
+| work | `hearth(w, h)`, `counter(w)`, `cauldron`, `workbench`, `alchemy(w)`, `altar(w)`, `lectern` |
+| lights | `chandelier(r, drop, kind=candle/lantern)`, `hanging_lantern(drop)`, `sconce(kind=bracket/candle/torch)` |
+| armoury | `weapon_rack(w)`, `armour(gear, weapon)` (armour stand on a pressure plate) |
+| textiles | `tapestry(n, design)` (wall banners; place 2 above the floor), `rug(w, d, pattern=border/diamond/checker/stripes/runner)` |
+| clutter | `clutter(kind=barrels/crates/sacks/pots/plants/candles/firewood/hay/books)` |
+
+`rooms.furnish(s, box, kind, style, doors, seed)` furnishes an empty room (`box` = its interior air, inclusive).
+Kinds: hall, bedroom, library, kitchen, chapel, armoury, cellar and lab. Each kind runs a program (focal piece on the
+back wall, wall pieces, centre pieces, ceiling lights and beams, sconces, corner clutter). A piece is kept only if
+every door still connects and every piece's front cells stay reachable on foot. The returned report has
+`pieces`, `props_per_8m2`, `walkable_share` and `connected`.
+
+Galleries: `scenes/kit_gallery.py` (every kit per style; `KIT_STYLES=keep,noble`) and `scenes/room_gallery.py` (one
+room per kind; `ROOMS_OPEN=1` removes the ceilings for top views, `ROOM_STYLE` forces one style, `ROOMS_REPORT=1`
+prints the reports).
+
+## Lighting (`light.py`)
+
+`light` runs a flood fill like the game's. Block light starts at each block's luminance and loses 1 per step plus the
+opacity of the cell it enters: 15 for full occluders, 1 for water, leaves and ice. Sky light is 15 straight down open
+columns, then spreads the same way. A walkable cell is passable at feet and head height and stands on a floor (full
+block, bottom slab, stairs, path...). Table tops don't count.
+
+- Report: walkable cells, `dark_night` (block light < `--min`: mobs spawn there at night if sky light is low too),
+  `dark_day` (block and sky light both < `--min`: dark interiors), `spawnable` (block light 0), fixture count, and
+  the biggest dark interior clusters.
+- `--render`: top, iso and eye views with the floor tinted red (block light 0), orange (< min) or green.
+- `--auto STYLE`: adds fixtures greedily where they cover the most dark cells: a hanging lantern on a chain from a
+  ceiling 3-7 blocks up, else a wall torch, else a floor lantern. Indoor only unless `--outdoor`. `--patch` appends
+  them to `<scene>.patch.json`. Castle: 45 fixtures, dark interior cells 379 -> 0, 14 s.
+
+## Viewer
+
+`view` writes one self-contained `viewer.html` (castle: 1.8 MB, opens in about a second).
+- Plain WebGL1, no libraries. One atlas PNG (16x16 tiles).
+- Quads are greedy-merged: coplanar faces with the same texture, colour and AO become one rectangle (`--no-merge` turns this off).
+- Vertices are quantised to 16 bytes, then gzip + base64, unpacked by the browser's DecompressionStream.
+- Lighting is baked into vertex colours. Cutout textures are alpha-tested; glass, water and ice are drawn last, blended.
+- Errors appear on the page instead of a blank canvas.
+- Controls: drag to orbit, right-drag or shift-drag to pan, wheel or pinch to zoom, 1-4 for the iso corners, T for top, F to re-frame.
+
+The old viewer was 4.7 MB of base64 floats and inlined three.js, and needed WebGL2. It was slow to parse and showed a
+blank page whenever any step failed. The new one is well under the 16 MB limit for publishing a single file.
+
+## Protected builds (`protect.py`)
+
+`python -m tools.voxel protect SCENE --install SERVER --setup` makes the placed scene unbreakable while players still
+place and break their own blocks anywhere the scene has air. It writes `<world>/datapacks/voxel_protect` (one folder
+per scene; several scenes can share the pack), `/reload`s, and runs `vprot:<id>/setup`. Without `--install` it writes
+the pack to `.mcdev/voxel/out/<scene>/protect_pack`.
+
+How it works:
+- **Backup.** `setup` copies the build, in 16^3 tiles, into a backup C (default: same x/z, from y -64 when the build
+  fits above it).
+  - Cells that may legitimately change become air in C, so `clone ... masked` and `execute if blocks ... masked`
+    ignore them.
+  - **free** cells are never protected: air, fluids, fire, replaceable plants, snow layers, vines. A player block
+    placed there replaces them.
+  - **loose** cells are protected by block id only: doors, trapdoors, gates, containers, beds, candles, levers,
+    crops, pots, unwaxed copper. Players can open, light and fill them. Each loose group (door halves, bed, double
+    chest) is copied once into a small store S. If its id changes, S is cloned back, and a broken chest returns
+    with its original contents.
+- **Detection,** every tick:
+  1. A player near the build whose `minecraft.mined:<id>` score rose for one of the build's block ids triggers the
+     tiles within reach.
+  2. A new item entity in the box (explosions, anything that drops) triggers its tile.
+  3. A sweep checks every tile once per `--sweep` ticks (default 40). This catches fire, pistons, creative mode,
+     stripping and tilling.
+- **Restore.** A mismatching tile gets `clone C tile masked` (at most 4096 blocks), and the item entities first seen
+  that tick in the tile are killed, so breaking gives nothing.
+- **Entities.** Armour stands, item frames and paintings in the box get Invulnerable, Fixed or DisabledSlots.
+- **Cost.** Castle (128x84x128): 176 non-empty tiles, 5 tiles per tick, about 1.1 ms per tick; setup takes 0.9 s.
+  Arena v3's single box would mean comparing 1.3M blocks every tick.
+- **Control.** `vprot:<id>/off`, `on`, and `status` (restore and fix counters).
+
+Limits:
+- Soil flips on random ticks: grass under a full block face dies, and lit dirt next to grass grows grass. Each flip
+  costs one tile restore, forever. `protect` counts these cells (`unstable_soil`; castle: 16, about 5 restores a
+  minute). Fix them in the scene.
+- Restores revert player-made state changes on protected blocks, such as fence or pane connections to a player's
+  fence, waterlogging, or a sign edit.
+- Loose blocks restore by id, so interacting can duplicate items: taking the plant out of a pot, or a book out of a
+  chiseled bookshelf, brings the pot or shelf back full while the player keeps the item.
+- A tile restore kills every item entity that appeared in that tile in the same tick, including items a player
+  throws there at that moment.
+- C and S are ordinary blocks. They are unreachable only because they sit under the build or at the world floor.
+- Run `setup` on the pristine build. It protects whatever is there at that moment. Re-run it after `place`, because
+  `place` drops the forceload that protection relies on.
+
 ## Demo: `ruined_tower` on server `voxel`
 
 `scenes/ruined_tower.py` is a ruined watchtower on a moss-covered sky-island crag. It follows the playbook passes:
@@ -136,8 +248,7 @@ python -m tools.voxel diff  scenes/ruined_tower.py --server voxel     # after th
 
 ## Known limits
 
-- Block entities (chests, signs, banners, beds) and entities are not written to structures or read back: only block
-  states are. In renders they appear as a simple cube with their particle texture.
+- Block entities and entities are written, read back and rendered (see above). The renderer simplifies some of them.
 - Water is rendered as a still 14/16-high block. Waterlogging, flowing water, biome-specific tints, emissive light
   and night lighting are not rendered.
 - The game can change blocks after placement:
@@ -150,4 +261,5 @@ python -m tools.voxel diff  scenes/ruined_tower.py --server voxel     # after th
 - Placement replaces the whole box, air included. Use `--no-air` or `structure_void` cells to leave parts of the world alone.
 - `pull` and `diff` need the box's chunks to have been saved at least once. Cells in never-generated chunks come back
   as `structure_void` and are not compared.
-- The viewer bakes its lighting into the vertices: no shadows.
+- The viewer bakes its lighting into the vertices: no shadows. Only about 10% of castle faces merge, because AO varies
+  along most walls.
