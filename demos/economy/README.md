@@ -90,3 +90,8 @@ per interest tick from `bank/interest/tick` (one global `#tacc nx.talis`); `tali
 `purse/pling` (from `purse/changed`, every purse increase): the coin sound plays only when the purse crosses a multiple of
 step = 10^floor(log10(nx.earned / 100)), min 1 (under 1000 gathered: every coin; 1000+: every 10; 10000+: every 100; ...).
 The "+N" popup still shows every gain (it already batches within its 1.5 s window).
+
+## #114: popup lifetime
+`purse/gain`: gains below the coin step (`purse/step`, shared with the sound) wait unseen (forgotten after 5 s); reaching a
+step opens the popup for 1.5 s + 0.5 s per step in it, max 4 s, from its opening (`gain_open`, `gain_tick`, `gain_end`,
+age in `nx.page`). Talisman trickle (0.6/s): hidden ~1.6 s, "+1.0 .. +2.5" for 2.5 s, closed, again.

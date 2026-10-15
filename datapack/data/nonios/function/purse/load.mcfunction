@@ -43,6 +43,7 @@ scoreboard objectives add nx.pfrac dummy
 scoreboard objectives add nx.ptot dummy
 scoreboard objectives add nx.pgain dummy
 scoreboard objectives add nx.ptime dummy
+scoreboard objectives add nx.page dummy
 function nonios:purse/gen/yields
 # --- emerald items: coins on pickup (purse/emerald), same as the centre generator's coin outcomes (#ce1 / #ce9 nx.gen) ---
 execute unless score #emerald_item nx.coinval = #emerald_item nx.coinval run scoreboard players set #emerald_item nx.coinval 5
