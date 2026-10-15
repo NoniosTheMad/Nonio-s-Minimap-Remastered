@@ -2,7 +2,8 @@
 
   info    SCENE                                  size, palette, lint (bad states, floating sand/gravel, ...)
   render  SCENE [--only iso,top,eye] [--size 1280x800] [--no-shadows]   PNG views + sheet.png
-  view    SCENE                                  self-contained three.js viewer.html (orbit camera)
+  view    SCENE [--serve]                        single-file WebGL1 viewer.html (orbit camera; publishable, < 16 MB)
+  serve   [--port 8765] [--host 127.0.0.1]       HTTP server over .mcdev/voxel/out/ (viewers, sheets, renders)
   export  SCENE [--out DIR] [--tile 64] [--no-air]                        structure .nbt tiles
   place   SCENE --server NAME [--at X Y Z] [--no-air] [--verify N] [--pristine]      place over RCON (+ execute-if-block sample)
   verify  SCENE --server NAME [--at X Y Z] [-n N]
@@ -92,6 +93,44 @@ def _origin(args, s, server=None):
     raise SystemExit("no --at, no previous placement and no meta['origin'] in the scene")
 
 
+def serve(host, port):
+    """Static server over .mcdev/voxel/out/ with a scene index at /. Opening viewer.html from disk works too
+    (everything is inline); this is for other devices on the LAN (--host 0.0.0.0) and for browsers that block file://."""
+    import functools, http.server, html
+    from .paths import voxel_dir
+    root = voxel_dir() / "out"; root.mkdir(parents=True, exist_ok=True)
+
+    class H(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):
+            if self.path in ("/", "/index.html"):
+                rows = []
+                for d in sorted(p for p in root.iterdir() if p.is_dir()):
+                    links = [f'<a href="{d.name}/{f}">{f}</a>' for f in ("viewer.html", "sheet.png") if (d / f).exists()]
+                    if links:
+                        rows.append(f"<li><b>{html.escape(d.name)}</b> {' &middot; '.join(links)}</li>")
+                body = ("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width'>"
+                        "<title>Voxel scenes</title><body style='font:14px system-ui;margin:16px'><h3>Voxel scenes</h3><ul>"
+                        + "".join(rows) + "</ul>").encode()
+                self.send_response(200); self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
+                return
+            super().do_GET()
+
+        def end_headers(self):
+            self.send_header("Cache-Control", "no-store")
+            super().end_headers()
+
+    srv = http.server.ThreadingHTTPServer((host, port), functools.partial(H, directory=str(root)))
+    print(f"[voxel] serving {root} at http://{'127.0.0.1' if host in ('', '0.0.0.0') else host}:{port}/  (Ctrl+C stops)")
+    try:
+        srv.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python -m tools.voxel", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -99,6 +138,8 @@ def main(argv=None):
     a = sub.add_parser("render"); a.add_argument("scene"); a.add_argument("--only"); a.add_argument("--size", default="1280x800")
     a.add_argument("--no-shadows", action="store_true"); a.add_argument("--out")
     a = sub.add_parser("view"); a.add_argument("scene"); a.add_argument("--out")
+    a.add_argument("--no-merge", action="store_true", help="skip greedy meshing (debug)")
+    a = sub.add_parser("serve"); a.add_argument("--port", type=int, default=8765); a.add_argument("--host", default="127.0.0.1")
     a = sub.add_parser("export"); a.add_argument("scene"); a.add_argument("--out"); a.add_argument("--tile", type=int, default=64)
     a.add_argument("--no-air", action="store_true")
     a = sub.add_parser("place"); a.add_argument("scene"); a.add_argument("--server", required=True)
@@ -119,6 +160,10 @@ def main(argv=None):
     a.add_argument("--max", type=int, default=200); a.add_argument("--patch", action="store_true",
                    help="with --auto: append the new fixtures to <scene>.patch.json")
     args = ap.parse_args(argv)
+
+    if args.cmd == "serve":
+        serve(args.host, args.port)
+        return
 
     if args.cmd == "pull":
         from . import server
@@ -199,7 +244,12 @@ def main(argv=None):
             print(f"  {k:18s} {v}")
     elif args.cmd == "view":
         from .viewer import write_viewer
-        write_viewer(s, Path(args.out) if args.out else out_dir(s.name) / "viewer.html")
+        p = write_viewer(s, Path(args.out) if args.out else out_dir(s.name) / "viewer.html", merge=not args.no_merge)
+        try:
+            rel = p.resolve().relative_to(out_dir(s.name).parent.resolve()).as_posix()
+            print(f"[voxel] with `python -m tools.voxel serve`: http://127.0.0.1:8765/{rel}")
+        except ValueError:
+            pass
     elif args.cmd == "export":
         from .nbtio import write_tiles
         out = Path(args.out) if args.out else out_dir(s.name) / "structures"
