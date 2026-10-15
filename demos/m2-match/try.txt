@@ -1,13 +1,6 @@
-Solo test of the playable core. Buttons: G > "Demo: M2 match". Game menu: G > "Nonios's Map" (Choose team, Admin panel).
-1. You join in the lobby (quartz platform, adventure mode). G > Nonios's Map > Choose team > White. Then "Prep time 20 s" and "Start match".
-2. PREPARATION title + yellow bossbar countdown. You are at the White base: Nexus (obsidian with a forcefield), Shop villager, gold bank pad, ore mine.
-   The arena side is sealed by a tinted barrier wall: walk into it, you are pushed back.
-3. Mine ores (coins on the actionbar), right-click the Shop villager (buy), stand on the gold pad (team bank). The Black shopkeeper refuses you.
-4. At 0: BARRIERS BROKEN title, walls vanish, red bossbar. Walk to the arena (stone platform between the fields) and the Black field.
-5. Hit the Black Nexus forcefield: actionbar damage line (coins hidden ~2 s), purple bossbar for Black only. Break it, mine the obsidian: BLACK NEXUS DESTROYED + VICTORY.
-   Faster: "Destroy ENEMY Nexus". End screen: VICTORY title, stats in chat (kills, coins mined, Nexus damage), lobby after 15 s.
-6. Last life: Start again, skip to battle, "Destroy MY Nexus", "Kill me": you become a spectator; with no White left alive Black wins (DEFEAT for you).
-7. Respawn: in battle, "Kill me" before your Nexus falls: instant respawn at your base, gear kept (keep inventory ON), coins dropped as a bag.
-8. "Enemy dummy" / "2 enemy raiders": enemy-team husks. Killing them counts as kills; they keep the enemy "alive" for the win check.
-9. Admin panel: +/- prep time, start coins, barrier HP, keep inventory, auto-balance, Start / Skip / Stop / Rebuild map.
-Feedback: phase lengths, wall feel, titles/bossbar wording, stats line, what the placeholder map is missing.
+Your role: judge the match skeleton: phases, walls, titles.
+Check:
+- "Prep time 20 s", Start: title and bossbar readable?
+- Walk into the prep wall: push-back feels right?
+- "Destroy ENEMY Nexus": victory titles and stats enough?
+- "Destroy MY Nexus", "Kill me": last-life spectator clear?
