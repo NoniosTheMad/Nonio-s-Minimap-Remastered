@@ -3,3 +3,5 @@
 function nonios:economy/rate
 function nonios:bank/interest/team {team:"white"}
 function nonios:bank/interest/team {team:"black"}
+# the Emerald Talisman: interest on its own price (#112)
+function nonios:talisman/accrue

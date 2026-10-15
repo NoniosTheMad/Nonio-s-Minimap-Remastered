@@ -2,6 +2,19 @@
 # (coins/s) and a 1-minute projection (x 60, the clock held). Buttons, fixed: modes A B C Refresh / clock 0 10 20 30 min /
 # bank 500 2000 10000, +60 s interest / clock 40 50 60 90 min. Clock buttons greyed outside a match, bank buttons without a team.
 function nonios:economy/rate
+# talisman (#112): talisman_mult x live rate x its price -> 1/1000 coin per s = v x ppm x 1000000 / idiv / (period x 1000)
+execute store result score #dv nx.eco run data get storage nonios:shop items[{name:"Emerald Talisman"}].price
+execute unless score #dv nx.eco matches 1.. run scoreboard players set #dv nx.eco 200
+execute store result storage demo:im tv int 1 run scoreboard players get #dv nx.eco
+execute store result score #dk nx.eco run data get storage nonios:config talisman_mult
+execute store result storage demo:im tm int 1 run scoreboard players get #dk nx.eco
+scoreboard players operation #dv nx.eco *= #dk nx.eco
+scoreboard players operation #dv nx.eco *= #ppm nx.eco
+scoreboard players operation #dv nx.eco /= #iper nx.eco
+scoreboard players operation #dk nx.eco = #idiv nx.eco
+scoreboard players operation #dk nx.eco /= #1000 nx.eco
+scoreboard players operation #dv nx.eco /= #dk nx.eco
+scoreboard players operation #dtl nx.eco = #dv nx.eco
 scoreboard players set #db nx.eco 0
 execute if entity @s[team=white] run scoreboard players operation #db nx.eco = #white nx.bank
 execute if entity @s[team=black] run scoreboard players operation #db nx.eco = #black nx.bank
@@ -34,7 +47,6 @@ scoreboard players operation #dv nx.eco *= #db nx.eco
 scoreboard players operation #dv nx.eco /= #1000 nx.eco
 scoreboard players operation #dv nx.eco < #capm nx.eco
 function demo:im/fmt {k:"A"}
-execute if score #imode nx.eco matches 1 run scoreboard players operation #dlv nx.eco = #dv nx.eco
 scoreboard players operation #dv nx.eco = #capm nx.eco
 function demo:im/fmt {k:"K"}
 # B: every coin, curve per period -> b x (ppm / 10) / (period x 100) = 1/1000 coin per s
@@ -44,7 +56,6 @@ scoreboard players operation #dv nx.eco = #db nx.eco
 scoreboard players operation #dv nx.eco *= #dp nx.eco
 scoreboard players operation #dv nx.eco /= #dper nx.eco
 function demo:im/fmt {k:"B"}
-execute if score #imode nx.eco matches 2 run scoreboard players operation #dlv nx.eco = #dv nx.eco
 # C: at most interest_base coins
 execute store result score #dbc nx.eco run data get storage nonios:config interest_base
 scoreboard players operation #dbc nx.eco < #db nx.eco
@@ -52,12 +63,10 @@ scoreboard players operation #dv nx.eco = #dbc nx.eco
 scoreboard players operation #dv nx.eco *= #dp nx.eco
 scoreboard players operation #dv nx.eco /= #dper nx.eco
 function demo:im/fmt {k:"C"}
-execute if score #imode nx.eco matches 3 run scoreboard players operation #dlv nx.eco = #dv nx.eco
-# talisman: talisman_mult x the live mode
-execute store result score #dv nx.eco run data get storage nonios:config talisman_mult
-execute store result storage demo:im a.tm int 1 run scoreboard players get #dv nx.eco
-scoreboard players operation #dv nx.eco *= #dlv nx.eco
+scoreboard players operation #dv nx.eco = #dtl nx.eco
 function demo:im/fmt {k:"T"}
+data modify storage demo:im a.tm set from storage demo:im tm
+data modify storage demo:im a.tv set from storage demo:im tv
 execute store result storage demo:im a.base int 1 run data get storage nonios:config interest_base
 data modify storage demo:im a.unit set from storage nonios:eco unit
 data modify storage demo:im a.r set from storage nonios:eco rtxt

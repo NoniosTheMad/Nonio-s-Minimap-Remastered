@@ -80,3 +80,8 @@ Talisman: `bank/interest/team` hands each tick's interest (#i) to `talisman/accr
 `#tacc_<team> nx.talis` and pays every head-wearing holder of that team 0.1 coin per `#tth` (= #ithr / 10) into `nx.pfrac`
 (`talisman/pay`; blue decimals + gain popup). The flat +1 / 3 s payout (`talisman/second`, `talisman_period/coins`) is gone.
 Item: binding + vanishing curse. Picker body: "Talisman x3 = N/s" for the live mode. Clock row 2: 40 / 50 / 60 / 90 min.
+
+## #112: talisman on its price
+Correction of #111: the talisman earns talisman_mult x the live interest rate on its own price (shop catalog price, 200),
+not on the team bank: mode A 3 x 0.1%/s x 200 = 0.6 coin/s, no bank cap, bank size irrelevant. `talisman/accrue` runs once
+per interest tick from `bank/interest/tick` (one global `#tacc nx.talis`); `talisman/round` and the team hook are gone.

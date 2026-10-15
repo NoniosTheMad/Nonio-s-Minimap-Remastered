@@ -10,7 +10,6 @@ $scoreboard players operation #i nx.eco = #$(team) nx.bank
 $execute if score #i nx.eco >= #ibase nx.eco run scoreboard players set #capped_$(team) nx.eco 1
 scoreboard players operation #i nx.eco < #ibase nx.eco
 scoreboard players operation #i nx.eco *= #ppm nx.eco
-$function nonios:talisman/accrue {team:"$(team)"}
 $scoreboard players operation #last_$(team) nx.eco = #i nx.eco
 $scoreboard players operation #last_$(team) nx.eco /= #idiv nx.eco
 $scoreboard players operation #acc_$(team) nx.eco += #i nx.eco
