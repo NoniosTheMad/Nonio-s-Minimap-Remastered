@@ -1,11 +1,5 @@
-V2 arena portals + regrowing centre block. Buttons: G > "Demo: Arena gates + core".
-1. "Pickaxe + axe", then "Start + battle now". Both systems only work in the battle.
-2. Gates: each base has a black 3x3 pad with soul lanterns near the arena wall ("ARENA" label, red when open, grey when shut).
-   Step on the crying obsidian: you drop into the arena at one of 4 corners, facing the centre. Everyone hears it.
-   One exit at a time works (purple portal particles in the arena). Walk into it: you are back next to your pad.
-   The active corner + exit change at random every ~6 s. "Gate status" shows which one. "Re-roll gate slot" changes it now.
-3. Core: the block on top of the centre ore pile. Mine it: a new random block grows back at once
-   (cobblestone, log, hay, emerald ore, rarely an emerald block with a chime). Emeralds pay coins like other ores.
-   "Core: 810 rolls" checks the odds (V2: 360 / 180 / 90 / 160 / 20).
-4. "Stop match" or "Skip phase" to the end: pads turn grey, the core stops regrowing. New match: fresh core, fresh slot.
-Feedback: pad look and spot, how often the exit moves, the global entry sound, core odds and regrow speed (coins!).
+Your role: judge V2's random arena gates and regrowing core.
+Check:
+- Step on your base pad: is a random entry corner fair?
+- The exit moves every ~6 s: too often?
+- Mine the core: regrow speed and emerald odds OK?
