@@ -1,10 +1,5 @@
-Solo test of the M3 economy. Buttons: G > "Demo: Economy". Bank: right-click the vault on your team's gold pad.
-1. "Start match" (puts you on a team, 10 min prep). "+1000 coins": you slow down (weight). "Go to my bank", right-click the vault.
-2. Bank dialog: purse + team bank + interest line. Move the Deposit slider, press Deposit; then "Deposit all". The dialog reopens with new balances.
-3. Withdraw slider + "Withdraw all": coins go back to your purse. No op prompt on any button.
-4. "Fast-forward interest": chat line "Bank interest +N coins (2.0%)". The real loop pays every 60 s (Admin: Economy changes rate/period/cap).
-5. "Go to the enemy bank", right-click its vault: refused. "Stop match", then the vault: refused (bank only works in prep/battle).
-6. "Simulate a kill" with victim profile 0/0: actionbar "+10 kill". Cycle "Victim profile" to 3/1 and 6/3: bounty + tier bonus, chat line "ended Dummy's 6-kill streak".
-7. Three simulated kills in a row: chat "you are on a 3-kill streak! Bounty: 30". "Kill me": streak ends, purse drops as a coin bag, bank keeps its coins.
-8. "Enemy dummy", kill it with a sword ("Diamond gear"): same reward path as a real kill of a dummy.
-Feedback: slider feel with big amounts, reward sizes, interest rate/period, whether anyone on the team should be able to withdraw everything.
+Your role: set kill rewards and streak bounties.
+Check:
+- "Simulate a kill", victim 0/0, 3/1, 6/3: rewards right?
+- 3 kills in a row: is a 30-coin bounty worth hunting?
+- Should any teammate be able to withdraw the whole bank?
