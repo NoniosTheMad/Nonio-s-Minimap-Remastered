@@ -13,7 +13,8 @@ Numbers are read from src/classes.json (Reaper scythe and pumpkin, Warrior kit f
   - Souls:
     - heal: 2 hearts. Spent when the Reaper is at 5 HP or less; the 0.25 s use delays its next swing by 5 ticks.
     - bind (lantern): the Warrior is pinned for 2 s. The Reaper steps just out of the Warrior's reach (its own reach is 3.6
-      against 3.0), so the Warrior can't land a swing for those 40 ticks. 5 s cooldown.
+      against 3.0), so the Warrior can't land a swing for those 40 ticks. 5 s cooldown. space=False models a Reaper
+      that stays in trade range: the bind only roots (movement and jump), the Warrior swings back as usual.
     - The policy is the better of "heal only" and "bind once at the start, heal with the rest".
   - Reach assumption: the extra 0.6 blocks gives the Reaper the opening swing (the Warrior's first swing comes 3-10 ticks
     later), and 10% of the Warrior's swings fall short (spacing). Both come on top of the 60/70% hit rate.
@@ -45,7 +46,7 @@ def fighters(level, over):
     head, sc = rp["head"]["components"], rp["scythe"]["components"]
     r = dict(hp=20 + mod(head, "max_health"), armor=mod(head, "armor"), tough=0, dmg=1 + mod(sc, "attack_damage"),
              speed=4 + mod(sc, "attack_speed"), fire="minecraft:fire_aspect" in sc.get("minecraft:enchantments", {}),
-             regen=50, heal=4, bind=40)
+             regen=50, heal=4, bind=40, space=True)
     r.update(over)
     r["max"] = r["hp"]
     kit = cls["warrior"]["levels"][str(level)]
@@ -94,7 +95,7 @@ def duel(r0, w0, p_hit, souls, bind_first, rng):
             if t < me["next"]:
                 continue
             me["next"] = t + me["cd"]
-            if k == "w" and (t < pinned_until or rng.random() >= p_hit * (1 - REACH_WHIFF)):
+            if k == "w" and ((t < pinned_until and r["space"]) or rng.random() >= p_hit * (1 - REACH_WHIFF)):
                 continue
             if hurt(foe, me["dmg"]) and me["fire"]:
                 foe["burn"] = max(foe["burn"], 80)
@@ -141,7 +142,9 @@ def main():
     if a.scan:
         rows += [("+ attack speed -3.1 -> -3.0", {"speed": 1.0}), ("+ bind 2 s -> 1 s", {"bind": 20}),
                  ("+ both", {"speed": 1.0, "bind": 20}), ("+ scythe damage +8 -> +9", {"dmg": 10}),
-                 ("+ max health -10 -> -8", {"hp": 12})]
+                 ("+ max health -10 -> -8", {"hp": 12}),
+                 ("bind roots only (no spacing)", {"space": False}),
+                 ("  + attack speed -3.0", {"space": False, "speed": 1.0})]
     table(a.n, rows)
     print("vs Warrior L2 (iron, no shield):")
     table(a.n, [("current kit vs Warrior L2", {"level": 2})])
