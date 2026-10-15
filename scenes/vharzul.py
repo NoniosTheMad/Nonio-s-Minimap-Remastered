@@ -522,7 +522,7 @@ def processional(s, h):
 
 def barbican(s, h):
     """The hornwork across the road at the island's south tip (threshold 1): two half-bastions and a gate."""
-    zf = s.meta["_stair_foot"] + 16
+    zf = s.meta["_stair_foot"] + (9 if PASS >= 5 else 16)
     g = PLAIN
     if PASS >= 2:
         return barbican2(s, zf, g)
@@ -997,6 +997,138 @@ def horn_bands(s):
                    replace=lambda n: "obsidian" in n or "blackstone" in n or "basalt" in n)
 
 
+# ================================================================== P5: bridges, stairs, approaches
+def lay_steps(s, x0, x1, prof, full, stair, under=None, depth=4, facing="north"):
+    """Walkable stepped surface along z. prof: {z: y_top}. Top block of column z is a stair (facing = the ascending
+    direction) when the next column downhill (z+1 for facing north) is exactly one lower; else a full block."""
+    dz = 1 if facing == "north" else -1
+    for z, yt in prof.items():
+        lower = prof.get(z + dz)
+        top = f"{stair}[facing={facing},half=bottom]" if (lower is not None and lower == yt - 1) else full
+        if under is not None:
+            s.box((x0, yt - depth, z), (x1, yt - 1, z), under)
+        s.box((x0, yt, z), (x1, yt, z), top)
+
+
+TREAD = Mix({"polished_tuff": 3, "tuff_bricks": 1}, seed=SEED + 80)
+
+
+def processional2(s, h):
+    """The Tongue: the processional stair from the plain to the Maw, three flights and landings; a cinnabar runner
+    pours out of the mouth down its centre; parapets with light copings; pedestals with bone spikes at each landing."""
+    prof = {}
+    z, y = ZF + 1, GATE_F - 1
+    for _ in range(5):          # threshold landing under the archivolts
+        prof[z] = y
+        z += 1
+    flights = (7, 7, 6)
+    landings = []
+    for fi, n in enumerate(flights):
+        for _ in range(n):
+            y -= 1
+            prof[z] = y
+            z += 1
+        if fi < len(flights) - 1:
+            landings.append(z)
+            for _ in range(3):
+                prof[z] = y
+                z += 1
+    foot = z
+    for zz, yt in prof.items():
+        s.box((97, PLAIN - 5, zz), (111, yt - 1, zz), WALL)
+        s.box((97, yt + 1, zz), (111, yt + 12, zz), "air")
+        s.box((97, yt, zz), (97, yt, zz), WALL)
+        s.box((111, yt, zz), (111, yt, zz), WALL)
+        s.box((97, yt + 1, zz), (97, yt + 1, zz), "polished_tuff_wall")
+        s.box((111, yt + 1, zz), (111, yt + 1, zz), "polished_tuff_wall")
+    lay_steps(s, 98, 101, prof, "polished_tuff", "polished_tuff_stairs")
+    lay_steps(s, 107, 110, prof, "polished_tuff", "polished_tuff_stairs")
+    lay_steps(s, 102, 106, prof, "polished_cinnabar", "polished_cinnabar_stairs")
+    for zl in landings:
+        yt = prof[zl]
+        for x0 in (93, 113):
+            s.box((x0, PLAIN - 4, zl), (x0 + 2, yt + 2, zl + 2), WALL)
+            s.box((x0, yt + 3, zl), (x0 + 2, yt + 3, zl + 2), TRIM)
+            cx = x0 + 1.5
+            thorn(s, (cx, yt + 4, zl + 1.5), (cx, yt + 7, zl + 1.0), (cx, yt + 10, zl + 0.5), 0.9, 0.35, tip_frac=0.6)
+        s.box((97, yt + 1, zl), (97, yt + 1, zl + 2), "air")      # gaps in the parapets toward the pedestals
+        s.box((111, yt + 1, zl), (111, yt + 1, zl + 2), "air")
+    s.meta["_stair_foot"] = foot
+    s.meta["_landings"] = landings
+
+
+def road2(s, h):
+    """The pyre road from the stair foot to the Pylons and on to the island tip: light paving with a dark kerb, spear
+    posts every 5 blocks."""
+    zs = s.meta["_stair_foot"]
+    zb = s.meta["_barb"]
+    for z in range(zs, D):
+        if not s.idx[104, :, z].any() and z > zb:
+            break
+        s.box((97, PLAIN - 3, z), (111, PLAIN - 1, z), WALL)
+        s.box((99, PLAIN - 1, z), (109, PLAIN - 1, z), TREAD)
+        s.box((97, PLAIN - 1, z), (98, PLAIN - 1, z), "polished_blackstone_bricks")
+        s.box((110, PLAIN - 1, z), (111, PLAIN - 1, z), "polished_blackstone_bricks")
+        if not (zb - 6 <= z <= zb + 1):
+            s.box((97, PLAIN, z), (111, PLAIN + 12, z), "air")
+        if (z - zs) % 5 == 2 and not (zb - 7 <= z <= zb + 2):
+            for x in (96, 112):
+                s.box((x, PLAIN - 3, z), (x, PLAIN + 2, z), Mix({"basalt": 2, "polished_basalt": 1}))
+                thorn(s, (x + 0.5, PLAIN + 3, z + 0.5), (x + 0.5, PLAIN + 4.5, z + 0.5), (x + 0.5, PLAIN + 6, z + 0.5), 0.6, 0.3,
+                      tip_frac=0.5)
+
+
+def bridge2(s):
+    """The Ember Bridge: two pointed spans on three piers over the lava, from the Maw's throat (GATE_I) up to the Forge
+    Hall door (DECK); stepped deck with stairs, parapets with merlons and copings, sulfur string course on the faces."""
+    z_hall, z_maw = ZP + 1, ZB
+    prof = {}
+    for z in range(z_hall, z_maw + 1):
+        t = (z - (z_hall + 2)) / max(1, (z_maw - 2) - (z_hall + 2))
+        prof[z] = int(round(DECK - (DECK - (GATE_I - 1)) * min(1.0, max(0.0, t))))
+    zs = sorted(prof)
+    for i in range(len(zs) - 2, -1, -1):          # keep every step <= 1 (walkable)
+        prof[zs[i]] = min(prof[zs[i]], prof[zs[i + 1]] + 1)
+    spans = ((z_hall + 3, z_hall + 9), (z_hall + 12, z_maw - 1))
+    piers = ((z_hall, z_hall + 2), (z_hall + 10, z_hall + 11))
+    for z, yt in prof.items():
+        under = 14
+        for a, b in spans:
+            if a <= z <= b:
+                half = (b - a + 1) / 2
+                u = (z - (a + b) / 2) / (half + 0.5)
+                crown = yt - 3
+                spring = 37
+                under = int(round(spring + (crown - spring) * math.sqrt(max(0.0, 1 - u * u))))
+        s.box((99, under, z), (109, yt - 1, z), WALL)
+        s.box((99, yt + 1, z), (109, yt + 8, z), "air")
+        s.box((99, yt, z), (99, yt + 1, z), WALL)
+        s.box((109, yt, z), (109, yt + 1, z), WALL)
+        if z % 2 == 0:
+            s.box((99, yt + 2, z), (99, yt + 2, z), WALL)
+            s.box((109, yt + 2, z), (109, yt + 2, z), WALL)
+        s.box((98, yt - 3, z), (98, yt - 3, z), TRIM)
+        s.box((110, yt - 3, z), (110, yt - 3, z), TRIM)
+    for a, b in piers:
+        s.box((97, 12, a), (111, prof[a] - 4, b), WALL)
+        s.box((96, 12, a), (112, LAKE_Y + 2, b), Mix({"basalt": 2, "polished_blackstone": 1}))
+    lay_steps(s, 100, 102, prof, "polished_tuff", "polished_tuff_stairs", facing="north")
+    lay_steps(s, 106, 108, prof, "polished_tuff", "polished_tuff_stairs", facing="north")
+    lay_steps(s, 103, 105, prof, "polished_cinnabar", "polished_cinnabar_stairs", facing="north")
+    s.meta["_bridge_prof"] = prof
+
+
+def throat_steps(s):
+    """Smooth the Maw's rising throat with stairs (the tongue's runner continues inside)."""
+    prof = {}
+    for z in range(ZB + 1, ZF + 1):
+        tt = (ZF - z) / (ZF - ZB)
+        prof[z] = int(round(GATE_F - 1 + (GATE_I - GATE_F) * max(0.0, min(1.0, tt))))
+    lay_steps(s, 99, 101, prof, "polished_tuff", "polished_tuff_stairs")
+    lay_steps(s, 107, 109, prof, "polished_tuff", "polished_tuff_stairs")
+    lay_steps(s, 102, 106, prof, "polished_cinnabar", "polished_cinnabar_stairs")
+
+
 # ================================================================== build
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
@@ -1015,10 +1147,10 @@ def build():
     if PASS >= 3:
         horn_ridges(s)
         spires3(s)
-    if PASS >= 4:
-        horn_bands(s)
     else:
         spires(s)
+    if PASS >= 4:
+        horn_bands(s)
     keep(s)
     keep_collars(s)
     if PASS >= 2:
@@ -1026,21 +1158,31 @@ def build():
     hall(s)
     if PASS >= 2:
         hall_facade(s)
-    bridge(s)
+    if PASS >= 5:
+        bridge2(s)
+    else:
+        bridge(s)
     rim_wall(s, h, r, th)
     if PASS >= 2:
         rim_facade(s, r, th)
     gate(s)
     if PASS >= 3:
         fang_crowns(s)
-    processional(s, h)
-    barbican(s, h)
-    road(s, h)
+    if PASS >= 5:
+        throat_steps(s)
+        processional2(s, h)
+        barbican(s, h)
+        road2(s, h)
+    else:
+        processional(s, h)
+        barbican(s, h)
+        road(s, h)
     breach_fall(s)
     interiors(s)
     if PASS >= 4:
         weather(s)
     cameras(s)
+    s.meta.pop("_bridge_prof", None)
     s.meta.pop("_edge", None)
     s.meta.pop("_flow", None)
     s.meta["zones"] = ZONES
@@ -1060,6 +1202,9 @@ def cameras(s):
     s.mark("cam_bailey", (int(bx), DECK + 1, int(bz)), look_at=(104, 150, 100))
     s.mark("cam_maw", (104, ground_y(s, 104, ZF + 16), ZF + 16), look_at=(104, GATE_F + 20, ZF))
     s.mark("cam_heart", (104, DECK + 1, CZ + 5), look_at=(104, 100, 100.5))
+    if "_bridge_prof" in s.meta:
+        bz = ZB - 2
+        s.mark("cam_bridge", (104, s.meta["_bridge_prof"][bz] + 1, bz), look_at=(104, DECK + 8, ZP - 4))
     s.mark("cam_hall", (104, DECK + 1, HALL[3] - 3), look_at=(104, DECK + 6, HALL[2]))
     s.mark("cam_ash_west", (14, ground_y(s, 14, 112), 112), look_at=(60, 40, 96))
     s.mark("cam_ash_ne", (166, ground_y(s, 166, 40), 40), look_at=(104, 90, 100))

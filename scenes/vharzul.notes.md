@@ -74,3 +74,16 @@ Weakest three (P4 sheet):
 2. Outer ring: NE fumaroles are yellow boxes at eye level, rim fangs and spears are one repeated cone, the ash plain is
    flat noise, the island edge is a straight cut.
 3. Night read: no fixtures at all; the throne lantern is dark; rooms are black.
+
+## P5: bridges, stairs, approaches
+Fixed (P4 weakest #1, the stair was a dark ramp):
+- **The Tongue** (`processional2`): a 5-block threshold landing under the archivolts, then flights of 7, 7 and 6 with 3-deep landings. Every step is a real stair block (`lay_steps`: a stair where the next column down is exactly one lower), so the whole run is walkable without jumping. Pale polished-tuff flanks, a cinnabar runner pouring out of the Maw down the centre, tuff-wall parapets, and parapet gaps at each landing onto pedestals with a sulfur cap and a bone thorn.
+- **Pyre road** (`road2`): pale tread with dark kerbs, basalt spear posts with bone tips every 5 blocks. The Pylons moved to stair foot + 9 so they stay on the island tip, and the spawn stays on the ground.
+- **Ember Bridge** (`bridge2`): two pointed spans on piers over the lava, from the throat (GATE_I) up to the Forge Hall door (DECK). Stepped deck with stairs and a runner, merlon parapets, and a sulfur string course. New marker `cam_bridge`.
+- `throat_steps`: the Maw's rising throat is stairs, not a slope.
+- Build-order bug: `spires()` also ran at PASS 3. Fixed.
+
+Weakest three now:
+1. Outer ring: fumaroles read as yellow boxes, the rim spikes are repetitive cones, the ash plain is flat, and the island edge is a plain extrusion (cam_ash_ne, cam_breach).
+2. No fixtures and no night read: the interiors are black, there are no lamps on the Tongue or the bridge, and the throne lantern is dark.
+3. The cinnabar runner is a flat, single-texture field and the steps are monotone. It needs edge trim and lamp posts on the landings (P7).
