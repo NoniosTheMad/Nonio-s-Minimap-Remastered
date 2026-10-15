@@ -464,9 +464,18 @@ def snbt(v):
         return "[" + ",".join(snbt(x) for x in v) + "]"
     return "{" + ",".join(f"{k}:{snbt(x)}" for k, x in v.items()) + "}"
 
+def _devnav_snapshot(d):
+    """{relative path: bytes} of every file under the shared devnav pack dir, for a before/after content compare."""
+    return {f.relative_to(d).as_posix(): f.read_bytes() for f in d.rglob("*") if f.is_file()} if d.exists() else {}
+
 def write_devnav(reg=None):
-    """Shared devnav pack (junctioned into every server). Static: per-registry content lives in storage (daemon)."""
+    """Shared devnav pack (junctioned into every server): a pure function of this code (no registry data in it), so its
+    content only ever changes right after a code upgrade (daemon self-restart or a manual `mcdev nav`). When it does,
+    and `reg` is given, every already-up server is /reloaded before anything pushes dialogs that dispatch to the new
+    functions (#9fb6bad: list_pg/list_ev existed in storage but weren't loaded yet on servers already running ->
+    "Unknown function devnav:list_pg"). Sleeping/down/archived servers just pick it up at their next start."""
     d = STATE / "devnav"
+    before = _devnav_snapshot(d)
     fn = d / "data" / "devnav" / "function"
     fn.mkdir(parents=True, exist_ok=True)
     (d / "pack.mcmeta").write_text(json.dumps({"pack": {"description": "mcdev navigation", "min_format": DATA_FORMAT, "max_format": DATA_FORMAT}}))
@@ -550,6 +559,21 @@ def write_devnav(reg=None):
     tags.mkdir(parents=True, exist_ok=True)
     for t in ("quick_actions", "pause_screen_additions"):
         (tags / f"{t}.json").write_text(json.dumps({"values": ["devnav:menu"]}))
+    changed = before != _devnav_snapshot(d)
+    if changed and reg is not None:
+        reload_devnav(reg)
+    return changed
+
+def reload_devnav(reg):
+    """devnav content really changed (write_devnav): /reload every up server now, reusing data_reload (RCON reload +
+    log error check + actionbar note), so the new devnav:* functions are loaded before dialogs that call them go out.
+    Rare in practice: devnav is a pure function of the code, so this only fires once per code upgrade."""
+    up = [n for n, s in reg.items() if s.get("status") == "up"]
+    if not up:
+        return
+    print(time.strftime("%H:%M:%S"), f"devnav changed, reloading: {', '.join(up)}", flush=True)
+    for n in up:
+        data_reload(n, online(reg[n]))
 
 def write_self_pack(name, s, d):
     """Per-server part: the G-menu dialog (knows which server it is on)."""
@@ -743,8 +767,8 @@ def write_demo_dialogs(s, d, try_action):
 
 def refresh_nav(reg=None):
     """Rewrite the shared devnav pack. G > Servers / Archive are pushed by the daemon (Mailroom.push_ui) on registry
-    changes, so nothing is /reloaded here."""
-    write_devnav()
+    changes; write_devnav() itself /reloads up servers, but only on the rare call where its content actually changed."""
+    write_devnav(reg)
 
 
 # ---------------------------------------------------------------- resource packs + daemon
@@ -796,7 +820,8 @@ def daemon():
         print(time.strftime("%H:%M:%S"), "another daemon owns the port, exiting", flush=True)
         return
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    write_devnav()  # shared pack files of this code version (servers pick them up on their next start/reload)
+    write_devnav(load_reg())  # this code version's shared pack; reloads already-up servers if it actually changed
+    # (e.g. this is the daemon's post-upgrade self-restart, #9fb6bad)
     mail, idle, packs, datas = Mailroom(), IdleWatch(), PackWatch(), DataWatch()
     me = Path(__file__)
     my_mtime, my_change = me.stat().st_mtime, None
@@ -1758,6 +1783,10 @@ def data_reload(name, players):
         print(time.strftime("%H:%M:%S"), f"WARNING {name} reload:", e, flush=True)
     for p in players:
         actionbar(s, p, [text("Datapack reloaded", "gray")] + ([text(f" ({len(errs)} errors)", "red")] if errs else []))
+    fresh = load_reg()  # the reload can take a moment; keep devnav_sig current so DataWatch doesn't later force a
+    if fresh.get(name, {}).get("started") == s.get("started"):  # restart for a divergence this reload already fixed
+        fresh[name]["devnav_sig"] = devnav_signature()
+        save_reg(fresh)
 
 def sleep_server(name, started):
     reg = sync_status(load_reg())
