@@ -2,5 +2,5 @@ Your role: does each class feel like V2's, at its price?
 Check:
 - Buy each one: kit and price right?
 - Ninja armour pop-off, Berserker axe-only armour: keep?
-- Monster, Balrog vs "Mob wave": too strong for the price?
-- Flask strength and cooldowns ("Reset class cooldowns").
+- Monster (short reach, no knockback), Balrog (slow lash, wall climb): too strong?
+- Flasks stay in hand on a cooldown ("Reset class cooldowns").

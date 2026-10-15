@@ -34,6 +34,13 @@
           "amount": 0.15,
           "operation": "add_value",
           "slot": "head"
+         },
+         {
+          "type": "minecraft:knockback_resistance",
+          "id": "nonios:monster_kb",
+          "amount": 0.8,
+          "operation": "add_value",
+          "slot": "head"
          }
         ],
         "minecraft:enchantments": {

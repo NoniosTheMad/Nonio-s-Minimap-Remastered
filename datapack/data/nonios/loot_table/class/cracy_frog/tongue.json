@@ -92,6 +92,95 @@
           "minecraft:dyed_color",
           "minecraft:unbreakable"
          ]
+        },
+        "minecraft:use_remainder": {
+         "id": "minecraft:slime_ball",
+         "count": 1,
+         "components": {
+          "minecraft:max_stack_size": 1,
+          "minecraft:attribute_modifiers": [
+           {
+            "type": "minecraft:attack_damage",
+            "id": "minecraft:base_attack_damage",
+            "amount": 2,
+            "operation": "add_value",
+            "slot": "mainhand"
+           },
+           {
+            "type": "minecraft:attack_speed",
+            "id": "minecraft:base_attack_speed",
+            "amount": -2.0,
+            "operation": "add_value",
+            "slot": "mainhand"
+           }
+          ],
+          "minecraft:use_effects": {
+           "can_sprint": true,
+           "speed_multiplier": 1.0
+          },
+          "minecraft:consumable": {
+           "consume_seconds": 0.35,
+           "animation": "toot_horn",
+           "sound": "minecraft:entity.frog.ambient",
+           "has_consume_particles": false
+          },
+          "minecraft:use_cooldown": {
+           "seconds": 7,
+           "cooldown_group": "nonios:frog_ribbit"
+          },
+          "minecraft:enchantments": {
+           "nonios:class/frog_tongue": 1,
+           "minecraft:vanishing_curse": 1
+          },
+          "minecraft:custom_data": {
+           "nx_cls": "cracy_frog",
+           "nx_item": "cracy_frog_tongue",
+           "nx_cls_item": true,
+           "nx_gear": "weapon"
+          },
+          "minecraft:unbreakable": {},
+          "minecraft:custom_name": {
+           "text": "Frog Tongue",
+           "color": "light_purple",
+           "italic": false
+          },
+          "minecraft:lore": [
+           {
+            "text": "Sticky. Unpredictable. Licensed.",
+            "color": "gray",
+            "italic": true
+           },
+           {
+            "text": ""
+           },
+           {
+            "text": "Right-click: tongue (12 blocks), yanks up whoever it catches",
+            "color": "dark_green",
+            "italic": false
+           },
+           {
+            "text": "Shift + right-click: RIBBIT (wind bursts all around)",
+            "color": "dark_green",
+            "italic": false
+           },
+           {
+            "text": "Hit: something random happens to someone",
+            "color": "dark_green",
+            "italic": false
+           },
+           {
+            "text": "Cracy Frog \u00b7 shop class: lost on death",
+            "color": "dark_gray",
+            "italic": false
+           }
+          ],
+          "minecraft:tooltip_display": {
+           "hidden_components": [
+            "minecraft:dyed_color",
+            "minecraft:unbreakable"
+           ]
+          }
+         }
         }
        }
       },

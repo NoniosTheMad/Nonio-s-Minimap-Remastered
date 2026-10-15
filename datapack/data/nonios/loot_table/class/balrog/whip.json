@@ -32,14 +32,14 @@
          {
           "type": "minecraft:attack_speed",
           "id": "minecraft:base_attack_speed",
-          "amount": -2.8,
+          "amount": -3.4,
           "operation": "add_value",
           "slot": "mainhand"
          },
          {
           "type": "minecraft:entity_interaction_range",
           "id": "nonios:balrog_lash",
-          "amount": 2.0,
+          "amount": 2.5,
           "operation": "add_value",
           "slot": "mainhand"
          }

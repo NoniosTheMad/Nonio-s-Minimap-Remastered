@@ -660,7 +660,7 @@
               "italic": false
             },
             {
-              "text": "Refills in 20s",
+              "text": "Cooldown 20s",
               "color": "dark_green",
               "italic": false
             }
@@ -1431,6 +1431,13 @@
                 "amount": 0.15,
                 "operation": "add_value",
                 "slot": "head"
+              },
+              {
+                "type": "minecraft:knockback_resistance",
+                "id": "nonios:monster_kb",
+                "amount": 0.8,
+                "operation": "add_value",
+                "slot": "head"
               }
             ],
             "minecraft:enchantments": {
@@ -1544,6 +1551,13 @@
                 "type": "minecraft:attack_speed",
                 "id": "minecraft:base_attack_speed",
                 "amount": -2.4,
+                "operation": "add_value",
+                "slot": "mainhand"
+              },
+              {
+                "type": "minecraft:entity_interaction_range",
+                "id": "nonios:monster_reach",
+                "amount": -1.0,
                 "operation": "add_value",
                 "slot": "mainhand"
               }
@@ -1808,14 +1822,14 @@
               {
                 "type": "minecraft:attack_speed",
                 "id": "minecraft:base_attack_speed",
-                "amount": -2.8,
+                "amount": -3.4,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
               {
                 "type": "minecraft:entity_interaction_range",
                 "id": "nonios:balrog_lash",
-                "amount": 2.0,
+                "amount": 2.5,
                 "operation": "add_value",
                 "slot": "mainhand"
               }

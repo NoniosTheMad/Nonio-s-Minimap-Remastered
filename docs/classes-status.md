@@ -15,12 +15,12 @@ Status key: **done** = playable and reviewed by the user. **built** = playable, 
 | Archer | 50 | chain armour, bow, stone tools | Hunter's Bow marks hits (glow 6 s), a quiver that refills 1 arrow / 3 s up to 16 | built (main) |
 | Miner | 80 | leather, pickaxe, night vision | night vision + mining grit, Block Pulverizer flask (haste III + glowing 8 s, 45 s cd) | built (main) |
 | Tank | 100 | iron + shield | iron + locked shield, +2 hearts, 40% knockback resistance, Ironskin flask | built (main) |
-| Ninja | 100 | armour stripped, Chunin Sandals | sandals only: fast, step-up, frost walker, light fall; Genjutsu flask (invisible + fast) | built (main) |
+| Ninja | 100 | armour stripped, Chunin Sandals | sandals only: fast, step-up, frost walker, light fall; Genjutsu flask (invisible + fast; never used up, 20 s cooldown) | built (main) |
 | Berserker | 120 | strength, speed, regen, armour stripped | #84: light axe (3 dmg, attack speed 8), axe out = Resistance IV + armour 0 + speed + no knockback; Strength I/II/III at <=75/50/25 % HP; hit = +2 hearts lifesteal (once per 1.5 s); no natural/food regeneration (food held at 17 by hidden Hunger, Saturation effects stripped) | built |
 | **Champion** | 150 | none | grows with player kills while undefeated (see below) | **new**, built |
 | Reaper | 200 | pumpkin, scythe, permanent invisibility + speed II, 3 s resistance V per kill | see below (#70/#71 rework) | built |
-| Monster | 1800 | Monster Transformation (300) / Skull (1800): devour on kill, hunger | +10 hearts, bigger, faster, claws; every kill devoured (strength, speed, heal) | built (main) |
-| Balrog | 10000 | jump boost, fire res., lava trail (bad luck, cursed, wither II), wall climb, custom sound | 150 hearts, armour 20, fireproof, cannot jump, climbs walls, wither trail. No custom sound yet (needs audio) | built (main) |
+| Monster | 1800 | Monster Transformation (300) / Skull (1800): devour on kill, hunger | +10 hearts, bigger, faster, claws with short reach, 80% knockback resistance; every kill devoured (strength, speed, heal) | built (main) |
+| Balrog | 10000 | jump boost, fire res., lava trail (bad luck, cursed, wither II), wall climb, custom sound | 150 hearts, armour 20, fireproof, cannot jump, climbs walls, 5.5-block lash at 0.6 hits/s, own aura hidden from itself, wither trail. No custom sound yet (needs audio) | built (main) |
 | Cracy Frog | free (3 "are you sure?") | frog head, Frog Skin, Frog Spring boots, Magic Broom | see below ("annoying" rework) | built |
 
 ### Reaper (rework #70/#71)

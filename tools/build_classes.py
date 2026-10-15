@@ -66,6 +66,11 @@ def item_components(cid, c, key, it):
     hidden = set(comp.get("minecraft:tooltip_display", {}).get("hidden_components", []))
     hidden |= {"minecraft:unbreakable", "minecraft:dyed_color"}
     comp["minecraft:tooltip_display"] = {"hidden_components": sorted(hidden)}
+    cons = comp.get("minecraft:consumable")
+    if cons and cons.get("consume_seconds", 1.6) < HOLD_SECONDS and "minecraft:use_remainder" not in comp:
+        # use-once class items are never used up: finishing leaves an identical copy in the hand (its use_cooldown
+        # still starts). The copy has no use_remainder of its own, so check/need_<item> swaps in a fresh one next tick.
+        comp["minecraft:use_remainder"] = {"id": it["id"], "count": 1, "components": json.loads(json.dumps(comp))}
     return comp
 
 
@@ -199,6 +204,10 @@ def build():
                     lines.append(f"function nonios:{g}/need_{key}")
                     fn(f"{g}/need_{key}", [
                         f"# {key} must stay with its owner: missing from inventory/offhand/cursor/crafting grid -> back in hand",
+                        *([f"# just used: the hand holds the use_remainder copy (no remainder of its own) -> a fresh one",
+                           *[f"execute if items entity @s {h} *[minecraft:custom_data~{{nx_item:\"{tag}\"}},!minecraft:use_remainder] run loot replace entity @s {h} loot {table}"
+                             for h in ("weapon.mainhand", "weapon.offhand")]]
+                          if "minecraft:use_remainder" in item_components(cid, c, key, it) else []),
                         f"execute if items entity @s container.* {slot_match(tag)} run return 0",
                         f"execute if items entity @s weapon.offhand {slot_match(tag)} run return 0",
                         f"execute if items entity @s player.cursor {slot_match(tag)} run return 0",
@@ -280,7 +289,7 @@ def _uses(cid, key, it, comp, hooks):
     if hold:
         lines.insert(0, "# fires every tick while right-click is held")
     else:
-        lines.insert(0, "# fires when the use finishes: the item was consumed (survival), so it is given back next tick")
+        lines.insert(0, "# fires when the use finishes: the hand keeps a use_remainder copy, refreshed next tick (class/restock -> check)")
         lines.append("scoreboard players set @s nx.cls_restock 1")
     lines.append(f"execute at @s run function nonios:class/{cid}/use_{key}")
     fn(f"class/gen/{cid}/used_{key}", lines)
