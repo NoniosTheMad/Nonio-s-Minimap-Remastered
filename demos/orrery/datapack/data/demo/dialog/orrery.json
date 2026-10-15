@@ -1,0 +1,215 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "The Orrery",
+    "color": "gold"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "width": 260,
+    "contents": {
+      "text": "Built from scenes/orrery.py",
+      "color": "gray"
+    }
+  },
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "White spawn"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 1"
+      },
+      "tooltip": {
+        "text": "South plaza"
+      }
+    },
+    {
+      "label": {
+        "text": "Black spawn"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 2"
+      },
+      "tooltip": {
+        "text": "North plaza"
+      }
+    },
+    {
+      "label": {
+        "text": "Landing"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 3"
+      },
+      "tooltip": {
+        "text": "Foot of the floating stair"
+      }
+    },
+    {
+      "label": {
+        "text": "Gate"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 4"
+      },
+      "tooltip": {
+        "text": "The Astrolabe Gate"
+      }
+    },
+    {
+      "label": {
+        "text": "Court"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 5"
+      },
+      "tooltip": {
+        "text": "Inside the ring wall"
+      }
+    },
+    {
+      "label": {
+        "text": "Gallery"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 6"
+      },
+      "tooltip": {
+        "text": "Spire deck among the rings"
+      }
+    },
+    {
+      "label": {
+        "text": "Lantern"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 7"
+      },
+      "tooltip": {
+        "text": "Top of the Spire"
+      }
+    },
+    {
+      "label": {
+        "text": "Root Grotto"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 8"
+      },
+      "tooltip": {
+        "text": "Inside the island (Route B)"
+      }
+    },
+    {
+      "label": {
+        "text": "Root Geode"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 9"
+      },
+      "tooltip": {
+        "text": "Under the island, crater floor"
+      }
+    },
+    {
+      "label": {
+        "text": "Fallen Arc"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 10"
+      },
+      "tooltip": {
+        "text": "NW crater rim"
+      }
+    },
+    {
+      "label": {
+        "text": "Observatory"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 11"
+      },
+      "tooltip": {
+        "text": "NE ruin, the perch"
+      }
+    },
+    {
+      "label": {
+        "text": "Day"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 12"
+      },
+      "tooltip": {
+        "text": "Noon light"
+      }
+    },
+    {
+      "label": {
+        "text": "Night"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 13"
+      },
+      "tooltip": {
+        "text": "See the lamps"
+      }
+    },
+    {
+      "label": {
+        "text": "Creative"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 14"
+      },
+      "tooltip": {
+        "text": "Edit blocks; the agent can pull + diff"
+      }
+    },
+    {
+      "label": {
+        "text": "Survival"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 15"
+      },
+      "tooltip": {
+        "text": "Walk the routes"
+      }
+    },
+    {
+      "label": {
+        "text": "Spectator"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.or set 16"
+      },
+      "tooltip": {
+        "text": "Fly through walls"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "text": "Close"
+    }
+  }
+}

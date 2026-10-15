@@ -18,12 +18,13 @@ def markers(s, ctx):
     s.mark("cam_hero", (196, 92, 198), look_at=(104, 136, 100))
     s.markers["cam_hero"]["fov"] = 62
     s.mark("cam_landing", (98, ground_y(s, 98, 166), 166), look_at=(104, 150, 104))
-    s.mark("cam_crater", (66, ground_y(s, 66, 134, below=60), 134), look_at=(104, 120, 104))
+    s.mark("cam_crater", (60, ground_y(s, 60, 120, below=60), 120), look_at=(104, 95, 104))     # on the inner slope
     s.mark("cam_below", (104, ground_y(s, 104, 136, below=60), 136), look_at=(104, 90, 104))
     s.markers["cam_below"]["fov"] = 85
-    s.mark("cam_gate", (104, FLOOR + 1, 150), look_at=(104, 122, 128))
+    s.mark("cam_gate", (104, FLOOR + 1, 158), look_at=(104, 127, 138))
     s.markers["cam_gate"]["fov"] = 75
-    s.mark("cam_arc", (70, 48, 85), look_at=(47, 62, 47))       # on the heath, clear of the shards
+    s.mark("cam_arc", (67, ground_y(s, 67, 67, below=60), 67), look_at=(40, 58, 40))      # on the crater rim, under the arch
+    s.markers["cam_arc"]["fov"] = 85
     s.mark("cam_observatory", (150, 113, 82), look_at=(180, 58, 69))
     s.markers["cam_observatory"]["fov"] = 50
     s.mark("cam_court", (88, FLOOR + 1, 121), look_at=(110, FLOOR + 5, 110))
@@ -73,9 +74,26 @@ def courses(s, ctx):
     ctx["courses"] = dict(stairs=up[0] + down[0], lamps=up[1] + down[1])
 
 
+def loose_dripstone(s, ctx):
+    """Hanging dripstone must reach a solid block above through its own column; any orphan (its ceiling carved away
+    by a later part) would drop as a falling block in game, so it is removed."""
+    names = s.names()
+    drip = np.array(["pointed_dripstone" in n for n in names])
+    removed = 0
+    for x, y, z in np.argwhere(drip[s.idx]):
+        yy = y + 1
+        while yy < s.shape[1] and drip[s.idx[x, yy, z]]:
+            yy += 1
+        if yy >= s.shape[1] or s.idx[x, yy, z] == 0:
+            s.set(int(x), int(y), int(z), "air")
+            removed += 1
+    ctx["loose_dripstone"] = removed
+
+
 def build(s, ctx):
     courses(s, ctx)
     n = stability.fix_soil(s)
     ctx["fix_soil"] = n
+    loose_dripstone(s, ctx)
     markers(s, ctx)
     plug_pockets(s, ctx)
