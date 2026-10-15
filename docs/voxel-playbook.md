@@ -107,6 +107,9 @@ Rules:
   P4 gets its own budget and its own critic round (P4b) on eye-level stills from inside each room, judged before the
   exterior critic rounds start. Lesson from Vharzul (2026-10-15): a strong exterior with empty, dim interiors read
   as "good enough", not good.
+- **One interior scene per room or area.** Design each room as its own small voxel scene (`scenes/<build>_<room>.py`)
+  with its own concept, render loop and critic, then compose it into the shell. Never furnish all rooms in one global
+  pass. User request #123 (Orrery: "interiors are pretty empty").
 - **Keep every sheet.** Store them as `.mcdev/voxel/out/<name>/history/<round>_<iter>_sheet.png` so the critic can see
   progress and regressions.
 
