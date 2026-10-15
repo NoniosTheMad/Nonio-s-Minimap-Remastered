@@ -2,7 +2,8 @@
 
 26.3 layout (verified with /place template on a 26.3 server): DataVersion 5023, size [x,y,z],
 palette [{id:"minecraft:oak_stairs", properties:{facing:"east",...}}, ...]  (the pre-26 Name/Properties places NOTHING),
-blocks [{pos:[x,y,z], state:i}], entities []. Cells missing from `blocks` leave the world untouched on placement."""
+blocks [{pos:[x,y,z], state:i, nbt:{id, ...}}] (nbt only on block-entity cells), entities [{pos:[dx,dy,dz] doubles,
+blockPos:[I;x,y,z], nbt:{id, ...}}] in template coordinates. Cells missing from `blocks` leave the world untouched."""
 import gzip, io, struct
 from pathlib import Path
 
@@ -39,8 +40,13 @@ _BLOCK = np.dtype([("t1", "u1"), ("n1", "S5"), ("et", "u1"), ("len", ">i4"), ("x
                    ("t2", "u1"), ("n2", "S7"), ("state", ">i4"), ("end", "u1")])
 
 
-def structure_bytes(idx, palette, include_air=True):
-    """gzip'd structure for a palette-index grid. Air written explicitly when include_air (carves); structure_void omitted."""
+def structure_bytes(idx, palette, include_air=True, be=None, entities=None):
+    """gzip'd structure for a palette-index grid. Air written explicitly when include_air (carves); structure_void omitted.
+    be: {(x,y,z): Compound with id} (template coords), entities: [{"pos": [x,y,z], "nbt": Compound}]."""
+    from .nbt import named_bytes
+    from nbtlib import Double, IntArray, List
+    be = be or {}
+    entities = entities or []
     keep = np.ones(idx.shape, bool)
     used = np.unique(idx)
     void_ids = [i for i in used if palette[i] == VOID or (not include_air and palette[i] == AIR)]
@@ -51,6 +57,15 @@ def structure_bytes(idx, palette, include_air=True):
     used = np.unique(vals)
     local = np.zeros(len(palette), np.int32)
     local[used] = np.arange(len(used))
+    if be:  # block-entity cells are written separately (variable-size records)
+        bmask = np.zeros(idx.shape, bool)
+        for (x, y, z) in be:
+            bmask[x, y, z] = True
+        sel = ~bmask[xs, ys, zs]
+        bxs, bys, bzs = xs[~sel], ys[~sel], zs[~sel]
+        xs, ys, zs, vals = xs[sel], ys[sel], zs[sel], vals[sel]
+    else:
+        bxs = bys = bzs = np.zeros(0, int)
     n = len(xs)
     rec = np.zeros(n, _BLOCK)
     rec["t1"] = 9; rec["n1"] = b"\x00\x03pos"; rec["et"] = 3; rec["len"] = 3
@@ -63,11 +78,29 @@ def structure_bytes(idx, palette, include_air=True):
     out.write(_tag(9, "palette") + bytes([10]) + struct.pack(">i", len(used)))
     for i in used:
         out.write(_palette_entry(palette[i]))
-    out.write(_tag(9, "blocks") + bytes([10 if n else 0]) + struct.pack(">i", n))
+    nb = n + len(bxs)
+    out.write(_tag(9, "blocks") + bytes([10 if nb else 0]) + struct.pack(">i", nb))
     out.write(rec.tobytes())
-    out.write(_tag(9, "entities") + bytes([0]) + struct.pack(">i", 0))
+    for x, y, z in zip(bxs.tolist(), bys.tolist(), bzs.tolist()):
+        out.write(_int_list("pos", [x, y, z]) + _tag(3, "state") + struct.pack(">i", int(local[idx[x, y, z]]))
+                  + named_bytes("nbt", be[(x, y, z)]) + b"\0")
+    out.write(_tag(9, "entities") + bytes([10 if entities else 0]) + struct.pack(">i", len(entities)))
+    for e in entities:
+        p = [float(v) for v in e["pos"]]
+        bp = [int(np.floor(v)) for v in p]
+        out.write(named_bytes("pos", List[Double]([Double(v) for v in p])) + named_bytes("blockPos", IntArray(bp))
+                  + named_bytes("nbt", e["nbt"]) + b"\0")
     out.write(b"\0")
-    return gzip.compress(out.getvalue(), 6), n
+    return gzip.compress(out.getvalue(), 6), nb + len(entities)
+
+
+def tile_extras(scene, x0, z0, tile, bes=None):
+    """Block entities and entities of one tile, in tile coordinates."""
+    bes = scene.block_entities() if bes is None else bes
+    be = {(x - x0, y, z - z0): t for (x, y, z), t in bes.items() if x0 <= x < x0 + tile and z0 <= z < z0 + tile}
+    ents = [{"pos": [e["pos"][0] - x0, e["pos"][1], e["pos"][2] - z0], "nbt": e["nbt"]} for e in scene.entities
+            if x0 <= e["pos"][0] < x0 + tile and z0 <= e["pos"][2] < z0 + tile]
+    return be, ents
 
 
 def tiles(scene, tile=64):
@@ -86,8 +119,10 @@ def write_tiles(scene, out_dir, prefix, include_air=True, tile=64):
     """Write <prefix>_<ix>_<iz>.nbt files; returns [(name, (x0, 0, z0), blocks), ...]."""
     out_dir = Path(out_dir); out_dir.mkdir(parents=True, exist_ok=True)
     res = []
+    bes = scene.block_entities()
     for ix, iz, x0, z0, sub in tiles(scene, tile):
-        data, n = structure_bytes(np.ascontiguousarray(sub), scene.palette, include_air)
+        be, ents = tile_extras(scene, x0, z0, tile, bes)
+        data, n = structure_bytes(np.ascontiguousarray(sub), scene.palette, include_air, be, ents)
         if not n:
             continue
         name = f"{prefix}_{ix}_{iz}"
@@ -128,7 +163,18 @@ def read_structure(path, name=None):
         except bs.BlockStateError as e:
             print(f"[voxel] {path}: {e} -> structure_void")
             ids.append(void)
+    from nbtlib import Compound
     for b in root["blocks"]:
         x, y, z = (int(v) for v in b["pos"])
         s.idx[x, y, z] = ids[int(b["state"])]
+        if "nbt" in b:
+            t = Compound(b["nbt"])
+            for k in ("x", "y", "z"):
+                t.pop(k, None)
+            s.be[(x, y, z)] = t
+    for e in root.get("entities", []):
+        t = Compound(e["nbt"])
+        for k in ("UUID", "Pos", "Motion"):
+            t.pop(k, None)
+        s.entities.append({"pos": [float(v) for v in e["pos"]], "nbt": t})
     return s

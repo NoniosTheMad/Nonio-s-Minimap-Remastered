@@ -100,6 +100,11 @@ def place(scene: Scene, server, at, include_air=True, tile=64, log=print):
     _forceload(srv, x0, z0, x1, z1, True)
     errors = []
     try:
+        if include_air:  # structures add entities on top of what is there: clear old decor entities in the box first
+            sel = f"x={x0},y={at[1]},z={z0},dx={X},dy={Y},dz={Z}"
+            for t in ("item_frame", "glow_item_frame", "painting", "armor_stand", "item_display", "block_display",
+                      "text_display", "item"):
+                srv.cmd(f"kill @e[type={t},{sel}]")
         for name, (tx, _, tz), n in tiles:
             r = srv.cmd(f"place template voxel:{name} {at[0] + tx} {at[1]} {at[2] + tz}")
             if "Loaded template" not in r:

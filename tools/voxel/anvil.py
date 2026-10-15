@@ -3,6 +3,7 @@
 26.3 layout: <world>/dimensions/minecraft/overworld/region/r.X.Z.mca; chunk NBT has sections[] with Y and
 block_states {palette, data}. Palette entries: "minecraft:stone" (default state) or {id, properties}; inside
 mixed lists the strings are wrapped as {"": "minecraft:stone"}. Unsaved/ungenerated chunks read as structure_void.
+Block entities come from each chunk's block_entities list, entities from <dim>/entities/r.X.Z.mca (chunk "Entities").
 Run `save-all flush` on the server first (server.pull does)."""
 import io, math, struct, zlib
 from pathlib import Path
@@ -63,8 +64,12 @@ def _unpack(longs, bits, n=4096):
     return vals.reshape(-1)[:n].astype(np.int32)
 
 
-def read_box(world, p0, p1, dimension="minecraft:overworld", name="pulled"):
-    """Inclusive world-coordinate box -> Scene (scene (0,0,0) = min corner)."""
+ENTITY_SKIP = {"minecraft:player", "minecraft:item", "minecraft:experience_orb", "minecraft:marker", "minecraft:falling_block",
+               "minecraft:arrow", "minecraft:spectral_arrow", "minecraft:trident", "minecraft:fishing_bobber"}
+
+
+def read_box(world, p0, p1, dimension="minecraft:overworld", name="pulled", entities=True):
+    """Inclusive world-coordinate box -> Scene (scene (0,0,0) = min corner), with block entities and (decor) entities."""
     lo = [min(a, b) for a, b in zip(p0, p1)]
     hi = [max(a, b) for a, b in zip(p0, p1)]
     size = [h - l + 1 for l, h in zip(lo, hi)]
@@ -83,6 +88,13 @@ def read_box(world, p0, p1, dimension="minecraft:overworld", name="pulled"):
             xa, xb = max(lo[0], cx * 16), min(hi[0], cx * 16 + 15)
             za, zb = max(lo[2], cz * 16), min(hi[2], cz * 16 + 15)
             s.idx[xa - lo[0]:xb - lo[0] + 1, :, za - lo[2]:zb - lo[2] + 1] = 0  # saved chunk: absent sections = air
+            for b in ch.get("block_entities", []):
+                bx, by, bz = int(b["x"]), int(b["y"]), int(b["z"])
+                if lo[0] <= bx <= hi[0] and lo[1] <= by <= hi[1] and lo[2] <= bz <= hi[2]:
+                    t = type(b)(b)
+                    for k in ("x", "y", "z", "keepPacked"):
+                        t.pop(k, None)
+                    s.be[(bx - lo[0], by - lo[1], bz - lo[2])] = t
             for sec in ch.get("sections", []):
                 sy = int(sec["Y"])
                 y0 = sy * 16
@@ -108,6 +120,23 @@ def read_box(world, p0, p1, dimension="minecraft:overworld", name="pulled"):
                     continue
                 s.idx[xa - lo[0]:xb - lo[0] + 1, ya - lo[1]:yb - lo[1] + 1, za - lo[2]:zb - lo[2] + 1] = \
                     grid[xa - bx0:xb - bx0 + 1, ya - by0:yb - by0 + 1, za - bz0:zb - bz0 + 1]
+    if entities:
+        edir = region_dir(world, dimension).parent / "entities"
+        ecache = {}
+        for cx in range(lo[0] >> 4, (hi[0] >> 4) + 1):
+            for cz in range(lo[2] >> 4, (hi[2] >> 4) + 1):
+                ch = _chunk_nbt(edir, cx, cz, ecache)
+                if ch is None:
+                    continue
+                for e in ch.get("Entities", []):
+                    if str(e.get("id")) in ENTITY_SKIP:
+                        continue
+                    px, py, pz = (float(v) for v in e["Pos"])
+                    if lo[0] <= px < hi[0] + 1 and lo[1] <= py < hi[1] + 1 and lo[2] <= pz < hi[2] + 1:
+                        t = type(e)(e)
+                        for k in ("UUID", "Pos", "Motion"):
+                            t.pop(k, None)
+                        s.entities.append({"pos": [px - lo[0], py - lo[1], pz - lo[2]], "nbt": t})
     if missing:
         print(f"[voxel] {missing} chunk(s) not saved/generated in the box -> structure_void")
     s.meta["origin"] = lo

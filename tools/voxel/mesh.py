@@ -6,6 +6,7 @@ from PIL import Image
 from . import blockstate as bs
 from .models import DVEC, INVISIBLE, bank
 from .noise import hash01
+from . import special
 
 # Plains-ish biome tints (the game samples colormaps per biome; one fixed biome is enough for critique).
 GRASS, FOLIAGE, WATER = (0x91, 0xBD, 0x59), (0x77, 0xAB, 0x2F), (0x3F, 0x76, 0xE4)
@@ -47,6 +48,12 @@ class TextureArray:
         return i
 
     def _load(self, name):
+        if name.startswith("@"):
+            from .special import load
+            img = load(name)
+            if img is not None:
+                return img
+            name = "missing"
         f = self.root / "textures" / (name + ".png")
         if not f.exists():
             chk = np.zeros((16, 16, 4), np.uint8); chk[..., 3] = 255
@@ -102,7 +109,7 @@ def build(scene, origin=(0, 0, 0), ao=True, vtint=None):
 
     P, UV, L, N, C, A, TR = [], [], [], [], [], [], []
     for k, state in enumerate(pal):
-        if not counts[k] or names[k] in INVISIBLE:
+        if not counts[k] or names[k] in INVISIBLE or (special.kind(names[k]) and special.kind(names[k]) != "bell"):
             continue
         lin = order[starts[k]:starts[k + 1]]
         pos = np.stack(np.unravel_index(lin, scene.shape), 1).astype(np.int32)
@@ -145,6 +152,7 @@ def build(scene, origin=(0, 0, 0), ao=True, vtint=None):
                 else:
                     A.append(np.ones((len(pp), 4), np.float32))
                 TR.append(np.full(len(pp), tex.kind[layers[i]] == 2))
+    _extras(scene, pal, names, counts, order, starts, tex, vtint, P, UV, L, N, C, A, TR)
     m = Mesh()
     m.tex = tex
     if not P:
@@ -167,6 +175,43 @@ def build(scene, origin=(0, 0, 0), ao=True, vtint=None):
     m.idx = tri[~TR].ravel()
     m.tidx = tri[TR].ravel()
     return m
+
+
+def _extras(scene, pal, names, counts, order, starts, tex, vtint, P, UV, L, N, C, A, TR):
+    """Block-entity geometry (chests, banners, heads, pots, shulkers, bell bodies) and entities (frames, paintings,
+    armour stands): special.py quads appended to the same arrays."""
+    def add(q, off, cell):
+        if q is None or not len(q):
+            return
+        n = len(q)
+        layers = np.array([tex.layer(t) for t in q.tex], np.float32)
+        P.append(q.pos + np.asarray(off, np.float32))
+        UV.append(q.uv)
+        L.append(np.repeat(layers[:, None], 4, 1))
+        N.append(np.repeat(q.shade[:, None], 4, 1))
+        col = np.ones(3, np.float32)
+        if vtint is not None and cell is not None:
+            c = np.clip(np.array(cell), 0, np.array(scene.shape) - 1)
+            col = col * vtint[c[0], c[1], c[2]]
+        C.append(np.broadcast_to(col, (n, 4, 3)))
+        A.append(np.ones((n, 4), np.float32))
+        TR.append(np.array([tex.kind[int(l)] == 2 for l in layers]))
+
+    cache = {}
+    for k, state in enumerate(pal):
+        if not counts[k] or not special.kind(names[k]):
+            continue
+        lin = order[starts[k]:starts[k + 1]]
+        for x, y, z in np.stack(np.unravel_index(lin, scene.shape), 1):
+            be = scene.be.get((int(x), int(y), int(z)))
+            key = (state, str(be) if be is not None else "")
+            if key not in cache:
+                cache[key] = special.block_quads(state, be)
+            add(cache[key], (x, y, z), (x, y, z))
+    for e in scene.entities:
+        r = special.entity_quads(e)
+        if r:
+            add(r[0], (0, 0, 0), r[1])
 
 
 def _ao(occ, v, n):

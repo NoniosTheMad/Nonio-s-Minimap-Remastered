@@ -191,7 +191,7 @@ def main(argv=None):
         print(d.summary(origin=o))
         od = out_dir(s.name) / "diff"
         od.mkdir(exist_ok=True)
-        if d.n:
+        if d.n or d.n_extra:
             pf = d.write_patch(od / "patch.json")
             print(f"[voxel] patch {pf}")
             if args.patch:
@@ -199,12 +199,14 @@ def main(argv=None):
                 if not src or not src.endswith(".py"):
                     raise SystemExit("--patch needs a .py scene")
                 tgt = Path(src).with_suffix(".patch.json")
-                merged = {tuple(c[:3]): c for c in (json.loads(tgt.read_text()) if tgt.exists() else [])}
-                merged.update({tuple(c[:3]): c for c in d.patch()})
+                old = json.loads(tgt.read_text()) if tgt.exists() else []
+                merged = {tuple(c[:3]): c for c in old if isinstance(c, list)}
+                merged.update({tuple(c[:3]): c for c in d.patch() if isinstance(c, list)})
+                ents = [c for c in old if isinstance(c, dict)] + [c for c in d.patch() if isinstance(c, dict)]
                 from .diff import write_patch_list
-                write_patch_list(tgt, list(merged.values()))
+                write_patch_list(tgt, list(merged.values()) + ents)
                 print(f"[voxel] wrote {tgt} (applied on every build; fold it into the scene code, then delete it)")
-            if not args.no_render:
+            if not args.no_render and d.n:
                 res = d.render(od, only=["iso", "top"])
                 print(f"[voxel] diff views: {res.get('sheet')}")
 

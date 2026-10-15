@@ -6,7 +6,14 @@
     s.mark("spawn_white", (10, 21, 48), look_at=(48, 25, 48))
 
 Axes are idx[x, y, z] (x = east, y = up, z = south), scene-local; the scene's (0,0,0) lands at the placement origin.
-Index 0 is always air. "minecraft:structure_void" means "not part of the build" (placement leaves the world as is)."""
+Index 0 is always air. "minecraft:structure_void" means "not part of the build" (placement leaves the world as is).
+
+Block entities and entities (v2):
+    s.set(x, y, z, "chest[facing=south]", nbt=nbt.chest([nbt.item("apple", 3)]))      # s.be[(x, y, z)] = Compound
+    s.entity(nbt.item_frame(nbt.item("iron_sword"), facing="south"), (x + .5, y + .5, z + .03))
+s.be holds block entity data by cell; an entry whose cell no longer holds a matching block is dropped on export
+(block_entities()). s.entities is a list of {"pos": [x, y, z] (scene coords, floats), "nbt": Compound with id}.
+Both follow stamp / transformed / crop / save / load."""
 import json
 from pathlib import Path
 
@@ -30,6 +37,8 @@ class Scene:
         self.seed = seed
         self.markers = {}   # name -> {"pos": [x,y,z], "yaw": deg|None, "look_at": [x,y,z]|None}
         self.meta = {}      # free-form (e.g. {"origin": [x, y, z]} suggested placement)
+        self.be = {}        # (x, y, z) -> nbtlib Compound (block entity data, without x/y/z/id)
+        self.entities = []  # [{"pos": [x, y, z], "nbt": Compound with "id"}]
 
     # ------------------------------------------------------------ palette
     @property
@@ -140,9 +149,46 @@ class Scene:
             m[lo[0] + 1:hi[0], lo[1] + 1:hi[1], lo[2] + 1:hi[2]] = False
         return self.fill(m, spec, replace)
 
-    def set(self, x, y, z, state):
+    def set(self, x, y, z, state, nbt=None):
+        """One block; nbt = block entity data (SNBT / Compound / tools.voxel.nbt builder)."""
         if 0 <= x < self.shape[0] and 0 <= y < self.shape[1] and 0 <= z < self.shape[2]:
             self.idx[x, y, z] = self.id(state)
+            k = (int(x), int(y), int(z))
+            if nbt is not None:
+                from .nbt import to_tag
+                self.be[k] = to_tag(nbt)
+            elif k in self.be:
+                del self.be[k]
+
+    def set_nbt(self, pos, nbt):
+        from .nbt import to_tag
+        self.be[tuple(int(v) for v in pos)] = to_tag(nbt)
+
+    def entity(self, nbt, pos):
+        """Add an entity (Compound with "id", e.g. nbt.painting(...)) at scene position pos (floats, block units)."""
+        from .nbt import to_tag
+        t = to_tag(nbt)
+        if "id" not in t:
+            raise ValueError("entity nbt needs an id")
+        self.entities.append({"pos": [float(v) for v in pos], "nbt": t})
+        return t
+
+    def block_entities(self):
+        """{(x,y,z): Compound with id} for cells whose block carries a block entity. Stale entries (the block was
+        overwritten later) are skipped."""
+        from .nbt import be_id
+        from nbtlib import String
+        out = {}
+        for (x, y, z), t in self.be.items():
+            if not (0 <= x < self.shape[0] and 0 <= y < self.shape[1] and 0 <= z < self.shape[2]):
+                continue
+            i = be_id(self._names[self.idx[x, y, z]])
+            if i is None:
+                continue
+            t = type(t)(t)
+            t["id"] = String(i)
+            out[(x, y, z)] = t
+        return out
 
     def line(self, p0, p1, spec, radius=0.0):
         from .shapes import capsule
@@ -194,6 +240,18 @@ class Scene:
             ok &= src != 0
         dst = self.idx[b0[0]:b0[0] + n[0], b0[1]:b0[1] + n[1], b0[2]:b0[2] + n[2]]
         dst[ok] = ids[ok]
+        # block entities: drop ours under written cells, then copy the module's
+        for k in [k for k in self.be if all(b0[i] <= k[i] < b0[i] + n[i] for i in range(3))
+                  and ok[k[0] - b0[0], k[1] - b0[1], k[2] - b0[2]]]:
+            del self.be[k]
+        for (mx, my, mz), t in m.be.items():
+            lx, ly, lz = mx - a0[0], my - a0[1], mz - a0[2]
+            if 0 <= lx < n[0] and 0 <= ly < n[1] and 0 <= lz < n[2] and ok[lx, ly, lz]:
+                self.be[(mx + x0, my + y0, mz + z0)] = t
+        for e in m.entities:
+            p = [e["pos"][0] + x0, e["pos"][1] + y0, e["pos"][2] + z0]
+            if 0 <= p[0] < X and 0 <= p[1] < Y and 0 <= p[2] < Z:
+                self.entities.append({"pos": p, "nbt": e["nbt"]})
         for k, v in m.markers.items():
             self.markers.setdefault(k, {**v, "pos": [p + o for p, o in zip(v["pos"], at)]})
 
@@ -212,6 +270,12 @@ class Scene:
         out.idx = np.zeros(idx.shape, np.uint16)
         remap = np.array([out.id(p) for p in pal], np.uint16)
         out.idx = remap[idx]
+        from .nbt import transform_entity
+        for (x, y, z), t in self.be.items():
+            px, _, pz = self._tf_point((x + 0.5, y, z + 0.5), k, mirror)
+            out.be[(int(px), y, int(pz))] = t
+        for e in self.entities:
+            out.entities.append({"pos": list(self._tf_point(e["pos"], k, mirror)), "nbt": transform_entity(e["nbt"], k, mirror)})
         for name, mk in self.markers.items():
             out.markers[name] = {**mk, "pos": list(self._tf_point(mk["pos"], k, mirror))}
             if mk.get("look_at"):
@@ -241,6 +305,12 @@ class Scene:
         for i in u:
             remap[i] = out.id(self.palette[i])
         out.idx = remap[sub]
+        for (x, y, z), t in self.be.items():
+            if all(lo[i] <= v < hi[i] for i, v in enumerate((x, y, z))):
+                out.be[(x - lo[0], y - lo[1], z - lo[2])] = t
+        for e in self.entities:
+            if all(lo[i] <= v < hi[i] for i, v in enumerate(e["pos"])):
+                out.entities.append({"pos": [v - lo[i] for i, v in enumerate(e["pos"])], "nbt": e["nbt"]})
         return out
 
     # ------------------------------------------------------------ markers
@@ -259,12 +329,16 @@ class Scene:
             remap[i] = out.id(self.palette[i])
         out.idx = remap[self.idx]
         out.markers, out.meta = dict(self.markers), dict(self.meta)
+        out.be, out.entities = dict(self.be), list(self.entities)
         return out
 
     def save(self, path):
         c = self.compacted()
-        np.savez_compressed(path, idx=c.idx, palette=np.array(json.dumps(c.palette)),
-                            info=np.array(json.dumps({"name": self.name, "markers": self.markers, "meta": self.meta})))
+        from .nbt import snbt
+        info = {"name": self.name, "markers": self.markers, "meta": self.meta,
+                "be": [[x, y, z, snbt(t)] for (x, y, z), t in sorted(self.be.items())],
+                "entities": [{"pos": e["pos"], "nbt": snbt(e["nbt"])} for e in self.entities]}
+        np.savez_compressed(path, idx=c.idx, palette=np.array(json.dumps(c.palette)), info=np.array(json.dumps(info)))
 
     @classmethod
     def load(cls, path):
@@ -275,6 +349,10 @@ class Scene:
         remap = np.array([s.id(p) for p in pal], np.uint16)
         s.idx = remap[d["idx"]]
         s.markers, s.meta = info.get("markers", {}), info.get("meta", {})
+        if info.get("be") or info.get("entities"):
+            from .nbt import to_tag
+            s.be = {(x, y, z): to_tag(t) for x, y, z, t in info.get("be", [])}
+            s.entities = [{"pos": e["pos"], "nbt": to_tag(e["nbt"])} for e in info.get("entities", [])]
         return s
 
     def __repr__(self):

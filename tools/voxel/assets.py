@@ -6,12 +6,18 @@ from pathlib import Path
 from .paths import MC_VERSION, client_jar, java, server_jar, voxel_dir
 
 PREFIXES = ("assets/minecraft/blockstates/", "assets/minecraft/models/block/", "assets/minecraft/textures/block/",
-            "assets/minecraft/textures/colormap/")
+            "assets/minecraft/textures/colormap/",
+            # v2: block entities / entities are rendered from these (chests, beds, signs, banners, heads, pots,
+            # paintings, item frames, armour stands) plus the font for sign text
+            "assets/minecraft/textures/entity/", "assets/minecraft/textures/item/", "assets/minecraft/textures/painting/",
+            "assets/minecraft/textures/trims/", "assets/minecraft/textures/font/", "assets/minecraft/items/",
+            "assets/minecraft/models/item/")
+ASSET_STAMP = ".done-v2"
 
 
 def assets_root() -> Path:
     root = voxel_dir() / "assets" / MC_VERSION
-    stamp = root / ".done"
+    stamp = root / ASSET_STAMP
     if not stamp.exists():
         jar = client_jar()
         print(f"[voxel] extracting block assets from {jar} ...")
