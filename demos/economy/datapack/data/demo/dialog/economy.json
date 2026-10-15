@@ -1,0 +1,232 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Demo: Economy",
+    "color": "gold"
+  },
+  "actions": [
+    {
+      "label": {
+        "text": "Start match",
+        "color": "green"
+      },
+      "tooltip": {
+        "text": "Joins a team if needed; 10 min preparation"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 1"
+      }
+    },
+    {
+      "label": {
+        "text": "Skip phase",
+        "color": "yellow"
+      },
+      "tooltip": {
+        "text": "Prep -> Battle -> End -> Lobby"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 2"
+      }
+    },
+    {
+      "label": {
+        "text": "Ore wall + pickaxes",
+        "color": "aqua"
+      },
+      "tooltip": {
+        "text": "Ore wall 3 blocks east; plain, Fortune I-III and Silk Touch pickaxes"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 16"
+      }
+    },
+    {
+      "label": "Status",
+      "tooltip": {
+        "text": "Match minute, money scale, your weight, interest terms"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 18"
+      }
+    },
+    {
+      "label": {
+        "text": "+100 coins",
+        "color": "gold"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 5"
+      }
+    },
+    {
+      "label": {
+        "text": "+1000 coins",
+        "color": "gold"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 6"
+      }
+    },
+    {
+      "label": {
+        "text": "Match clock +5 min",
+        "color": "aqua"
+      },
+      "tooltip": {
+        "text": "Coin weight and interest jump as if 5 minutes passed"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 17"
+      }
+    },
+    {
+      "label": {
+        "text": "Interest: +60 s",
+        "color": "aqua"
+      },
+      "tooltip": {
+        "text": "Pays one minute of interest at once (60 payouts)"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 12"
+      }
+    },
+    {
+      "label": "Go to my bank",
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 7"
+      },
+      "tooltip": {
+        "text": "Next to the pad: step on a gold plate to bank, right-click the vault to withdraw"
+      }
+    },
+    {
+      "label": "Go to the enemy bank",
+      "tooltip": {
+        "text": "Its pad and vault refuse you"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 8"
+      }
+    },
+    {
+      "label": "Go to my altar",
+      "tooltip": {
+        "text": "Plus the blocks its next step needs (right-click it)"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 19"
+      }
+    },
+    {
+      "label": "Diamond gear",
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 15"
+      }
+    },
+    {
+      "label": {
+        "text": "Simulate a kill",
+        "color": "red"
+      },
+      "tooltip": {
+        "text": "Kill reward + bounty + tier bonus for the victim profile"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 9"
+      }
+    },
+    {
+      "label": "Victim profile",
+      "tooltip": {
+        "text": "Cycle 0/0 -> 3/1 -> 6/3 (streak/tier)"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 10"
+      }
+    },
+    {
+      "label": "Enemy dummy",
+      "tooltip": {
+        "text": "Still husk on the other team"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 11"
+      }
+    },
+    {
+      "label": "Kill me",
+      "tooltip": {
+        "text": "Purse drops as a coin bag; the bank keeps its coins"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 13"
+      }
+    },
+    {
+      "label": "Switch my team",
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 4"
+      }
+    },
+    {
+      "label": {
+        "text": "Admin: Economy",
+        "color": "gold"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 14"
+      }
+    },
+    {
+      "label": {
+        "text": "Stop match",
+        "color": "red"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "trigger demo.ec set 3"
+      }
+    }
+  ],
+  "columns": 2,
+  "pause": false
+}

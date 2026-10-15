@@ -75,18 +75,22 @@ a{color:var(--accent)}
     <span class="label">Remaster · Minecraft Java 26.3 · vanilla</span>
     <h1>Nonios's Map Roadmap</h1>
     <p>Two teams, each with its own field and a Nexus of obsidian; a contested arena in between. Destroy the enemy Nexus to win. Every system rebuilt for 26.3: datapack, resource pack and shaders, no mods.</p>
-    <span class="updated">Updated 2026-10-14 · source of truth: TRACKER.md in the repo</span>
+    <span class="updated">Updated 2026-10-15 · source of truth: TRACKER.md in the repo</span>
   </header>
 
   <section class="you" aria-labelledby="you-h">
     <h2 id="you-h">Waiting on you</h2>
     <ol>
-      <li><b>Nexus barrier (★):</b> server <b>nexus</b>. Read cracks from 10–20 blocks (vanilla textures). Check hit actionbar text.</li>
-      <li><b>Shop dialog (★):</b> server <b>shop</b>. Try buying items. Check NPC, catalog, trigger buttons, and insufficient coins message.</li>
-      <li><b>Coin purse (★):</b> server <b>purse</b>. Mine blocks. Check coins earned, weight slowdown, and purse dropping to killer on death.</li>
-      <li><b>Shaders v2 (★):</b> server <b>shaders</b>. Refresh pack (<kbd>G</kbd> → <b>Refresh resource pack</b>), then <kbd>G</kbd> → <b>Demo: custom shaders</b>. Check god-ray direction, thermal colours, Cosmic at Midnight, Monster darkness.</li>
-      <li><b>Generators (★):</b> server <b>gens</b>. Watch drops, right-click a generator to collect its coins, try the upgrade buttons (<kbd>G</kbd> → demo).</li>
-      <li><b>Emerald Dream (★):</b> server <b>dream</b>. <kbd>G</kbd> → demo → Enter, mine emeralds, then hold sneak 5 s to wake up. Judge the sky, fog and islands.</li>
+      <li><b>Full main integration (★):</b> server <b>full</b> (WP-C + WP-D merged). All systems live, UI cleaned: tutorial text removed (terse diegetic only), 2×2 menu (Inbox/Servers/Feedback/Reset), compact Admin/Economy dialogs, datapack auto-reload. <b>Check:</b> game starts, menus work, G menu navigates all pages, team picker, demo gear via slot system.</li>
+      <li><b>Bank v4 (★):</b> server <b>bank4</b> (per-second interest system). <b>Test steps:</b> deposit coins, watch interest accrue (1–10% per second, min 30 cap 20/s); use gold deposit pads; check enemy cue (title or actionbar?); test quick-withdraw buttons. <b>Questions:</b> is 20/s intended? Keep/scale/drop centre node bonus? Shortfall from bank OK?</li>
+      <li><b>Gen-dream (★):</b> servers <b>gd3</b>, <b>gdream</b> (generator + Dream with centre pressure). <b>Test steps:</b> try single-block generator (if enabled); test projectile/melee barrier damage; watch Nexus centre pressure (min 20 damage/12% max) and decay; visit Dream (ruins, diamond/lapis blocks OK?). <b>Questions:</b> quadratic curve? Pressure blocks regen? Decay from battle start? Gilded blackstone OK?</li>
+      <li><b>Shaders round 6 (in progress, spike/shaders):</b> server <b>shaders</b> (NOT merged to main). <b>Current:</b> Thermal v3, Cinematic v2 live on spike/shaders (7cb6051). Round 7 in progress: Cosmic (moon/horizon bug), Planet (continuity), Angel/Monster (being prototyped offline), shader playbook. <b>Questions:</b> Thermal ironbow or white-hot? Cinematic bar size? Skip letterbox in Tiny Planet? Monster easing? Angel mote density?</li>
+      <li><b>M5 classes (★):</b> server <b>m5</b> (Reaper 200 coins + Cracy Frog free). Join: <kbd>G</kbd> → Demo or Shop. <b>Test steps:</b> buy Reaper or Cracy Frog in the shop (the Frog asks its 3 questions first); check Reaper's invisibility after a kill, the class kit coming back on respawn, the class being lost on death and at match start, the tier bonus when you kill a classed enemy, and that emeralds you pick up turn into coins. Six design questions on this page.</li>
+      <li><b>Arena v2 (★):</b> server <b>arena2</b> (V2 random-entry portals + regrowing central block). Join: <kbd>G</kbd> → Demo. <b>Test steps:</b> use the portal pad (one per team field); watch the gates (3×3, slot every 6.4 s); capture the central block (regrows with V2 odds: mostly cobble, some ore/emerald); check payouts and regrow delay. <b>Important:</b> core economy risk ~300–400 coins/min (efficiency-V pickaxe) vs generators ~72/min. Nine design questions on this page (gate location, exit, rotation, sound, prep phase, regrow timing, payout risk, extras, layout).</li>
+      <li><b>V2 shop classes (★):</b> server <b>classes2</b> (Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog). Join: <kbd>G</kbd> → Demo or Shop. <b>Test steps:</b> buy each class; check kits (tools/potions as flasks with cooldown), armour effects (Berserker/Ninja), Balrog curse (Wither II), Monster form and speed. Archer gets quiver + arrow glow. Eleven design questions on this page (Monster price split, Balrog power/curse level, flask vs potions, armour preservation, Archer extras, kit durability, Monster speed/claw/scale, head skin choice, invisible-player glow).</li>
+      <li><b>Shop v2 (★):</b> server <b>shop2</b> (84-item V2 catalog on 8 pages, archived). Join: <kbd>G</kbd> → Shop. <b>Test steps:</b> browse pages (Blocks/Ores/Food/Utility/Enchanting/Tools/Alchemy/Ammo), buy items; test enchant-in-hand (find an item that takes an enchantment, click the Enchant button; try adding an enchantment it already has, should refuse); check named items keep V2 lore ("Faker's Elixir", "Farting device", etc.); verify Shop Keeper lines appear. Ten design questions on this page (catalog layout, duplicates, V2 price scaling, Ghast Tear, button names, enchant rules, Satan's Blade, Tinkiwinki's Touch, tipped arrows, XP levels).</li>
+      <li><b>Team v2 (★):</b> server <b>team2</b> (altar, spawn defense, Emerald Talisman, Lightning Rabbit, archived). Join: <kbd>G</kbd> → Demo or visit team base. <b>Test steps:</b> sneak-right-click the respawn-anchor altar to upgrade your team's class kit; check spawn defense (walk close to enemy spawn, take damage every 0.5 s); test Emerald Talisman (wear head armor; should pay +1 coin every 3 s); try Lightning Rabbit via admin panel (G → Admin > Lightning Rabbit). Nine design questions on this page (altar timing, spawn zone depth, talisman value, dragon skull gating, Wither side effect, underground wall mechanics, recipe auto-grant).</li>
+      <li><b>Voxel platform (in progress, feat/voxel-studio):</b> world editor for structured maps. Awaiting voxel research completion (feat/voxel-research: voxel-research.md + playbook). Castle demo (≤128×128) next.</li>
     </ol>
   </section>
 
@@ -95,11 +99,11 @@ a{color:var(--accent)}
     <ol class="track">
       <li class="done"><span class="id">M0</span><span class="nm">Dev framework</span><span class="bar"></span></li>
       <li class="done"><span class="id">M1</span><span class="nm">Spikes</span><span class="bar"></span></li>
-      <li class="now"><span class="id">M2 · now</span><span class="nm">Playable core</span><span class="bar"></span></li>
-      <li><span class="id">M3</span><span class="nm">Economy</span><span class="bar"></span></li>
-      <li><span class="id">M4</span><span class="nm">Progression &amp; Arena</span><span class="bar"></span></li>
-      <li><span class="id">M5</span><span class="nm">Classes</span><span class="bar"></span></li>
-      <li><span class="id">M6</span><span class="nm">Map &amp; polish</span><span class="bar"></span></li>
+      <li class="wait"><span class="id">M2 · test</span><span class="nm">Playable core</span><span class="bar"></span></li>
+      <li class="wait"><span class="id">M3 · test</span><span class="nm">Economy</span><span class="bar"></span></li>
+      <li class="done"><span class="id">M4 · test</span><span class="nm">Progression</span><span class="bar"></span></li>
+      <li class="done"><span class="id">M5 · test</span><span class="nm">Classes</span><span class="bar"></span></li>
+      <li class="now"><span class="id">M6 · now</span><span class="nm">Map &amp; polish</span><span class="bar"></span></li>
     </ol>
   </section>
 
@@ -116,25 +120,39 @@ a{color:var(--accent)}
   </section>
 
   <section aria-labelledby="m2-h">
-    <h2 id="m2-h">M2 · Playable core (starting now)</h2>
-    <p style="color:var(--muted)">Merging M1 spikes into main; adding teams, phases, respawn, win logic, and a placeholder map.</p>
+    <h2 id="m2-h">M2 · Playable core (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">All systems merged to main: barrier + shop + purse, teams, phases, respawn, win logic, and placeholder map. Solo test w/ dummies on server <b>m2</b> (★).</p>
     <ul class="items">
-      <li><span class="pill p-now">In progress</span><span class="what">Merge M1 spikes into main</span><span class="why">Barrier, shop, purse, and text-box feedback integrated. Resolve tick.json/load.json conflicts.</span></li>
-      <li><span class="pill p-now">In progress</span><span class="what">Teams &amp; match phases</span><span class="why">Team assignment, Pre-match, Arena, Post-match (win screen). Spectator mode.</span></li>
-      <li><span class="pill p-todo">Queued</span><span class="what">Respawn &amp; keepInventory</span><span class="why">Reconcile with class kits and bank + kill reward.</span></li>
-      <li><span class="pill p-todo">Queued</span><span class="what">Placeholder map</span><span class="why">Two team bases, Nexus rooms, contested arena. Flat or imported V2? Decide before M6.</span></li>
-      <li><span class="pill p-wait">Your test</span><span class="what">Emerald Dream demo</span><span class="why">Custom dimension with floating islands, random arrivals, 10 regrowing veins, 5 s sneak-exit. Lore from V2.</span></li>
-      <li><span class="pill p-done">Done</span><span class="what">Resource generators spike demo</span><span class="why">V2.0 structures via /place template, emerald outcomes → coin pot, data-driven, loot from V2 dispenser odds.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Merge M1 spikes (barrier, shop, purse)</span><span class="why">All conflicts resolved; text-box feedback integrated. Deployed to main (051fbcc).</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Teams white/black &amp; match phases</span><span class="why">Lobby → prep (1 min, barrier lockdown) → battle → end (win screen). Spectator on last life.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Respawn with keepInventory ON</span><span class="why">Keep_inventory enabled. Respawn kit hook wired for classes. Admin panel via /function nonios:admin.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Win check &amp; stats</span><span class="why">Nexus destroyed = team wins. Kill counts, damage dealt, coins earned tracked and shown.</span></li>
+      <li><span class="pill p-done">Done</span><span class="what">Placeholder map &amp; reset</span><span class="why">Two team bases, Nexus rooms, contested arena. Fresh copy on each return to lobby.</span></li>
     </ul>
+  </section>
+
+  <section aria-labelledby="m3-h">
+    <h2 id="m3-h">M3 · Economy (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">Bank dialog, interest accrual, kill rewards. All merged to main.</p>
+  </section>
+
+  <section aria-labelledby="m4-h">
+    <h2 id="m4-h">M4 · Progression (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">Generators per field (3 levels, team-wide upgrades), arena nodes (battle-phase capture), Emerald Dream (shared dimension, team portal). All merged to main (28e83b7). Demo server m4 (★).</p>
+  </section>
+
+  <section aria-labelledby="m5-h">
+    <h2 id="m5-h">M5 · Classes (built, awaiting your test)</h2>
+    <p style="color:var(--muted)">Reaper (200 coins, 4 s post-kill invisibility) and Cracy Frog (free, 3-question confirmation chain) in shop. Death/respawn hooks wired; kill tier set by class; classes reset at match start. Coin exploit fixed. All merged to main (5850661). Demo server m5 (★).</p>
   </section>
 
   <section aria-labelledby="ahead-h">
     <h2 id="ahead-h">What each milestone delivers</h2>
     <dl>
       <dt>M3 · Economy</dt><dd>Coins and their weight, the bank, kill rewards and the full shop.</dd>
-      <dt>M4 · Progression &amp; Arena</dt><dd>Field upgrades, generators, arena events, and the Emerald Dream dimension.</dd>
-      <dt>M5 · Classes</dt><dd>Basic classes picked on respawn and upgraded team-wide; one-time shop classes with their own tools and shaders. Reaper and Cracy Frog end-to-end (in progress).</dd>
-      <dt>M6 · Map &amp; polish</dt><dd>The new map build, sounds, textures, balance and playtests.</dd>
+      <dt>M4 · Progression</dt><dd>Generators (one per field, Lv1/2/3 upgrades at 200/500 coins), arena (3 nodes in battle phase), Emerald Dream (shared dimension, 1000-coin team unlock). Anyone can collect generator pots; only owner team upgrades. Built and ready for test.</dd>
+      <dt>M5 · Classes</dt><dd>Reaper (200 coins, 4 s post-kill invisibility, −10 HP +6 armour) and Cracy Frog (free, 3-question lore chain, frog vision permanent) in the shop. Death/respawn hooks wired; kill tier set by class. Coin exploit fixed. V2 classes in progress (Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog).</dd>
+      <dt>M6 · Map &amp; polish</dt><dd>The new map build, sounds, textures, balance and playtests. Arena v2 features (random portals, regrowing central block) also in progress.</dd>
     </dl>
   </section>
 
@@ -161,6 +179,99 @@ a{color:var(--accent)}
     <section aria-labelledby="open-h">
       <h2 id="open-h">Still open</h2>
       <dl>
+        <dt><b>#48: Centre pressure / decay target:</b></dt><dd>Was pressure/decay (in gen-dream) meant for the Nexus barrier (as built) or the prep walls that drop at battle start? Clarify intent.</dd>
+        <dt><b>Single-block generator default:</b></dt><dd>Should single-block generator mode (currently off by default) become the default?</dd>
+        <dt><b>Archive candidates:</b></dt><dd>Which superseded demos should be archived — m2, econ, arena, gens, classes, m5, arena2, team2, econ3, shop3, bank4?</dd>
+        <dt><b>Dream sneak-to-wake hint:</b></dt><dd>Does Dream sneak-to-exit need a diegetic hint (visual/audio cue, title, actionbar)?</dd>
+        <dt><b>Main menu goal line:</b></dt><dd>Should the original objective line ("Break the enemy Barrier, then mine their Nexus") come back to the title/main menu?</dd>
+        <dt><b>#46 wake: SessionStart hook:</b></dt><dd>Approve the SessionStart hook for headless triage runs (budget estimation, triage-only or small fixes)? Approval threshold?</dd>
+        <dt style="background: var(--wait-soft); padding: 6px"><b>Bank v4 mechanics:</b></dt><dd style="background: var(--wait-soft); padding: 6px">Is 20 coins/s interest rate intended? Keep/scale/drop centre node interest bonus? Withdraw presets OK? Should shop take shortfall from bank? Enemy cue as title or actionbar?</dd>
+        <dt><b>Gen-dream pressure curve:</b></dt><dd>Quadratic scaling, 5 min to full rate, 12% max/min? Should pressure block regen? Decay clock from battle start? Diamond/lapis in Dream OK? Ruins count/loot? Gilded blackstone as single generator block?</dd>
+        <dt><b>Shaders round 6 tuning:</b></dt><dd>Thermal ironbow or white-hot? Cinematic bar size? Should Planet skip letterbox bars in Tiny Planet? Thermal hot chests/signs OK? Monster easing speed? Angel mote density? Carry sky/marker codes into game pack?</dd>
+        <dt><b>Castle demo style:</b></dt><dd>Default aesthetic (weathered late-medieval stone keep) — accept or change?</dd>
+        <dt><b>M3 Economy:</b> Interest rate</dt><dd>Suggested: 2%/60 s (V2 was 0.5%). How fast should vault interest accrue?</dd>
+        <dt>M3: Teammate full withdraw</dt><dd>Suggested: yes, announced. Can any teammate access and fully withdraw from shared vault?</dd>
+        <dt>M3: Interest during prep</dt><dd>Suggested: yes. Should interest accrue while team is preparing (not just during battle)?</dd>
+        <dt>M3: Bounty formula</dt><dd>Suggested: +10×streak from 3+ kills, max 150. How should kill streak multiply the bounty?</dd>
+        <dt>M3: Base reward (no-team victims)</dt><dd>What does a killer earn if their victim had no team? Edge case reward?</dd>
+        <dt>M3: Tier bonus by class</dt><dd>Suggested: yes. Do class tiers set bonus tier (+20/+90/+190)? Or override it?</dd>
+        <dt>M3: Enemy can't see your bank</dt><dd>Suggested: yes. Should opposing team see vault deposits/balance or only their own?</dd>
+        <dt>M2/M3: Class respawn kits</dt><dd>Keep_inventory ON. Classes will add custom kits. Hook wired? Collision with bank + kill reward?</dd>
+        <dt>M2/M3: Skip phase = draw</dt><dd>If a team skips a phase during battle, does the match end as a draw? (Suggested: yes.)</dd>
+        <dt>M2/M3: Admin access</dt><dd>Op runs <code>/function nonios:admin</code> once. Wires the admin UI. Correct? (Built.)</dd>
+        <dt>M2/M3: Late joiners</dt><dd>Players joining mid-match spectate until picking a team. Correct? (Suggested: yes.)</dd>
+        <dt>M2/M3: Black team colour</dt><dd>Team colour in UI/cosmetics: dark_purple or light_purple? (Pick one.)</dd>
+        <dt>M2/M3: Shop catalog</dt><dd>What items and pricing for the placeholder shop? (Test data built.)</dd>
+        <dt>M2/M3: Full inventory strictness</dt><dd>Refuses purchases even when a matching stack has room? (Suggested: yes, strict.)</dd>
+        <dt>M2/M3: Map reset cycle</dt><dd>Fresh copy pulled at each return to lobby. Correct? (Suggested: yes.)</dd>
+        <dt>M2/M3: Prep lockdown</dt><dd>Barrier plane + 1 Hz pushback keeps teams confined during prep. Physics OK? (Built.)</dd>
+        <dt><b>M5 Classes in the match:</b> emerald value</dt><dd>Current: picking up an emerald gives 5 coins, an emerald block 45; mining a placed emerald block pays 100; placing while broke becomes debt. Should arena/Frog emerald blocks be worth 100 like Dream blocks?</dd>
+        <dt>M5: Shop roster</dt><dd>Current: only finished classes appear. Hide the rest, or show them greyed out?</dd>
+        <dt>M5: Kill tier</dt><dd>Current: V2 tiers for shop classes; a basic class counts as team class level − 1.</dd>
+        <dt>M5: Warrior</dt><dd>Current: the free basic class, not sold. V2 sold it for 60. Basic, shop, or both?</dd>
+        <dt>M5: Match reset</dt><dd>Current: everyone loses their class at match start and in the lobby; team class levels back to 1.</dd>
+        <dt>M5: Switching shop class</dt><dd>Current: buying another class replaces yours with no refund; re-buying your own is refused.</dd>
+        <dt><b>M4 Progression:</b> Generator pot collection</dt><dd>Current: anyone can collect any generator's coins; only owning team upgrades. Enemy raid incentive or restrict to owner?</dd>
+        <dt>M4: Upgrade + portal payment</dt><dd>Current: from purse only, not bank. Bank-vs-purse for big purchases (portal 1000, upgrades 200/500)?</dd>
+        <dt>M4: Pad entry after payment</dt><dd>Current: direct entry, no dialog. After paying portal cost, team enters Dream directly or show confirmation?</dd>
+        <dt>M4: Arena lightning toggle</dt><dd>Current: off by default. Should Lightning Rabbit event start with battle or stay off?</dd>
+        <dt>M4: Dream vein reset</dt><dd>Current: veins not reset between matches. Reset veins on each Dream visit or keep per-match state?</dd>
+        <dt>M4: Admin panel dream_cost</dt><dd>Noted: not yet in admin UI. Should dream_cost (emerald block value) be admin-tunable?</dd>
+        <dt>M4: Generator upgrade discovery</dt><dd>Current: sneak-click to upgrade, no in-game hint. Is sneak-upgrade action discoverable enough without tutorial?</dd>
+        <dt>M4: Generator + pad placement</dt><dd>Noted: placeholder. Final placement on actual map to be decided in M6.</dd>
+        <dt><b>Arena:</b> Capture time</dt><dd>Suggested: 10 s solo, faster with 3+ team-mates. How long to capture a contested node?</dd>
+        <dt>Arena: Contested behaviour</dt><dd>Suggested: freeze. When both teams are in a node, what happens — frozen, no progress, or other?</dd>
+        <dt>Arena: Payout interval</dt><dd>Suggested: every 30 s. How often are coins/resources awarded for held nodes?</dd>
+        <dt>Arena: Payout method</dt><dd>Suggested: loot drops (on ground). Payouts as drops or to team bank?</dd>
+        <dt>Arena: Lightning Rabbit</dt><dd>Suggested: yes, 100 HP. Bring back V2 Lightning Rabbit mob during events? Health cap?</dd>
+        <dt>Arena: Events schedule</dt><dd>Suggested: first at 3 min, then every 5 min. When do weighted events start, then repeat?</dd>
+        <dt>Arena: Node forceloading</dt><dd>Suggested: yes. Should nodes stay loaded even when no players are near?</dd>
+        <dt>Arena: Portals + central block</dt><dd>Suggested: yes, later. Bring back V2 random-entry arena portals + regrowing central block. When?</dd>
+        <dt><b>Classes:</b> Reaper invisibility</dt><dd>Suggested: 4 s after each kill (V2 was permanent). Duration of post-kill invisibility buff?</dd>
+        <dt>Classes: Keep the "Scyce" typo</dt><dd>Suggested: yes. Archaic spelling in lore; keep for authenticity?</dd>
+        <dt>Classes: Reaper HP + armour</dt><dd>Suggested: −10 HP, +6 armour (V2 was −14/+15). Trade glass cannon for tankier?</dd>
+        <dt>Classes: Frog vision permanent</dt><dd>Suggested: yes. While in frog form, keep vision effect always on?</dd>
+        <dt>Classes: Cracy Frog free</dt><dd>Suggested: yes, free after passing the 3-question confirmation chain. Free tier after lore check?</dd>
+        <dt>Classes: Custom textures</dt><dd>Suggested: later. Custom skins for Reaper + Frog to be added post-launch?</dd>
+        <dt><b>Arena v2:</b> Gate location</dt><dd>Current: one 3×3 gate pad per team field (placeholder). V2 had a single shared portal. One shared pad or one per team?</dd>
+        <dt>Arena v2: Exit destination</dt><dd>Current: sends back to your own team's pad. V2 sent everyone to the tower base. Keep or change?</dd>
+        <dt>Arena v2: Gate rotation</dt><dd>Current: V2 values (one random slot of 4 every 128 ticks = 6.4 s), repeats allowed. Never repeat same slot twice in a row?</dd>
+        <dt>Arena v2: Entry sound global</dt><dd>Current: yes, like V2 (end_portal.spawn for every player). Map-wide gives away entries. Keep, or local only?</dd>
+        <dt>Arena v2: Core in prep phase</dt><dd>Current: gates + core only in battle. V2's core regrew in every phase. Core in prep too?</dd>
+        <dt>Arena v2: Core regrow delay</dt><dd>Current: next 0.5 s check (V2: same tick). Add a delay (config `core_regrow`, ticks)?</dd>
+        <dt style="background: var(--wait-soft); padding: 6px"><b>Arena v2: Core economy risk</b></dt><dd style="background: var(--wait-soft); padding: 6px"><b>Current: unchanged mining payouts (ore 25, block 100) ⇒ ~7.4 coins per break; efficiency-V pickaxe ~300–400 coins/min vs generators ~72/min at Lv3.</b> Lower the core's payouts, add a regrow delay, or keep it as the arena's prize?</dd>
+        <dt>Arena v2: Extras not in V2</dt><dd>Current: emerald-block regrow chime, regrow particles, red/grey "ARENA" pad labels. Keep?</dd>
+        <dt>Arena v2: Final layout</dt><dd>Noted: 4 placeholder slots (corner landings → nearby exits) and pad positions; real arena geometry in M6.</dd>
+        <dt><b>V2 Shop Classes:</b> Monster price</dt><dd>Built: 1800. V2 sold whole Monster kit for 300, head alone for 1800. Split or unified?</dd>
+        <dt>V2 Shop: Balrog power</dt><dd>Built: 300 HP, armour 20/20, whip +14 dmg, no ×3 attack. V2 tripled all damage. Too much or too little for 10000?</dd>
+        <dt>V2 Shop: Balrog curse</dt><dd>Built: enemies only, Wither II until death/milk. V2 cursed everyone (team-mates too) with Wither III. Keep?</dd>
+        <dt>V2 Shop: Potions as flasks</dt><dd>Built: Ironskin 15 s / 60 s cd, Pulverizer 8 s / 45 s cd, Genjutsu 5 s / 20 s cd. V2 gave 1–3 one-shot potions. Keep flasks?</dd>
+        <dt>V2 Shop: Berserker armour</dt><dd>Built: axe in hand zeroes armour via attributes, armour comes back when you switch. V2 deleted all armour for good. OK?</dd>
+        <dt>V2 Shop: Ninja armour</dt><dd>Built: other armour pops back into inventory; sandals invisible; +40% speed. V2 deleted it and doubled speed. OK?</dd>
+        <dt>V2 Shop: Archer extras</dt><dd>Built: quiver refills to 16 (1 per 3 s), arrow hits make the target glow 6 s. New, not in V2. Keep?</dd>
+        <dt>V2 Shop: Kit supplies durability</dt><dd>Built: tools/blocks/food given once as normal items, not re-given. OK?</dd>
+        <dt>V2 Shop: Monster numbers</dt><dd>Built: +30% speed (V2 +100%), claws at sword speed, 15% bigger. OK?</dd>
+        <dt>V2 Shop: Monster head skin</dt><dd>Built: EnzziGaming skin by name, resolved online. Keep that skin or pick another?</dd>
+        <dt>V2 Shop: Invisible player glow</dt><dd>Not ported. V2 made every invisible non-Ninja/Reaper glow. Bring back?</dd>
+        <dt><b>V2 Shop Catalog:</b> Page layout</dt><dd>Current: first page = section menu; pages Blocks, Ores, Food, Utility, Enchanting, Tools, Alchemy, Ammo (each with V2's Shop Keeper line and Back button); dialog stays open after purchase. V2's "Special" page is left out (items on Tools/Classes or not built yet: Talisman, barriers, Dragon Skull). OK?</dd>
+        <dt>V2 Shop Catalog: Duplicates</dt><dd>Current: like V2, items can sit on several pages (Golden Apple in Food + Utility, Sand/Soul Sand/Redstone in Blocks/Ores + Alchemy, Lapis in Ores + Enchanting). Keep, or one page each?</dd>
+        <dt>V2 Shop Catalog: Prices</dt><dd>Current: V2's live prices (TNT ×4 = 320, Ender Pearl 100, Totem 500, Diamond Block 12, Satan's Blade 2000). The remaster's emerald rate is 5/45 vs V2 1/20, so V2 prices are relatively cheaper now. Scale them?</dd>
+        <dt>V2 Shop Catalog: Ghast Tear</dt><dd>Current: 5 (the price V2 showed); V2 actually charged 20. OK?</dd>
+        <dt>V2 Shop Catalog: Button labels</dt><dd>Current: V2's names with spelling fixed (Oak Sapling, Bookshelf, Cobweb, Lapis Lazuli, Rabbit's Foot). Named items keep V2's names and lore exactly ("Farting device", "Faker's Elixir", "Mining boost", "Toxic dart", "He rushes this everytime..."). OK?</dd>
+        <dt>V2 Shop Catalog: Enchant in hand</dt><dd>Current: vanilla /enchant rules like V2 (item must accept it, no conflicts, already-enchanted items refused; refused = no coins taken). Tooltip: "Enchants the item in your hand." (V2: "Put the item in hand to enchant"). V2's Fortune III also handed out a Fortune III book; not copied. OK?</dd>
+        <dt>V2 Shop Catalog: Satan's Blade</dt><dd>Current: V2 stats exactly (Fire Aspect 100, Fire Protection 25, Knockback 3, Curse of Vanishing, unbreakable, +12 attack dmg, +20 max health, +4 toughness, +1 knockback resist, -0.025 speed; hidden enchantments). Its modifiers replace the sword's own, so no cooldown. Keep, or add normal attack speed?</dd>
+        <dt>V2 Shop Catalog: Tinkiwinki's Touch / Nonios's Weakness</dt><dd>Current: V2 exactly (Fortune V +10 luck / Efficiency V + Fortune X +100 luck, unbreakable; modifiers replace pickaxe's attack dmg like V2). Nonios's Weakness sends "<NoniosTheMad> Good Choice!" (V2). OK?</dd>
+        <dt>V2 Shop Catalog: Tipped arrows</dt><dd>Current: V2 effects as written (Lightning Strike = Speed IV on target, Healing Blast = Instant Health, Piercing Bolt = Instant Damage...). Vanilla divides durations ÷8 as in V2. The gap inventory's "Lightning Strike needs a projectile hook" is not built. Real lightning?</dd>
+        <dt>V2 Shop Catalog: XP ×10 levels (100)</dt><dd>Current: kept on Enchanting page. OK?</dd>
+        <dt><b>Team V2:</b> Altar costs</dt><dd>Current: team level = V2 kit number, teams start at Kit I, so altar asks 16 iron/16 gold/8 diamond blocks for Kit II and 64/64/64 for Kit III. V2's 8/8/2 step (Kit I) unused unless teams start at level 0. Config `altar_steps`. OK?</dd>
+        <dt>Team V2: Altar timing</dt><dd>Current: on each player's next respawn, as V2 "a kit each life". Or re-kit the whole team immediately?</dd>
+        <dt>Team V2: Altar style</dt><dd>Current: right-click respawn-anchor altar (own team only, takes only what is needed, partial payments kept until match ends). V2 used a chest needing exact amounts. OK?</dd>
+        <dt>Team V2: Spawn defense</dt><dd>Current: enemies within 4 blocks of spawn pad get Instant Damage II every 0.5 s (prep and battle; switch `spawn_guard`). V2's deeper zone (r=2) also gave own team Wither. Bring that back?</dd>
+        <dt>Team V2: Emerald Talisman income</dt><dd>Current: +1 coin every 3 s while worn on the head (prep and battle); Luck +100; Curse of Binding. V2's exact clock rate unknown. Head model untested in game. Rate OK?</dd>
+        <dt>Team V2: Talisman + Dragon Skull in shop</dt><dd>Current: listed in `src/specials.json` only, not sold yet, waiting for shop-v2 rebuild. Dragon Skull keeps V2's joke: "[Disabled]" unless you have 3,200,000 coins, then says "dragon". List them in shop?</dd>
+        <dt>Team V2: Lightning Rabbit</dt><dd>Current: admin switch (Admin > Lightning Rabbit), off by default. On by default?</dd>
+        <dt>Team V2: Underground prep walls</dt><dd>Current: barriers in void layers (y -64..-1) + prep containment bounces anyone past the wall row at any depth. Tunnels through solid ground stopped by bounce, not blocks. OK?</dd>
+        <dt>Team V2: All recipes at match start</dt><dd>Current: every player gets every recipe on entering the match. OK?</dd>
         <dt>Respawn gear vs keepInventory</dt><dd>Reconcile with class kits in M2: keep inventory but bank + reward to killer?</dd>
         <dt>Main world</dt><dd>Start from a fresh flat world or import V2 terrain. Decide before the M6 build.</dd>
         <dt>Shop: full catalog?</dt><dd>Real catalog (per team/phase?) or test data for now?</dd>
@@ -179,6 +290,14 @@ a{color:var(--accent)}
         <dt>Dream: emerald value</dt><dd>Suggested: 100 coins per emerald block. Scales dream farming value.</dd>
         <dt>Dream: arrival range</dt><dd>Suggested: ±3000 blocks. Smaller for guaranteed team meetings, or larger for separation?</dd>
         <dt>Dream: mob danger</dt><dd>Suggested: endermen + allays. What creatures make the dream risky?</dd>
+        <dt><b>V2 Gap Inventory:</b> Early prep end</dt><dd>V2 had "Destroy Magical barriers" ritual (200 coins). Bring back, or remove the prep exit?</dd>
+        <dt>V2 Gap: Respawn kit by level</dt><dd>What does each team level's basic class kit hold? How does a player pick a basic class in the match?</dd>
+        <dt>V2 Gap: New class designs</dt><dd>Paladin, Death Knight, Titan, Destroyer, Guardian Angel. Specs and prices?</dd>
+        <dt>V2 Gap: Repeat-buy mode</dt><dd>V2's shop had a mode that kept buying the same item; the remaster buys one per click. Bring repeat-buy back?</dd>
+        <dt>V2 Gap: Coin weight growth</dt><dd>Weight slowness that increases over the match. Linear, quadratic, or soft cap?</dd>
+        <dt>V2 Gap: Emerald rates</dt><dd>V2 paid 1 coin per emerald and 20 per emerald block; the remaster pays 5 and 45. Keep or rebalance?</dd>
+        <dt>V2 Gap: Interest rate</dt><dd>V2 = 0.5% per 60 s, cap 10 coins. Now 2%/60 s capped 50. Revert or keep?</dd>
+        <dt>V2 Gap: Arena node payouts</dt><dd>Arena nodes' coins don't feed the bank (only loot drops to ground). Keep or send to bank?</dd>
       </dl>
     </section>
   </div>
@@ -186,7 +305,34 @@ a{color:var(--accent)}
   <section aria-labelledby="log-h">
     <h2 id="log-h">Recent changes</h2>
     <ul class="log">
-      <li><time>10-14</time><b>Arena started:</b> feat/arena. Contested nodes, timed events, lightning toggle.</li>
+      <li><time>10-15</time><b>Servers for review:</b> full (WP-C + WP-D merged), shaders (spike/shaders round 6), bank4, gd3, gdream, voxel (when up). Archive candidates: m2, econ, arena, gens, classes, m5, arena2, team2, econ3, shop3, bank4. <b>10 open questions:</b> centre pressure intent (#48), single-block gen default, archive list, Dream wake hint, goal line, wake hook (#46), bank rates/bonus/shortfall, gen-dream curve, shaders tuning, castle style.</li>
+      <li><time>10-15</time><b>Voxel studio platform started:</b> feat/voxel-studio (server voxel). World editor for structured maps. Voxel research (feat/voxel-research, unmerged): voxel-research.md + playbook. Castle demo (≤128×128) awaiting platform ready.</li>
+      <li><time>10-15</time><b>Mcfilm in-game capture rig started:</b> feat/mcfilm. Cinematic recording inside Minecraft.</li>
+      <li><time>10-15</time><b>Shaders CORRECTION:</b> NOT merged to main. Spike/shaders round 6 (7cb6051): Thermal v3, Cinematic v2. Round 7 in progress: Cosmic moon/horizon, Planet continuity, Angel/Monster being prototyped offline, shader playbook.</li>
+      <li><time>10-15</time><b>Gen-dream merged:</b> 288b961 (feat/gen-dream → main, servers gd3/gdream ★). Single-block generator mode (off by default), projectile + melee barrier damage, centre pressure + decay (min 20 on Nexus barrier), richer Dream (ruins, diamond/lapis).</li>
+      <li><time>10-15</time><b>WP-C ui-sweep merged:</b> 852d58f (feat/ui-sweep → main, server "full" ★). Tutorial text removed (terse diegetic), greyed Dream Open ("Need N coins"), compact Admin/Economy dialogs, team picker greyed reasons, demo gear via `gear/give`, 8-page hub, new try.txt.</li>
+      <li><time>10-15</time><b>WP-D mcdev merged:</b> 96c5022/19ce0cb/8a5ba01 (feat/mcdev → main). 2×2 menu (Inbox/Servers/Feedback/Reset), datapack auto-reload, 1 s warnings, daemon autostart. m4 archived (#51). Docs: mcdev-wake.md proposal.</li>
+      <li><time>10-15</time><b>Bank v4 merged:</b> be8a7b1 (feat/bank-v4 → main, server bank4 ★). Per-second interest (1–10%, min 30 cap 20/s), gold deposit pads, enemy cue, quick withdraw.</li>
+      <li><time>10-15</time><b>Feedback audit documented:</b> db1755b. Docs: feedback-audit.md.</li>
+      <li><time>10-15</time><b>Wake queue transfer fixed:</b> old daemon restarted 23:37; shop/shop2 archived. SessionStart hook (#46) proposal.</li>
+      <li><time>10-14</time><b>Shop v2 merged:</b> 31f59f2 (feat/shop-v2 → main, server shop2 ★). 84-item V2 catalog at V2 prices, 8 pages (Blocks/Ores/Food/Utility/Enchanting/Tools/Alchemy/Ammo), enchant-in-hand, named items with V2 lore, Shop Keeper lines, stay-open dialog. Ten design questions queued (catalog layout, duplicates, price scaling, Ghast Tear, button names, enchant rules, Satan's Blade, Tinkiwinki's Touch, tipped arrows, XP levels).</li>
+      <li><time>10-14</time><b>Team v2 merged:</b> 4994386 (feat/team-v2 → main, server team2 ★). Offering altar (respawn-anchor, team class level upgrades), spawn defense (enemies get Instant Damage II in 4-block zone), Emerald Talisman (head armor, +1 coin/3 s), Lightning Rabbit admin toggle, underground prep walls, all recipes at match start. Nine design questions queued (altar timing, spawn zone, talisman value, dragon skull gating, Wither back, underground mechanics, recipe grant).</li>
+      <li><time>10-14</time><b>V2 shop classes merged:</b> 6db932a (feat/classes-v2 → main, server classes2 ★). Archer, Miner, Tank, Ninja, Berserker, Monster, Balrog (all built, same data-driven framework as M5). Eleven design questions queued (Monster price/skull, Balrog power/curse, potions→flasks, Berserker/Ninja armour, Archer extras, kit supplies, Monster numbers/head skin, invisible glow).</li>
+      <li><time>10-14</time><b>Arena v2 features merged:</b> 939989e (feat/arena-v2 → main, server arena2 ★). Random-entry gates (one 3×3 pad per team field, slot every 6.4 s), regrowing central block (V2 odds 36/18/9/16/2 of 81). Core economy risk ~300–400 coins/min (efficiency-V mine) vs generators ~72/min Lv3. Nine design questions queued (gate location, exit dest, rotation repeat, sound global, core in prep, regrow delay, economy risk, extras, layout).</li>
+      <li><time>10-14</time><b>Smoke test passes:</b> be19d2d (server "full" on main). All modules turn on/off at right phase, end bossbar bug fixed, every button works. V2 gap inventory documented (docs/v2-gap-inventory.md, 3ef3cfe). Dev-tool fixes done (ec18b7c, #26 Servers menu short labels+tooltip, #27 void spawn+respawn_radius=0). <b>User must restart mcdev daemon.</b></li>
+      <li><time>10-14</time><b>Shop v2 started:</b> feat/shop-v2 (server shop2). Full ~80-item V2 catalog, enchant-in-hand, named items, shopkeeper lines.</li>
+      <li><time>10-14</time><b>Team v2 started:</b> feat/team-v2 (server team2). Team offering altar (class level upgrade), spawn defense, Emerald Talisman, Lightning Rabbit admin switch, all recipes at game start, underground prep walls.</li>
+      <li><time>10-14</time><b>Shaders round 4 started:</b> #22 Angel (healer vision), #23 Fluorescent/Neon, #24 Monster heartbeat+madness, #25 Acid continuity+new Planet shader.</li>
+      <li><time>10-14</time><b>M5 classes merged:</b> 5850661 (feat/m5-classes → main). Reaper (200 coins, 4 s post-kill invisibility) + Cracy Frog (free, 3-question lore chain, frog vision permanent) in shop. Death/respawn hooks wired; kill tier set by class; classes reset at match start. Coin exploit fixed (emerald pickup 5 coins, placing while broke = debt, ores/blocks drop nothing). Demo server m5 ★. Six design questions queued.</li>
+      <li><time>10-14</time><b>M4 progression merged:</b> 28e83b7 (feat/m4-integration → main). Generators (one per field, Lv1/2/3, upgrades 200/500 coins from purse, anyone collects pot), Arena (3 nodes active in battle, 10 s solo capture, contested frozen, payouts 30 s), Emerald Dream (shared, 1000-coin team portal on pad, 10 veins per visit). Demo server m4 ★. Eight design questions queued (pot collection, payment source, pad entry, lightning toggle, vein reset, admin panel, upgrade discovery, placement).</li>
+      <li><time>10-14</time><b>Classes framework done:</b> 6d87e5a (feat/classes, server classes ★). Data-driven via src/classes.json + build_classes.py. Reaper (200 coins, 4 s invisibility after kill, −10 HP +6 armour) + Cracy Frog (free, V2 lore/kit recovered, confirmation chain, frog vision permanent). Not merged yet; wired into match after M4 integration. Six design questions queued.</li>
+      <li><time>10-14</time><b>User feedback #15:</b> Attacker barrier text now just "⛨ Nexus Barrier" (no tutorial lines). User loved the cracks. Rule added: "In-game text stays terse and diegetic."</li>
+      <li><time>10-14</time><b>Server archive started:</b> G → Servers → Archive; archiving nexus/shop/purse/fx servers.</li>
+      <li><time>10-14</time><b>M4 integration in progress:</b> feat/m4-integration. Merging generators + Emerald Dream + arena into main. Loot table format fix done (08e04dd, 26.3 modifiers). Portal unlock 1000 coins, nodes in match mode. User testing M2 + M3 now.</li>
+      <li><time>10-14</time><b>M3 economy merged:</b> f584840 (feat/economy → main). Bank at vault (deposit/withdraw sliders + all), own vault only. Interest 2%/60 s capped 50 (overflow V2-style). Kill rewards: +10 base, +10×streak (3+, max 150), +20/+90/+190 tier. Admin page. Seven questions queued. Server econ ★.</li>
+      <li><time>10-14</time><b>M4 integration started:</b> feat/m4-integration. Merge generators + Emerald Dream + arena into main. Loot table format fix in progress (26.3 incompatible functions→modifiers). Eight Arena design questions.</li>
+      <li><time>10-14</time><b>Arena spike done:</b> f765a48 (feat/arena, server arena ★). Capture nodes (10 s solo, 3+ faster; contested frozen), payouts every 30 s, weighted events (Emerald Surge, Cracy Frog jackpot, Golden Hour; first at 3 min then 5 min), Lightning Rabbit toggle (V2 return, 100 HP). Eight design questions queued.</li>
+      <li><time>10-14</time><b>M2 playable core merged:</b> 051fbcc (feat/m2-core → main). Barrier + shop + purse merged. Teams (white/black), phases (lobby/prep/battle/end), admin panel (/function nonios:admin), keep_inventory ON, respawn, last-life spectator, win check, stats, placeholder map with reset. Solo test w/ dummies.</li>
       <li><time>10-14</time><b>Emerald Dream spike done:</b> custom dimension with floating islands, random arrivals (±3000), 10 regrowing veins, 5 s sneak-exit, saved return point. Lore from V2 recovered. Seven design questions queued.</li>
       <li><time>10-14</time><b>Generators spike done:</b> V2 level structures via /place, coin pot (right-click), team-scaled rolls, data-driven. Six design questions queued.</li>
       <li><time>10-14</time><b>Classes framework started:</b> feat/classes. Reaper and Cracy Frog end-to-end implementation underway.</li>

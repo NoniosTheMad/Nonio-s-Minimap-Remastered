@@ -1,0 +1,130 @@
+{
+ "type": "minecraft:fishing",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:cobblestone",
+     "weight": 36
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:sandstone",
+     "weight": 18
+    },
+    {
+     "type": "minecraft:loot_table",
+     "value": {
+      "type": "minecraft:fishing",
+      "pools": [
+       {
+        "rolls": 1,
+        "entries": [
+         {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "modifier": {
+           "type": "minecraft:set_custom_data",
+           "tag": {
+            "nx_yield": "emerald_ore"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "weight": 9
+    },
+    {
+     "type": "minecraft:loot_table",
+     "value": {
+      "type": "minecraft:fishing",
+      "pools": [
+       {
+        "rolls": 1,
+        "entries": [
+         {
+          "type": "minecraft:item",
+          "name": "minecraft:raw_gold",
+          "modifier": {
+           "type": "minecraft:apply_bonus",
+           "enchantment": "minecraft:fortune",
+           "formula": "minecraft:ore_drops"
+          }
+         }
+        ]
+       },
+       {
+        "rolls": 1,
+        "entries": [
+         {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "modifier": {
+           "type": "minecraft:set_custom_data",
+           "tag": {
+            "nx_yield": "gold_ore"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "weight": 6
+    },
+    {
+     "type": "minecraft:loot_table",
+     "value": {
+      "type": "minecraft:fishing",
+      "pools": [
+       {
+        "rolls": 1,
+        "entries": [
+         {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond",
+          "modifier": {
+           "type": "minecraft:apply_bonus",
+           "enchantment": "minecraft:fortune",
+           "formula": "minecraft:ore_drops"
+          }
+         }
+        ]
+       },
+       {
+        "rolls": 1,
+        "entries": [
+         {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "modifier": {
+           "type": "minecraft:set_custom_data",
+           "tag": {
+            "nx_yield": "diamond_ore"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_block",
+     "weight": 4
+    },
+    {
+     "type": "minecraft:loot_table",
+     "value": "nonios:generator/jackpot_chest_a",
+     "weight": 2
+    }
+   ]
+  }
+ ]
+}

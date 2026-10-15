@@ -1,0 +1,8 @@
+# voxel studio (python -m tools.voxel); Python 3.11+
+numpy>=1.26
+pillow>=10
+scipy>=1.11
+nbtlib>=2.0
+moderngl>=5.10
+# optional: only for worlds using region-file-compression=lz4
+# lz4>=4

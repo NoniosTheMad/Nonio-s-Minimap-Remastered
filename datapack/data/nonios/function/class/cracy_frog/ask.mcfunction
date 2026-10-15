@@ -2,6 +2,8 @@
 # 1 = open, 2/3/4 = "Yes" on step 1/2/3, 5/6/7 = "No" on step 1/2/3. nx.cls_askst = step shown (no skipping ahead).
 scoreboard players operation #a nx.cls_tmp = @s nx.cls_ask
 scoreboard players set @s nx.cls_ask 0
+# 1 (open) only next to your shopkeeper: the shop opens step 1 itself (class/gen/confirm), the bare trigger is no free pass
+execute if score #a nx.cls_tmp matches 1 unless function nonios:shop/allowed run return 0
 execute if score #a nx.cls_tmp matches 1 run return run function nonios:class/cracy_frog/ask_step {step:1}
 execute if score #a nx.cls_tmp matches 2 if score @s nx.cls_askst matches 1 run return run function nonios:class/cracy_frog/ask_step {step:2}
 execute if score #a nx.cls_tmp matches 3 if score @s nx.cls_askst matches 2 run return run function nonios:class/cracy_frog/ask_step {step:3}

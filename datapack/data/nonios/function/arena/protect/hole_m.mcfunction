@@ -1,0 +1,1 @@
+$setblock ~ ~$(y) ~ minecraft:air

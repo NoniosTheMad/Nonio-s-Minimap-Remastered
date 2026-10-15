@@ -1,0 +1,2 @@
+# with storage nonios:altar v (after refresh): the same progress line on the offering player's actionbar (plain root: see altar/show)
+$title @s actionbar [{text:""},{type:"object",atlas:"minecraft:blocks",sprite:"minecraft:block/iron_block",color:"white"},{text:" $(i)/$(ni)  ",color:"white"},{type:"object",atlas:"minecraft:blocks",sprite:"minecraft:block/gold_block",color:"white"},{text:" $(g)/$(ng)  ",color:"gold"},{type:"object",atlas:"minecraft:blocks",sprite:"minecraft:block/diamond_block",color:"white"},{text:" $(d)/$(nd)",color:"aqua"}]

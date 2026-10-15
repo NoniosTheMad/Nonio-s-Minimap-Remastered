@@ -3,7 +3,7 @@ execute as @a[tag=!demo.init] run function demo:init
 execute as @e[type=player,scores={demo.died=1..}] at @s run function demo:respawned
 # G menu (demo:classes dialog) -> trigger demo.cls
 execute as @a[scores={demo.cls=1}] at @s run function nonios:class/set_id {id:"reaper"}
-execute as @a[scores={demo.cls=2}] run scoreboard players set @s nx.cls_ask 1
+execute as @a[scores={demo.cls=2}] run function nonios:class/cracy_frog/ask_step {step:1}
 execute as @a[scores={demo.cls=3}] at @s run function nonios:class/set_id {id:"cracy_frog"}
 execute as @a[scores={demo.cls=4}] at @s run function nonios:class/set_id {id:"warrior"}
 execute as @a[scores={demo.cls=5}] at @s run function demo:level_up

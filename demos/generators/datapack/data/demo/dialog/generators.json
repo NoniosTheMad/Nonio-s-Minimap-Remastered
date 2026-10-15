@@ -1,0 +1,177 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Generators",
+  "color": "aqua"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 310,
+   "contents": {
+    "text": "Three generators north of spawn: white Lv1, black Lv2, white Lv3. Each drops loot on a timer (hologram) using the V2 odds; emerald outcomes go into a coin pot instead. Right-click a generator to take its coins and pull its drops to you. Upgrade/downgrade act on the generator nearest to you.",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "Upgrade nearest (free)",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Swaps loot table, interval, structure and core"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Downgrade nearest",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Back one level"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Buy upgrade nearest",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "V2 prices: 200 coins to Lv2, 500 to Lv3"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset all to Lv 1",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Level 1, empty pots"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Time x10",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Timers run 10x faster"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Time x1",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "Normal speed"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "+100 coins",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Adds to your purse (nx.coins)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Empty my purse",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Coins to 0"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Simulate 20 per team",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "Toggle: rolls per drop as if each team had 20 players"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Drop now",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Every generator drops on the next second"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Status",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "Coins, speed, simulated team size, rolls per drop"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 11"
+   }
+  },
+  {
+   "label": {
+    "text": "Rebuild demo",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Clears items, respawns the three generators"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.gen set 12"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

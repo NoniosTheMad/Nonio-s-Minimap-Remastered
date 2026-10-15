@@ -1,0 +1,48 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_pickaxe",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:enchantments": {
+         "minecraft:efficiency": 2,
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "miner",
+         "nx_item": "miner_pickaxe",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Miner's Pickaxe",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Miner \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

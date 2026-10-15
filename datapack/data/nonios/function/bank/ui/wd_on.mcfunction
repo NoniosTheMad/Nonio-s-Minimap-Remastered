@@ -1,0 +1,2 @@
+$data modify storage nonios:bank ui.d.actions append value {label:[{text:"Half ",color:"yellow"},{text:"($(h))",color:"gold"}],width:150,action:{type:"minecraft:run_command",command:"trigger nx.bankt set 4"}}
+$data modify storage nonios:bank ui.d.actions append value {label:[{text:"All ",color:"yellow"},{text:"($(b))",color:"gold"}],width:150,action:{type:"minecraft:run_command",command:"trigger nx.bankt set 3"}}

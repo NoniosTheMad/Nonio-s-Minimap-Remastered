@@ -3,11 +3,12 @@
 Every server is a vanilla 26.3 server under .mcdev/servers/<name>/. Datapacks are
 junctioned from a git checkout (repo root for main/test, .worktrees/<branch> for
 branches), so editing files + `mcdev reload <name>` is enough for logic changes.
-Resource packs are zipped on demand by a tiny HTTP server, so "Reconnect" in the
-in-game dev menu always fetches the latest pack.
+Resource packs are zipped at start and served by the daemon's tiny HTTP server; when a
+server's pack sources change the daemon restarts it with the new pack (players hop and return).
 
-In game, press G (Quick Actions) or open the pause menu -> "Nonios Dev" to jump
-between servers, reconnect, reload or leave feedback.
+Datapack sources are watched too: a change /reloads the server (or restarts it when a registry
+like dialogs/worldgen changed). In game, press G (Quick Actions) or open the pause menu ->
+"Nonios Dev" to jump between servers, read the inbox or leave feedback.
 
 Usage:
   mcdev up <name> [--branch B] [--demo D] [--desc TEXT] [--mem 2G]
@@ -24,6 +25,8 @@ Usage:
   mcdev notify "text"                 message the user's in-game inbox (G > Inbox; delivered in chat when online)
   mcdev nav                           regenerate the in-game server list
   mcdev review <name> [--done]        star/unstar a server as waiting for the user's review
+  mcdev archive <name> [--note TEXT]  stop it, keep world + branch@commit, free its port (G > Servers > Archive revives it)
+  mcdev unarchive <name>              revive (same as `up <name>`): recreates the worktree if needed, new port
 """
 import argparse, io, json, os, re, secrets, shutil, socket, struct, subprocess, sys, time, uuid, zipfile
 from pathlib import Path
@@ -97,6 +100,30 @@ def port_open(port):
     with socket.socket() as s:
         s.settimeout(0.3)
         return s.connect_ex(("127.0.0.1", port)) == 0
+
+def port_busy(port):
+    """Someone listens on / still holds the port (a bind test catches a dying server that no longer accepts)."""
+    if port_open(port):
+        return True
+    with socket.socket() as s:
+        try:
+            s.bind(("0.0.0.0", port))
+            return False
+        except OSError:
+            return True
+
+def wait_ports_free(name, port, timeout=30):
+    """A stopped server can hold its ports for a few seconds after its process exits; starting earlier fails with 'port in use'."""
+    t0 = time.time()
+    while port_busy(port) or port_busy(port + 10000):
+        if time.time() - t0 > timeout:
+            sys.exit(f"{name}: port {port} or {port + 10000} still in use after {timeout}s")
+        time.sleep(0.5)
+
+def free_port(reg, name=None):
+    """First ephemeral port not reserved by another (non-archived) server and not in use."""
+    used = {s["port"] for n, s in reg.items() if n != name and s.get("status") != "archived"}
+    return next(p for p in EPHEMERAL_PORTS if p not in used and not port_busy(p) and not port_busy(p + 10000))
 
 
 # ---------------------------------------------------------------- rcon
@@ -277,25 +304,89 @@ def text(t, color=None, **kw):
     c.update(kw)
     return c
 
+TIP_LINES, TIP_COLS = 6, 34  # dialog tooltips wrap narrow and grow upwards: hard cap (feedback #26, #29)
+
+def tip_lines(*parts):
+    """Tooltip = at most TIP_LINES short lines (each truncated to TIP_COLS); parts are (text, color) pairs."""
+    out = []
+    for t, color in parts:
+        for ln in str(t).splitlines() or [""]:
+            if ln.strip() and len(out) < TIP_LINES:
+                out.append(text(("\n" if out else "") + trunc(ln, TIP_COLS), color))
+    return out or [text("-", "gray")]
+
 def nav_dialog(reg):
     live = [(n, s) for n, s in sorted(reg.items(), key=lambda kv: (not kv[1].get("review"), kv[1]["port"]))
             if s.get("status") in ("up", "sleeping")]
     actions = []
     for n, s in live:
         asleep = s["status"] == "sleeping"
-        label = ([text("\u2605 ", "yellow")] if s.get("review") else []) + (
+        # same shape for every row: [★] name + state; the description lives in the tooltip (long labels overflow the button)
+        label = ([text("★ ", "yellow")] if s.get("review") else []) + (
             [text(n, "dark_gray", bold=True), text("  (asleep, ~10s)", "dark_gray", italic=True)] if asleep else
-            [text(n, "gold" if s["persistent"] else "aqua", bold=True), text(f"  {s['desc'] or s['branch']}", "gray")])
-        tip = (f"Asleep (nobody on it for a while). Click to start it; you're sent there when it's up.\n\n{s['desc'] or ''}\n" if asleep else "") \
-            + f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "") + (f"\n\n{s['todo']}" if s.get("todo") else "")
-        actions.append({"label": label, "tooltip": text(tip), "width": 310,
+            [text(n, "gold" if s["persistent"] else "aqua", bold=True), text("  (running)", "green", italic=True)])
+        heads = todo_heads(s.get("todo") or "")
+        tip = tip_lines((s["desc"] or n, "white"), (s["branch"] + (f" / {s['demo']}" if s.get("demo") else ""), "dark_gray"),
+                        ("Click: start it, you're sent there" if asleep else "", "gray"),
+                        ("\n".join(heads[:6]), "gray"))
+        actions.append({"label": label, "tooltip": tip, "width": 310,
                         "action": {"type": "minecraft:run_command", "command": f"trigger devnav.{'wake' if asleep else 'go'} set {s['port']}"}})
     n_up = sum(s["status"] == "up" for _, s in live)
     summary = f"{n_up} running" + (f", {len(live) - n_up} asleep" if len(live) > n_up else "")
+    n_arch = sum(s.get("status") == "archived" for s in reg.values())
+    arch = {"label": text(f"Archive ({n_arch})", "gray" if n_arch else "dark_gray"), "width": 150,
+            "tooltip": text("Old tests, stopped. Click one there to revive it." if n_arch else "Nothing archived")}
+    if n_arch:  # no action = greyed-out button in the same place (Dialog UI rules)
+        arch["action"] = {"type": "minecraft:run_command", "command": "trigger devnav.act set 10"}
     return {"type": "minecraft:multi_action", "title": text("Dev servers", "gold"),
-            "body": [{"type": "minecraft:plain_message", "contents": text(f"{summary}. \u2605 = waiting for your review. Hover a server to see what to try.", "gray"), "width": 300}],
-            "actions": actions or [{"label": "(none)", "action": {"type": "minecraft:run_command", "command": "help"}}],
+            "body": [{"type": "minecraft:plain_message", "contents": text(f"{summary}. ★ = to review.", "gray"), "width": 300}],
+            "actions": actions + [arch, {"label": "Back", "width": 150, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 7"}}],
             "columns": 1, "pause": False}
+
+def todo_heads(todo):
+    """Step headlines from try.txt ("2. Generator: ..." -> "2. Generator") for the Servers tooltip."""
+    heads = []
+    for ln in todo.splitlines():
+        m = re.match(r"\s*(\d+)[.)]\s*(.+)", ln)
+        if m:
+            h = m.group(2)
+            c = h.find(":")
+            head = 0 < c <= 28 and not any(ch in h[:c] for ch in '">')  # "Lobby: ..." yes, 'G > Demo: ...' no
+            heads.append(f"{m.group(1)}. " + (h[:c] if head else h))
+    return heads
+
+def archived(reg):
+    """Archived servers, most recently archived first."""
+    return sorted(((n, s) for n, s in reg.items() if s.get("status") == "archived"), key=lambda kv: kv[1]["archive"]["date"], reverse=True)
+
+def archive_dialog(reg):
+    actions = []
+    for n, s in archived(reg):
+        ar = s["archive"]
+        tip = tip_lines((s["desc"] or n, "white"), (f"Note: {ar['note']}" if ar.get("note") else "", "gray"),
+                        (f"{s['branch']} @ {(ar.get('commit') or '?')[:7]}", "dark_gray"), (f"Archived {ar['date']}", "dark_gray"),
+                        ("Click: revive it, you're sent there", "gray"))
+        actions.append({"label": [text(n, "gray", bold=True), text(f"  {ar['date'][5:10]}", "dark_gray"),
+                                  text(f"  {trunc(ar.get('note') or s['desc'] or s['branch'], 40)}", "dark_gray", italic=bool(ar.get("note")))],
+                        "tooltip": tip, "width": 310,
+                        "action": {"type": "minecraft:run_command", "command": f"trigger devnav.revive set {ar['aid']}"}})
+    return {"type": "minecraft:multi_action", "title": text("Archive", "gray"),
+            "body": [{"type": "minecraft:plain_message", "contents": text(f"{len(actions)} archived. Click one to revive it.", "gray"), "width": 300}],
+            "actions": actions + [{"label": "Back", "width": 150, "action": {"type": "minecraft:run_command", "command": "trigger devnav.act set 1"}}],
+            "columns": 1, "pause": False}
+
+def dialog_commands(key, dialog, limit=1300):
+    """RCON commands that build a dialog compound in storage devnav:ui <key> (built in a temp key, then swapped in).
+    One command per action: RCON request packets are capped (~1.4 KB)."""
+    head = dict(dialog, actions=[])
+    tmp = f"t_{key}"
+    cmds = [f"data modify storage devnav:ui {tmp} set value {snbt(head)}"]
+    for a in dialog.get("actions", []):
+        c = f"data modify storage devnav:ui {tmp}.actions append value {snbt(a)}"
+        if len(c.encode()) > limit:  # drop the tooltip rather than the button
+            c = f"data modify storage devnav:ui {tmp}.actions append value {snbt({k: v for k, v in a.items() if k != 'tooltip'})}"
+        cmds.append(c)
+    return cmds + [f"data modify storage devnav:ui {key} set from storage devnav:ui {tmp}", f"data remove storage devnav:ui {tmp}"]
 
 def snbt(v):
     """JSON -> SNBT good enough for /dialog show (strings double-quoted & escaped)."""
@@ -309,12 +400,20 @@ def snbt(v):
         return "[" + ",".join(snbt(x) for x in v) + "]"
     return "{" + ",".join(f"{k}:{snbt(x)}" for k, x in v.items()) + "}"
 
-def write_devnav(reg):
+def write_devnav(reg=None):
+    """Shared devnav pack (junctioned into every server). Static: per-registry content lives in storage (daemon)."""
     d = STATE / "devnav"
     fn = d / "data" / "devnav" / "function"
     fn.mkdir(parents=True, exist_ok=True)
     (d / "pack.mcmeta").write_text(json.dumps({"pack": {"description": "mcdev navigation", "min_format": DATA_FORMAT, "max_format": DATA_FORMAT}}))
-    (fn / "list.mcfunction").write_text(f"dialog show @s {snbt(nav_dialog(reg))}\n")
+    # G > Servers and its Archive page are built by the daemon in storage devnav:ui (nav, arch) over RCON whenever the
+    # registry changes, and shown inline by a macro: no /reload of every server when one sleeps/wakes (a reload re-runs
+    # the game's load functions on the server the user is playing on).
+    for f, key, what in (("list", "nav", "Server list"), ("archive", "arch", "Archive")):
+        (fn / f"{f}.mcfunction").write_text(
+            f'execute unless data storage devnav:ui {key} run tellraw @s {{"text":"[dev] {what} not ready yet (daemon down?)","color":"gray"}}\n'
+            f"execute if data storage devnav:ui {key} run function devnav:show_{key} with storage devnav:ui\n")
+        (fn / f"show_{key}.mcfunction").write_text(f"$dialog show @s $({key})\n")
     # Feedback = a tagged Book & Quill. Signing it queues the book content in storage and pings the
     # daemon, which pulls the pages over RCON (no quoting/length/newline limits, unlike dialog text + say).
     (fn / "fb_give.mcfunction").write_text(
@@ -322,7 +421,7 @@ def write_devnav(reg):
         'give @s minecraft:writable_book[minecraft:custom_data={devnav_fb:1b},'
         'minecraft:item_name={"text":"Feedback for Claude","color":"green"},'
         'minecraft:lore=[{"text":"Write, then Sign. The title is the topic.","color":"gray","italic":false}]]\n'
-        'tellraw @s {"text":"[dev] Feedback book in your inventory: write, then Sign (title = topic). Any length, any characters.","color":"green"}\n')
+        'tellraw @s {"text":"[dev] Feedback book: write, then Sign (title = topic).","color":"green"}\n')
     (fn / "fb_book.mcfunction").write_text(
         "advancement revoke @s only devnav:fb_signed\n"
         "data modify storage devnav:fb inbox append from entity @s Inventory"
@@ -339,16 +438,20 @@ def write_devnav(reg):
     # the privileged part (transfer, reload, ...) runs here at function permission level.
     (fn / "nav_load.mcfunction").write_text(
         "scoreboard objectives add devnav.go trigger\nscoreboard objectives add devnav.act trigger\n"
-        "scoreboard objectives add devnav.wake trigger\n")
+        "scoreboard objectives add devnav.wake trigger\nscoreboard objectives add devnav.revive trigger\n")
     (fn / "nav_tick.mcfunction").write_text(
         "scoreboard players enable @a devnav.go\nscoreboard players enable @a devnav.act\nscoreboard players enable @a devnav.wake\n"
+        "scoreboard players enable @a devnav.revive\n"
         "execute as @a[scores={devnav.go=1..}] run function devnav:go\n"
         "execute as @a[scores={devnav.wake=1..}] run function devnav:wake\n"
+        "execute as @a[scores={devnav.revive=1..}] run function devnav:revive\n"
+        "execute as @a[scores={devnav.act=10}] run function devnav:archive\n"
         "execute as @a[scores={devnav.act=1}] run function devnav:list\n"
         "execute as @a[scores={devnav.act=2}] run function devnav:refresh\n"
         "execute if entity @a[scores={devnav.act=3}] run reload\n"
-        "execute as @a[scores={devnav.act=4}] run dialog show @s devnav:feedback\n"
+        "execute as @a[scores={devnav.act=4}] run function devnav:fb_give\n"
         "execute as @a[scores={devnav.act=9}] run function devnav:fb_give\n"
+        "execute as @a[scores={devnav.act=11}] run function devnav:demo_menu\n"
         "execute as @a[scores={devnav.act=5}] run function devnav:reset_world\n"
         "execute as @a[scores={devnav.act=6}] run function devnav:inbox\n"
         "execute as @a[scores={devnav.act=7}] run dialog show @s devnav:menu\n"
@@ -363,15 +466,14 @@ def write_devnav(reg):
         "execute store result storage devnav:tmp port int 1 run scoreboard players get @s devnav.go\n"
         "scoreboard players reset @s devnav.go\nfunction devnav:go_port with storage devnav:tmp\n")
     (fn / "go_port.mcfunction").write_text(f"$transfer {HOST} $(port) @s\n")
-    # Sleeping server: queue {verb:"wake",uuid,port}; the daemon starts it and transfers you when it's up (you stay here meanwhile).
-    (fn / "wake.mcfunction").write_text(
-        "".join(f"execute if score @s devnav.wake matches {s['port']} run tellraw @s "
-                + json.dumps([text("[dev] ", "dark_gray"), text(f"Waking {n}… ", "yellow"), text("(~10s, you'll be sent there)", "gray")]) + "\n"
-                for n, s in reg.items() if s.get("status") == "sleeping")
-        + 'data modify storage devnav:req q append value {verb:"wake"}\n'
-          "data modify storage devnav:req q[-1].uuid set from entity @s UUID\n"
-          "execute store result storage devnav:req q[-1].port int 1 run scoreboard players get @s devnav.wake\n"
-          "scoreboard players reset @s devnav.wake\n")
+    # Sleeping/archived server: queue {verb:"wake",uuid,port} / {verb:"revive",uuid,id}; the daemon starts it (actionbar
+    # countdown wherever you are) and transfers you the moment it accepts connections.
+    for verb, obj, key in (("wake", "devnav.wake", "port"), ("revive", "devnav.revive", "id")):
+        (fn / f"{verb}.mcfunction").write_text(
+            f'data modify storage devnav:req q append value {{verb:"{verb}"}}\n'
+            "data modify storage devnav:req q[-1].uuid set from entity @s UUID\n"
+            f"execute store result storage devnav:req q[-1].{key} int 1 run scoreboard players get @s {obj}\n"
+            f"scoreboard players reset @s {obj}\n")
     ftags = d / "data" / "minecraft" / "tags" / "function"
     ftags.mkdir(parents=True, exist_ok=True)
     (ftags / "load.json").write_text(json.dumps({"values": ["devnav:nav_load"]}))
@@ -395,30 +497,58 @@ def write_self_pack(name, s, d):
         f'data modify storage devnav:req q append value {{verb:"repack"}}\ndata modify storage devnav:req q[-1].uuid set from entity @s UUID\ntransfer {HOST} {hub_port} @s\n' if name != "hub" else f"transfer {HOST} {hub_port} @s\n")
     where = f"{s['branch']}" + (f" / demo {s['demo']}" if s.get("demo") else "")
     void = s["world"] == "void"
+    # Spawn (feedback #27): void worlds have nothing outside the map, so the world spawn is a declared point
+    # (s["spawn"]: --spawn / demos/<demo>/spawn.txt, default 0 64 0) with a solid block under it, respawn_radius 0
+    # (radius 10 scatters first joins/respawns off a small platform), and a joining player with no ground under
+    # them (saved position over the void, map rebuilt, ...) is sent there.
+    sx, sy, sz, syaw = spawn_of(s)
     (fn / "load.mcfunction").write_text(
         "scoreboard objectives add devnav.left minecraft.custom:minecraft.leave_game\n"
-        + ("setworldspawn 0 64 0\n" if void else ""))
+        "scoreboard objectives add devnav.chk dummy\n"
+        + ("function devnav:spawn_set\n" if void else ""))
+    (fn / "spawn_set.mcfunction").write_text(
+        f"execute in minecraft:overworld run setworldspawn {sx} {sy} {sz} {syaw} 0\n"
+        "gamerule respawn_radius 0\n"
+        # spawn chunk kept loaded, so the floor check below (and to_spawn's) can always see it
+        f"execute in minecraft:overworld run forceload add {sx} {sz}\n"
+        # solid floor under the spawn (keep: never overwrites a map); not loaded yet at load time -> done again on join
+        f"execute in minecraft:overworld if loaded {sx} {sy} {sz} if block {sx} {sy - 1} {sz} #minecraft:air "
+        f"run fill {sx - 3} {sy - 1} {sz - 3} {sx + 3} {sy - 1} {sz + 3} minecraft:smooth_stone keep\n")
+    (fn / "to_spawn.mcfunction").write_text(
+        f"execute in minecraft:overworld run tp @s {sx + 0.5} {sy} {sz + 0.5} {syaw} 0\n"
+        f"execute in minecraft:overworld if block {sx} {sy - 1} {sz} #minecraft:air "
+        f"run fill {sx - 3} {sy - 1} {sz - 3} {sx + 3} {sy - 1} {sz + 3} minecraft:smooth_stone keep\n"
+        "scoreboard players reset @s devnav.chk\n")
+    # Ground = any block in the player's column (world_surface = just above the top non-air block). An empty column gives
+    # the world's min height, where "~ ~-1 ~" is out of the world and the test errors -> #g stays 0. Below the world -> spawn.
+    (fn / "ground_check.mcfunction").write_text(
+        "scoreboard players remove @s devnav.chk 1\n"
+        "execute if entity @s[gamemode=spectator] run return run scoreboard players reset @s devnav.chk\n"
+        "execute if entity @s[y=-2000,dy=1935] run return run function devnav:to_spawn\n"
+        "execute at @s unless loaded ~ ~ ~ run return 0\n"
+        "scoreboard players set #g devnav.chk 0\n"
+        "execute at @s positioned over world_surface unless block ~ ~-1 ~ #minecraft:air run scoreboard players set #g devnav.chk 1\n"
+        "execute if score #g devnav.chk matches 0 run function devnav:to_spawn\n")
     (fn / "rules.mcfunction").write_text(  # separate file: a bad gamerule name only breaks this one
         "gamerule advance_time false\ngamerule advance_weather false\ngamerule spawn_mobs false\ntime set noon\n")
     (fn / "tick.mcfunction").write_text(
         "execute as @a[tag=!devnav.seen] run function devnav:welcome\n"
-        "execute as @a[scores={devnav.left=1..}] run function devnav:welcome\n")
+        "execute as @a[scores={devnav.left=1..}] run function devnav:welcome\n"
+        + ("execute as @a[scores={devnav.chk=1..}] run function devnav:ground_check\n" if void and name != "hub" else ""))
+    # Welcome = title only (feedback #34: instructions don't show by default; they sit in the demo's own dialog).
     welcome = [
         "tag @s add devnav.seen", "scoreboard players reset @s devnav.left",
         "title @s times 5 50 15",
         f"title @s subtitle {json.dumps(text(where, 'gray'))}",
         f"title @s title {json.dumps(text(name, 'gold'))}",
-        "tellraw @s " + json.dumps([text("[dev] ", "dark_gray"), text("Instructions: press ", "gray"), text("G", "yellow"),
-                                    text(" \u2192 ", "gray"), text("What to try here", "yellow")] if s.get("todo") else
-                                   [text("[dev] ", "dark_gray"), text("Press ", "gray"), text("G", "yellow"),
-                                    text(" (Quick Actions) or ", "gray"), text("Esc > Nonios Dev", "yellow"), text(" to travel.", "gray")]),
     ]
     if name == "hub":
-        welcome += ["fill -8 63 -8 8 63 8 minecraft:polished_blackstone keep", "tp @s 0.5 64 0.5", "function devnav:rules"]
+        welcome += ["tellraw @s " + json.dumps([text("[dev] ", "dark_gray"), text("Press ", "gray"), text("G", "yellow"),
+                                                text(" (Quick Actions) or ", "gray"), text("Esc > Nonios Dev", "yellow"), text(" to travel.", "gray")]),
+                    "fill -8 63 -8 8 63 8 minecraft:polished_blackstone keep", "tp @s 0.5 64 0.5", "function devnav:rules"]
     elif void:
-        # first login on a fresh void world spawns at y=-63, before setworldspawn applies
-        welcome += ["fill -6 63 -6 6 63 6 minecraft:smooth_stone keep",
-                    "execute if entity @s[y=-70,dy=60] run tp @s 0.5 64 0.5"]
+        # checked for 2 s after joining/transferring (chunks around a far-off saved position may still be loading)
+        welcome += ["scoreboard players set @s devnav.chk 40", "function devnav:ground_check"]
     (fn / "welcome.mcfunction").write_text("\n".join(welcome) + "\n")
     tags = d / "data" / "minecraft" / "tags" / "function"
     tags.mkdir(parents=True)
@@ -435,63 +565,85 @@ def write_self_pack(name, s, d):
     def act(n):
         return {"type": "minecraft:run_command", "command": f"trigger devnav.act set {n}"}
     todo = s.get("todo")
-    menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"),
-            "external_title": text("Nonios Dev"),
+    demo_dialogs = write_demo_dialogs(s, d, act(8) if todo else None)
+    # Dialog UI rules (CLAUDE.md): short body right above the buttons, same buttons in the same places on every server,
+    # an unavailable action is a greyed button (no action) whose tooltip says why.
+    reset = {"label": text("Reset this server", "red" if resettable else "dark_gray"),
+             "tooltip": text("Fresh world: wipes everything built/broken here, restarts, brings you back (~15s)" if resettable
+                             else "Not available: hub/main keep their world (only demo/branch servers and test reset)")}
+    if resettable:
+        reset["action"] = act(5)
+    actions = [
+        {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
+        {"label": text("Servers...", "aqua"), "action": act(1)},
+        {"label": text("Feedback", "green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic. Short notes: just type in chat."), "action": act(4)},
+        reset]  # 2x2; no reload button (#33): the daemon reloads datapacks and resource packs when their sources change
+    if todo and not demo_dialogs:  # no demo dialog to hang the instructions on: keep them reachable here (always last)
+        actions.append({"label": text("What to try here", "yellow"), "action": act(8)})
+    menu = {"type": "minecraft:multi_action", "title": text("Nonios Dev", "gold"), "external_title": text("Nonios Dev"),
             "body": [{"type": "minecraft:plain_message", "width": 300, "contents": [
-                text("You are on ", "gray"), text(name, "yellow", bold=True), text(f"  ({where})\n", "gray"),
-                text((s["desc"] or "") + "\n", "white"),
-                text("Type in chat = feedback (grouped, sent to Claude).", "gray", italic=True)]}],
-            "actions": ([{"label": text("\u25b6 What to try here", "yellow", bold=True),
-                          "tooltip": text("Step-by-step instructions for this server"), "action": act(8)}] if todo else []) + [
-                {"label": text("\u2709 Inbox", "gold"), "tooltip": text("Messages from Claude, newest first"), "action": act(6)},
-                {"label": text("Servers...", "aqua"), "action": act(1)},
-                {"label": text("Feedback", "green"), "tooltip": text("Text box: topic + as much text as you like"), "action": act(4)},
-                {"label": text("Feedback (book)", "dark_green"), "tooltip": text("Gives a Book & Quill: write, then Sign. Title = topic."), "action": act(9)},
-                {"label": "Refresh resource pack", "tooltip": text("Hop to the hub, rebuild the pack, come back"), "action": act(2)},
-                {"label": "Reload datapacks", "action": act(3)}]
-            + ([{"label": text("Reset this server", "red"), "tooltip": text("Fresh world: wipes everything built/broken here, restarts, brings you back (~15s)"),
-                 "action": act(5)}] if resettable else []),
-            "columns": 2, "pause": False}
+                text(name, "yellow", bold=True), text(f"  {trunc(where, 40)}", "gray"),
+                text(f"\n{trunc(s['desc'], 60)}" if s.get("desc") else "", "white")]}],
+            "actions": actions, "columns": 2, "pause": False}
     (d / "data" / "devnav" / "dialog" / "menu.json").write_text(json.dumps(menu, indent=1))
-    # Send = dynamic/custom: no op prompt, no quoting limits; the server logs the payload (inputs) and the daemon tails it.
-    (d / "data" / "devnav" / "dialog" / "feedback.json").write_text(json.dumps({
-        "type": "minecraft:multi_action", "title": text("Feedback for Claude", "green"), "external_title": text("Feedback"),
-        "body": [{"type": "minecraft:plain_message", "width": 300, "contents": text(
-            "Any length, any characters. Sent with context (server, position, recent log).", "gray")}],
-        "inputs": [
-            {"type": "minecraft:text", "key": "topic", "label": text("Topic"), "width": 300, "max_length": 64},
-            {"type": "minecraft:text", "key": "text", "label": text("Feedback"), "width": 300, "max_length": 4000,
-             "multiline": {"max_lines": 12, "height": 160}}],
-        "actions": [
-            {"label": text("Send", "green", bold=True), "action": {"type": "minecraft:dynamic/custom", "id": "devnav:feedback"}},
-            {"label": "Back", "action": act(7)}],
-        "columns": 2, "pause": False}, indent=1))
-    if todo:  # full instructions live in a dialog, not in chat
+    back = act(11) if demo_dialogs else act(7)
+    (fn / "demo_menu.mcfunction").write_text(f"dialog show @s {demo_dialogs[0]}\n" if demo_dialogs else "dialog show @s devnav:menu\n")
+    if todo:  # full instructions live in a dialog (button in the demo's own dialog), not in chat
         (d / "data" / "devnav" / "dialog" / "todo.json").write_text(json.dumps({
             "type": "minecraft:notice", "title": text("What to try here", "yellow"), "external_title": text("What to try here"),
             "body": [{"type": "minecraft:plain_message", "width": 310, "contents": text(todo, "white")}],
-            "action": {"label": "Back", "action": act(7)}, "pause": False}, indent=1))
+            "action": {"label": "Back", "action": back}, "pause": False}, indent=1))
     (fn / "todo.mcfunction").write_text("dialog show @s devnav:todo\n" if todo else
                                         'tellraw @s {"text":"[dev] No instructions for this server.","color":"gray"}\n')
 
-def refresh_nav(reg):
-    write_devnav(reg)
-    for n, s in reg.items():
-        if s.get("status") == "up" and port_open(s["port"] + 10000):
-            try:
-                rcon(s["port"] + 10000, "reload")
-            except OSError:
-                pass
+TRY_BUTTON = "What to try here"
+
+def write_demo_dialogs(s, d, try_action):
+    """The demo's own G dialogs (its quick_actions tag) get a 'What to try here' button next to the controls (feedback #34):
+    patched copies with the same id go in the self pack, which loads after the demo pack and so overrides them.
+    Returns the demo's quick_actions dialog ids."""
+    if not s.get("demo"):
+        return []
+    pack = Path(s["src"]) / "demos" / s["demo"] / "datapack"
+    try:
+        ids = json.loads((pack / "data" / "minecraft" / "tags" / "dialog" / "quick_actions.json").read_text())["values"]
+    except (OSError, ValueError, KeyError):
+        return []
+    ids = [i if isinstance(i, str) else i.get("id", "") for i in ids]
+    ids = [i for i in ids if ":" in i and not i.startswith("#") and not i.startswith("devnav:")]
+    for did in ids if try_action else []:
+        ns, path = did.split(":", 1)
+        f = pack / "data" / ns / "dialog" / f"{path}.json"
+        try:
+            dlg = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if dlg.get("type") != "minecraft:multi_action":
+            continue
+        dlg["actions"] = list(dlg.get("actions", [])) + [{"label": text(TRY_BUTTON, "yellow"),
+                                                          "tooltip": text("Step-by-step test instructions for this demo"), "action": try_action}]
+        out = d / "data" / ns / "dialog" / f"{path}.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(dlg, indent=1))
+    return ids
+
+def refresh_nav(reg=None):
+    """Rewrite the shared devnav pack. G > Servers / Archive are pushed by the daemon (Mailroom.push_ui) on registry
+    changes, so nothing is /reloaded here."""
+    write_devnav()
 
 
 # ---------------------------------------------------------------- resource packs + daemon
 PACKS = STATE / "packs"
 
-def build_resource_pack(name, s):
-    """Zip the game resource pack (+ demo overlay) deterministically; return its sha1."""
-    import hashlib
+def pack_layers(s):
     src = Path(s["src"])
-    layers = [src / "resourcepack"] + ([src / "demos" / s["demo"] / "resourcepack"] if s.get("demo") else [])
+    return [src / "resourcepack"] + ([src / "demos" / s["demo"] / "resourcepack"] if s.get("demo") else [])
+
+def build_resource_pack(name, s, write=True):
+    """Zip the game resource pack (+ demo overlay) deterministically; return its sha1 (write=False: only the sha1)."""
+    import hashlib
+    layers = pack_layers(s)
     files = {}
     for layer in layers:  # later layers (demo) override earlier ones (game)
         if layer.exists():
@@ -504,8 +656,9 @@ def build_resource_pack(name, s):
         for rel in sorted(files):
             z.writestr(zipfile.ZipInfo(rel, (2026, 1, 1, 0, 0, 0)), files[rel].read_bytes(), zipfile.ZIP_DEFLATED)
     data = buf.getvalue()
-    PACKS.mkdir(parents=True, exist_ok=True)
-    (PACKS / f"{name}.zip").write_bytes(data)
+    if write:
+        PACKS.mkdir(parents=True, exist_ok=True)
+        (PACKS / f"{name}.zip").write_bytes(data)
     return hashlib.sha1(data).hexdigest()
 
 def daemon():
@@ -529,7 +682,10 @@ def daemon():
         print(time.strftime("%H:%M:%S"), "another daemon owns the port, exiting", flush=True)
         return
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    mail, idle = Mailroom(), IdleWatch()
+    write_devnav()  # shared pack files of this code version (servers pick them up on their next start/reload)
+    mail, idle, packs, datas = Mailroom(), IdleWatch(), PackWatch(), DataWatch()
+    me = Path(__file__)
+    my_mtime, my_change = me.stat().st_mtime, None
     print(time.strftime("%H:%M:%S"), f"daemon up (idle sleep after {IDLE_SLEEP_SECS}s"
           + (f", only {sorted(IDLE_ONLY)}" if IDLE_ONLY else "") + ")", flush=True)
     while True:
@@ -542,6 +698,35 @@ def daemon():
             idle.tick(reg)
         except Exception as e:
             print(time.strftime("%H:%M:%S"), "idle tick failed:", repr(e), flush=True)
+        try:
+            packs.tick(reg)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "pack watch failed:", repr(e), flush=True)
+        try:
+            datas.tick(reg)
+        except Exception as e:
+            print(time.strftime("%H:%M:%S"), "datapack watch failed:", repr(e), flush=True)
+        # Self-restart when mcdev.py changes (quiet for 3 s, compiles, no start/stop in flight): code fixes apply without
+        # anyone having to find and kill this process.
+        try:
+            m = me.stat().st_mtime
+        except OSError:
+            m = my_mtime
+        if m != my_mtime:
+            my_change = my_change if my_change and my_change[0] == m else (m, time.time())
+            if time.time() - my_change[1] >= 3 and not _busy:
+                import py_compile
+                try:
+                    py_compile.compile(str(me), cfile=str(STATE / "mcdev_check.pyc"), doraise=True)
+                except py_compile.PyCompileError as e:
+                    print(time.strftime("%H:%M:%S"), "mcdev.py changed but doesn't compile, not restarting:", e.msg.splitlines()[-1], flush=True)
+                    my_mtime = m
+                else:
+                    print(time.strftime("%H:%M:%S"), "mcdev.py changed: restarting the daemon", flush=True)
+                    srv.shutdown()
+                    srv.server_close()
+                    ensure_daemon()
+                    os._exit(0)
         for n, s in reg.items():
             if s.get("status") != "up":
                 continue
@@ -556,8 +741,9 @@ def daemon():
                 verb = (re.search(r'verb: "(\w+)"', req) or [None, None])[1]
                 ints = (re.search(r"uuid: \[I; ([-\d, ]+)\]", req) or [None, None])[1]
                 port = (re.search(r"port: (\d+)", req) or [None, None])[1]
+                aid = (re.search(r"\bid: (\d+)", req) or [None, None])[1]
                 player = uuid_str(ints) if ints else None
-                print(time.strftime("%H:%M:%S"), "request", n, verb, player, port or "", flush=True)
+                print(time.strftime("%H:%M:%S"), "request", n, verb, player, port or aid or "", flush=True)
                 if verb == "repack":
                     background(n, repack, n, player)
                 elif verb == "resetworld":
@@ -568,6 +754,12 @@ def daemon():
                         background(target, wake, target, player)
                     else:
                         tell(s, player, [text("[dev] No server on that port any more.", "red")])
+                elif verb == "revive" and aid:
+                    target = next((m for m, x in reg.items() if x.get("status") == "archived" and x["archive"].get("aid") == int(aid)), None)
+                    if target:
+                        background(target, wake, target, player)
+                    else:
+                        tell(s, player, [text("[dev] That server is no longer archived.", "red")])
                 elif verb == "feedback":
                     try:
                         pull_feedback(n, s)
@@ -609,7 +801,7 @@ def feedback_context(name, s, player):
         pass
     def tail(path, n):
         try:
-            lines = Path(path).read_text(errors="replace").splitlines()[-400:]
+            lines = Path(path).read_text(encoding="utf-8", errors="replace").splitlines()[-400:]
         except OSError:
             return []
         done = max((i for i, l in enumerate(lines) if "Done (" in l), default=-1)  # skip startup chatter
@@ -664,18 +856,25 @@ def alloc_fb_id():
     _fb_last[0] = max(_fb_last[0], fb_max_id()) + 1
     return _fb_last[0]
 
-def write_feedback(name, s, player, title, body, fid=None):
+def write_feedback(name, s, player, title, body, fid=None, ctx=None, when=None):
     fid = fid or alloc_fb_id()
     body = body.strip().replace("\n", "\n    ")
     with open(FEEDBACK, "a", encoding="utf-8") as f:
-        f.write(f"#{fid} {time.strftime('%Y-%m-%d %H:%M')} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
-                + feedback_context(name, s, player))
+        f.write(f"#{fid} {time.strftime('%Y-%m-%d %H:%M', time.localtime(when))} {name} ({s.get('branch')}) [{player}] {title}:\n    {body}\n"
+                + (feedback_context(name, s, player) if ctx is None else ctx))
     print(time.strftime("%H:%M:%S"), f"feedback #{fid} from {player} on {name}: {title}", flush=True)
     return fid
 
 def tell(s, player, comps):
+    # `execute as`: a UUID is an entity selector, and player-only arguments (tellraw/title/transfer targets) reject it at parse time
     try:
-        rcon(s["port"] + 10000, f"tellraw {player} {json.dumps(comps)}")
+        rcon(s["port"] + 10000, f"execute as {player} run tellraw @s {json.dumps(comps)}")
+    except (OSError, RuntimeError):
+        pass
+
+def actionbar(s, player, comps):
+    try:
+        rcon(s["port"] + 10000, f"execute as {player} run title @s actionbar {json.dumps(comps)}", timeout=2)
     except (OSError, RuntimeError):
         pass
 
@@ -744,6 +943,30 @@ JOIN_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/INFO\]: (?:System chat: )?([A-Za-z0-
 CHAT_GROUP_SECS = 90
 
 CLICK_RE = re.compile(r"^\[[\d:]+\] \[[^\]]*/\w+\]: Received custom click action (\S+) with payload (.*)$")
+
+# screenshots (F2) in the client instance -> feedback entries; copies kept in .mcdev/screenshots/<N>.png
+SHOT_DIR = CLIENT_LOG.parent.parent / "screenshots"
+SHOT_COPIES, SHOTS_PENDING = STATE / "screenshots", STATE / "shots_pending.json"
+SHOT_POLL_SECS, SHOT_CHAT_SECS = 2, 60
+CONNECT_RE = re.compile(r"Connecting to [\w.-]+, (\d+)")
+
+def client_server(reg):
+    """Dev server the client is on: the last 'Connecting to localhost, <port>' in the client log if the user is
+    online there, else any up server with the user online, else the logged one."""
+    up = {n: s for n, s in reg.items() if s.get("status") == "up"}
+    port = None
+    try:
+        with open(CLIENT_LOG, "rb") as f:
+            f.seek(0, 2)
+            f.seek(max(0, f.tell() - 500_000))
+            hits = CONNECT_RE.findall(f.read().decode("utf-8", "replace"))
+        port = int(hits[-1]) if hits else None
+    except OSError:
+        pass
+    logged = next((n for n, s in up.items() if s["port"] == port), None)
+    if logged and USER in online(up[logged]):
+        return logged
+    return next((n for n, s in up.items() if n != logged and USER in online(s)), logged)
 
 def parse_log_line(line):
     """Server log line -> ('chat', player, text) | ('joined'|'left', player) | ('click', id, payload_snbt) | None.
@@ -890,10 +1113,71 @@ class Mailroom:
     """Daemon side of inbox + chat feedback: tails server logs, groups chat, delivers mail, keeps the inbox dialog
     current, and keeps the thread (mail + chat feedback) that is replayed on every join."""
     def __init__(self):
-        self.tails, self.pushed, self.groups = {}, {}, ChatGroups(CHAT_PENDING)
+        self.tails, self.pushed, self.pushed_ui, self.groups = {}, {}, {}, ChatGroups(CHAT_PENDING)
         _fb_last[0] = max(_fb_last[0], self.groups.max_id())  # ids already promised by "noted (#N)"
         self.next_try, self.last_pending, self.replayed = 0, None, 0
         self.mirrored = {e.get("mail") for e in load_json(THREAD, []) if e["kind"] == "mail"}
+        # screenshots: files older than the daemon are ignored; an entry waits SHOT_CHAT_SECS to pick up nearby chat
+        self.shot_start, self.shot_next, self.shot_size, self.shot_done = time.time(), 0, {}, set()
+        self.shots = load_json(SHOTS_PENDING, [])
+        _fb_last[0] = max([_fb_last[0]] + [x["id"] for x in self.shots])
+        self.recent_chat = []  # [time, server, fid, text] of the user's recent feedback lines
+
+    def shot_tick(self, reg, now):
+        if now >= self.shot_next:
+            self.shot_next = now + SHOT_POLL_SECS
+            try:
+                SHOT_DIR.mkdir(parents=True, exist_ok=True)
+                files = sorted(SHOT_DIR.glob("*.png"))
+            except OSError:
+                files = []
+            for p in files:
+                if p.name in self.shot_done:
+                    continue
+                try:
+                    st = p.stat()
+                except OSError:
+                    continue
+                t = max(st.st_mtime, st.st_ctime)  # ctime = creation on Windows (a copied file keeps its mtime)
+                if t < self.shot_start:
+                    self.shot_done.add(p.name)
+                elif st.st_size and self.shot_size.get(p.name) == st.st_size:  # same size two polls running = written
+                    self.shot_done.add(p.name)
+                    try:
+                        self.new_shot(reg, p, t)
+                    except OSError as e:  # e.g. still locked: retry next poll
+                        self.shot_done.discard(p.name)
+                        print(time.strftime("%H:%M:%S"), f"screenshot {p.name} failed, retrying: {e!r}", flush=True)
+                else:
+                    self.shot_size[p.name] = st.st_size
+        self.recent_chat = [c for c in self.recent_chat if now - c[0] < 5 * SHOT_CHAT_SECS]
+        for sh in [x for x in self.shots if now - x["t"] >= SHOT_CHAT_SECS]:
+            chat = [c for c in self.recent_chat if abs(c[0] - sh["t"]) <= SHOT_CHAT_SECS]
+            body = f"image: {sh['path']}\n(original: {sh['orig']})"
+            if chat:
+                body += "\nchat within 60s:\n" + "\n".join(f"  ({c[1]} #{c[2]}) {c[3]}" for c in chat)
+            write_feedback(sh["server"], {"branch": sh["branch"]}, USER, "screenshot", body, fid=sh["id"], ctx=sh["ctx"], when=sh["t"])
+            self.shots.remove(sh)
+            save_json(SHOTS_PENDING, self.shots)
+
+    def new_shot(self, reg, p, t):
+        """New PNG in the client's screenshots folder: id + copy + context now (position at shot time), entry later."""
+        import shutil
+        n = client_server(reg)
+        s = reg.get(n) if n else None
+        fid = alloc_fb_id()
+        SHOT_COPIES.mkdir(parents=True, exist_ok=True)
+        copy = SHOT_COPIES / f"{fid}.png"
+        shutil.copyfile(p, copy)
+        ctx = feedback_context(n, s, USER) if s else "  | (user not on any dev server)\n"
+        if s:
+            tell(s, USER, [text(f"\U0001F4F7 noted (#{fid})" + (" (test)" if p.name.startswith("mcdev-test") else ""), "gray", italic=True)])
+        self.shots.append({"id": fid, "t": t, "server": n or "?", "branch": s.get("branch") if s else None,
+                           "path": str(copy), "orig": str(p), "ctx": ctx})
+        save_json(SHOTS_PENDING, self.shots)
+        self.thread_add([{"kind": "chat", "time": time.strftime("%Y-%m-%d %H:%M"), "server": n or "?", "player": USER,
+                          "fid": fid, "text": "\U0001F4F7 screenshot"}])
+        print(time.strftime("%H:%M:%S"), f"screenshot #{fid} on {n}: {p.name}", flush=True)
 
     def thread_add(self, entries):
         if entries:
@@ -955,6 +1239,23 @@ class Mailroom:
         return {"kind": "chat", "time": time.strftime("%Y-%m-%d %H:%M"), "server": n, "player": player, "fid": fid,
                 "text": f"[{topic}] {body}" if topic else body}
 
+    def push_ui(self, reg, up):
+        """G > Servers + Archive dialogs into storage devnav:ui (nav, arch) on every up server: on change and after each start."""
+        cmds = dialog_commands("nav", nav_dialog(reg)) + dialog_commands("arch", archive_dialog(reg))
+        sig = hash(tuple(cmds))
+        for n, s in up.items():
+            key = (sig, s.get("started"))
+            if self.pushed_ui.get(n) != key:
+                try:
+                    for c in cmds:
+                        r = rcon(s["port"] + 10000, c, timeout=2)
+                        if "<--[HERE]" in r:
+                            print(time.strftime("%H:%M:%S"), f"ui push on {n} rejected: {r[:200]}", flush=True)
+                            break
+                    self.pushed_ui[n] = key
+                except (OSError, RuntimeError):
+                    pass
+
     def tick(self, reg):
         now = time.time()
         up = {n: s for n, s in reg.items() if s.get("status") == "up"}
@@ -979,6 +1280,8 @@ class Mailroom:
                         joins.append(n)
                 else:
                     left.add((n, ev[1]))
+        self.recent_chat += [[now, e["server"], e["fid"], e["text"]] for e in said if e["player"] == USER]
+        self.shot_tick(reg, now)
         for n, player, g in self.groups.due(now, left):
             write_feedback(n, g["s"], player, "chat", "\n".join(g["lines"]), fid=g["id"])
             self.groups.done(n, player)
@@ -996,6 +1299,7 @@ class Mailroom:
                     self.pushed[n] = key
                 except (OSError, RuntimeError):
                     pass
+        self.push_ui(reg, up)
         pending = [m for m in msgs if not m.get("delivered")]
         if joins:  # every join (incl. transfers): replay the thread, then any new mail
             for n in joins:
@@ -1040,17 +1344,44 @@ def reset_world(name, player):
     start(name, s, reg)
     send_back(reg, s, player)
 
-def send_back(reg, s, player, anywhere=False):
-    """Transfer player to server s once they are on the hub (or, with anywhere, on any other up server)."""
-    froms = [x for n, x in reg.items() if x.get("status") == "up" and x["port"] != s["port"]] if anywhere else [reg.get("hub", {})]
-    for _ in range(60):  # wait until the player has landed on the hub
-        for src in froms:
+def where_is(reg, player, exclude_port=None, prefer=None):
+    """The up server (registry entry) the player is on, or None. `prefer` (an entry) is asked first."""
+    cands = [x for x in reg.values() if x.get("status") == "up" and x.get("port") != exclude_port]
+    if prefer in cands:
+        cands.remove(prefer)
+        cands.insert(0, prefer)
+    for x in cands:
+        try:
+            if "passed" in rcon(x["port"] + 10000, f"execute if entity {player}", timeout=2):
+                return x
+        except (OSError, KeyError, RuntimeError):
+            pass
+    return None
+
+def send_back(reg, s, player, anywhere=False, wait=30):
+    """Transfer player to server s once they are on the hub (or, with anywhere, on any other up server); True once they
+    have arrived there. Bug #30/#36: `transfer host port <uuid>` is rejected ("only players ...": a UUID selector may match
+    any entity), and this returned True without checking -> nobody was ever sent. Now `execute as <uuid> run transfer ... @s`
+    and arrival is confirmed on the target."""
+    if not player:
+        return False
+    froms = reg if anywhere else {"hub": reg["hub"]} if "hub" in reg else {}
+    t0 = time.time()
+    while time.time() - t0 < wait:  # wait until the player has landed somewhere we can send them from
+        src = where_is(froms, player, exclude_port=s["port"])
+        if src:
             try:
-                if player and "passed" in rcon(src["port"] + 10000, f"execute if entity {player}"):
-                    rcon(src["port"] + 10000, f"transfer {HOST} {s['port']} {player}")
-                    return True
-            except (OSError, KeyError, RuntimeError):
+                rcon(src["port"] + 10000, f"execute as {player} run transfer {HOST} {s['port']} @s")
+            except (OSError, RuntimeError):
                 pass
+            for _ in range(30):  # login + resource pack take a few seconds
+                time.sleep(0.5)
+                try:
+                    if "passed" in rcon(s["port"] + 10000, f"execute if entity {player}", timeout=2):
+                        return True
+                except (OSError, RuntimeError):
+                    pass
+            return False
         time.sleep(0.5)
     return False
 
@@ -1059,8 +1390,8 @@ _busy = set()  # servers a daemon thread is stopping/starting (repack, reset, wa
 
 def background(name, fn, *args):
     import threading
+    _busy.add(name)  # now, not in the thread: a watcher ticking right after this must already see it busy
     def run():
-        _busy.add(name)
         try:
             fn(*args)
         except BaseException as e:  # start() reports failures with sys.exit
@@ -1087,6 +1418,7 @@ class IdleWatch:
             return
         self.next_check = now + IDLE_CHECK_SECS
         for n, s in reg.items():
+            # only "up" servers: archived/sleeping/down ones are ignored
             if n == "hub" or s.get("status") != "up" or n in _busy or (IDLE_ONLY and n not in IDLE_ONLY):
                 continue
             started, last = self.seen.get(n, (None, 0))
@@ -1101,6 +1433,187 @@ class IdleWatch:
                 self.seen.pop(n)
                 background(n, sleep_server, n, s.get("started"))
 
+PACK_CHECK_SECS, PACK_QUIET_SECS, PACK_WARN_SECS = 3, 5, 1  # warning: 1 s (user request)
+
+def pack_signature(s):
+    """Cheap change detector for a server's resource pack sources (paths, sizes, mtimes)."""
+    sig = []
+    for layer in pack_layers(s):
+        if layer.exists():
+            for f in layer.rglob("*"):
+                try:
+                    st = f.stat()
+                    sig.append((str(f), st.st_size, st.st_mtime_ns))
+                except OSError:
+                    pass
+    return hash(tuple(sorted(sig)))
+
+class PackWatch:
+    """Resource packs reload by themselves (feedback #33): when an up server's pack sources change (then stay quiet for
+    PACK_QUIET_SECS) and the built zip's sha1 differs from the one the server sends, the server restarts with the new
+    pack. Players on it get an actionbar warning, are parked on the hub and sent back. The hub only restarts when empty."""
+    def __init__(self):
+        self.sig, self.next_check = {}, 0  # name -> [started, signature, changed_at]
+
+    def tick(self, reg):
+        now = time.time()
+        if now < self.next_check:
+            return
+        self.next_check = now + PACK_CHECK_SECS
+        for n, s in reg.items():
+            if s.get("status") != "up" or n in _busy:
+                continue
+            sig = pack_signature(s)
+            seen = self.sig.get(n)
+            if not seen or seen[0] != s.get("started"):
+                self.sig[n] = [s.get("started"), sig, None]  # baseline = what it started with (start rebuilt the zip)
+                continue
+            if sig != seen[1]:
+                seen[1], seen[2] = sig, now
+                continue
+            if seen[2] and now - seen[2] >= PACK_QUIET_SECS:
+                seen[2] = None
+                if build_resource_pack(n, s, write=False) == s.get("pack_sha1"):
+                    continue
+                players = online(s)
+                if n == "hub" and players:
+                    seen[2] = now  # try again when the hub is empty
+                    continue
+                print(time.strftime("%H:%M:%S"), f"resource pack of {n} changed, reloading it" + (f" ({', '.join(players)} online)" if players else ""), flush=True)
+                background(n, pack_reload, n, players)
+
+def pack_reload(name, players, what="Resource pack"):
+    """Restart a server (rebuilt pack, re-read datapacks); players on it hop to the hub meanwhile and come back."""
+    reg = sync_status(load_reg())
+    s, hub = reg.get(name), reg.get("hub")
+    if not s or s.get("status") != "up":
+        return
+    players = online(s)
+    if players and (not hub or hub.get("status") != "up"):
+        return
+    for i in range(PACK_WARN_SECS, 0, -1):
+        for p in players:
+            actionbar(s, p, [text(f"{what} changed: reloading in ", "gray"), text(f"{i}s", "yellow")])
+        time.sleep(1 if players else 0)
+    for p in players:
+        rcon(s["port"] + 10000, f"execute as {p} run transfer {HOST} {hub['port']} @s")
+    stop(name, s)
+    start(name, s)
+    reg = load_reg()
+    for p in players:
+        send_back(reg, reg[name], p)
+
+# Datapack auto-reload (#33): game + demo datapack sources of each up server. Files of these kinds are re-read by /reload;
+# anything else under data/<ns>/ (dialog, worldgen, dimension, enchantment, damage_type, ... and their tags) is a
+# registry that only loads at server start -> restart. The shared devnav pack is not watched (the daemon rewrites it on every
+# start), but a /reload would load it too, and reloading a server whose devnav changed since its start broke its tick tag:
+# such a server is restarted instead.
+DATA_RELOADABLE = {"function", "advancement", "loot_table", "predicate", "item_modifier", "recipe", "structure",
+                   "tags/function", "tags/block", "tags/item", "tags/entity_type", "tags/fluid", "tags/game_event"}
+DATA_ERRORS = re.compile(r"Failed to load function|Couldn't load tag|Failed to parse|Couldn't parse element|Failed to load")
+
+def data_layers(name, s):
+    """Datapack source dirs junctioned into this server (see write_server)."""
+    src = Path(s["src"])
+    return ([src / "datapack"] if name != "hub" else []) + ([src / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
+
+def data_files(name, s):
+    """{'<layer>:<path in the pack>': (size, mtime_ns)} over the server's datapack sources."""
+    out = {}
+    for i, layer in enumerate(data_layers(name, s)):
+        if layer.exists():
+            for f in layer.rglob("*"):
+                try:
+                    if f.is_file():
+                        st = f.stat()
+                        out[f"{'game' if i == 0 and name != 'hub' else 'demo'}:{f.relative_to(layer).as_posix()}"] = (st.st_size, st.st_mtime_ns)
+                except OSError:
+                    pass
+    return out
+
+def data_needs_restart(key):
+    """'<layer>:data/<ns>/<kind>/...' -> True if /reload can't apply it (dynamic registry)."""
+    parts = key.split(":", 1)[1].split("/")
+    if parts[0] != "data" or len(parts) < 4:
+        return False  # pack.mcmeta, README, ...
+    kind = parts[2] + ("/" + parts[3] if parts[2] == "tags" and len(parts) > 4 else "")
+    return kind not in DATA_RELOADABLE
+
+def devnav_signature():
+    """Content hash of the shared devnav pack (rewritten by every start: mtimes change, content usually doesn't)."""
+    import hashlib
+    h = hashlib.sha1()
+    d = STATE / "devnav"
+    for f in sorted(d.rglob("*")) if d.exists() else []:
+        if f.is_file():
+            h.update(f.relative_to(d).as_posix().encode() + b"\0" + f.read_bytes())
+    return h.hexdigest()
+
+class DataWatch:
+    """Datapacks reload by themselves (feedback #33): when an up server's datapack sources change and stay quiet for
+    PACK_QUIET_SECS, the daemon /reloads it, or restarts it (PACK_WARN_SECS warning, players parked on the hub and sent
+    back, as for resource packs) when a registry-only file changed or devnav changed since the server started."""
+    def __init__(self):
+        self.seen, self.next_check = {}, 0  # name -> {"started", "files", "changed": set, "at"}
+
+    def tick(self, reg):
+        now = time.time()
+        if now < self.next_check:
+            return
+        self.next_check = now + PACK_CHECK_SECS
+        for n, s in reg.items():
+            if s.get("status") != "up" or n in _busy:
+                continue
+            files = data_files(n, s)
+            w = self.seen.get(n)
+            if not w or w["started"] != s.get("started"):
+                self.seen[n] = {"started": s.get("started"), "files": files, "changed": set(), "at": None}
+                continue
+            if files != w["files"]:
+                old = w["files"]
+                w["changed"] |= {k for k in old.keys() | files.keys() if old.get(k) != files.get(k)}
+                w["files"], w["at"] = files, now
+                continue
+            if w["at"] and now - w["at"] >= PACK_QUIET_SECS:
+                changed, w["changed"], w["at"] = sorted(w["changed"]), set(), None
+                regs = [k for k in changed if data_needs_restart(k)]
+                devnav = s.get("devnav_sig") != devnav_signature()
+                players = online(s)
+                why = f"{len(changed)} file(s): " + ", ".join(changed[:3]) + (" ..." if len(changed) > 3 else "")
+                if regs or devnav:
+                    print(time.strftime("%H:%M:%S"), f"datapack of {n} changed ({why}), restarting it: "
+                          + (f"registry files {', '.join(regs[:3])}" if regs else "devnav changed since its start")
+                          + (f" ({', '.join(players)} online)" if players else ""), flush=True)
+                    background(n, pack_reload, n, players, "Datapack")
+                else:
+                    print(time.strftime("%H:%M:%S"), f"datapack of {n} changed ({why}), /reload", flush=True)
+                    background(n, data_reload, n, players)
+
+def data_reload(name, players):
+    """/reload over RCON; datapack errors from the reload go to daemon.log, players get a gray actionbar note."""
+    reg = load_reg()
+    s = reg.get(name)
+    if not s or s.get("status") != "up":
+        return
+    log = SERVERS / name / "logs" / "latest.log"
+    try:
+        pos = log.stat().st_size
+    except OSError:
+        pos = 0
+    rcon(s["port"] + 10000, "reload", timeout=30)
+    time.sleep(2)  # the reload can still be logging when /reload answers
+    try:
+        with open(log, "rb") as f:
+            f.seek(pos)
+            new = f.read().decode("utf-8", "replace").splitlines()
+    except OSError:
+        new = []
+    errs = [l.strip() for l in new if DATA_ERRORS.search(l)]
+    for e in errs[:10]:
+        print(time.strftime("%H:%M:%S"), f"WARNING {name} reload:", e, flush=True)
+    for p in players:
+        actionbar(s, p, [text("Datapack reloaded", "gray")] + ([text(f" ({len(errs)} errors)", "red")] if errs else []))
+
 def sleep_server(name, started):
     reg = sync_status(load_reg())
     s = reg.get(name)
@@ -1108,7 +1621,7 @@ def sleep_server(name, started):
         return
     stop(name, s)
     reg = load_reg()  # stop() can take a while; keep other servers' changes
-    if reg.get(name, {}).get("started") == started:
+    if reg.get(name, {}).get("started") == started and reg[name].get("status") != "archived":
         reg[name]["status"] = "sleeping"
         save_reg(reg)
     refresh_nav(sync_status(reg))
@@ -1116,13 +1629,29 @@ def sleep_server(name, started):
 
 def wake(name, player):
     """G > Servers on a sleeping server: start it with its saved settings, then send the player there from wherever they are."""
+    import threading
     reg = sync_status(load_reg())
     s = reg[name]
     if s.get("status") != "up":
-        print(time.strftime("%H:%M:%S"), f"waking {name}", flush=True)
+        reviving = s.get("status") == "archived"
+        print(time.strftime("%H:%M:%S"), f"{'reviving' if reviving else 'waking'} {name}", flush=True)
+        ready, sent = threading.Event(), []
+        if player:
+            est = s.get("boot_secs", 8) + (6 if reviving else 3)
+            threading.Thread(target=countdown, args=(player, name, est, ready, "Reviving" if reviving else "Waking"), daemon=True).start()
+        def go():  # the moment it accepts connections (before the post-start checks)
+            ready.set()
+            if player:
+                sent.append(send_back(load_reg(), load_reg()[name], player, anywhere=True))
+                if not sent[-1]:
+                    print(time.strftime("%H:%M:%S"), f"{name} is up but {player} wasn't found to transfer", flush=True)
         try:
-            start(name, s)
+            if reviving:
+                s = unarchive(name)
+            start(name, s, on_ready=go)
+            return
         except BaseException as e:
+            ready.set()
             reason = str(e) if isinstance(e, SystemExit) else repr(e)
             fresh = load_reg()
             if name in fresh and fresh[name].get("status") == "up" and not pid_alive(fresh[name].get("pid")):
@@ -1131,9 +1660,22 @@ def wake(name, player):
                 refresh_nav(sync_status(fresh))
             notify(f"Couldn't wake {name}: {reason}")
             raise
-        reg = load_reg()
     if player and not send_back(reg, reg[name], player, anywhere=True):
         print(time.strftime("%H:%M:%S"), f"{name} is up but {player} wasn't found to transfer", flush=True)
+
+def countdown(player, name, est, done, verb="Waking"):
+    """Actionbar 'Waking <name>… Ns' to the player, wherever they are, until `done` is set (target accepts connections)."""
+    t0, here = time.time(), None
+    while not done.is_set():
+        reg = load_reg()
+        here = where_is(reg, player, exclude_port=reg.get(name, {}).get("port"), prefer=here)
+        left = round(est - (time.time() - t0))
+        if here:
+            actionbar(here, player, [text(f"{verb} ", "gray"), text(name, "yellow"),
+                                     text(f"… {left}s" if left > 0 else "… almost", "gray")])
+        done.wait(1)
+    if here:
+        actionbar(here, player, [text("→ ", "green"), text(name, "yellow")])
 
 def ensure_daemon():
     STATE.mkdir(exist_ok=True)
@@ -1157,9 +1699,11 @@ def cmd_up(a):
     if name in reg and reg[name].get("status") == "up":
         print(f"{name} already up on :{reg[name]['port']}")
         return
+    if reg.get(name, {}).get("status") == "archived":
+        unarchive(name)
+        reg = sync_status(load_reg())
     preset = PRESETS.get(name, {})
-    used = {s["port"] for s in reg.values() if s.get("status") in ("up", "sleeping") or s.get("persistent")}
-    port = preset.get("port") or (reg.get(name, {}).get("port") if name in reg else None) or next(p for p in EPHEMERAL_PORTS if p not in used)
+    port = preset.get("port") or reg.get(name, {}).get("port") or free_port(reg, name)
     branch = a.branch or reg.get(name, {}).get("branch") or "main"
     src = source_for(branch)
     if a.demo and not (src / "demos" / a.demo / "datapack").exists():
@@ -1169,27 +1713,44 @@ def cmd_up(a):
              world=preset.get("world", "void"),
              desc=a.desc or preset.get("desc") or reg.get(name, {}).get("desc", ""))
     s["todo"] = a.todo or read_todo(src, s["demo"]) or reg.get(name, {}).get("todo", "")
+    sp = getattr(a, "spawn", None)
+    sp = parse_spawn(sp) if sp else read_spawn(src, s["demo"]) or reg.get(name, {}).get("spawn")
+    if sp:
+        s["spawn"] = sp
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
+    if reg.get(name, {}).get("archive"):  # note + id survive revive/re-archive
+        s["archive"] = reg[name]["archive"]
     t = start(name, s)
     print(f"{name} up on {HOST}:{port} ({t:.0f}s)  branch={branch}" + (f" demo={s['demo']}" if s['demo'] else ""))
     if name not in reg and not s["persistent"]:  # brand-new demo/branch server (not a restart)
         notify(f"New dev server {name}: {s['desc'] or s['branch']}")
 
-def start(name, s, _reg=None):
+def start(name, s, _reg=None, on_ready=None):
+    """Launch and wait for 'Done'. on_ready() runs as soon as the server accepts connections (wake: transfer the player),
+    before the post-start checks."""
     ensure_daemon()
     s["pack_sha1"] = build_resource_pack(name, s)
     reg = load_reg()
     reg[name] = s
     write_devnav(reg)
+    s["devnav_sig"] = devnav_signature()  # DataWatch: /reload is only safe while devnav is what this server started with
     write_server(name, s)
     harvest_feedback(name)  # then drop the old log so wait_ready can't see a stale "Done ("
     for f in (SERVERS / name / "logs" / "latest.log", SERVERS / name / ".feedback_seen"):
         f.unlink(missing_ok=True)
+    wait_ports_free(name, s["port"])
     s.update(pid=launch(name, s), started=time.time(), status="up")
     reg = load_reg()
     reg[name] = s
     save_reg(reg)
     t = wait_ready(name, s)
+    boot = round(time.time() - s["started"])
+    if on_ready:
+        on_ready()
+    reg = load_reg()
+    if reg.get(name, {}).get("started") == s["started"]:  # boot time -> the next wake countdown's estimate
+        s["boot_secs"] = reg[name]["boot_secs"] = boot
+        save_reg(reg)
     refresh_nav(sync_status(reg))
     for w in check_server(name, s):
         print("WARNING:", w)
@@ -1203,10 +1764,12 @@ def check_server(name, s):
     warn += [l.strip() for l in log.splitlines()
              if re.search(r"Failed to load function|Couldn't load tag|Failed to parse|Couldn't parse element", l)]
     packs = [Path(s["src"]) / "datapack"] + ([Path(s["src"]) / "demos" / s["demo"] / "datapack"] if s.get("demo") else [])
+    # all packs together: a demo pack may show buttons for a trigger the game pack enables (e.g. a generated shop catalog)
+    files = [f for pack in packs for f in list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))]
+    text = {f: re.sub(r"(?m)^\s*#.*$", "", f.read_text(errors="replace")) for f in files}  # ignore comments
     for pack in packs:
-        files = list(pack.rglob("*.mcfunction")) + list(pack.rglob("*.json"))
-        text = {f: re.sub(r"(?m)^\s*#.*$", "", f.read_text(errors="replace")) for f in files}  # ignore comments
-        used = {o for t in text.values() for o in re.findall(r"(?m)(?:^\s*|run |/|\")trigger ([\w.]+)", t)}
+        used = {o for f, t in text.items() if pack in f.parents
+                for o in re.findall(r"(?m)(?:^\s*|run |/|\")trigger ([\w.]+)", t)}
         for obj in used:
             # the last enable/reset of obj in a function decides whether it is triggerable between ticks
             ok = False
@@ -1218,6 +1781,22 @@ def check_server(name, s):
             if not ok:
                 warn.append(f"{pack.parent.name}: trigger '{obj}' is never left enabled (enable it after any 'reset @a {obj}')")
     return warn
+
+def spawn_of(s):
+    """(x, y, z, yaw) ints: where players land on this server (block coords; the block below is made solid)."""
+    v = [int(float(x)) for x in (s.get("spawn") or [0, 64, 0])]
+    return v[:3] + [v[3] if len(v) > 3 else 0]
+
+def parse_spawn(t):
+    v = [float(x) for x in str(t).replace(",", " ").split()]
+    if len(v) not in (3, 4):
+        raise ValueError(f"spawn must be 'x y z [yaw]', got {t!r}")
+    return [int(x) for x in v]
+
+def read_spawn(src, demo):
+    """demos/<demo>/spawn.txt: 'x y z [yaw]' = where players land (world spawn), default 0 64 0."""
+    f = Path(src) / "demos" / str(demo) / "spawn.txt"
+    return parse_spawn(f.read_text().strip()) if demo and f.exists() else None
 
 def read_todo(src, demo):
     """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
@@ -1285,6 +1864,69 @@ def cmd_restart(a):
                 break
             time.sleep(0.5)
 
+def restore_source(s):
+    """Checkout for an archived server: its worktree, else re-added from the branch, else from the recorded commit."""
+    branch = s["branch"]
+    if branch in (None, "main"):
+        return ROOT
+    wt = WORKTREES / branch.replace("/", "-")
+    if wt.exists():
+        return wt
+    commit = s.get("archive", {}).get("commit")
+    if git("rev-parse", "--verify", "--quiet", branch).returncode == 0:
+        r = git("worktree", "add", str(wt), branch)
+    elif commit:
+        r = git("worktree", "add", "-b", branch, str(wt), commit)
+    else:
+        sys.exit(f"branch {branch} is gone and no commit was recorded")
+    if r.returncode:
+        sys.exit(r.stderr)
+    return wt
+
+def unarchive(name):
+    """Archived -> down, with a checkout and a fresh port; the caller starts it. Keeps s["archive"] (note, aid) for next time."""
+    reg = sync_status(load_reg())
+    s = reg[name]
+    s["src"] = str(restore_source(s))
+    s["port"] = free_port(reg, name)
+    s["status"] = "down"
+    save_reg(reg)
+    print(time.strftime("%H:%M:%S"), f"unarchived {name} -> :{s['port']} ({s['src']})", flush=True)
+    return s
+
+def cmd_archive(a):
+    reg = sync_status(load_reg())
+    s = reg.get(a.name)
+    if not s:
+        sys.exit(f"unknown server {a.name}")
+    if s["persistent"]:
+        sys.exit(f"{a.name} is persistent (hub/main/test), not archivable")
+    if s.get("status") != "archived":
+        stop(a.name, s)
+    src = Path(s["src"])
+    head = git("rev-parse", "HEAD", cwd=src) if src.exists() else git("rev-parse", "--verify", "--quiet", s["branch"])
+    commit = head.stdout.strip() or s.get("archive", {}).get("commit")
+    if commit:  # a ref keeps the commit alive even if the branch is deleted later
+        git("update-ref", f"refs/mcdev/archive/{a.name}", commit)
+    if src.exists() and src != ROOT and git("status", "--porcelain", "--untracked-files=no", cwd=src).stdout.strip():
+        print(f"WARNING: {src} has uncommitted changes; they are lost if the worktree is removed")
+    reg = load_reg()  # stop() can take a while
+    prev = reg[a.name].get("archive", {})
+    aid = prev.get("aid") or 1 + max((x.get("archive", {}).get("aid", 0) for x in reg.values()), default=0)
+    reg[a.name] = dict(s, status="archived", review=False, port=0,
+                       archive=dict(date=time.strftime("%Y-%m-%d %H:%M"), note=a.note or prev.get("note", ""),
+                                    commit=commit, port=s["port"] or prev.get("port"), aid=aid))
+    save_reg(reg)
+    refresh_nav(sync_status(reg))
+    print(f"{a.name} archived ({s['branch']}@{(commit or '?')[:7]}, world kept in {SERVERS / a.name})")
+
+def cmd_unarchive(a):
+    reg = load_reg()
+    if reg.get(a.name, {}).get("status") != "archived":
+        sys.exit(f"{a.name} is not archived")
+    a.branch = a.demo = a.desc = a.mem = a.todo = None
+    cmd_up(a)
+
 def cmd_reset(a):
     if a.name != "test":
         sys.exit("only `reset test` is supported (copies main's world)")
@@ -1301,7 +1943,14 @@ def cmd_ls(a):
     save_reg(reg)
     print(f"{'name':<22}{'state':<10}{'addr':<17}{'branch':<22}{'demo':<16}desc")
     for n, s in sorted(reg.items(), key=lambda kv: kv[1]["port"]):
-        print(f"{n:<22}{s['status'] + ('*' if s.get('review') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+        if s.get("status") != "archived":
+            print(f"{n:<22}{s['status'] + ('*' if s.get('review') else ''):<10}{HOST + ':' + str(s['port']):<17}{s['branch']:<22}{s.get('demo') or '-':<16}{s['desc']}")
+    arch = archived(reg)
+    if arch:
+        print(f"\narchived ({len(arch)}): `mcdev unarchive <name>` or G > Servers > Archive revives one")
+        for n, s in arch:
+            ar = s["archive"]
+            print(f"{n:<22}{ar['date']:<18}{s['branch'] + '@' + (ar.get('commit') or '?')[:7]:<35}{s.get('demo') or '-':<17}{ar.get('note') or s['desc']}")
     print(f"pack server: http://{HOST}:{HTTP_PORT}  ({'up' if port_open(HTTP_PORT) else 'down'})"
           f"   * = awaiting review; sleeping = stopped after {IDLE_SLEEP_SECS // 60} min empty, `mcdev up <name>` or G > Servers wakes it")
 
@@ -1353,6 +2002,7 @@ def main():
     sp = p.add_subparsers(dest="cmd", required=True)
     u = sp.add_parser("up"); u.add_argument("name"); u.add_argument("--branch"); u.add_argument("--demo")
     u.add_argument("--desc"); u.add_argument("--mem"); u.add_argument("--todo", help="what the user should try (else demos/<demo>/try.txt)")
+    u.add_argument("--spawn", help="'x y z [yaw]' where players land (else demos/<demo>/spawn.txt, else kept, else 0 64 0)")
     u.set_defaults(f=cmd_up)
     rv = sp.add_parser("review", help="star a server as awaiting review, or --done")
     rv.add_argument("name"); rv.add_argument("--done", action="store_true"); rv.set_defaults(f=cmd_review)
@@ -1360,6 +2010,9 @@ def main():
     for nm, f in (("restart", cmd_restart), ("reset", cmd_reset)):
         x = sp.add_parser(nm); x.add_argument("name"); x.set_defaults(f=f)
     sp.add_parser("ls").set_defaults(f=cmd_ls)
+    ar = sp.add_parser("archive", help="stop a server and keep it in the archive (port freed)")
+    ar.add_argument("name"); ar.add_argument("--note", default=""); ar.set_defaults(f=cmd_archive)
+    ua = sp.add_parser("unarchive", help="revive an archived server (= up <name>)"); ua.add_argument("name"); ua.set_defaults(f=cmd_unarchive)
     r = sp.add_parser("reload"); r.add_argument("name", nargs="?"); r.set_defaults(f=cmd_reload)
     c = sp.add_parser("cmd"); c.add_argument("name"); c.add_argument("command", nargs="+"); c.set_defaults(f=cmd_cmd)
     l = sp.add_parser("logs"); l.add_argument("name"); l.add_argument("-n", type=int, default=40); l.set_defaults(f=cmd_logs)
@@ -1372,6 +2025,8 @@ def main():
     a = p.parse_args()
     for st in (sys.stdout, sys.stderr):  # cp1252 consoles: don't crash on RCON replies with symbols
         st.reconfigure(errors="backslashreplace")
+    if a.cmd != "_daemon":  # any command brings the daemon back (feedback, inbox, idle sleep, pack/datapack watch)
+        ensure_daemon()
     a.f(a)
 
 if __name__ == "__main__":

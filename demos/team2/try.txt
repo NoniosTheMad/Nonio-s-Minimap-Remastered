@@ -1,0 +1,7 @@
+Offering altar, spawn defense, Emerald Talisman. Buttons: G > "Demo: Team altar" (the first 9 are new).
+1. "Start match" (prep lasts 5 min). "TP: my altar": a respawn anchor with OFFERINGS over it (Kit I -> II, 0/16 0/16 0/8).
+2. Altar: "8 iron/gold + 2 diamond blocks", right-click the anchor (only part is taken, the actionbar and hologram show it), then "Offering blocks (next step)" and right-click again: Kit II, team sound + chat line, anchor charges go up. Repeat for Kit III (64/64/64). Enemies' altar: "It does not answer to you". Lobby: "The altar is silent".
+3. Kit level: "Class: Warrior (basic)", "Kill me": you respawn with the kit of your team's level ("Class status" shows it).
+4. Talisman: "Emerald Talisman", right-click it to wear it (emerald cube on your head, cannot be taken off). +1 coin every 3 s in prep/battle ("Time x10": every second). Is the head model right?
+5. Spawn defense: after the walls drop ("Skip phase"), "TP: enemy spawn": you take heavy damage every half second within 4 blocks of their pad; your own spawn never hurts you. "Spawn defense on/off" to compare. Also: admin panel "Lightning Rabbit" switch, the recipe book is full after Start, "Buy: Dragon Skull" (try again after "+3,200,000 coins").
+Feedback: altar look/costs, damage strength and zone size, talisman income and model.

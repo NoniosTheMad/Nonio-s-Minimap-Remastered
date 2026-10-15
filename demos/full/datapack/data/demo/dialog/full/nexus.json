@@ -1,0 +1,117 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Full match: Nexus / Barrier",
+  "color": "red"
+ },
+ "body": {
+  "type": "minecraft:plain_message",
+  "width": 300,
+  "contents": {
+   "text": "Barrier damage, pressure, decay",
+   "color": "gray"
+  }
+ },
+ "actions": [
+  {
+   "label": {
+    "text": "Destroy MY Nexus",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Last life: your next death makes you a spectator"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Destroy ENEMY Nexus",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Win test (battle only: kill any enemy dummies too)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 10"
+   }
+  },
+  {
+   "label": "Ranged kit",
+   "tooltip": {
+    "text": "Power V bow, crossbow, trident, rockets, wind charges: shoot the enemy Barrier"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 68"
+   }
+  },
+  {
+   "label": "Centre hold: off/W/B",
+   "tooltip": {
+    "text": "Simulate a team holding the centre node: the enemy Barrier drains, ramping up"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 69"
+   }
+  },
+  {
+   "label": "Centre hold +4 min",
+   "tooltip": {
+    "text": "Skip the ramp (full rate after 5 min held)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 70"
+   }
+  },
+  {
+   "label": "Barrier minute 20",
+   "tooltip": {
+    "text": "Both Barriers start to decay: 10% of max per minute, down at minute 30"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 71"
+   }
+  },
+  {
+   "label": {
+    "text": "TP: enemy spawn",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 59"
+   },
+   "tooltip": {
+    "text": "Spawn defense: Instant Damage II every 0.5 s within 4 blocks"
+   }
+  },
+  {
+   "label": {
+    "text": "Spawn defense on/off"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.full set 63"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false,
+ "exit_action": {
+  "label": {
+   "text": "◀ Back",
+   "color": "aqua"
+  },
+  "action": {
+   "type": "minecraft:show_dialog",
+   "dialog": "demo:full"
+  }
+ }
+}

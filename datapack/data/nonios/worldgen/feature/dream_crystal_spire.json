@@ -1,0 +1,76 @@
+{
+ "type": "minecraft:block_column",
+ "allowed_placement": {
+  "type": "minecraft:matching_block_tag",
+  "tag": "minecraft:air"
+ },
+ "direction": "up",
+ "layers": [
+  {
+   "height": {
+    "type": "minecraft:uniform",
+    "min_inclusive": 1,
+    "max_inclusive": 2
+   },
+   "provider": {
+    "id": "minecraft:amethyst_block"
+   }
+  },
+  {
+   "height": {
+    "type": "minecraft:uniform",
+    "min_inclusive": 1,
+    "max_inclusive": 3
+   },
+   "provider": {
+    "type": "minecraft:weighted",
+    "entries": [
+     {
+      "data": {
+       "id": "minecraft:lime_stained_glass"
+      },
+      "weight": 3
+     },
+     {
+      "data": {
+       "id": "minecraft:green_stained_glass"
+      },
+      "weight": 2
+     }
+    ]
+   }
+  },
+  {
+   "height": 1,
+   "provider": {
+    "id": "minecraft:verdant_froglight",
+    "properties": {
+     "axis": "y"
+    }
+   }
+  },
+  {
+   "height": {
+    "type": "minecraft:weighted_list",
+    "distribution": [
+     {
+      "data": 0,
+      "weight": 1
+     },
+     {
+      "data": 1,
+      "weight": 1
+     }
+    ]
+   },
+   "provider": {
+    "id": "minecraft:amethyst_cluster",
+    "properties": {
+     "facing": "up",
+     "waterlogged": "false"
+    }
+   }
+  }
+ ],
+ "prioritize_tip": true
+}

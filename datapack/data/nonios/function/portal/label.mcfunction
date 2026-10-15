@@ -1,0 +1,2 @@
+$execute if score #$(team) nx.portal matches 1 as @e[type=text_display,tag=nx.dream_label,tag=nx.$(team)] run data modify entity @s text set value {text:"EMERALD DREAM",color:"green",bold:true}
+$execute unless score #$(team) nx.portal matches 1 as @e[type=text_display,tag=nx.dream_label,tag=nx.$(team)] run data modify entity @s text set value [{text:"EMERALD DREAM",color:"dark_green",bold:true},{text:"\n$(cost) coins",color:"gold",bold:false}]

@@ -1,0 +1,61 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:leather_boots",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:dyed_color": 10329495,
+        "minecraft:equippable": {
+         "slot": "feet"
+        },
+        "minecraft:enchantments": {
+         "nonios:class/ninja_sandals": 1,
+         "minecraft:frost_walker": 1,
+         "minecraft:depth_strider": 3,
+         "minecraft:feather_falling": 4,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "ninja",
+         "nx_item": "ninja_feet",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Chunin Sandals",
+         "color": "aqua",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Enables Naruto-Run",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": "Ninja \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

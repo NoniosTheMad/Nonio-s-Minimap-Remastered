@@ -1,0 +1,177 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Arena",
+  "color": "gold"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 320,
+   "contents": {
+    "text": "Three contested nodes. Stand on a pad to capture it (bossbar while inside: team colour, red = contested). A held node pays loot every 30 s. Timed events hit a random node. Dummies are husks on the other team: they count for capture.",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "Switch my team",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "White <-> Black"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Spawn enemy dummy",
+    "color": "light_purple"
+   },
+   "tooltip": {
+    "text": "A husk of the other team on the node nearest to you (counts for capture)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Remove dummies",
+    "color": "gray"
+   },
+   "tooltip": {
+    "text": "Kill all dummies"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Trigger random event",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Picked by weight, like the timer does"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Event: Emerald Surge",
+    "color": "green"
+   },
+   "tooltip": {
+    "text": "Emerald fountain at a random node"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Event: Supply Drop",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Loot chest falls on a node (frogs: Demo events)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Event: Golden Hour",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Held nodes pay double for a minute"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Toggle lightning",
+    "color": "yellow"
+   },
+   "tooltip": {
+    "text": "The V2 Lightning Rabbit: roams the arena calling bolts on itself"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Speed x10 / x1",
+    "color": "aqua"
+   },
+   "tooltip": {
+    "text": "Payout, event and lightning timers (not capture)"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Payouts: drop / bank",
+    "color": "gold"
+   },
+   "tooltip": {
+    "text": "Switch the payout hook demo: loot at the node or coins to a team bank"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Status",
+    "color": "white"
+   },
+   "tooltip": {
+    "text": "Owners, progress, timers"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 11"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset",
+    "color": "red"
+   },
+   "tooltip": {
+    "text": "Neutral nodes, x1, lightning off, clear dummies and drops"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.arena set 12"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

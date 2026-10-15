@@ -3,6 +3,7 @@
 function nonios:class/strip
 scoreboard players set @s nx.class 2
 function nonios:class/gen/cracy_frog/equip
+scoreboard players set @s nx.tier 0
 function nonios:class/gen/cracy_frog/vision
 function nonios:class/cracy_frog/on_apply
 tellraw @s [{"text":"✦ You are now a ","color":"gray"},{"text":"Cracy Frog","color":"dark_purple"},{"text":" (lost on death)","color":"dark_gray"}]

@@ -3,6 +3,7 @@
 function nonios:class/strip
 scoreboard players set @s nx.class 1
 function nonios:class/gen/reaper/equip
+scoreboard players set @s nx.tier 2
 function nonios:class/gen/reaper/vision
 function nonios:class/reaper/on_apply
 tellraw @s [{"text":"✦ You are now a ","color":"gray"},{"text":"Reaper","color":"dark_gray"},{"text":" (lost on death)","color":"dark_gray"}]

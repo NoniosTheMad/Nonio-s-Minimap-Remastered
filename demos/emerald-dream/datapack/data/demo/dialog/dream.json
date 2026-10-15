@@ -1,0 +1,151 @@
+{
+ "type": "minecraft:multi_action",
+ "title": {
+  "text": "Demo: Emerald Dream",
+  "color": "green"
+ },
+ "body": [
+  {
+   "type": "minecraft:plain_message",
+   "width": 320,
+   "contents": {
+    "text": "A dream dimension of floating emerald islands. You arrive at a random spot; ore veins around you regrow after you mine them. To leave, hold sneak until the bar fills (default 5 s). Letting go or taking damage cancels it - and others hear you chiming. You wake up where you fell asleep.",
+    "color": "gray"
+   }
+  }
+ ],
+ "actions": [
+  {
+   "label": {
+    "text": "Enter the Emerald Dream",
+    "color": "green"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 1"
+   }
+  },
+  {
+   "label": {
+    "text": "Wake up now (force exit)",
+    "color": "red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 2"
+   }
+  },
+  {
+   "label": {
+    "text": "Regrow all veins",
+    "color": "aqua"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 3"
+   }
+  },
+  {
+   "label": {
+    "text": "Hurt me (test cancel)",
+    "color": "dark_red"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 10"
+   }
+  },
+  {
+   "label": {
+    "text": "Channel 2 s",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 4"
+   }
+  },
+  {
+   "label": {
+    "text": "Channel 5 s (default)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 5"
+   }
+  },
+  {
+   "label": {
+    "text": "Channel 10 s",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 6"
+   }
+  },
+  {
+   "label": {
+    "text": "Channel 15 s",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 7"
+   }
+  },
+  {
+   "label": {
+    "text": "Veins regrow 10 s",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 8"
+   }
+  },
+  {
+   "label": {
+    "text": "Veins regrow 30 s (default)",
+    "color": "gray"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 9"
+   }
+  },
+  {
+   "label": {
+    "text": "Show settings",
+    "color": "yellow"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 11"
+   }
+  },
+  {
+   "label": {
+    "text": "Give gear",
+    "color": "yellow"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 12"
+   }
+  },
+  {
+   "label": {
+    "text": "Reset my coins",
+    "color": "gold"
+   },
+   "action": {
+    "type": "minecraft:run_command",
+    "command": "trigger demo.ed set 13"
+   }
+  }
+ ],
+ "columns": 2,
+ "pause": false
+}

@@ -1,0 +1,238 @@
+{
+  "_doc": [
+    "Shop catalog (V2 'OPEN SHOP' menus, command blocks at 43,165,-37..-47). python tools/build_shop.py writes",
+    "datapack/data/nonios/function/shop/catalog.mcfunction (storage nonios:shop items + sections). Edit prices here, rebuild, /reload.",
+    "sections: shown in this order on the shop's first page; line = the Shop Keeper's V2 flavour line for that page.",
+    "  classes: true = the page lists the classes from src/classes.json (tools/build_classes.py -> class/gen/shop_items).",
+    "items: v2 = V2 WhiteShop id (reference only). name = button label. price = coins from the purse.",
+    "  kind item (default): give id x count with components (raw 26.3 item components, JSON form). Needs a free slot.",
+    "  kind enchant: enchants the item in the main hand (ench, lvl). Refused, nothing taken, if the item can't take it.",
+    "  kind xp: adds lvl levels.",
+    "  icon = 'item/<tex>' (items atlas) or 'block/<tex>' (blocks atlas). blurb = V2 hover text (tooltip). chat = text component sent to the buyer.",
+    "The same V2 item can sit on several pages (V2 did that too); each entry is its own button.",
+    "References: {same: v2} copies an earlier item, {special: id} = src/specials.json, {class: id, name, v2} = a class under another label."
+  ],
+  "sections": [
+    {
+      "id": "blocks", "name": "Blocks", "icon": "block/cobblestone",
+      "line": "You're in Minecraft and still want to pay for blocks? As you wish.",
+      "items": [
+        {"v2": 4, "name": "Netherrack", "id": "minecraft:netherrack", "count": 32, "price": 4, "icon": "block/netherrack"},
+        {"v2": 1, "name": "Dirt", "id": "minecraft:dirt", "count": 4, "price": 1, "icon": "block/dirt"},
+        {"v2": 2, "name": "Cobblestone", "id": "minecraft:cobblestone", "count": 2, "price": 1, "icon": "block/cobblestone"},
+        {"v2": 3, "name": "Log", "id": "minecraft:oak_log", "count": 2, "price": 1, "icon": "block/oak_log"},
+        {"v2": 7, "name": "Oak Sapling", "id": "minecraft:oak_sapling", "count": 1, "price": 4, "icon": "block/oak_sapling"},
+        {"v2": 8, "name": "Spruce Sapling", "id": "minecraft:spruce_sapling", "count": 1, "price": 4, "icon": "block/spruce_sapling"},
+        {"v2": 5, "name": "Dark Glass", "id": "minecraft:black_stained_glass", "count": 4, "price": 16, "icon": "block/black_stained_glass"},
+        {"v2": 10, "name": "Sand", "id": "minecraft:sand", "count": 3, "price": 3, "icon": "block/sand"},
+        {"v2": 11, "name": "Sugar Cane", "id": "minecraft:sugar_cane", "count": 1, "price": 4, "icon": "item/sugar_cane"},
+        {"v2": 200, "name": "Brown Mushroom", "id": "minecraft:brown_mushroom", "count": 1, "price": 4, "icon": "block/brown_mushroom"},
+        {"v2": 9, "name": "Soul Sand", "id": "minecraft:soul_sand", "count": 1, "price": 12, "icon": "block/soul_sand"},
+        {"v2": 6, "name": "Obsidian", "id": "minecraft:obsidian", "count": 1, "price": 12, "icon": "block/obsidian"}
+      ]
+    },
+    {
+      "id": "ores", "name": "Ores", "icon": "block/iron_block",
+      "line": "Of course you can put your filthy hands on my precious ores! For a price.",
+      "items": [
+        {"v2": 12, "name": "Coal Block", "id": "minecraft:coal_block", "count": 2, "price": 1, "icon": "block/coal_block"},
+        {"v2": 13, "name": "Iron Block", "id": "minecraft:iron_block", "count": 1, "price": 4, "icon": "block/iron_block"},
+        {"v2": 14, "name": "Gold Block", "id": "minecraft:gold_block", "count": 1, "price": 6, "icon": "block/gold_block"},
+        {"v2": 16, "name": "Redstone", "id": "minecraft:redstone", "count": 1, "price": 3, "icon": "item/redstone"},
+        {"v2": 17, "name": "Glowstone", "id": "minecraft:glowstone_dust", "count": 1, "price": 3, "icon": "item/glowstone_dust"},
+        {"v2": 39, "name": "Lapis Lazuli", "id": "minecraft:lapis_lazuli", "count": 3, "price": 5, "icon": "item/lapis_lazuli"},
+        {"v2": 15, "name": "Diamond Block", "id": "minecraft:diamond_block", "count": 1, "price": 12, "icon": "block/diamond_block"}
+      ]
+    },
+    {
+      "id": "food", "name": "Food", "icon": "item/cooked_beef",
+      "line": "You'll see that I have the most exquisite meals.",
+      "items": [
+        {"v2": 19, "name": "Carrots", "id": "minecraft:carrot", "count": 16, "price": 1, "icon": "item/carrot"},
+        {"v2": 20, "name": "Steak", "id": "minecraft:cooked_beef", "count": 2, "price": 1, "icon": "item/cooked_beef"},
+        {"v2": 21, "name": "Golden Carrot", "id": "minecraft:golden_carrot", "count": 1, "price": 1, "icon": "item/golden_carrot"},
+        {"v2": 22, "name": "Golden Apple", "id": "minecraft:golden_apple", "count": 1, "price": 40, "icon": "item/golden_apple"},
+        {"v2": 23, "name": "Enchanted Apple", "id": "minecraft:enchanted_golden_apple", "count": 1, "price": 300, "icon": "item/golden_apple"}
+      ]
+    },
+    {
+      "id": "utility", "name": "Utility", "icon": "item/ender_pearl",
+      "line": "Perhaps these artefacts are of some use to you",
+      "items": [
+        {"v2": 28, "name": "Slimeball", "id": "minecraft:slime_ball", "count": 1, "price": 5, "icon": "item/slime_ball"},
+        {"v2": 27, "name": "Cobweb", "id": "minecraft:cobweb", "count": 4, "price": 10, "icon": "block/cobweb"},
+        {"v2": 25, "name": "Water Bucket", "id": "minecraft:water_bucket", "count": 1, "price": 5, "icon": "item/water_bucket"},
+        {"v2": 26, "name": "Lava Bucket", "id": "minecraft:lava_bucket", "count": 1, "price": 10, "icon": "item/lava_bucket"},
+        {"v2": 29, "name": "Milk", "id": "minecraft:milk_bucket", "count": 1, "price": 10, "icon": "item/milk_bucket"},
+        {"v2": 32, "name": "Flint & Steel", "id": "minecraft:flint_and_steel", "count": 1, "price": 10, "icon": "item/flint_and_steel"},
+        {"v2": 33, "name": "Fireworks", "id": "minecraft:firework_rocket", "count": 8, "price": 8, "icon": "item/firework_rocket",
+         "components": {
+           "minecraft:custom_name": "Farting device",
+           "minecraft:lore": ["Usually for other purposes"],
+           "minecraft:fireworks": {"flight_duration": 1, "explosions": [
+             {"shape": "burst", "colors": [3887386, 2437522, 8073150], "fade_colors": [11743532, 14602026, 15435844], "has_trail": false, "has_twinkle": false},
+             {"shape": "large_ball", "colors": [11743532, 14602026, 15435844], "fade_colors": [2437522, 4312372, 6719955], "has_trail": false, "has_twinkle": false}
+           ]}
+         }},
+        {"v2": 31, "name": "TNT", "id": "minecraft:tnt", "count": 4, "price": 320, "icon": "block/tnt_side"},
+        {"v2": 22, "name": "Golden Apple", "id": "minecraft:golden_apple", "count": 1, "price": 40, "icon": "item/golden_apple"},
+        {"v2": 30, "name": "End Crystal", "id": "minecraft:end_crystal", "count": 1, "price": 100, "icon": "item/end_crystal"},
+        {"v2": 24, "name": "Ender Pearl", "id": "minecraft:ender_pearl", "count": 1, "price": 100, "icon": "item/ender_pearl"},
+        {"v2": 23, "name": "Enchanted Apple", "id": "minecraft:enchanted_golden_apple", "count": 1, "price": 300, "icon": "item/golden_apple"},
+        {"v2": 34, "name": "Totem of Undying", "id": "minecraft:totem_of_undying", "count": 1, "price": 500, "icon": "item/totem_of_undying"}
+      ]
+    },
+    {
+      "id": "enchanting", "name": "Enchanting", "icon": "item/enchanted_book",
+      "line": "Welcome to Hogwarts!",
+      "items": [
+        {"v2": 48, "name": "Curse of Vanishing", "kind": "enchant", "ench": "minecraft:vanishing_curse", "lvl": 1, "price": 10, "icon": "item/enchanted_book"},
+        {"v2": 49, "name": "Curse of Binding", "kind": "enchant", "ench": "minecraft:binding_curse", "lvl": 1, "price": 10, "icon": "item/enchanted_book"},
+        {"v2": 36, "name": "Book", "id": "minecraft:book", "count": 1, "price": 3, "icon": "item/book"},
+        {"v2": 37, "name": "Bookshelf", "id": "minecraft:bookshelf", "count": 1, "price": 10, "icon": "block/bookshelf"},
+        {"v2": 39, "name": "Lapis Lazuli", "id": "minecraft:lapis_lazuli", "count": 3, "price": 5, "icon": "item/lapis_lazuli"},
+        {"v2": 43, "name": "Efficiency II", "kind": "enchant", "ench": "minecraft:efficiency", "lvl": 2, "price": 20, "icon": "item/enchanted_book"},
+        {"v2": 53, "name": "Knockback I", "kind": "enchant", "ench": "minecraft:knockback", "lvl": 1, "price": 30, "icon": "item/enchanted_book"},
+        {"v2": 45, "name": "Power III", "kind": "enchant", "ench": "minecraft:power", "lvl": 3, "price": 50, "icon": "item/enchanted_book"},
+        {"v2": 50, "name": "Sharpness III", "kind": "enchant", "ench": "minecraft:sharpness", "lvl": 3, "price": 50, "icon": "item/enchanted_book"},
+        {"v2": 51, "name": "Fire Aspect I", "kind": "enchant", "ench": "minecraft:fire_aspect", "lvl": 1, "price": 60, "icon": "item/enchanted_book"},
+        {"v2": 40, "name": "Fortune III", "kind": "enchant", "ench": "minecraft:fortune", "lvl": 3, "price": 30, "icon": "item/enchanted_book"},
+        {"v2": 46, "name": "Flame", "kind": "enchant", "ench": "minecraft:flame", "lvl": 1, "price": 60, "icon": "item/enchanted_book"},
+        {"v2": 47, "name": "Infinity", "kind": "enchant", "ench": "minecraft:infinity", "lvl": 1, "price": 100, "icon": "item/enchanted_book"},
+        {"v2": 44, "name": "Efficiency V", "kind": "enchant", "ench": "minecraft:efficiency", "lvl": 5, "price": 200, "icon": "item/enchanted_book"},
+        {"v2": 35, "name": "XP Levels", "kind": "xp", "lvl": 10, "count": 10, "price": 100, "icon": "item/experience_bottle"},
+        {"v2": 38, "name": "Enchanting Table", "id": "minecraft:enchanting_table", "count": 1, "price": 75, "icon": "block/enchanting_table_top"}
+      ]
+    },
+    {
+      "id": "tools", "name": "Tools", "icon": "item/diamond_pickaxe",
+      "line": "Once I went to the heavens, grabbed a few tools and ran as fast as my legs allowed. Now fools like you make me rich.",
+      "items": [
+        {"v2": 201, "name": "Bow", "id": "minecraft:bow", "count": 1, "price": 20, "icon": "item/bow"},
+        {"v2": 41, "name": "Tinkiwinki's Touch", "id": "minecraft:iron_pickaxe", "count": 1, "price": 200, "icon": "item/iron_pickaxe", "blurb": "Feeling lucky?",
+         "components": {
+           "minecraft:custom_name": "Tinkiwinki's Touch",
+           "minecraft:lore": ["Comes from a better place"],
+           "minecraft:enchantments": {"minecraft:fortune": 5},
+           "minecraft:unbreakable": {},
+           "minecraft:attribute_modifiers": [
+             {"type": "minecraft:luck", "amount": 10, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/tinkiwinki_luck"}
+           ]
+         }},
+        {"v2": 42, "name": "Nonios's Weakness", "id": "minecraft:diamond_pickaxe", "count": 1, "price": 500, "icon": "item/diamond_pickaxe", "blurb": "What could it be?",
+         "chat": [{"text": "<NoniosTheMad> ", "color": "gold"}, {"text": "Good Choice! ", "color": "white"}],
+         "components": {
+           "minecraft:custom_name": "Nonios's Weakness",
+           "minecraft:lore": ["He rushes this everytime..."],
+           "minecraft:enchantments": {"minecraft:efficiency": 5, "minecraft:fortune": 10},
+           "minecraft:unbreakable": {},
+           "minecraft:attribute_modifiers": [
+             {"type": "minecraft:luck", "amount": 100, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/nonios_luck"}
+           ]
+         }},
+        {"v2": 52, "name": "Satan's Blade", "id": "minecraft:diamond_sword", "count": 1, "price": 2000, "icon": "item/diamond_sword", "blurb": "Let there be flames",
+         "components": {
+           "minecraft:custom_name": "Satan's Blade",
+           "minecraft:lore": ["It's not time for you to go to Hell. That's why Hell came to you."],
+           "minecraft:enchantments": {"minecraft:vanishing_curse": 1, "minecraft:fire_aspect": 100, "minecraft:fire_protection": 25, "minecraft:knockback": 3},
+           "minecraft:unbreakable": {},
+           "minecraft:tooltip_display": {"hidden_components": ["minecraft:enchantments", "minecraft:unbreakable"]},
+           "minecraft:attribute_modifiers": [
+             {"type": "minecraft:attack_damage", "amount": 12, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/satan_damage"},
+             {"type": "minecraft:movement_speed", "amount": -0.025, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/satan_speed"},
+             {"type": "minecraft:max_health", "amount": 20, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/satan_health"},
+             {"type": "minecraft:armor_toughness", "amount": 4, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/satan_toughness"},
+             {"type": "minecraft:knockback_resistance", "amount": 1, "operation": "add_value", "slot": "mainhand", "id": "nonios:shop/satan_knockback"}
+           ]
+         }}
+      ]
+    },
+    {
+      "id": "alchemy", "name": "Alchemy", "icon": "item/potion",
+      "line": "Welcome to Hogwarts!",
+      "items": [
+        {"v2": 10, "name": "Sand", "id": "minecraft:sand", "count": 3, "price": 3, "icon": "block/sand"},
+        {"v2": 11, "name": "Sugar Cane", "id": "minecraft:sugar_cane", "count": 1, "price": 4, "icon": "item/sugar_cane"},
+        {"v2": 200, "name": "Brown Mushroom", "id": "minecraft:brown_mushroom", "count": 1, "price": 4, "icon": "block/brown_mushroom"},
+        {"v2": 56, "name": "Rabbit's Foot", "id": "minecraft:rabbit_foot", "count": 1, "price": 5, "icon": "item/rabbit_foot"},
+        {"v2": 59, "name": "Spider Eye", "id": "minecraft:spider_eye", "count": 1, "price": 5, "icon": "item/spider_eye"},
+        {"v2": 57, "name": "Melon", "id": "minecraft:melon_slice", "count": 1, "price": 5, "icon": "item/melon_slice"},
+        {"v2": 58, "name": "Ghast Tear", "id": "minecraft:ghast_tear", "count": 1, "price": 5, "icon": "item/ghast_tear"},
+        {"v2": 60, "name": "Magma Cream", "id": "minecraft:magma_cream", "count": 1, "price": 5, "icon": "item/magma_cream"},
+        {"v2": 21, "name": "Golden Carrot", "id": "minecraft:golden_carrot", "count": 1, "price": 1, "icon": "item/golden_carrot"},
+        {"v2": 16, "name": "Redstone", "id": "minecraft:redstone", "count": 1, "price": 3, "icon": "item/redstone"},
+        {"v2": 17, "name": "Glowstone", "id": "minecraft:glowstone_dust", "count": 1, "price": 3, "icon": "item/glowstone_dust"},
+        {"v2": 18, "name": "Gunpowder", "id": "minecraft:gunpowder", "count": 1, "price": 3, "icon": "item/gunpowder"},
+        {"v2": 61, "name": "Dragon Breath", "id": "minecraft:dragon_breath", "count": 1, "price": 25, "icon": "item/dragon_breath"},
+        {"v2": 9, "name": "Soul Sand", "id": "minecraft:soul_sand", "count": 1, "price": 12, "icon": "block/soul_sand"},
+        {"v2": 54, "name": "Nether Wart", "id": "minecraft:nether_wart", "count": 1, "price": 32, "icon": "item/nether_wart"},
+        {"v2": 55, "name": "Blaze Rod", "id": "minecraft:blaze_rod", "count": 1, "price": 20, "icon": "item/blaze_rod"},
+        {"v2": 63, "name": "Faker's Elixir", "id": "minecraft:potion", "count": 1, "price": 30, "icon": "item/potion", "blurb": "Can you deceive them?",
+         "components": {
+           "minecraft:custom_name": "\"Faker's Elixir\"",
+           "minecraft:lore": ["Can't Hide on bush, can you?"],
+           "minecraft:potion_contents": {"custom_color": 16121620, "custom_effects": [
+             {"id": "minecraft:glowing", "duration": 600, "show_particles": false, "show_icon": true}
+           ]}
+         }},
+        {"v2": 62, "name": "Mining Boost", "id": "minecraft:potion", "count": 1, "price": 200, "icon": "item/potion",
+         "components": {
+           "minecraft:custom_name": "Mining boost",
+           "minecraft:lore": ["Superpowers have a cost"],
+           "minecraft:potion_contents": {"custom_color": 2588672, "custom_effects": [
+             {"id": "minecraft:slowness", "amplifier": 1, "duration": 240},
+             {"id": "minecraft:haste", "amplifier": 9, "duration": 100},
+             {"id": "minecraft:nausea", "duration": 160},
+             {"id": "minecraft:weakness", "duration": 160},
+             {"id": "minecraft:glowing", "duration": 160},
+             {"id": "minecraft:unluck", "duration": -1}
+           ]}
+         }}
+      ]
+    },
+    {
+      "id": "ammo", "name": "Ammo", "icon": "item/arrow",
+      "line": "Perhaps this junk is of some use to you.",
+      "items": [
+        {"v2": 72, "name": "Snowball", "id": "minecraft:snowball", "count": 16, "price": 5, "icon": "item/snowball"},
+        {"v2": 71, "name": "Arrow", "id": "minecraft:arrow", "count": 16, "price": 5, "icon": "item/arrow"},
+        {"v2": 70, "name": "Spectral Arrow", "id": "minecraft:spectral_arrow", "count": 16, "price": 20, "icon": "item/spectral_arrow"},
+        {"v2": 66, "name": "Healing Blast", "id": "minecraft:tipped_arrow", "count": 8, "price": 40, "icon": "item/tipped_arrow_head",
+         "components": {"minecraft:custom_name": "Healing blast", "minecraft:potion_contents": {"custom_color": 14352395, "custom_effects": [
+           {"id": "minecraft:instant_health", "amplifier": 0, "duration": 3}]}}},
+        {"v2": 67, "name": "Lightning Strike", "id": "minecraft:tipped_arrow", "count": 8, "price": 40, "icon": "item/tipped_arrow_head",
+         "components": {"minecraft:custom_name": "Lightning strike", "minecraft:potion_contents": {"custom_color": 13232878, "custom_effects": [
+           {"id": "minecraft:speed", "amplifier": 3, "duration": 60}]}}},
+        {"v2": 69, "name": "Fragile Touch", "id": "minecraft:tipped_arrow", "count": 8, "price": 40, "icon": "item/tipped_arrow_head",
+         "components": {"minecraft:custom_name": "Fragile touch", "minecraft:potion_contents": {"custom_color": 14922990, "custom_effects": [
+           {"id": "minecraft:weakness", "duration": 960}]}}},
+        {"v2": 68, "name": "Clumsy Cream", "id": "minecraft:tipped_arrow", "count": 8, "price": 40, "icon": "item/tipped_arrow_head",
+         "components": {"minecraft:custom_name": "Clumsy cream", "minecraft:potion_contents": {"custom_color": 9067069, "custom_effects": [
+           {"id": "minecraft:slowness", "amplifier": 2, "duration": 60}]}}},
+        {"v2": 64, "name": "Toxic Dart", "id": "minecraft:tipped_arrow", "count": 8, "price": 40, "icon": "item/tipped_arrow_head",
+         "components": {"minecraft:custom_name": "Toxic dart", "minecraft:potion_contents": {"custom_color": 2217472, "custom_effects": [
+           {"id": "minecraft:poison", "amplifier": 2, "duration": 80}]}}},
+        {"v2": 65, "name": "Piercing Bolt", "id": "minecraft:tipped_arrow", "count": 8, "price": 80, "icon": "item/tipped_arrow_head",
+         "components": {"minecraft:custom_name": "Piercing Bolt", "minecraft:potion_contents": {"custom_color": 8978621, "custom_effects": [
+           {"id": "minecraft:instant_damage", "amplifier": 0, "duration": 10}]}}}
+      ]
+    },
+    {
+      "id": "classes", "name": "Classes", "icon": "item/iron_chestplate", "classes": true,
+      "line": "Perhaps this junk is of some use to you."
+    },
+    {
+      "id": "special", "name": "Special", "icon": "item/nether_star",
+      "line": "These magical items possess powers beyond your imagination.",
+      "_v2": "V2 page 11 also sold 'Destroy Magical barriers' (203, 200): open question, not ported.",
+      "items": [
+        {"special": "emerald_talisman"},
+        {"same": 41},
+        {"same": 42},
+        {"class": "monster", "name": "Monster Skull", "v2": 89},
+        {"same": 52},
+        {"special": "dragon_skull"}
+      ]
+    }
+  ]
+}

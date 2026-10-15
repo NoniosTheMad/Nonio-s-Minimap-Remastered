@@ -21,7 +21,7 @@ The demo is survival with keep_inventory + immediate respawn, a walled 40x40 yar
 - `nonios:class/remove`: no class, forgets the basic class.
 - `nonios:class/on_death` (hook for M2's death handling) then `nonios:class/on_respawn` (hook for `#nonios:kit/respawn`).
 - Team level for basic classes: `#white` / `#black` / `#solo nx.cls_lvl` (1-3).
-- Cracy Frog purchase = `trigger nx.cls_ask set 1` (V2 confirmation chain, dialogs `nonios:class/frog_ask_1..3`).
+- Cracy Frog purchase = the shop (class/gen/confirm -> `class/cracy_frog/ask_step {step:1}`; the bare `trigger nx.cls_ask set 1` works only next to your shopkeeper). V2 confirmation chain, dialogs `nonios:class/frog_ask_1..3`.
 
 ## Classes
 | class | V2 | remaster |

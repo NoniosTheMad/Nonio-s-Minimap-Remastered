@@ -1,0 +1,494 @@
+{
+ "_doc": [
+  "Generators: source of truth. Run `python tools/build_generators.py` after editing.",
+  "Odds come from V2.0 (1.12): each regrowth rolls 1 of 81 equally likely outcomes (two 9-slot dispensers).",
+  "  type roll: cobblestone 4/9 -> 'common', log 2/9 -> 'mid', apple 1/9 -> 'rare', lapis 2/9 -> ore roll",
+  "  ore roll:  coal 3/9 -> 'ore1', iron 3/9 -> 'ore2', gold 2/9 -> 'ore3', diamond 1/9 -> 'ore4'",
+  "  so per 81: common 36, mid 18, rare 9, ore1 6, ore2 6, ore3 4, ore4 2.",
+  "FIELD generators (one per team, feedback #39) work like V2: the outcome is a BLOCK that grows on top of the sea lantern",
+  "and is mined by hand. Coins come only from mining it (purse yields, nx.coinval), items are the block's normal drops.",
+  "tables.<team>.<lvl>: [drop item, weight, block?] - the block that grows (default: the drop item itself);",
+  "  ['coins', weight, emeralds, block] = an emerald ore / block outcome (pays through the purse when mined);",
+  "  ['jackpot:<id>', weight] = a chest filled with jackpots.<id>.",
+  "levels.<n>.regrow_ticks = delay before a mined block grows back (sped up by team size: x(1 + (players-1)/players_per_roll)).",
+  "single = optional single-block mode (feedback #47): one block type that rolls the same odds as a loot table when mined.",
+  "CENTRE generator (shared, in the arena, pot style): see centre._doc."
+ ],
+ "players_per_roll": 4,
+ "levels": {
+  "1": {
+   "regrow_ticks": 300,
+   "upgrade_cost": 75
+  },
+  "2": {
+   "regrow_ticks": 200,
+   "upgrade_cost": 200
+  },
+  "3": {
+   "regrow_ticks": 140,
+   "upgrade_cost": 500
+  }
+ },
+ "_levels_doc": "upgrade_cost = coins to reach this level (V2 signs: 75 built Lv1, 200 -> Lv2, 500 -> Lv3).",
+ "single": {
+  "_doc": [
+   "Single-block variant (feedback #47), a config switch next to the multi-block V2 generator.",
+   "on = default mode (false = V2 blocks). Runtime switch: function nonios:generator/mode/toggle (#single nx.gen).",
+   "Every regrowth is the same block (mined with a pickaxe, no tool swapping). Mined, it rolls the same V2 table",
+   "(tables.<team>.<lvl>, same 1-of-81 odds) as a loot table: generator/one/<team>_lvl<N> (type fishing, so Fortune",
+   "on the pickaxe applies to ore drops). Outcomes whose V2 block is in src/yields.json also pay that block's yield",
+   "through the purse, exactly as if it had been mined (emerald ore 5, emerald block 20, coal 0.1, ...). No traps.",
+   "block: any block nobody else uses; its own vanilla loot table is emptied."
+  ],
+  "on": false,
+  "block": "minecraft:gilded_blackstone"
+ },
+ "jackpots": {
+  "chest_a": {
+   "_from": "V2 lvl2 chest (both teams); its emerald block is not modelled",
+   "items": {
+    "minecraft:oak_log": 8,
+    "minecraft:iron_ingot": 6,
+    "minecraft:cooked_beef": 7,
+    "minecraft:golden_carrot": 2,
+    "minecraft:cobblestone": 8,
+    "minecraft:gold_ingot": 8,
+    "minecraft:chest": 1
+   }
+  },
+  "chest_b": {
+   "_from": "V2 white lvl3 chest",
+   "items": {
+    "minecraft:spectral_arrow": 16,
+    "minecraft:gold_block": 2,
+    "minecraft:golden_carrot": 6,
+    "minecraft:oak_log": 16,
+    "minecraft:golden_apple": 2,
+    "minecraft:diamond_block": 1,
+    "minecraft:iron_block": 2,
+    "minecraft:chest": 1
+   }
+  },
+  "chest_c": {
+   "_from": "V2 black lvl3 chest",
+   "items": {
+    "minecraft:arrow": 4,
+    "minecraft:iron_ingot": 2,
+    "minecraft:golden_carrot": 2,
+    "minecraft:gold_ingot": 2,
+    "minecraft:oak_log": 4,
+    "minecraft:redstone": 1,
+    "minecraft:lapis_lazuli": 1,
+    "minecraft:glowstone_dust": 1,
+    "minecraft:sand": 2,
+    "minecraft:golden_apple": 1,
+    "minecraft:chest": 1
+   }
+  }
+ },
+ "tables": {
+  "white": {
+   "1": [
+    [
+     "minecraft:cobblestone",
+     36,
+     "stone"
+    ],
+    [
+     "minecraft:oak_log",
+     18
+    ],
+    [
+     "minecraft:hay_block",
+     9
+    ],
+    [
+     "minecraft:coal",
+     6,
+     "coal_ore"
+    ],
+    [
+     "minecraft:raw_iron",
+     6,
+     "iron_ore"
+    ],
+    [
+     "coins",
+     4,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     2
+    ]
+   ],
+   "2": [
+    [
+     "minecraft:cobblestone",
+     36,
+     "stone"
+    ],
+    [
+     "minecraft:sandstone",
+     18
+    ],
+    [
+     "coins",
+     9,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:raw_gold",
+     6,
+     "gold_ore"
+    ],
+    [
+     "minecraft:diamond",
+     6,
+     "diamond_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     4
+    ],
+    [
+     "jackpot:chest_a",
+     2
+    ]
+   ],
+   "3": [
+    [
+     "coins",
+     36,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:diamond",
+     18,
+     "diamond_ore"
+    ],
+    [
+     "coins",
+     9,
+     9,
+     "emerald_block"
+    ],
+    [
+     "minecraft:iron_block",
+     6
+    ],
+    [
+     "minecraft:gold_block",
+     6
+    ],
+    [
+     "minecraft:diamond_block",
+     4
+    ],
+    [
+     "jackpot:chest_b",
+     2
+    ]
+   ]
+  },
+  "black": {
+   "1": [
+    [
+     "minecraft:cobblestone",
+     36
+    ],
+    [
+     "minecraft:oak_log",
+     18
+    ],
+    [
+     "minecraft:hay_block",
+     9
+    ],
+    [
+     "minecraft:coal",
+     6,
+     "coal_ore"
+    ],
+    [
+     "minecraft:raw_iron",
+     6,
+     "iron_ore"
+    ],
+    [
+     "coins",
+     4,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     2
+    ]
+   ],
+   "2": [
+    [
+     "minecraft:cobblestone",
+     36,
+     "stone"
+    ],
+    [
+     "minecraft:netherrack",
+     18
+    ],
+    [
+     "coins",
+     9,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:raw_gold",
+     6,
+     "gold_ore"
+    ],
+    [
+     "minecraft:diamond",
+     6,
+     "diamond_ore"
+    ],
+    [
+     "minecraft:iron_block",
+     4
+    ],
+    [
+     "jackpot:chest_a",
+     2
+    ]
+   ],
+   "3": [
+    [
+     "coins",
+     36,
+     1,
+     "emerald_ore"
+    ],
+    [
+     "minecraft:diamond",
+     18,
+     "diamond_ore"
+    ],
+    [
+     "coins",
+     9,
+     9,
+     "emerald_block"
+    ],
+    [
+     "minecraft:iron_block",
+     6
+    ],
+    [
+     "minecraft:gold_block",
+     6
+    ],
+    [
+     "minecraft:diamond_block",
+     4
+    ],
+    [
+     "jackpot:chest_c",
+     2
+    ]
+   ]
+  }
+ },
+ "centre": {
+  "_doc": [
+   "Shared generator in the middle of the arena (feedback #39/#40): spinning core + hologram, drops items, emerald",
+   "outcomes fill a pot (anyone right-clicks to collect). It grows with the money in BOTH team banks (B = white + black):",
+   "  level = highest levels.<n> whose bank <= B; rolls per drop = 1 + B / bank_per_roll (max max_rolls).",
+   "Runs only while the arena runs (battle). Golden Hour multiplies its speed by golden_speed.",
+   "tables.<lvl>: [item, weight, count?] or ['coins', weight, emeralds] (x emerald_coins into the pot); weights sum to 81."
+  ],
+  "emerald_coins": 5,
+  "interval_ticks": 200,
+  "bank_per_roll": 1000,
+  "max_rolls": 5,
+  "item_cap": 16,
+  "golden_speed": 3,
+  "levels": {
+   "1": {
+    "bank": 0,
+    "pot_cap": 100,
+    "core": "minecraft:iron_ingot"
+   },
+   "2": {
+    "bank": 1000,
+    "pot_cap": 300,
+    "core": "minecraft:diamond"
+   },
+   "3": {
+    "bank": 3000,
+    "pot_cap": 800,
+    "core": "minecraft:emerald"
+   }
+  },
+  "tables": {
+   "1": [
+    [
+     "coins",
+     27,
+     1
+    ],
+    [
+     "coins",
+     1,
+     9
+    ],
+    [
+     "minecraft:arrow",
+     10,
+     8
+    ],
+    [
+     "minecraft:iron_ingot",
+     10,
+     2
+    ],
+    [
+     "minecraft:cooked_beef",
+     10,
+     3
+    ],
+    [
+     "minecraft:golden_carrot",
+     8,
+     2
+    ],
+    [
+     "minecraft:ender_pearl",
+     4,
+     1
+    ],
+    [
+     "minecraft:gold_ingot",
+     6,
+     2
+    ],
+    [
+     "minecraft:golden_apple",
+     3,
+     1
+    ],
+    [
+     "minecraft:tnt",
+     2,
+     1
+    ]
+   ],
+   "2": [
+    [
+     "coins",
+     30,
+     1
+    ],
+    [
+     "coins",
+     4,
+     9
+    ],
+    [
+     "minecraft:iron_ingot",
+     8,
+     4
+    ],
+    [
+     "minecraft:arrow",
+     8,
+     16
+    ],
+    [
+     "minecraft:golden_apple",
+     6,
+     1
+    ],
+    [
+     "minecraft:ender_pearl",
+     6,
+     2
+    ],
+    [
+     "minecraft:diamond",
+     6,
+     1
+    ],
+    [
+     "minecraft:golden_carrot",
+     6,
+     4
+    ],
+    [
+     "minecraft:tnt",
+     4,
+     2
+    ],
+    [
+     "minecraft:cobweb",
+     3,
+     4
+    ]
+   ],
+   "3": [
+    [
+     "coins",
+     30,
+     1
+    ],
+    [
+     "coins",
+     9,
+     9
+    ],
+    [
+     "minecraft:diamond",
+     8,
+     2
+    ],
+    [
+     "minecraft:golden_apple",
+     8,
+     2
+    ],
+    [
+     "minecraft:ender_pearl",
+     8,
+     2
+    ],
+    [
+     "minecraft:iron_block",
+     6,
+     1
+    ],
+    [
+     "minecraft:arrow",
+     6,
+     16
+    ],
+    [
+     "minecraft:enchanted_golden_apple",
+     2,
+     1
+    ],
+    [
+     "minecraft:totem_of_undying",
+     1,
+     1
+    ],
+    [
+     "minecraft:tnt",
+     3,
+     4
+    ]
+   ]
+  }
+ }
+}

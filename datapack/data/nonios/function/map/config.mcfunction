@@ -1,0 +1,83 @@
+# ALL zone coordinates of the (placeholder) map live here, in storage nonios:map. Logic never hardcodes positions.
+# The real map (M6) only has to replace this file (+ map/gen/* if it is built by hand instead of generated).
+# Layout (void world): lobby at the origin; along +z: White field | wall | Arena | wall | Black field.
+#   White field x -15..15, z 55..85   Arena z 86..114   Black field z 115..145   (mirror plane z = 100)
+#   Per field: gen = resource generator (Lv1 at match start; marker on top of its sea lantern),
+#   dream = Emerald Dream portal pad (centre block of a 5x5 pad, floor level).
+#   agate = arena gate pad (centre block of a 3x3 pad, floor level); out = where the arena exit puts this team back.
+#   altar = team offering altar (block on top of its 3x3 pad, altar/). guard = spawn defense (guard/, V2 "House"):
+#   players of team foe within r blocks of x y z are hurt. out = prep containment (game/prep/contain): everything past
+#   the wall row at any depth (white z >= 86, black z <= 114: z + dz + 1 = 115), so tunnels can't get round the walls.
+# Island layers: y 60 stone, 61-62 dirt, 63 grass (top). Players stand at y 64.
+data modify storage nonios:map lobby set value {x:0.5d,y:64,z:0.5d,yaw:0,bx:0,bz:0,x1:-9,x2:9,z1:-9,z2:9,y:63}
+data modify storage nonios:map arena set value {x1:-15,x2:15,z1:86,z2:114,y:63,cx:0.5d,cy:75,cz:100.5d}
+# Arena nodes (feat/arena format, copied into storage nonios:arena config by map/arena_config): centre block at foot
+# level, r = half width, h = height, ind = indicator block offset from the centre (the Centre node sits on the ore pile).
+# bounds keep the Lightning Rabbit in; center = where it spawns.
+# slots = random-entry gate slots (V2 arena portals): land = where a gate drops you (facing the centre), exit = the block
+# that takes you back to your team's gate (<team>.agate). One slot is active at a time, re-rolled every few seconds.
+# core = the regrowing centre block (V2), on top of the Centre Node's ore pile.
+# bonus = what holding the node gives its team (arena/load: haste | interest | regrow).
+# cgen = the shared centre generator (spot on top of its sea lantern; on the mirror plane z = 100, between two nodes).
+# protect = the arena's own blocks (y 60-67, every non-air block at setup) come back within a tick when broken; the
+# backup copy lives at y -40..-33 (by). protect_types = the coin blocks among them (mining them pays nothing).
+# fields = each team's field box (the haste bonus applies inside it).
+data modify storage nonios:map arena_cfg set value {\
+  nodes:[\
+    {id:"west",name:"West Node",x:-9,y:64,z:100,r:2,h:3,bonus:"haste"},\
+    {id:"centre",name:"Centre Node",x:0,y:64,z:100,r:2,h:4,ind:2,bonus:"interest"},\
+    {id:"east",name:"East Node",x:9,y:64,z:100,r:2,h:3,bonus:"regrow"}\
+  ],\
+  bounds:{x:-15,y:56,z:86,dx:30,dy:30,dz:28},\
+  center:{x:0,y:68,z:100},\
+  slots:[\
+    {land:{x:-11.5d,y:64,z:88.5d,yaw:-45},exit:{x:0,y:64,z:91}},\
+    {land:{x:12.5d,y:64,z:88.5d,yaw:45},exit:{x:12,y:64,z:96}},\
+    {land:{x:12.5d,y:64,z:111.5d,yaw:135},exit:{x:0,y:64,z:109}},\
+    {land:{x:-11.5d,y:64,z:111.5d,yaw:-135},exit:{x:-12,y:64,z:104}}\
+  ],\
+  core:{x:0,y:65,z:100},\
+  cgen:{x:5,y:64,z:100},\
+  protect:{x1:-15,y1:60,z1:86,x2:15,y2:67,z2:114,by:-40},\
+  protect_types:["deepslate_diamond_ore","iron_ore","gold_ore"],\
+  fields:{\
+    white:{team:"white",x:-15,y:40,z:55,dx:30,dy:60,dz:30},\
+    black:{team:"black",x:-15,y:40,z:115,dx:30,dy:60,dz:30}\
+  }\
+}
+# area cleared on every rebuild (blocks y1..y2 + all non-player entities). Keep dx*dz*2 <= 32768 (one fill per 2 layers).
+data modify storage nonios:map area set value {x1:-48,x2:48,z1:44,z2:156,y1:40,y2:135,dx:96,dz:112}
+# chunks kept loaded (map + lobby), so the Nexus/regen/NPCs tick with nobody near
+data modify storage nonios:map load set value {x1:-48,z1:-16,x2:48,z2:160}
+data modify storage nonios:map white set value {\
+  team:"white",Team:"WHITE",x1:-15,x2:15,z1:55,z2:85,y:63,\
+  trim:"minecraft:white_concrete",accent:"minecraft:light_blue_stained_glass",\
+  spawn:{x:0.5d,y:64,z:70.5d,yaw:0,bx:0,bz:70},\
+  nexus:{team:"white",x:0,y:65,z:60},\
+  shop:{team:"white",x:-8.5d,y:64,z:64.5d,yaw:-90},\
+  bank:{team:"white",x:9,y:63,z:64,facing:"west"},\
+  mine:{x:8,y:64,z:74},\
+  gen:{team:"white",lvl:1,x:-8,y:64,z:75},\
+  dream:{team:"white",Team:"White",x:-10,y:63,z:81},\
+  agate:{team:"white",x:5,y:63,z:81,out:{x:5.5d,y:64,z:78.5d,yaw:180}},\
+  altar:{team:"white",Team:"White",x:4,y:64,z:66},\
+  guard:{team:"white",foe:"black",x:0.5d,y:64,z:70.5d,r:4},\
+  wall:{team:"white",z:85,tint:11069695},label:{Team:"WHITE",color:"white",x:0,y:68,z:76},\
+  out:"x=-1000,y=-200,z=86,dx=2000,dy=900,dz=2000"\
+}
+data modify storage nonios:map black set value {\
+  team:"black",Team:"BLACK",x1:-15,x2:15,z1:115,z2:145,y:63,\
+  trim:"minecraft:black_concrete",accent:"minecraft:purple_stained_glass",\
+  spawn:{x:0.5d,y:64,z:130.5d,yaw:180,bx:0,bz:130},\
+  nexus:{team:"black",x:0,y:65,z:140},\
+  shop:{team:"black",x:-8.5d,y:64,z:136.5d,yaw:-90},\
+  bank:{team:"black",x:9,y:63,z:136,facing:"west"},\
+  mine:{x:8,y:64,z:121},\
+  gen:{team:"black",lvl:1,x:-8,y:64,z:125},\
+  dream:{team:"black",Team:"Black",x:-10,y:63,z:119},\
+  agate:{team:"black",x:5,y:63,z:119,out:{x:5.5d,y:64,z:121.5d,yaw:0}},\
+  altar:{team:"black",Team:"Black",x:4,y:64,z:134},\
+  guard:{team:"black",foe:"white",x:0.5d,y:64,z:130.5d,r:4},\
+  wall:{team:"black",z:115,tint:12086271},label:{Team:"BLACK",color:"dark_purple",x:0,y:68,z:124},\
+  out:"x=-1000,y=-200,z=-1887,dx=2000,dy=900,dz=2001"\
+}

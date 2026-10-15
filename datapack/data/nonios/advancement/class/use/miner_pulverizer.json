@@ -1,0 +1,19 @@
+{
+ "criteria": {
+  "use": {
+   "trigger": "minecraft:consume_item",
+   "conditions": {
+    "item": {
+     "predicates": {
+      "minecraft:custom_data": {
+       "nx_item": "miner_pulverizer"
+      }
+     }
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/gen/miner/used_pulverizer"
+ }
+}

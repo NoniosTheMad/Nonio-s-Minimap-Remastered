@@ -1,0 +1,2 @@
+$data modify storage nonios:bank ui.d.title set value {text:"$(Team) team bank",color:"$(color)",bold:true}
+$data modify storage nonios:bank ui.d.body append value {type:"minecraft:plain_message",width:300,contents:[{text:"Purse ",color:"gray"},{text:"$(p)",color:"yellow",bold:true},{text:"    Bank ",color:"gray"},{text:"$(b)",color:"gold",bold:true},{text:"\nInterest $(rw).$(rt)%/s  ·  +$(l)/s",color:"aqua"}]}

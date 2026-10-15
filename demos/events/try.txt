@@ -1,0 +1,11 @@
+Arena events (feedback #41 #42). Buttons: G > "Demo: Arena events".
+1. "Start + battle now" (events only run in the battle; the event buttons also start it), "Tp: arena".
+2. Every event is announced first: a bossbar with a countdown, a raid horn and a short title, 30 s ahead
+   ("Warning 5 s" shortens it). Timed events then show their time left on the same bar.
+   "Announce" = the real flow. "Now" = skip the countdown.
+3. Emerald Surge (node): emeralds erupt for a few seconds.  Supply Drop (node): a chest falls on the node.
+   Golden Hour: the centre generator runs 3x faster for a minute (and node interest pays double).
+   Bounty Hunt: for a minute every kill inside the arena pays +50 coins ("Enemy dummy" to try it).
+   Low Gravity: 45 s of high jumps and slow falls in the arena.  Frog Rain: the troll one (Cracy Frog).
+4. "Trolls" toggles whether frog rain can come up at random (off in the real match).
+Feedback: which events to keep, how long the warning should be, rewards, how often (now one every 5 min).

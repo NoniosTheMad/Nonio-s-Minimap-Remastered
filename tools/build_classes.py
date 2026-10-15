@@ -8,7 +8,9 @@ code lives in function/class/<class>/ and is never touched):
   loot_table/class/<class>/[l<N>/]<item>.json    one item each (components set by set_components)
   advancement/class/use/<class>_<item>.json      right-click detection for items with a consumable component
   function/class/gen/<class>/*.mcfunction        apply, equip, strip, vision, vision_off, check (+ need_<item>, used_<item>)
+  loot_table/class/<class>/<item>.json           also "supply" items: plain kit consumables (no class tags), given once on apply
   function/class/gen/*.mcfunction               dispatchers on the nx.class score + catalog (storage nonios:class)
+                                                 + shop_items (classes sold by the shop) + confirm (pre-purchase dialogs)
 """
 import json
 from pathlib import Path
@@ -47,6 +49,8 @@ def item_components(cid, c, key, it):
     comp = dict(it.get("components", {}))
     tag = f"{cid}_{key}"
     comp["minecraft:custom_data"] = {**comp.get("minecraft:custom_data", {}), "nx_cls": cid, "nx_item": tag, "nx_cls_item": True}
+    if "gear" in it:  # hotbar convention override for plain bases (gear/category): weapon|bow|pickaxe|bucket|tool|none
+        comp["minecraft:custom_data"]["nx_gear"] = it["gear"]
     ench = dict(comp.get("minecraft:enchantments", {}))
     ench["minecraft:vanishing_curse"] = 1  # class items never drop on death (keep_inventory off) - they are re-given
     if c["tier"] == "shop" and it["slot"] in ARMOR:
@@ -65,9 +69,19 @@ def item_components(cid, c, key, it):
     return comp
 
 
+def supply_components(it):
+    """Supply items are ordinary items (blocks, food, tools): no class tags, they drop and stack like any other."""
+    comp = dict(it.get("components", {}))
+    if "name" in it:
+        comp["minecraft:custom_name"] = dict(it["name"], italic=False)
+    if it.get("lore"):
+        comp["minecraft:lore"] = list(it["lore"])
+    return comp
+
+
 def loot_table(it, comp):
     # 26.3 loot format: "modifier" (was "functions"), each with "type" (was "function"), single "condition" object
-    mods = [{"type": "minecraft:set_components", "components": comp}]
+    mods = [{"type": "minecraft:set_components", "components": comp}] if comp else []
     if it.get("count", 1) != 1:
         mods.append({"type": "minecraft:set_count", "count": it["count"]})
     cd = comp.get("minecraft:use_cooldown")
@@ -92,8 +106,8 @@ def build():
     nums = [c["num"] for c in classes.values()]
     assert len(nums) == len(set(nums)) and min(nums) >= 1, "class nums must be unique and >= 1"
 
-    disp = {k: [] for k in ("apply", "strip", "vision", "vision_off", "check", "tick", "purge")}
-    catalog = []
+    disp = {k: [] for k in ("apply", "strip", "vision", "vision_off", "check", "tick", "second", "purge", "confirm")}
+    catalog, shop_items = [], []
     for cid, c in classes.items():
         n, g = c["num"], f"class/gen/{cid}"
         hooks = set(c.get("hooks", []))
@@ -104,11 +118,16 @@ def build():
             write(OUT / "enchantment" / "class" / f"{key}.json", json.dumps(e, indent=1) + "\n")
 
         # ---- items: loot tables + equip function per level
-        equip_fns = {}
+        equip_fns, supply = {}, []
         for lvl, items in levels.items():
             sub = f"l{lvl}/" if lvl else ""
             lines = []
             for key, it in items.items():
+                if it["slot"] == "supply":
+                    assert not basic, f"{cid}.{key}: supply items are for shop classes (given once)"
+                    write(OUT / "loot_table" / "class" / cid / f"{key}.json", json.dumps(loot_table(it, supply_components(it)), indent=1) + "\n")
+                    supply.append(f'function nonios:gear/loot {{table:"nonios:class/{cid}/{key}"}}')
+                    continue
                 comp = item_components(cid, c, key, it)
                 write(OUT / "loot_table" / "class" / cid / f"{sub}{key}.json", json.dumps(loot_table(it, comp), indent=1) + "\n")
                 table = f"nonios:class/{cid}/{sub}{key}"
@@ -116,7 +135,7 @@ def build():
                     lines.append(f'function nonios:class/stash {{slot:"{it["slot"]}"}}')
                     lines.append(f"loot replace entity @s {it['slot']} loot {table}")
                 else:
-                    lines.append(f"loot give @s loot {table}")
+                    lines.append(f'function nonios:gear/loot {{table:"{table}"}}')
                 if not basic:
                     _uses(cid, key, it, comp, hooks)
             name = f"{g}/equip" + (f"_l{lvl}" if lvl else "")
@@ -137,12 +156,20 @@ def build():
             lines.append("function nonios:class/level")
             for lvl, name in equip_fns.items():
                 lines.append(f"execute if score #lvl nx.cls_tmp matches {lvl} run function nonios:{name}")
+            # kill-bonus tier (economy kill_bonus/tier): team level - 1, as V2's respawn kits II/III
+            lines.append("scoreboard players operation @s nx.tier = #lvl nx.cls_tmp")
+            lines.append("scoreboard players remove @s nx.tier 1")
         else:
             lines.append(f"function nonios:{equip_fns['']}")
+            if supply:
+                lines.append("# kit supplies (plain items, given once)")
+                lines += supply
+            lines.append(f"scoreboard players set @s nx.tier {c.get('kill_tier', 0)}")
         lines.append(f"function nonios:{g}/vision")
         if "on_apply" in hooks:
             lines.append(f"function nonios:class/{cid}/on_apply")
-        lines.append(f"tellraw @s [{{\"text\":\"✦ You are now a \",\"color\":\"gray\"}},{jtext(c['name'])}"
+        art = "an" if c["name"]["text"][:1].lower() in "aeiou" else "a"
+        lines.append(f"tellraw @s [{{\"text\":\"✦ You are now {art} \",\"color\":\"gray\"}},{jtext(c['name'])}"
                      + (',{"text":" (lost on death)","color":"dark_gray"}' if not basic else
                         ',{"text":" (level ","color":"dark_gray"},{"score":{"name":"#lvl","objective":"nx.cls_tmp"},"color":"dark_gray"},{"text":", back on every respawn)","color":"dark_gray"}')
                      + "]")
@@ -159,6 +186,8 @@ def build():
         if not basic:
             lines = ["# as/at the player, every second and right after a consumable class item was used"]
             for key, it in c["items"].items():
+                if it["slot"] == "supply":
+                    continue
                 tag, table = f"{cid}_{key}", f"nonios:class/{cid}/{key}"
                 if it["slot"] in EQUIP:
                     lines.append(f"execute unless items entity @s {it['slot']} {slot_match(tag)} run function nonios:{g}/need_{key}")
@@ -175,8 +204,10 @@ def build():
                         f"execute if items entity @s player.cursor {slot_match(tag)} run return 0",
                         f"execute if items entity @s player.crafting.* {slot_match(tag)} run return 0",
                         f'kill @e[type=item,nbt={{Item:{{components:{{"minecraft:custom_data":{{nx_item:"{tag}"}}}}}}}}]',
-                        f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}",
-                        f"loot give @s loot {table}"])
+                        *([f"# used up (consumable): back into the hand that used it",
+                           f"execute unless items entity @s weapon.mainhand * run return run loot replace entity @s weapon.mainhand loot {table}"]
+                          if "minecraft:consumable" in item_components(cid, c, key, it) else []),
+                        f'function nonios:gear/loot {{table:"{table}"}}'])
             fn(f"{g}/check", lines)
             disp["check"].append(f"execute if score @s nx.class matches {n} run return run function nonios:{g}/check")
 
@@ -187,7 +218,20 @@ def build():
         disp["purge"].append(f'execute unless score @s nx.class matches {n} run clear @s *[minecraft:custom_data~{{nx_cls:"{cid}"}}]')
         if "tick" in hooks:
             disp["tick"].append(f"execute as @e[type=player,scores={{nx.class={n}}}] at @s run function nonios:class/{cid}/tick")
-        catalog.append({"id": cid, "num": n, "tier": c["tier"], "price": c.get("price", 0), "name": c["name"], "blurb": c.get("blurb", "")})
+        if "second" in hooks:
+            disp["second"].append(f"execute as @e[type=player,scores={{nx.class={n}}}] at @s run function nonios:class/{cid}/second")
+        catalog.append({"id": cid, "num": n, "tier": c["tier"], "price": c.get("price", 0), "kill_tier": c.get("kill_tier", 0),
+                        "name": c["name"], "blurb": c.get("blurb", "")})
+        if "shop" in c:
+            sh, price = c["shop"], c.get("price", 0)
+            for txt in (c["name"]["text"], c.get("blurb", "")):
+                assert '"' not in txt and "\\" not in txt, f"{cid}: no double quotes/backslashes in name/blurb (shop dialog macro)"
+            assert not (sh.get("confirm") and price), f"{cid}: confirm is for free classes (the confirm chain applies the class)"
+            shop_items.append({"name": c["name"]["text"], "ncol": c["name"].get("color", "white"), "class": cid, "num": n, "count": 1,
+                               "price": price, "ptxt": f"{price}c" if price else "free", "atlas": sh.get("atlas", "minecraft:items"),
+                               "sprite": sh["sprite"], "blurb": c.get("blurb", ""), "confirm": 1 if sh.get("confirm") else 0})
+            if sh.get("confirm"):
+                disp["confirm"].append(f"execute if score @s nx.cls_req matches {n} run return run function {sh['confirm']}")
 
     fn("class/gen/apply", ["# as/at the player: apply class number nx.cls_req"] + disp["apply"])
     fn("class/gen/strip", ["# as the player: undo the class-specific state of its current class"] + disp["strip"])
@@ -196,12 +240,18 @@ def build():
     fn("class/gen/check", ["# as/at a player with a shop class: kit integrity"] + disp["check"])
     fn("class/gen/purge", ["# as the player: delete class items of classes it does not have (stale copies, items picked up from others)"] + disp["purge"])
     fn("class/gen/tick", ["# per-tick class hooks (only players of that class)"] + disp["tick"])
+    fn("class/gen/second", ["# once-a-second class hooks (only players of that class), from class/second"] + (disp["second"] or ["# none"]))
     lost = [f'execute if score @s nx.class matches {c["num"]} run return run tellraw @s [{{"text":"☠ ","color":"dark_red"}},{jtext(c["name"])},{{"text":" is gone: {c.get("lost_msg", "shop classes die with you.")}","color":"gray"}}]'
             for c in classes.values() if c["tier"] == "shop"]
     fn("class/gen/lost", ["# as a player who just lost its shop class to death"] + lost)
     tier_lines = [f"execute if score @s nx.class matches {c['num']} run return {1 if c['tier'] == 'shop' else 0}"
                   for c in classes.values()]
     fn("class/gen/is_shop", ["# as the player: returns 1 if its current class is a shop class"] + tier_lines + ["return 0"])
+    fn("class/gen/confirm", ["# as the buyer (shop/buy_class): nx.cls_req = class with a confirmation step instead of a straight purchase"]
+       + (disp["confirm"] or ["# none"]))
+    fn("class/gen/shop_items", ["# from shop/catalog: classes sold by the shop (src/classes.json \"shop\"), appended to storage nonios:shop items",
+                                "# (class = id for class/set_id, price from the purse, confirm 1 = class/gen/confirm instead of buying)"]
+       + [f"data modify storage nonios:shop items append value {json.dumps(e, ensure_ascii=False)}" for e in shop_items])
     snbt = json.dumps(catalog, ensure_ascii=False)
     fn("class/gen/catalog", ["# class catalog for menus/shop: storage nonios:class catalog[] {id,num,tier,price,name,blurb}",
                              f"data modify storage nonios:class catalog set value {snbt}"])

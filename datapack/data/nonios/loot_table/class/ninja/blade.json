@@ -1,0 +1,48 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:stone_sword",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:enchantments": {
+         "minecraft:sharpness": 1,
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "ninja",
+         "nx_item": "ninja_blade",
+         "nx_cls_item": true
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Shinobi Blade",
+         "color": "aqua",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Ninja \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

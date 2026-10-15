@@ -8,8 +8,8 @@ function nonios:class/stash {slot:"armor.legs"}
 loot replace entity @s armor.legs loot nonios:class/warrior/l3/legs
 function nonios:class/stash {slot:"armor.feet"}
 loot replace entity @s armor.feet loot nonios:class/warrior/l3/feet
-loot give @s loot nonios:class/warrior/l3/sword
-loot give @s loot nonios:class/warrior/l3/bow
+function nonios:gear/loot {table:"nonios:class/warrior/l3/sword"}
+function nonios:gear/loot {table:"nonios:class/warrior/l3/bow"}
 function nonios:class/stash {slot:"weapon.offhand"}
 loot replace entity @s weapon.offhand loot nonios:class/warrior/l3/shield
-loot give @s loot nonios:class/warrior/l3/arrows
+function nonios:gear/loot {table:"nonios:class/warrior/l3/arrows"}

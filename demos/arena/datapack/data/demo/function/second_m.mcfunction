@@ -1,0 +1,1 @@
+$execute as @e[type=text_display,tag=demo.info] run data modify entity @s text set value [{text:"ARENA",color:"gold",bold:true},{text:"\nnext event in $(sec)s   time x$(speed)",color:"yellow",bold:false},{text:"\nlightning $(lt)   payouts: $(pay)",color:"gray",bold:false}]

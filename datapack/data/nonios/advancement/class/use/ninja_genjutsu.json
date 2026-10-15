@@ -1,0 +1,19 @@
+{
+ "criteria": {
+  "use": {
+   "trigger": "minecraft:consume_item",
+   "conditions": {
+    "item": {
+     "predicates": {
+      "minecraft:custom_data": {
+       "nx_item": "ninja_genjutsu"
+      }
+     }
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/gen/ninja/used_genjutsu"
+ }
+}
