@@ -355,7 +355,10 @@ def nav_dialog(reg, here=None):
             "columns": 1, "pause": False}
 
 def todo_heads(todo):
-    """Step headlines from try.txt ("2. Generator: ..." -> "2. Generator") for the Servers tooltip."""
+    """Servers tooltip: the "Your role:" line of try.txt, else step headlines ("2. Generator: ..." -> "2. Generator")."""
+    for ln in todo.splitlines():
+        if ln.strip().lower().startswith("your role:"):
+            return [ln.strip()]
     heads = []
     for ln in todo.splitlines():
         m = re.match(r"\s*(\d+)[.)]\s*(.+)", ln)
@@ -680,7 +683,7 @@ def write_demo_dialogs(s, d, try_action):
         if dlg.get("type") != "minecraft:multi_action":
             continue
         dlg["actions"] = list(dlg.get("actions", [])) + [{"label": text(TRY_BUTTON, "yellow"),
-                                                          "tooltip": text("Step-by-step test instructions for this demo"), "action": try_action}]
+                                                          "tooltip": text("Your role here: what feedback we need"), "action": try_action}]
         out = d / "data" / ns / "dialog" / f"{path}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(dlg, indent=1))
@@ -1810,6 +1813,7 @@ def start(name, s, _reg=None, on_ready=None):
     write_devnav(reg)
     s["ui_ver"] = UI_VER  # G > Servers: own row opens the this-server dialog only on servers whose self pack has it
     s["devnav_sig"] = devnav_signature()  # DataWatch: /reload is only safe while devnav is what this server started with
+    s["todo"] = read_todo(s["src"], s.get("demo")) or s.get("todo", "")  # wake/restart pick up try.txt edits
     write_server(name, s)
     harvest_feedback(name)  # then drop the old log so wait_ready can't see a stale "Done ("
     for f in (SERVERS / name / "logs" / "latest.log", SERVERS / name / ".feedback_seen"):
@@ -1877,7 +1881,7 @@ def read_spawn(src, demo):
 def read_todo(src, demo):
     """demos/<demo>/try.txt: short plain-text 'what to do' shown in game."""
     f = Path(src) / "demos" / str(demo) / "try.txt"
-    return f.read_text().strip() if demo and f.exists() else ""
+    return f.read_text(encoding="utf-8").strip() if demo and f.exists() else ""
 
 def cmd_review(a):
     reg = load_reg()

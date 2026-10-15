@@ -70,7 +70,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
   optional `Unique controls: <demo-only interactions, e.g. say "pull" in chat>`. Never: how to give feedback, G menu, Inbox,
   screenshots, travel, gamemode, step-by-step walkthroughs, "Feedback:" lines. Rewrite it when the open question changes.
   G → Servers rows are all `[▸][★] name [✔]`, status = colour only (user request): gold/aqua running, dark gray asleep; no status words.
-  ▸ = the server you're on (the list is built per server), ✔ = approved. Tooltip ≤6 lines of ≤34 chars (`tip_lines`): desc, branch/demo, step headlines.
+  ▸ = the server you're on (the list is built per server), ✔ = approved. Tooltip ≤6 lines of ≤34 chars (`tip_lines`): desc, branch/demo, "Your role:" line from try.txt (re-read on every start).
   G → Servers / Archive are built by the daemon in storage `devnav:ui nav|arch` (`dialog_commands`, one RCON command per button) on every
   registry change and after each start, shown by `$dialog show @s $(nav)`. Nothing is /reloaded when a server sleeps/wakes.
 - **Spawn (void worlds, #27)**: `s["spawn"]` = `up --spawn "x y z [yaw]"` / `demos/<demo>/spawn.txt` / kept / default 0 64 0. Self pack `devnav:spawn_set` (on load):
