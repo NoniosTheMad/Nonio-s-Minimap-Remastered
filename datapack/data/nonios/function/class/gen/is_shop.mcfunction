@@ -11,4 +11,5 @@ execute if score @s nx.class matches 9 run return 1
 execute if score @s nx.class matches 10 run return 1
 execute if score @s nx.class matches 2 run return 1
 execute if score @s nx.class matches 3 run return 0
+execute if score @s nx.class matches 12 run return 1
 return 0

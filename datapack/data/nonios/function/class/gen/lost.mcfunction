@@ -10,3 +10,4 @@ execute if score @s nx.class matches 1 run return run tellraw @s [{"text":"☠ "
 execute if score @s nx.class matches 9 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Monster","color":"dark_red"},{"text":" is gone: Something bigger ate the Monster.","color":"gray"}]
 execute if score @s nx.class matches 10 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Balrog","color":"gold"},{"text":" is gone: The shadow is gone. For now.","color":"gray"}]
 execute if score @s nx.class matches 2 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Cracy Frog","color":"dark_purple"},{"text":" is gone: The frog croaked. #Useful","color":"gray"}]
+execute if score @s nx.class matches 12 run return run tellraw @s [{"text":"☠ ","color":"dark_red"},{"text":"Angel","color":"gold"},{"text":" is gone: Your halo fades.","color":"gray"}]

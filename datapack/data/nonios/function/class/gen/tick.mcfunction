@@ -5,3 +5,4 @@ execute as @e[type=player,scores={nx.class=8}] at @s run function nonios:class/b
 execute as @e[type=player,scores={nx.class=1}] at @s run function nonios:class/reaper/tick
 execute as @e[type=player,scores={nx.class=10}] at @s run function nonios:class/balrog/tick
 execute as @e[type=player,scores={nx.class=2}] at @s run function nonios:class/cracy_frog/tick
+execute as @e[type=player,scores={nx.class=12}] at @s run function nonios:class/angel/tick

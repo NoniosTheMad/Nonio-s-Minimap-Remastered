@@ -1,0 +1,105 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:goat_horn",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:item_model": "minecraft:bell",
+        "minecraft:max_stack_size": 1,
+        "minecraft:use_effects": {
+         "can_sprint": true,
+         "speed_multiplier": 1.0
+        },
+        "minecraft:use_cooldown": {
+         "seconds": 45,
+         "cooldown_group": "nonios:angel_bell"
+        },
+        "minecraft:instrument": {
+         "sound_event": "minecraft:block.bell.use",
+         "use_duration": 45,
+         "range": 32,
+         "description": ""
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "angel",
+         "nx_item": "angel_bell",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Sanctuary Bell",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Rung once, heard by every guardian",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Ring: allies within 8 blocks get 4 golden",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "hearts and Resistance; their ailments end",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Cooldown 45s",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Angel \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:instrument",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      },
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:use_cooldown": {
+         "seconds": 45,
+         "cooldown_group": "nonios:angel_bell_alt"
+        }
+       },
+       "condition": {
+        "type": "minecraft:entity_scores",
+        "entity": "this",
+        "scores": {
+         "nx.cls_cdalt": {
+          "min": 1
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

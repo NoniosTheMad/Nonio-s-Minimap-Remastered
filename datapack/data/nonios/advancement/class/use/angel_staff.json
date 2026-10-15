@@ -1,0 +1,19 @@
+{
+ "criteria": {
+  "use": {
+   "trigger": "minecraft:using_item",
+   "conditions": {
+    "item": {
+     "predicates": {
+      "minecraft:custom_data": {
+       "nx_item": "angel_staff"
+      }
+     }
+    }
+   }
+  }
+ },
+ "rewards": {
+  "function": "nonios:class/gen/angel/used_staff"
+ }
+}

@@ -7,3 +7,4 @@ execute as @e[type=player,scores={nx.class=8}] at @s run function nonios:class/b
 execute as @e[type=player,scores={nx.class=11}] at @s run function nonios:class/champion/second
 execute as @e[type=player,scores={nx.class=9}] at @s run function nonios:class/monster/second
 execute as @e[type=player,scores={nx.class=10}] at @s run function nonios:class/balrog/second
+execute as @e[type=player,scores={nx.class=12}] at @s run function nonios:class/angel/second

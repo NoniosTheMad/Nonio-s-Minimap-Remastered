@@ -28,7 +28,7 @@
          {
           "type": "minecraft:attack_speed",
           "id": "minecraft:base_attack_speed",
-          "amount": 4.0,
+          "amount": 1.0,
           "operation": "add_value",
           "slot": "mainhand"
          },
@@ -82,12 +82,12 @@
           "text": ""
          },
          {
-          "text": "In hand: armour 0, no knockback, very fast swings",
+          "text": "In hand: armour 0, no knockback, steals life",
           "color": "dark_green",
           "italic": false
          },
          {
-          "text": "Hurt (75/50/25%): hit harder, steal more, Resistance IV to II",
+          "text": "Rage (hits dealt and taken): harder, faster, more steal, less Resistance",
           "color": "dark_green",
           "italic": false
          },

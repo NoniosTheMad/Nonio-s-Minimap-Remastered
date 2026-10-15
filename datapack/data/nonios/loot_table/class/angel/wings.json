@@ -1,0 +1,61 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:elytra",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:unbreakable": {},
+        "minecraft:custom_data": {
+         "nx_cls": "angel",
+         "nx_item": "angel_wings",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_name": {
+         "text": "Seraph Wings",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Feathers of the first light",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Glide (no rockets)",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Angel \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

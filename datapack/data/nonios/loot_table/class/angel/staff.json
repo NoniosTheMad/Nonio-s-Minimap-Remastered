@@ -1,0 +1,91 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:stick",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:item_model": "minecraft:end_rod",
+        "minecraft:max_stack_size": 1,
+        "minecraft:consumable": {
+         "consume_seconds": 3600,
+         "animation": "bow",
+         "sound": "minecraft:intentionally_empty",
+         "has_consume_particles": false
+        },
+        "minecraft:use_effects": {
+         "can_sprint": false,
+         "speed_multiplier": 0.5
+        },
+        "minecraft:attribute_modifiers": [
+         {
+          "type": "minecraft:attack_damage",
+          "id": "minecraft:base_attack_damage",
+          "amount": 2,
+          "operation": "add_value",
+          "slot": "mainhand"
+         }
+        ],
+        "minecraft:custom_data": {
+         "nx_cls": "angel",
+         "nx_item": "angel_staff",
+         "nx_cls_item": true
+        },
+        "minecraft:enchantments": {
+         "minecraft:vanishing_curse": 1
+        },
+        "minecraft:unbreakable": {},
+        "minecraft:custom_name": {
+         "text": "Seraph Staff",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Light bends toward the faithful",
+          "color": "gray",
+          "italic": true
+         },
+         {
+          "text": ""
+         },
+         {
+          "text": "Hold on an ally (16 blocks): heals them",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Sneak while holding: Strength + Speed instead",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Holds on once it finds them",
+          "color": "dark_green",
+          "italic": false
+         },
+         {
+          "text": "Angel \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

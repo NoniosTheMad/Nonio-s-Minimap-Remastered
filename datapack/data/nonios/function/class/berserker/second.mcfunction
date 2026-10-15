@@ -1,2 +1,2 @@
-# Berserker, once a second: fury particles while the BattleAxe is out
-execute if entity @s[tag=nx.cls_rage] run particle minecraft:angry_villager ~ ~2 ~ 0.3 0.2 0.3 0 1
+# Berserker, once a second: full Rage beats like a war drum (heard by all nearby)
+execute if entity @s[tag=nx.cls_rage] if score @s nx.cls_blvl matches 4 run playsound minecraft:entity.warden.heartbeat player @a ~ ~ ~ 0.9 1.2

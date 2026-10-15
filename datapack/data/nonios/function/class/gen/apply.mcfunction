@@ -11,3 +11,4 @@ execute if score @s nx.cls_req matches 9 run return run function nonios:class/ge
 execute if score @s nx.cls_req matches 10 run return run function nonios:class/gen/balrog/apply
 execute if score @s nx.cls_req matches 2 run return run function nonios:class/gen/cracy_frog/apply
 execute if score @s nx.cls_req matches 3 run return run function nonios:class/gen/warrior/apply
+execute if score @s nx.cls_req matches 12 run return run function nonios:class/gen/angel/apply

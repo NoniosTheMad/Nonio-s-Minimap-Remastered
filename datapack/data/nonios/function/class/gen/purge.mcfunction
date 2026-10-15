@@ -11,3 +11,4 @@ execute unless score @s nx.class matches 9 run clear @s *[minecraft:custom_data~
 execute unless score @s nx.class matches 10 run clear @s *[minecraft:custom_data~{nx_cls:"balrog"}]
 execute unless score @s nx.class matches 2 run clear @s *[minecraft:custom_data~{nx_cls:"cracy_frog"}]
 execute unless score @s nx.class matches 3 run clear @s *[minecraft:custom_data~{nx_cls:"warrior"}]
+execute unless score @s nx.class matches 12 run clear @s *[minecraft:custom_data~{nx_cls:"angel"}]

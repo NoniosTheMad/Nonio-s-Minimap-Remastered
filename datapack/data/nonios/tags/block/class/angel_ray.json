@@ -1,0 +1,10 @@
+{
+ "values": [
+  "#nonios:dream_passable",
+  "minecraft:water",
+  "#minecraft:impermeable",
+  "minecraft:light",
+  "minecraft:iron_bars",
+  "minecraft:glass_pane"
+ ]
+}

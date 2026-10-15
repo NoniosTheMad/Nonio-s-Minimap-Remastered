@@ -11,3 +11,4 @@ execute if score @s nx.class matches 9 run return run function nonios:class/gen/
 execute if score @s nx.class matches 10 run return run function nonios:class/gen/balrog/vision
 execute if score @s nx.class matches 2 run return run function nonios:class/gen/cracy_frog/vision
 execute if score @s nx.class matches 3 run return run function nonios:class/gen/warrior/vision
+execute if score @s nx.class matches 12 run return run function nonios:class/gen/angel/vision

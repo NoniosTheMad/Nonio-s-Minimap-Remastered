@@ -763,7 +763,7 @@
         "sprite": "minecraft:item/stone_axe"
       },
       "lost_msg": "The fury burned out.",
-      "blurb": "A light axe that swings very fast. While it is out: no armour, unshakeable, every hit steals life. The lower your health, the harder you hit and the more you steal, but Resistance falls from IV to II. Only stolen life heals you.",
+      "blurb": "A light axe. While it is out: no armour, unshakeable, every hit steals life. Rage builds with every hit you land or take and cools out of combat: the angrier, the harder and faster you hit and the more you steal, but Resistance falls from IV to nothing. Only stolen life heals you.",
       "vision": [],
       "hooks": [
         "tick",
@@ -793,12 +793,12 @@
               "text": ""
             },
             {
-              "text": "In hand: armour 0, no knockback, very fast swings",
+              "text": "In hand: armour 0, no knockback, steals life",
               "color": "dark_green",
               "italic": false
             },
             {
-              "text": "Hurt (75/50/25%): hit harder, steal more, Resistance IV to II",
+              "text": "Rage (hits dealt and taken): harder, faster, more steal, less Resistance",
               "color": "dark_green",
               "italic": false
             },
@@ -826,7 +826,7 @@
               {
                 "type": "minecraft:attack_speed",
                 "id": "minecraft:base_attack_speed",
-                "amount": 4.0,
+                "amount": 1.0,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
@@ -2466,6 +2466,207 @@
         }
       },
       "enchantments": {}
+    },
+    "angel": {
+      "num": 12,
+      "tier": "shop",
+      "name": {
+        "text": "Angel",
+        "color": "gold"
+      },
+      "price": 150,
+      "kill_tier": 1,
+      "shop": {
+        "sprite": "minecraft:item/totem_of_undying"
+      },
+      "lost_msg": "Your halo fades.",
+      "blurb": "A healer. Hold the Seraph Staff on an ally: a beam that mends them (sneak: empowers them instead) and shows their health. Sanctuary Bell: shields every ally around you. Glides on wings, wears gold, sees the world bright.",
+      "vision": [
+        "nonios:angel"
+      ],
+      "hooks": [
+        "on_apply",
+        "tick",
+        "second",
+        "on_strip"
+      ],
+      "clear_effects": [],
+      "items": {
+        "head": {
+          "slot": "armor.head",
+          "id": "minecraft:golden_helmet",
+          "name": {
+            "text": "Seraph Circlet",
+            "color": "gold"
+          },
+          "components": {
+            "minecraft:unbreakable": {}
+          }
+        },
+        "wings": {
+          "slot": "armor.chest",
+          "id": "minecraft:elytra",
+          "name": {
+            "text": "Seraph Wings",
+            "color": "gold"
+          },
+          "lore": [
+            {
+              "text": "Feathers of the first light",
+              "color": "gray",
+              "italic": true
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": "Glide (no rockets)",
+              "color": "dark_green",
+              "italic": false
+            }
+          ],
+          "components": {
+            "minecraft:unbreakable": {}
+          }
+        },
+        "legs": {
+          "slot": "armor.legs",
+          "id": "minecraft:golden_leggings",
+          "name": {
+            "text": "Seraph Greaves",
+            "color": "gold"
+          },
+          "components": {
+            "minecraft:unbreakable": {}
+          }
+        },
+        "feet": {
+          "slot": "armor.feet",
+          "id": "minecraft:golden_boots",
+          "name": {
+            "text": "Seraph Sandals",
+            "color": "gold"
+          },
+          "components": {
+            "minecraft:unbreakable": {},
+            "minecraft:enchantments": {
+              "minecraft:feather_falling": 4
+            }
+          }
+        },
+        "staff": {
+          "slot": "inventory",
+          "id": "minecraft:stick",
+          "name": {
+            "text": "Seraph Staff",
+            "color": "gold"
+          },
+          "lore": [
+            {
+              "text": "Light bends toward the faithful",
+              "color": "gray",
+              "italic": true
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": "Hold on an ally (16 blocks): heals them",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Sneak while holding: Strength + Speed instead",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Holds on once it finds them",
+              "color": "dark_green",
+              "italic": false
+            }
+          ],
+          "components": {
+            "minecraft:item_model": "minecraft:end_rod",
+            "minecraft:max_stack_size": 1,
+            "minecraft:consumable": {
+              "consume_seconds": 3600,
+              "animation": "bow",
+              "sound": "minecraft:intentionally_empty",
+              "has_consume_particles": false
+            },
+            "minecraft:use_effects": {
+              "can_sprint": false,
+              "speed_multiplier": 0.5
+            },
+            "minecraft:attribute_modifiers": [
+              {
+                "type": "minecraft:attack_damage",
+                "id": "minecraft:base_attack_damage",
+                "amount": 2,
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ]
+          }
+        },
+        "bell": {
+          "slot": "inventory",
+          "id": "minecraft:goat_horn",
+          "name": {
+            "text": "Sanctuary Bell",
+            "color": "gold"
+          },
+          "lore": [
+            {
+              "text": "Rung once, heard by every guardian",
+              "color": "gray",
+              "italic": true
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": "Ring: allies within 8 blocks get 4 golden",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "hearts and Resistance; their ailments end",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Cooldown 45s",
+              "color": "dark_green",
+              "italic": false
+            }
+          ],
+          "components": {
+            "minecraft:item_model": "minecraft:bell",
+            "minecraft:max_stack_size": 1,
+            "minecraft:use_effects": {
+              "can_sprint": true,
+              "speed_multiplier": 1.0
+            },
+            "minecraft:use_cooldown": {
+              "seconds": 45,
+              "cooldown_group": "nonios:angel_bell"
+            },
+            "minecraft:instrument": {
+              "sound_event": "minecraft:block.bell.use",
+              "use_duration": 45,
+              "range": 32,
+              "description": ""
+            }
+          }
+        },
+        "beef": {
+          "slot": "supply",
+          "id": "minecraft:cooked_beef",
+          "count": 2
+        }
+      }
     }
   }
 }

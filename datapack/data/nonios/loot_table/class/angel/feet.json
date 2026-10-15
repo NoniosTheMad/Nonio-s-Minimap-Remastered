@@ -1,0 +1,49 @@
+{
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:golden_boots",
+     "modifier": [
+      {
+       "type": "minecraft:set_components",
+       "components": {
+        "minecraft:unbreakable": {},
+        "minecraft:enchantments": {
+         "minecraft:feather_falling": 4,
+         "minecraft:vanishing_curse": 1,
+         "minecraft:binding_curse": 1
+        },
+        "minecraft:custom_data": {
+         "nx_cls": "angel",
+         "nx_item": "angel_feet",
+         "nx_cls_item": true
+        },
+        "minecraft:custom_name": {
+         "text": "Seraph Sandals",
+         "color": "gold",
+         "italic": false
+        },
+        "minecraft:lore": [
+         {
+          "text": "Angel \u00b7 shop class: lost on death",
+          "color": "dark_gray",
+          "italic": false
+         }
+        ],
+        "minecraft:tooltip_display": {
+         "hidden_components": [
+          "minecraft:dyed_color",
+          "minecraft:unbreakable"
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

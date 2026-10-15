@@ -25,14 +25,27 @@ scoreboard objectives add nx.cls_rfly dummy
 scoreboard objectives add nx.cls_ry1 dummy
 scoreboard objectives add nx.cls_ry2 dummy
 scoreboard objectives add nx.cls_rg dummy
-# Berserker: health band 0..3 (Strength level)
+# Berserker: Rage tier 0..4 (berserker/fury)
 scoreboard objectives add nx.cls_blvl dummy
 # Berserker heal guard (#89): last allowed health x100, ticks left on the max-health clamp
 scoreboard objectives add nx.cls_bhp dummy
 scoreboard objectives add nx.cls_bcap dummy
 scoreboard objectives add nx.cls_bgr dummy
 scoreboard objectives add nx.cls_bgt dummy
+# Berserker Rage 0..100 (#93), last combat / last fed hit (gametime)
+scoreboard objectives add nx.cls_brg dummy
+scoreboard objectives add nx.cls_brt dummy
+scoreboard objectives add nx.cls_brh dummy
+scoreboard players set #5 nx.cls_tmp 5
+scoreboard players set #25 nx.cls_tmp 25
+scoreboard players set #50 nx.cls_tmp 50
 scoreboard players set #100 nx.cls_tmp 100
+# Angel (#94): beam ticks left, locked on (0/1), wave age; on the beamed ally: the Angel's nx.pid
+scoreboard objectives add nx.cls_abm dummy
+scoreboard objectives add nx.cls_alk dummy
+scoreboard objectives add nx.cls_aw dummy
+scoreboard objectives add nx.cls_atg dummy
+scoreboard players set #4 nx.cls_tmp 4
 # Champion: kills while undefeated (0..5)
 scoreboard objectives add nx.cls_champ dummy
 # Cracy Frog tongue: ticks left in flight, spring countdown; victims: ticks yanked / immune, launch Y and peak Y (x10). nx.pid = player id (dream/pid)
