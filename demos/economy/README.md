@@ -85,3 +85,8 @@ Item: binding + vanishing curse. Picker body: "Talisman x3 = N/s" for the live m
 Correction of #111: the talisman earns talisman_mult x the live interest rate on its own price (shop catalog price, 200),
 not on the team bank: mode A 3 x 0.1%/s x 200 = 0.6 coin/s, no bank cap, bank size irrelevant. `talisman/accrue` runs once
 per interest tick from `bank/interest/tick` (one global `#tacc nx.talis`); `talisman/round` and the team hook are gone.
+
+## #113: coin sound steps
+`purse/pling` (from `purse/changed`, every purse increase): the coin sound plays only when the purse crosses a multiple of
+step = 10^floor(log10(nx.earned / 100)), min 1 (under 1000 gathered: every coin; 1000+: every 10; 10000+: every 100; ...).
+The "+N" popup still shows every gain (it already batches within its 1.5 s window).
