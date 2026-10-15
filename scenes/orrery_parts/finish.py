@@ -21,7 +21,11 @@ def markers(s, ctx):
     s.mark("cam_crater", (66, ground_y(s, 66, 134, below=60), 134), look_at=(104, 120, 104))
     s.mark("cam_below", (104, ground_y(s, 104, 136, below=60), 136), look_at=(104, 90, 104))
     s.markers["cam_below"]["fov"] = 85
-    s.mark("cam_gate", (104, FLOOR + 1, 143), look_at=(104, 170, 104))
+    s.mark("cam_gate", (104, FLOOR + 1, 150), look_at=(104, 122, 128))
+    s.markers["cam_gate"]["fov"] = 75
+    s.mark("cam_arc", (70, 48, 85), look_at=(47, 62, 47))       # on the heath, clear of the shards
+    s.mark("cam_observatory", (150, 113, 82), look_at=(180, 58, 69))
+    s.markers["cam_observatory"]["fov"] = 50
     s.mark("cam_court", (88, FLOOR + 1, 121), look_at=(104, 185, 104))
     s.mark("cam_gallery", (104, 151, 120), look_at=(160, 150, 50))
     L = ctx.get("stair_landings")

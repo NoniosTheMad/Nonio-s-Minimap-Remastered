@@ -35,3 +35,18 @@ Weakest three after pass 2:
 1. The eye views from the crater floor and spawns are still dominated by the dark belly. The castle reads as a small crown on a tall dark column.
 2. The gate approach: the top of the floating stair cuts a trench into the forecourt (eye_cam_gate), so the arrival at the gate is a hole, not a threshold.
 3. The court and gallery views are dark and cramped. Few lights (0.29 per 100 m2 near facades), and the court has no focal light.
+
+## Pass 3: the far highland
+Fixes for pass 2's weakest three plus the quiet highland:
+- Highland (new `highland.py`): the Fallen Arc (NW, broken sector of an older ring, R 24, faces the crater, two horns
+  with rubble and a sunk glyph plate), the Old Observatory (NE: plinth, roofless tower, ramp to a sniper perch, fallen
+  dome half sunk in the slope, fallen telescope), two oak groves with understorey, the pilgrims' road with lantern pylons,
+  spawn plazas, amethyst shards over the heath.
+- Gate approach: cam_gate re-aimed at the portal (the trench was fine, the camera was not).
+- Fallen dome: its hollow shell on a slope made a 128-cell hard trap; filled with earth. Walk: 0 hard, 0 soft.
+- Zones: Old Observatory (ground, perch). Cameras: cam_arc, cam_observatory.
+
+Weakest three after pass 3:
+1. The belly still dominates crater and spawn views (big, dark, uniform).
+2. Lighting: court, gallery and walls are dark (0.35 lights/100 m2 near facades).
+3. Facade palette is flat (top-5 share 0.49, partial blocks 0.08): trims and gradients needed.

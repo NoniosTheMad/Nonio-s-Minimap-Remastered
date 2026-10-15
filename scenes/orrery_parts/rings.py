@@ -82,14 +82,15 @@ def ring_frame(R, tilt, yaw):
     return M
 
 
-def band(s, R, hw, ht, tilt, yaw, age, glyphs, k, accent, tick_deg):
+def band(s, R, hw, ht, tilt, yaw, age, glyphs, k, accent, tick_deg, rc=None, keep=None, replace=None):
     """Voxelise one ring as an open truss: two rails, rungs at every degree tick, proud teeth on the outer face every
     major tick, glyph plates at the plate angles. Sky shows between the rungs, so the ring reads as fine metalwork."""
+    RC = RING_C if rc is None else rc
     M = ring_frame(R, tilt, yaw)
     ext = R + ht + 3
     yext = ext * math.sin(math.radians(tilt)) + hw + 3
-    b = Box(s, (RING_C[0] - ext, RING_C[1] - yext, RING_C[2] - ext), (RING_C[0] + ext + 1, RING_C[1] + yext + 1, RING_C[2] + ext + 1))
-    lx, ly, lz = to_local(M, RING_C, b.x, b.y, b.z)
+    b = Box(s, (RC[0] - ext, RC[1] - yext, RC[2] - ext), (RC[0] + ext + 1, RC[1] + yext + 1, RC[2] + ext + 1))
+    lx, ly, lz = to_local(M, RC, b.x, b.y, b.z)
     rho = np.sqrt(lx ** 2 + lz ** 2)
     q = rho - R
     w = ly
@@ -121,6 +122,8 @@ def band(s, R, hw, ht, tilt, yaw, age, glyphs, k, accent, tick_deg):
         pix[sel] = bm[row[sel], col[sel]]
     relief_out = pix & (q > ht - 0.5) & (q <= ht + 1.0)
     solid = rail | rung | plate | tooth | relief_out
+    if keep is not None:                         # a sector only (the Fallen Arc): keep(th_deg) -> bool
+        solid &= keep(th)
     if not solid.any():
         return None
     names = np.empty(q.shape, object)
@@ -144,14 +147,16 @@ def band(s, R, hw, ht, tilt, yaw, age, glyphs, k, accent, tick_deg):
         sel = vals == state
         mm = np.zeros(s.shape, bool)
         mm[xs[sel], ys[sel], zs[sel]] = True
-        s.fill(mm, state)
+        s.fill(mm, state, replace=replace)
     # lit bulbs on both rails at each plate centre
     for ang, _ in glyphs:
+        if keep is not None and not keep(np.array(ang)):
+            continue
         for side in (-1, 1):
             for du_ in (-3.0, 3.0):
                 a2 = math.radians(ang) + du_ / R
                 p = np.array([math.cos(a2) * R, side * (hw - 0.6), math.sin(a2) * R])
-                wp = M @ p + np.array(RING_C)
+                wp = M @ p + np.array(RC)
                 s.set(int(math.floor(wp[0])), int(math.floor(wp[1])), int(math.floor(wp[2])), cu(age, "bulb", lit="true", powered="false"))
     return M
 

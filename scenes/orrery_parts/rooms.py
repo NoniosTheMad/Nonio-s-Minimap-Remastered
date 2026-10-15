@@ -97,6 +97,18 @@ def zones(ctx):
         Z.append(dict(name=f"Geode Grotto {k + 1}", type="cave", shape="sphere", c=[round(v, 1) for v in c], r=round(ri, 1), a=a,
                       box=[int(c[0] - ri), int(c[1] - ri), int(c[2] - ri), int(c[0] + ri), int(c[1] + ri), int(c[2] + ri)],
                       floor=None, mood="small, glittering, a hiding place", features=["mouth onto the crater shore"], doors=[]))
+    # ---- highland
+    ob = ctx.get("observatory")
+    if ob:
+        ri = ob["r"] - 1.6
+        Z.append(_cyl("Old Observatory (ground)", "ruin", ob["c"], ri, ob["floor"] + 1, ob["perch"] - 1,
+                      "roofless, open sky through the broken wall, the fallen dome outside the door",
+                      ["door towards the crater", "6 lancets", "helix ramp on the wall (keep clear)", "open to the sky"],
+                      doors=["crater door"]))
+        Z.append(_cyl("Old Observatory (perch)", "lookout", ob["c"], ri, ob["perch"] + 1, ob["perch"] + 4,
+                      "exposed, a sniper's half floor, the island hanging in the view",
+                      ["half floor (planks, 180 deg)", "broken wall chest-high on the crater side", "telescope mount (fallen)"],
+                      floor=ob["perch"]))
     return Z
 
 

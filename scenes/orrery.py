@@ -12,7 +12,7 @@ from tools.voxel.scene import Scene
 
 from scenes.orrery_parts import common as K
 
-PARTS = ("terrain", "island", "castle", "spire", "rings", "stair", "moorings", "rooms", "finish")
+PARTS = ("terrain", "island", "castle", "spire", "rings", "stair", "moorings", "highland", "rooms", "finish")
 
 
 def _mod(name):
