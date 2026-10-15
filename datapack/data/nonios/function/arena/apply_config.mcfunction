@@ -5,11 +5,13 @@ scoreboard players operation #ncap nx.arena *= #-1 nx.arena
 execute store result score #step nx.arena run data get storage nonios:arena config.step
 execute store result score #max_mult nx.arena run data get storage nonios:arena config.max_mult
 execute store result score #decay nx.arena run data get storage nonios:arena config.decay
-execute store result score #per_roll nx.arena run data get storage nonios:arena config.per_roll
-execute if score #per_roll nx.arena matches ..0 run scoreboard players set #per_roll nx.arena 4
-execute store result score #item_cap nx.arena run data get storage nonios:arena config.item_cap
-execute store result score #coins nx.arena run data get storage nonios:arena config.coins
-execute store result score #indicator nx.arena run data get storage nonios:arena config.indicator
+# runes: bar / rune resolution = capture x 10; redraw intervals
+scoreboard players operation #cap10 nx.arena = #capture nx.arena
+scoreboard players operation #cap10 nx.arena *= #10 nx.arena
+execute store result score #rn_every nx.arena run data get storage nonios:arena config.rune.every
+execute if score #rn_every nx.arena matches ..0 run scoreboard players set #rn_every nx.arena 3
+execute store result score #rn_every_cap nx.arena run data get storage nonios:arena config.rune.every_cap
+execute if score #rn_every_cap nx.arena matches ..0 run scoreboard players set #rn_every_cap nx.arena 2
 execute store result score #int_pm nx.arena run data get storage nonios:arena config.interest_permille
 execute store result score #int_cap nx.arena run data get storage nonios:arena config.interest_cap
 execute store result score #ev_first nx.arena run data get storage nonios:arena config.event_first

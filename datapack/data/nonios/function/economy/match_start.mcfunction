@@ -4,6 +4,7 @@ scoreboard players set @a nx.krw 0
 scoreboard players set @a nx.kbty 0
 scoreboard players set @a nx.kbon 0
 scoreboard players set @a nx.kpurse 0
+scoreboard players set @a nx.kgold 0
 tag @a remove nx.k.show
 tag @a remove nx.k.done
 scoreboard players set #acc_white nx.eco 0

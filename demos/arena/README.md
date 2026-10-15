@@ -1,43 +1,37 @@
 # arena
 
 Arena systems (DESIGN 2.10) on top of the game code in `datapack/data/nonios/function/arena/`.
-G -> "Demo: Arena": switch my team, spawn enemy dummy (nearest node), remove dummies, random event, each event,
-toggle lightning, speed x10 / x1, payouts drop / bank, status, reset. All buttons are `trigger demo.arena set N`.
+G -> "Demo: Arena": switch my team, spawn enemy dummy (nearest node), remove dummies, random event, Emerald Surge,
+Supply Drop, Golden Hour now, toggle lightning, speed x10 / x1, Purse Thief, status, reset (`trigger demo.arena set N`).
 
-Layout: 41x41 floor at y=63 around spawn, low wall. Nodes (5x5 zone, 3 high): West (-11,64,-3), North (0,64,-13),
-East (11,64,-3). Under each centre: indicator glass on a beacon on 3x3 iron, so the beam shows the owner.
-The demo overrides the node list, arena box and centre from `#nonios:arena/config` (`demo:arena_config`),
-the same way the real map will plug in.
+Layout: 41x41 floor at y=63, low wall. Nodes (5x5 zone, 3 high) on plain stone pads: West (-11,64,-3) haste,
+North (0,64,-13) interest, East (11,64,-3) regrow. Centre generator (emerald fountain) at (0,64,-3).
+The demo overrides nodes, arena box, centre and cgen from `#nonios:arena/config` (`demo:arena_config`).
 
-## How it works (game code)
-- **Config:** `nonios:arena/config` writes everything to `storage nonios:arena config` (capture speed, payout,
-  loot, nodes, arena box, events, lightning). It runs on every load, followed by the `#nonios:arena/config` tag for overrides.
-  `function nonios:arena/setup` rebuilds the nodes from it; `start` / `stop` / `reset` control the loop.
-- **Loop:** `nonios:arena/loop` reschedules itself every 10 ticks. Nothing runs per tick. Per node and loop: four
-  box-bounded entity counts (`@a[x,dx,team=..]` + non-player `nx.captor` entities), one `bossbar set players`, score maths.
-  Holograms and particles update once a second. Timers (payout, events, lightning) advance by 10 x `#speed nx.arena`.
-- **Capture:** progress `nx.ar_cap` from -100 (Black) to +100 (White). Only one team inside: +-5 per check per capturer,
-  counting up to 3 capturers (10 s alone, 3.3 s with 3+). Both inside: contested, frozen. Empty: drifts 2 per check back to
-  the owner's full value, or toward 0. A held node drained to 0 turns neutral, then the other team can take it.
-  Players count only on team white/black and not in spectator; mobs count with tag `nx.captor` and a team.
-- **Bossbar** `nonios:arena/<id>`, shown only to players inside: colour = progress sign (white / purple), red when contested;
-  the name says the state. **Hologram** above the node: name in owner colour, state + %, next payout.
-  **Indicator** block (config `blocks`, default yellow / white / purple / red stained glass) at the centre floor block.
-- **Payout:** a held node pays every 600 ticks. `storage nonios:arena payout = {team,node,name,loot,rolls,coins}`, then
-  `#nonios:arena/on_node_payout` runs as + at the node. If no handler sets `#handled nx.arena 1`, `loot` spawns at the node
-  `rolls` times. Rolls = 1 + (team size - 1) / 4 (20 players: 5), x2 during Golden Hour. Drops wait while 24+ item stacks
-  lie within 3 blocks. The demo's "bank" mode is such a handler (`demo:bank_hook`).
-- **Events:** `config.events` is a list of `{id,name,color,sub,at,sound,weight,fn}`; the timer (first after 3 min, then
-  every 5 min) picks one by weight, picks a random node if `at:1b`, shows title + subtitle + sound + chat line, runs `fn`
-  as + at that node. Adding an event = one `append` line in the config + its function.
-  - Arena v3 (feat/arena-v3): the event list, weights, the announcement countdown and Frog Rain (now a troll event)
-    live in the **events** demo; this demo's buttons fire Emerald Surge / Supply Drop / Golden Hour.
-- **Lightning** (`lightning/on|off|toggle`, remembered across reloads): the V2 Lightning Rabbit. A glowing, burning,
-  fast rabbit (100 HP, Regeneration V, fire resistance) spawns at the arena centre with a bolt and calls a bolt on itself
-  every 60 ticks. If it leaves the arena box it is teleported back. Kill it for emeralds and a "Charred Rabbit's Foot";
-  it comes back 30 s later.
-- **Hooks:** `#nonios:arena/config`, `#nonios:arena/on_node_payout`, `#nonios:arena/on_capture`
-  (`storage nonios:arena cap = {team,node,name}`, team "" when neutralised).
+## How it works (game code, feat/arena-runes #126-#130)
+- **Runes (#126):** each node shows an Elder Futhark rune drawn in dust particles, billboarded per viewer within
+  `config.rune.view` blocks, `lift` above the zone. The rune comes from the bonus (`src/runes.json` -> `tools/build_runes.py`
+  -> `arena/rune/gen/*`): Fehu = interest, Sowilo = haste, Jera = regrow, Othala = no bonus; spares Raidho = swift
+  (Speed I in the arena), Algiz = ward (Resistance I in the arena), unused by default. A node may set `rune` explicitly.
+  Colour = owner (amber neutral, white, purple for Black); while being captured the strokes paint in, in stroke order,
+  with an end-rod pen tip and a throb; red unpainted strokes = contested. Captured: flare + sparks; lost: puff.
+  A 4-particle marcher outlines the square zone on the ground. No hologram, no beacon.
+  Budget per node and viewer: idle ~n/3 particles per tick (n = 18-29 points), capturing ~n/2 + 1, ring 4.
+- **Bossbar:** max = capture x 10 and slides between the 10-tick capture checks, so it fills smoothly. Its title is
+  the legend: "<rune> <name>  held by <team>  <bonus>".
+- **Payout:** a held node only gives its rune bonus (no loot, no coins). Hook `#nonios:arena/on_node_payout`,
+  `storage nonios:arena payout = {team,node,name,bonus}`.
+- **Golden Hour (#127):** for `golden_time` every coin earned in the centre is x `golden_mult`: centre generator
+  emeralds, kill rewards (base + bounty + streak/tier bonuses) for kills inside `config.bounds`
+  (`#nonios:economy/kill_mult` -> `arena/event/golden_kill`, shown as "+N golden"), and the interest node.
+- **Purse split (#128/#129):** a kill inside the arena hands the killer `centre_killer_share` % (storage nonios:config,
+  default 50) of the victim's purse; the rest drops on the spot as coin bags (the no-killer death path).
+  `purse_drop_scope`: "centre" (default) or "everywhere". Golden Hour never multiplies purses (no minting).
+- **Centre generator (#130):** an emerald fountain (`src/generators.json` centre). Every `interval_ticks` it throws
+  1 + banks / bank_per_roll emeralds (max `max_rolls`, x golden_mult in Golden Hour) onto the floor, while fewer than
+  `item_cap` emeralds lie within 4 blocks. Emeralds become coins on pickup. Its spinning emerald core grows with level.
+- **Events, lightning, hooks:** as before: `config.events` list, `lightning/on|off|toggle`, `#nonios:arena/config`,
+  `#nonios:arena/on_capture` (`cap = {team,node,name}`).
 
 ## From the original (V2.0, recovered from command blocks / signs in the region files)
 - **Arena:** a central area around (-60, 101..105, 54), about 44x44. Players entered from the Field portal (8 62 8) at one of

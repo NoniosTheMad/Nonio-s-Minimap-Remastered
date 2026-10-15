@@ -11,30 +11,28 @@ data modify storage nonios:arena config.capture set value 100
 data modify storage nonios:arena config.step set value 5
 data modify storage nonios:arena config.max_mult set value 3
 data modify storage nonios:arena config.decay set value 2
-# Node bonus (feedback #40: small, clear team bonuses instead of income). Per node `bonus`: none | haste | interest |
-# regrow (see arena/load). bonus_text = what the hologram and bossbar say.
+# Node bonus (feedback #40, #127: nodes give only their bonus, never items). Per node `bonus`: none | haste | interest |
+# regrow, and two spare ones no node uses by default: swift | ward (see arena/load). bonus_text = what the bossbar says.
 data modify storage nonios:arena config.bonus set value "none"
-data modify storage nonios:arena config.bonus_text set value {none:"",haste:"Haste in your field",interest:"Bank +0.5%",regrow:"Generator regrows faster"}
+data modify storage nonios:arena config.bonus_text set value {none:"",haste:"Haste in your field",interest:"Bank +0.5%",regrow:"Generator regrows faster",swift:"Speed in the Arena",ward:"Resistance in the Arena"}
 data modify storage nonios:arena config.interest_permille set value 5
 data modify storage nonios:arena config.interest_cap set value 10
 # Team fields for the haste bonus: {white:{team,x,y,z,dx,dy,dz}, black:{...}} (a map fills them).
 data modify storage nonios:arena config.fields set value {}
-# Payout of a held node, every `payout_every` ticks: #nonios:arena/on_node_payout runs, the interest bonus pays, and
-# if the node has a `loot` (none by default) and no handler set #handled nx.arena 1, it drops 1 + (holding team
-# size - 1) / per_roll times (x #mult). `coins` (x #mult) is passed to the hook. Drops wait while `item_cap` item
-# stacks lie within 3 blocks of the node.
+# Payout of a held node, every `payout_every` ticks: #nonios:arena/on_node_payout runs and the interest bonus pays.
 data modify storage nonios:arena config.payout_every set value 600
-data modify storage nonios:arena config.loot set value ""
-data modify storage nonios:arena config.coins set value 0
-data modify storage nonios:arena config.per_roll set value 4
-data modify storage nonios:arena config.item_cap set value 24
-# Node indicator: the block at (node centre + indicator_dy) shows the state. A beacon under it = coloured beam.
-data modify storage nonios:arena config.indicator set value 1b
-data modify storage nonios:arena config.indicator_dy set value -1
-data modify storage nonios:arena config.blocks set value {none:"minecraft:yellow_stained_glass",white:"minecraft:white_stained_glass",black:"minecraft:purple_stained_glass",contested:"minecraft:red_stained_glass"}
-# Nodes: id (lowercase a-z0-9_, bossbar nonios:arena/<id>), name, x y z = centre block at foot level,
+# Runes (feedback #126): every node shows an Elder Futhark rune in particles over its zone (its identity; no hologram,
+# no beacon). config.runes + config.rune_of (bonus -> rune) come from src/runes.json (tools/build_runes.py); a node's
+# own `rune` field overrides. Colours = particle specs: neutral / white / black / contested, `cold` = not yet painted.
+#   every = ticks between redraws (idle; `every_cap` while it is being captured), view = draw distance (blocks),
+#   lift = glyph centre above the zone top, in tenths of a block. ring = the zone outline on the ground.
+function nonios:arena/rune/gen/defs
+data modify storage nonios:arena config.rune set value {every:3,every_cap:2,view:48,lift:20}
+data modify storage nonios:arena config.rune.col set value {neutral:"minecraft:dust{color:[1.0,0.72,0.2],scale:1.6}",white:"minecraft:dust{color:[1.0,1.0,1.0],scale:1.8}",black:"minecraft:dust{color:[0.68,0.3,1.0],scale:1.8}",white_pulse:"minecraft:dust{color:[1.0,1.0,1.0],scale:2.4}",black_pulse:"minecraft:dust{color:[0.68,0.3,1.0],scale:2.4}",cold:"minecraft:dust{color:[0.75,0.55,0.25],scale:1.0}",contested:"minecraft:dust{color:[1.0,0.15,0.1],scale:1.2}",tip:"minecraft:end_rod"}
+data modify storage nonios:arena config.rune.ring set value {neutral:"minecraft:dust{color:[1.0,0.72,0.2],scale:0.7}",white:"minecraft:dust{color:[1.0,1.0,1.0],scale:0.7}",black:"minecraft:dust{color:[0.68,0.3,1.0],scale:0.7}",contested:"minecraft:dust{color:[1.0,0.15,0.1],scale:0.8}"}
+# Nodes: id (lowercase a-z0-9_, bossbar nonios:arena/<id>), name (status/admin only), x y z = centre block at foot level,
 # r = half width (zone = (2r+1) x (2r+1) blocks), h = height in blocks.
-# Optional per node: bonus, loot (loot table), every (payout ticks), coins.
+# Optional per node: bonus, rune (else config.rune_of.<bonus>), every (payout ticks).
 # PLACEHOLDERS until the real Arena is built.
 data modify storage nonios:arena config.nodes set value [{id:"north",name:"North Node",x:0,y:64,z:-24,r:2,h:3,bonus:"haste"},{id:"centre",name:"Centre Node",x:0,y:64,z:0,r:3,h:3,bonus:"interest"},{id:"south",name:"South Node",x:0,y:64,z:24,r:2,h:3,bonus:"regrow"}]
 # Arena box (x y z = min corner, dx dy dz = size; keeps the Lightning Rabbit in, bounds the bounty / low gravity
@@ -53,7 +51,7 @@ data modify storage nonios:arena config.trolls set value 0b
 data modify storage nonios:arena config.events set value []
 data modify storage nonios:arena config.events append value {id:"emerald_surge",name:"EMERALD SURGE",color:"green",bar:"green",sub:"Emeralds erupt",at:1b,sound:"minecraft:block.beacon.activate",weight:3,fn:"nonios:arena/event/emerald_surge"}
 data modify storage nonios:arena config.events append value {id:"supply_drop",name:"SUPPLY DROP",color:"aqua",bar:"blue",sub:"A supply chest falls",at:1b,sound:"minecraft:item.trident.thunder",weight:3,fn:"nonios:arena/event/supply_drop"}
-data modify storage nonios:arena config.events append value {id:"golden_hour",name:"GOLDEN HOUR",color:"gold",bar:"yellow",sub:"Centre generator x3",at:0b,sound:"minecraft:ui.toast.challenge_complete",weight:2,fn:"nonios:arena/event/golden_hour"}
+data modify storage nonios:arena config.events append value {id:"golden_hour",name:"GOLDEN HOUR",color:"gold",bar:"yellow",sub:"Arena coins x2",at:0b,sound:"minecraft:ui.toast.challenge_complete",weight:2,fn:"nonios:arena/event/golden_hour"}
 data modify storage nonios:arena config.events append value {id:"bounty_hunt",name:"BOUNTY HUNT",color:"red",bar:"red",sub:"Kills in the Arena pay extra",at:0b,sound:"minecraft:entity.evoker.prepare_attack",weight:2,fn:"nonios:arena/event/bounty_hunt"}
 data modify storage nonios:arena config.events append value {id:"low_gravity",name:"LOW GRAVITY",color:"light_purple",bar:"purple",sub:"The Arena lets go",at:0b,sound:"minecraft:block.beacon.power_select",weight:2,fn:"nonios:arena/event/low_gravity"}
 data modify storage nonios:arena config.events append value {id:"frog_rain",name:"IT'S RAINING FROGS",color:"light_purple",bar:"pink",sub:"Emerald-stuffed frogs fall",at:1b,sound:"minecraft:entity.frog.long_jump",weight:1,troll:1b,fn:"nonios:arena/event/frog_rain"}
@@ -92,7 +90,7 @@ data modify storage nonios:arena config.core_blocks set value [{id:"minecraft:co
 # No config.cgen = none.
 data remove storage nonios:arena config.cgen
 # Protection (feedback #43): config.protect {x1,y1,z1,x2,y2,z2, by = backup copy's lowest y}: every non-air block of
-# that box at setup time is restored within a tick when broken (the core and node indicators stay changeable).
+# that box at setup time is restored within a tick when broken (the core stays changeable).
 # protect_types = purse coin blocks among them (their mining stat is cancelled so they pay nothing). None = off.
 data remove storage nonios:arena config.protect
 data modify storage nonios:arena config.protect_types set value []

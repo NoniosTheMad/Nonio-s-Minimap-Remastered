@@ -5,7 +5,8 @@ execute if score #map nx.state matches 1 unless score #state nx.state matches 2 
 schedule function nonios:arena/loop 10t replace
 scoreboard players operation #dt nx.arena = #speed nx.arena
 scoreboard players operation #dt nx.arena *= #10 nx.arena
-# holograms and particles once per second (#half = 0)
+# #ph = ticks since this capture check (arena/rune slides bars and runes); bonus effects once per second (#half = 0)
+scoreboard players set #ph nx.arena 0
 scoreboard players add #half nx.arena 1
 execute if score #half nx.arena matches 2.. run scoreboard players set #half nx.arena 0
 # nodes; the bonuses held right now are recounted on the way (generator/loop reads #regrow_<team>)

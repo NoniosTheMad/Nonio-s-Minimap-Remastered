@@ -9,7 +9,7 @@
    "type": "minecraft:plain_message",
    "width": 320,
    "contents": {
-    "text": "Three contested nodes. Stand on a pad to capture it (bossbar while inside: team colour, red = contested). A held node pays loot every 30 s. Timed events hit a random node. Dummies are husks on the other team: they count for capture.",
+    "text": "Three rune nodes and the emerald fountain. Dummies are husks on the other team: they count for capture.",
     "color": "gray"
    }
   }
@@ -95,11 +95,11 @@
   },
   {
    "label": {
-    "text": "Event: Golden Hour",
+    "text": "Golden Hour now",
     "color": "gold"
    },
    "tooltip": {
-    "text": "Held nodes pay double for a minute"
+    "text": "Fires at once: centre coins x2 for a minute"
    },
    "action": {
     "type": "minecraft:run_command",
@@ -125,7 +125,7 @@
     "color": "aqua"
    },
    "tooltip": {
-    "text": "Payout, event and lightning timers (not capture)"
+    "text": "Event, lightning and centre generator timers (not capture)"
    },
    "action": {
     "type": "minecraft:run_command",
@@ -134,11 +134,11 @@
   },
   {
    "label": {
-    "text": "Payouts: drop / bank",
-    "color": "gold"
+    "text": "Purse Thief",
+    "color": "red"
    },
    "tooltip": {
-    "text": "Switch the payout hook demo: loot at the node or coins to a team bank"
+    "text": "+100 coins and a husk that steals purses. Die to it inside the arena: it keeps half, the rest drops"
    },
    "action": {
     "type": "minecraft:run_command",

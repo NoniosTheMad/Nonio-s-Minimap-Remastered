@@ -1,7 +1,6 @@
-# macro (node config): bossbar + hologram
+# macro (node config): bossbar (max = capture x 10: arena/rune/slide fills it a little every tick)
 $bossbar remove nonios:arena/$(id)
-$bossbar add nonios:arena/$(id) {text:"$(name)"}
-$execute store result bossbar nonios:arena/$(id) max run scoreboard players get #capture nx.arena
-$bossbar set nonios:arena/$(id) style notched_10
+$bossbar add nonios:arena/$(id) {text:"$(label)"}
+$execute store result bossbar nonios:arena/$(id) max run scoreboard players get #cap10 nx.arena
+$bossbar set nonios:arena/$(id) style progress
 $bossbar set nonios:arena/$(id) value 0
-$summon minecraft:text_display ~ ~$(hy) ~ {Tags:["nx.node_part","nx.node_holo"],billboard:"center",alignment:"center",line_width:220,text:{text:"$(name)"}}

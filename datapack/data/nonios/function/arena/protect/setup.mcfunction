@@ -1,6 +1,6 @@
 # (Re)take the protection snapshot from config.protect {x1,y1,z1,x2,y2,z2,by} (none = off). arena/setup runs this last,
 # on the freshly built arena. The backup copy sits at y by..by+(y2-y1), same x/z. Holes (air) in the backup = blocks
-# that stay changeable: the regrowing core and the node indicator blocks.
+# that stay changeable: the regrowing core.
 scoreboard players set #prot nx.arena 0
 execute unless data storage nonios:arena config.protect.x1 run return 0
 data modify storage nonios:arena prot set from storage nonios:arena config.protect
@@ -36,7 +36,6 @@ execute store result storage nonios:arena prot.edx int 1 run scoreboard players 
 execute store result storage nonios:arena prot.edy int 1 run scoreboard players get #pdy nx.arena
 execute store result storage nonios:arena prot.edz int 1 run scoreboard players get #pdz nx.arena
 function nonios:arena/protect/save with storage nonios:arena prot
-# holes: core, node indicators
+# holes: core
 execute as @e[type=marker,tag=nx.acore] at @s run function nonios:arena/protect/hole_here
-execute if score #indicator nx.arena matches 1 as @e[type=marker,tag=nx.node] at @s run function nonios:arena/protect/hole_node with entity @s data
 scoreboard players set #prot nx.arena 1

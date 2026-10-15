@@ -1,5 +1,5 @@
 # as the centre generator: strength from the coins in both team banks, B = #white + #black nx.bank.
-# Level 1/2/3 at B >= cg_bank1/2/3 (pot cap, core item, better table); rolls per drop = 1 + B / bank_per_roll (max).
+# Level 1/2/3 at B >= cg_bank1/2/3 (core size); emeralds per spit = 1 + B / bank_per_roll (max).
 execute store result score #cb_w nx.arena run scoreboard players get #white nx.bank
 execute store result score #cb_b nx.arena run scoreboard players get #black nx.bank
 scoreboard players operation #cbank nx.arena = #cb_w nx.arena

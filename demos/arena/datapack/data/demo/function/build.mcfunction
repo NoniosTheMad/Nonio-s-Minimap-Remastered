@@ -1,4 +1,4 @@
-# Small arena: 41x41 floor at y=63, low wall, three node pads (5x5 zone, yellow border, beacon under the centre).
+# Small arena: 41x41 floor at y=63, low wall, three node pads (5x5 zone) and the centre generator (arena/cgen).
 forceload add -24 -24 24 24
 fill -20 61 -20 20 62 20 minecraft:stone
 fill -20 63 -20 20 63 20 minecraft:smooth_stone
@@ -11,6 +11,7 @@ execute positioned -11 63 -3 run function demo:pad
 execute positioned 0 63 -13 run function demo:pad
 execute positioned 11 63 -3 run function demo:pad
 kill @e[type=item]
+kill @e[type=husk,tag=demo.thief]
 kill @e[tag=demo.prop]
 kill @e[tag=demo.dummy]
 setworldspawn 0 64 10

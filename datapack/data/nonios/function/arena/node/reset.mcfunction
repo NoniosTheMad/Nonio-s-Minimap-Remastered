@@ -1,6 +1,8 @@
 # as + at a node marker: back to neutral, payout timer restarted
 scoreboard players set @s nx.ar_cap 0
 scoreboard players set @s nx.ar_own 0
+scoreboard players set @s nx.ar_shw 0
+scoreboard players set @s nx.ar_from 0
 scoreboard players operation @s nx.ar_t = @s nx.ar_iv
 scoreboard players set #st nx.arena 0
 scoreboard players set #sgn nx.arena 0

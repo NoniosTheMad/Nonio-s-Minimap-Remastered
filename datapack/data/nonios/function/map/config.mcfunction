@@ -12,20 +12,20 @@
 data modify storage nonios:map lobby set value {x:0.5d,y:64,z:0.5d,yaw:0,bx:0,bz:0,x1:-9,x2:9,z1:-9,z2:9,y:63}
 data modify storage nonios:map arena set value {x1:-15,x2:15,z1:86,z2:114,y:63,cx:0.5d,cy:75,cz:100.5d}
 # Arena nodes (feat/arena format, copied into storage nonios:arena config by map/arena_config): centre block at foot
-# level, r = half width, h = height, ind = indicator block offset from the centre (the Centre node sits on the ore pile).
+# level, r = half width, h = height (the Centre node sits on the ore pile).
 # bounds keep the Lightning Rabbit in; center = where it spawns.
 # slots = random-entry gate slots (V2 arena portals): land = where a gate drops you (facing the centre), exit = the block
 # that takes you back to your team's gate (<team>.agate). One slot is active at a time, re-rolled every few seconds.
 # core = the regrowing centre block (V2), on top of the Centre Node's ore pile.
 # bonus = what holding the node gives its team (arena/load: haste | interest | regrow).
-# cgen = the shared centre generator (spot on top of its sea lantern; on the mirror plane z = 100, between two nodes).
+# cgen = the shared centre generator, an emerald fountain (spot on top of its emerald block; on the mirror plane z = 100, between two nodes).
 # protect = the arena's own blocks (y 60-67, every non-air block at setup) come back within a tick when broken; the
 # backup copy lives at y -40..-33 (by). protect_types = the coin blocks among them (mining them pays nothing).
 # fields = each team's field box (the haste bonus applies inside it).
 data modify storage nonios:map arena_cfg set value {\
   nodes:[\
     {id:"west",name:"West Node",x:-9,y:64,z:100,r:2,h:3,bonus:"haste"},\
-    {id:"centre",name:"Centre Node",x:0,y:64,z:100,r:2,h:4,ind:2,bonus:"interest"},\
+    {id:"centre",name:"Centre Node",x:0,y:64,z:100,r:2,h:4,bonus:"interest"},\
     {id:"east",name:"East Node",x:9,y:64,z:100,r:2,h:3,bonus:"regrow"}\
   ],\
   bounds:{x:-15,y:56,z:86,dx:30,dy:30,dz:28},\

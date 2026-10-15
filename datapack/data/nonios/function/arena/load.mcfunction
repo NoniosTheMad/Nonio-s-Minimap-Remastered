@@ -11,15 +11,19 @@
 #   function nonios:arena/status           prints nodes, bonuses, events, gates, core, centre generator to @s
 #   function nonios:arena/gate/rotate      re-roll the active gate slot now;  gate/status, core/status, cgen/status
 #   function nonios:arena/core/regrow      (as + at the nx.acore marker) roll a new core block now
-# Nodes (feedback #40) are a sub-objective: holding one gives its team a small bonus (config.nodes[].bonus):
-#   haste    Haste I for the team inside its own field (config.fields.<team>)
-#   interest every payout_every ticks the team bank gains interest_permille of itself (max interest_cap) x #mult
-#   regrow   the team's field generator regrows 50% faster (generator/loop reads #regrow_<team> nx.arena)
-#   Counters #<bonus>_<team> nx.arena = held nodes with that bonus, recounted every loop. A node only drops loot
-#   if it has an explicit `loot`.
+# Nodes (feedback #40, #127) are a sub-objective: holding one gives its team a small bonus (config.nodes[].bonus),
+# never items. Each shows the rune of its bonus (#126, arena/rune, src/runes.json): a particle glyph over the zone
+# (billboard per viewer), painted stroke by stroke in the capturing team's colour, + a marching outline on the ground.
+#   haste    (Sowilo) Haste I for the team inside its own field (config.fields.<team>)
+#   interest (Fehu)   every payout_every ticks the team bank gains interest_permille of itself (max interest_cap) x #mult
+#   regrow   (Jera)   the team's field generator regrows 50% faster (generator/loop reads #regrow_<team> nx.arena)
+#   none     (Othala) nothing
+#   spare, unused by default: swift (Raidho) Speed I / ward (Algiz) Resistance I for the team inside the Arena bounds
+#   Counters #<bonus>_<team> nx.arena = held nodes with that bonus, recounted every loop.
 # Events (feedback #42): announced event_warn ticks ahead with bossbar nonios:arena/event (countdown + raid horn);
 #   timed events then show their remaining time on the same bar. Troll events (troll:1b) only with config.trolls.
-# Centre generator (arena/cgen): shared pot-style generator at config.cgen; stronger the more coins both banks hold.
+# Centre generator (arena/cgen, #130): emerald fountain at config.cgen; spits emeralds (= coins on pickup) onto the floor,
+#   up to item_cap lying around; more per spit the more coins both banks hold; Golden Hour doubles it.
 # Protection (arena/protect, feedback #43): config.protect = the arena's own blocks; a backup copy below restores
 #   any of them every tick (players can still build in the air); their drops vanish, their coins are cancelled.
 # Gates (V2 random-entry portals): markers nx.agate (+ nx.<team>) on the pads, nx.aslot at each slot exit (nx.ar_slot = 1..),
@@ -27,8 +31,8 @@
 # Core (V2 regrowing block): marker nx.acore in the block, #core = 1 if set.
 # Hooks (function tags)
 #   #nonios:arena/config          runs after the default config on every load: override storage fields there
-#   #nonios:arena/on_node_payout  as + at the node marker; storage nonios:arena payout = {team,node,name,loot,rolls,coins}.
-#                                 A handler that pays the team itself sets #handled nx.arena 1, else the loot (if any) drops.
+#   #nonios:arena/on_node_payout  as + at the node marker, every payout_every ticks it is held;
+#                                 storage nonios:arena payout = {team,node,name,bonus} (name = the rune label)
 #   #nonios:arena/on_capture      as + at the node marker; storage nonios:arena cap = {team,node,name}; team "" = neutralised
 # Scores on a node marker: nx.ar_cap (-capture..capture, + = White), nx.ar_own (0 none, 1 white, 2 black),
 # nx.ar_t (ticks to next payout), nx.ar_iv (payout interval), nx.ar_st (display code).
@@ -41,17 +45,24 @@ scoreboard objectives add nx.ar_own dummy
 scoreboard objectives add nx.ar_t dummy
 scoreboard objectives add nx.ar_iv dummy
 scoreboard objectives add nx.ar_st dummy
+# rune display (arena/rune): shown bar value x10, slide start, rune points, outline step / lap, ticks to the next redraw
+scoreboard objectives add nx.ar_shw dummy
+scoreboard objectives add nx.ar_from dummy
+scoreboard objectives add nx.ar_rn dummy
+scoreboard objectives add nx.ar_rc dummy
+scoreboard objectives add nx.ar_rs dummy
+scoreboard objectives add nx.ar_fx dummy
 scoreboard objectives add nx.ar_ev dummy
 scoreboard objectives add nx.ar_slot dummy
-# centre generator scores (shared with generator/): level, timer, pot, pot cap
+# centre generator scores (shared with generator/): level, timer
 scoreboard objectives add nx.gen dummy
 scoreboard objectives add nx.gen_lvl dummy
 scoreboard objectives add nx.gen_t dummy
-scoreboard objectives add nx.gen_pot dummy
-scoreboard objectives add nx.gen_cap dummy
 scoreboard objectives add nx.bank dummy
 scoreboard players set #0 nx.arena 0
 scoreboard players set #-1 nx.arena -1
+scoreboard players set #2 nx.arena 2
+scoreboard players set #4 nx.arena 4
 scoreboard players set #10 nx.arena 10
 scoreboard players set #20 nx.arena 20
 scoreboard players set #100 nx.arena 100

@@ -6,9 +6,8 @@ scoreboard players operation #sec demo.c = #ev_t nx.arena
 scoreboard players operation #sec demo.c += #div demo.c
 scoreboard players remove #sec demo.c 1
 scoreboard players operation #sec demo.c /= #div demo.c
-data modify storage demo:arena h set value {lt:"off",pay:"drop at the node"}
+data modify storage demo:arena h set value {lt:"off"}
 execute store result storage demo:arena h.sec int 1 run scoreboard players get #sec demo.c
 execute store result storage demo:arena h.speed int 1 run scoreboard players get #speed nx.arena
 execute if score #lt_on nx.arena matches 1 run data modify storage demo:arena h.lt set value "ON"
-execute if score #bank demo.c matches 1 run data modify storage demo:arena h.pay set value "team bank (hook)"
 function demo:second_m with storage demo:arena h

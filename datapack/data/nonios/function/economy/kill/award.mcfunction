@@ -11,7 +11,15 @@ execute if score #bcap nx.eco matches 1.. run scoreboard players operation #bty 
 scoreboard players operation #sum nx.eco = #base nx.eco
 scoreboard players operation #sum nx.eco += #bty nx.eco
 scoreboard players operation #sum nx.eco += #bonus nx.eco
+# Golden Hour etc. (#nonios:economy/kill_mult multiplies #kmul): the whole reward x #kmul, the extra shown as "golden"
+scoreboard players set #kmul nx.eco 1
+function #nonios:economy/kill_mult
+scoreboard players operation #gold nx.eco = #kmul nx.eco
+scoreboard players remove #gold nx.eco 1
+scoreboard players operation #gold nx.eco *= #sum nx.eco
 scoreboard players operation @s nx.coins += #sum nx.eco
+scoreboard players operation @s nx.coins += #gold nx.eco
+scoreboard players operation @s nx.kgold += #gold nx.eco
 scoreboard players operation @s nx.krw += #base nx.eco
 scoreboard players operation @s nx.kbty += #bty nx.eco
 scoreboard players operation @s nx.kbon += #bonus nx.eco

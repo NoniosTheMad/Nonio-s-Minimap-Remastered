@@ -303,192 +303,30 @@
  },
  "centre": {
   "_doc": [
-   "Shared generator in the middle of the arena (feedback #39/#40): spinning core + hologram, drops items, emerald",
-   "outcomes fill a pot (anyone right-clicks to collect). It grows with the money in BOTH team banks (B = white + black):",
-   "  level = highest levels.<n> whose bank <= B; rolls per drop = 1 + B / bank_per_roll (max max_rolls).",
-   "Runs only while the arena runs (battle). Golden Hour multiplies its speed by golden_speed.",
-   "tables.<lvl>: [item, weight, count?] or ['coins', weight, emeralds] (x emerald_coins into the pot); weights sum to 81."
+   "Shared generator in the middle of the arena (feedback #39/#40, #127, #130): a fountain that keeps spitting emeralds",
+   "(the coin item: picked-up emeralds go straight into the purse) onto the floor around it. Emeralds only, never other items.",
+   "Every interval_ticks it throws 1 + B / bank_per_roll emeralds (max max_rolls), B = coins in BOTH team banks;",
+   "x golden_mult (arena config) during Golden Hour. No throw while item_cap emeralds lie within 4 blocks.",
+   "levels.<n>: reached at bank B >= bank; core_scale = size of the spinning emerald core (the level you can see).",
+   "Runs only while the arena runs (battle)."
   ],
-  "emerald_coins": 5,
-  "interval_ticks": 200,
+  "interval_ticks": 40,
   "bank_per_roll": 1000,
-  "max_rolls": 5,
-  "item_cap": 16,
-  "golden_speed": 3,
+  "max_rolls": 4,
+  "item_cap": 12,
   "levels": {
    "1": {
     "bank": 0,
-    "pot_cap": 100,
-    "core": "minecraft:iron_ingot"
+    "core_scale": 1.2
    },
    "2": {
     "bank": 1000,
-    "pot_cap": 300,
-    "core": "minecraft:diamond"
+    "core_scale": 1.5
    },
    "3": {
     "bank": 3000,
-    "pot_cap": 800,
-    "core": "minecraft:emerald"
+    "core_scale": 1.8
    }
-  },
-  "tables": {
-   "1": [
-    [
-     "coins",
-     27,
-     1
-    ],
-    [
-     "coins",
-     1,
-     9
-    ],
-    [
-     "minecraft:arrow",
-     10,
-     8
-    ],
-    [
-     "minecraft:iron_ingot",
-     10,
-     2
-    ],
-    [
-     "minecraft:cooked_beef",
-     10,
-     3
-    ],
-    [
-     "minecraft:golden_carrot",
-     8,
-     2
-    ],
-    [
-     "minecraft:ender_pearl",
-     4,
-     1
-    ],
-    [
-     "minecraft:gold_ingot",
-     6,
-     2
-    ],
-    [
-     "minecraft:golden_apple",
-     3,
-     1
-    ],
-    [
-     "minecraft:tnt",
-     2,
-     1
-    ]
-   ],
-   "2": [
-    [
-     "coins",
-     30,
-     1
-    ],
-    [
-     "coins",
-     4,
-     9
-    ],
-    [
-     "minecraft:iron_ingot",
-     8,
-     4
-    ],
-    [
-     "minecraft:arrow",
-     8,
-     16
-    ],
-    [
-     "minecraft:golden_apple",
-     6,
-     1
-    ],
-    [
-     "minecraft:ender_pearl",
-     6,
-     2
-    ],
-    [
-     "minecraft:diamond",
-     6,
-     1
-    ],
-    [
-     "minecraft:golden_carrot",
-     6,
-     4
-    ],
-    [
-     "minecraft:tnt",
-     4,
-     2
-    ],
-    [
-     "minecraft:cobweb",
-     3,
-     4
-    ]
-   ],
-   "3": [
-    [
-     "coins",
-     30,
-     1
-    ],
-    [
-     "coins",
-     9,
-     9
-    ],
-    [
-     "minecraft:diamond",
-     8,
-     2
-    ],
-    [
-     "minecraft:golden_apple",
-     8,
-     2
-    ],
-    [
-     "minecraft:ender_pearl",
-     8,
-     2
-    ],
-    [
-     "minecraft:iron_block",
-     6,
-     1
-    ],
-    [
-     "minecraft:arrow",
-     6,
-     16
-    ],
-    [
-     "minecraft:enchanted_golden_apple",
-     2,
-     1
-    ],
-    [
-     "minecraft:totem_of_undying",
-     1,
-     1
-    ],
-    [
-     "minecraft:tnt",
-     3,
-     4
-    ]
-   ]
   }
  }
 }

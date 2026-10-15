@@ -16,6 +16,7 @@ scoreboard objectives add nx.krw dummy
 scoreboard objectives add nx.kbty dummy
 scoreboard objectives add nx.kbon dummy
 scoreboard objectives add nx.kpurse dummy
+scoreboard objectives add nx.kgold dummy
 scoreboard players set #10 nx.eco 10
 scoreboard players set #20 nx.eco 20
 scoreboard players set #1000 nx.eco 1000

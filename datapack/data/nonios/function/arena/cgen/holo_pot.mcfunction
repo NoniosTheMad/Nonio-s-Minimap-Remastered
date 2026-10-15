@@ -1,1 +1,0 @@
-$execute as @e[type=text_display,tag=nx.cgen_holo,distance=..3,limit=1] run data modify entity @s text set value [{text:"Centre Generator",color:"gold",bold:true},{text:"\nLv $(lvl) · $(rolls) rolls · $(sec)s",color:"yellow",bold:false},{text:"$(g)",color:"gold",bold:true},{text:"\n$(pot) coins",color:"gold",bold:false}]

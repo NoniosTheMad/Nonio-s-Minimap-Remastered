@@ -1,0 +1,24 @@
+{
+ "_doc": [
+  "Arena node runes (feedback #126): Elder Futhark glyphs drawn in particles over each capture node.",
+  "tools/build_runes.py -> datapack/data/nonios/function/arena/rune/gen/<id>.mcfunction (+ <id>_tip) and rune/gen/defs.",
+  "strokes: polylines in glyph units (y 0 = bottom, 1 = top, x centred on 0), drawn in this order: capture paints",
+  "the strokes in this order (point by point). bonus: the node bonus this rune stands for (config.rune_of)."
+ ],
+ "height": 3.0,
+ "spacing": 0.3,
+ "runes": {
+  "fehu":   {"glyph": "ᚠ", "name": "Fehu",   "bonus": "interest",
+             "strokes": [[[-0.18, 0.0], [-0.18, 1.0]], [[-0.18, 0.48], [0.28, 0.78]], [[-0.18, 0.74], [0.24, 1.0]]]},
+  "sowilo": {"glyph": "ᛊ", "name": "Sowilo", "bonus": "haste",
+             "strokes": [[[0.24, 1.0], [-0.22, 0.6], [0.22, 0.4], [-0.24, 0.0]]]},
+  "jera":   {"glyph": "ᛃ", "name": "Jera",   "bonus": "regrow",
+             "strokes": [[[0.0, 1.0], [-0.32, 0.67], [0.0, 0.34]], [[0.06, 0.66], [0.38, 0.33], [0.06, 0.0]]]},
+  "othala": {"glyph": "ᛟ", "name": "Othala", "bonus": "none",
+             "strokes": [[[0.0, 1.0], [0.3, 0.7], [-0.38, 0.0]], [[0.0, 1.0], [-0.3, 0.7], [0.38, 0.0]]]},
+  "raidho": {"glyph": "ᚱ", "name": "Raidho", "bonus": "swift",
+             "strokes": [[[-0.22, 0.0], [-0.22, 1.0], [0.24, 0.78], [-0.22, 0.55], [0.28, 0.0]]]},
+  "algiz":  {"glyph": "ᛉ", "name": "Algiz",  "bonus": "ward",
+             "strokes": [[[0.0, 0.0], [0.0, 1.0]], [[0.0, 0.5], [-0.38, 0.95]], [[0.0, 0.5], [0.38, 0.95]]]}
+ }
+}

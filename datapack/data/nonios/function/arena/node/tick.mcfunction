@@ -1,4 +1,5 @@
-# as + at a node marker, every 10 ticks
+# as + at a node marker, every 10 ticks. The bar and the rune slide to the new value over the next 10 ticks (arena/rune).
+scoreboard players operation @s nx.ar_from = @s nx.ar_shw
 # 1) who is inside (#w, #b; also shows the bossbar to everyone inside)
 function nonios:arena/node/scan with entity @s data
 # 2) progress. #st: 0 neutral, 1/2 White/Black capturing, 3 contested, 4/5 held by White/Black, 6/7 White/Black neutralising
@@ -20,11 +21,6 @@ scoreboard players operation #code nx.arena = #st nx.arena
 scoreboard players operation #code nx.arena *= #10 nx.arena
 scoreboard players operation #code nx.arena += #sgn nx.arena
 execute unless score @s nx.ar_st = #code nx.arena run function nonios:arena/node/restyle
-scoreboard players operation #abs nx.arena = @s nx.ar_cap
-execute if score #abs nx.arena matches ..-1 run scoreboard players operation #abs nx.arena *= #-1 nx.arena
-function nonios:arena/node/bar with entity @s data
 # 5) held: count the bonus, payout timer
 execute if score @s nx.ar_own matches 1.. if data entity @s data.bonus run function nonios:arena/node/tally with entity @s data
 execute if score @s nx.ar_own matches 1.. run function nonios:arena/node/payout_timer
-# 6) once a second: hologram, indicator, particles
-execute if score #half nx.arena matches 0 run function nonios:arena/node/second

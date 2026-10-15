@@ -40,6 +40,11 @@ execute unless score #ab_every nx.purse = #ab_every nx.purse run scoreboard play
 # deepslate, cobblestone...) earn nothing and cost nothing to place. Fortune: +#fortune_pct % per level.
 scoreboard objectives add nx.pfrac dummy
 function nonios:purse/gen/yields
+# --- purse split (#128/#129): a kill inside the centre (Arena box config.bounds) hands the killer only
+# centre_killer_share % of the victim's purse; the rest drops on the spot as coin bags (death/died), for anyone to grab.
+# purse_drop_scope: "centre" (default) or "everywhere" (split on every kill). Outside the scope the killer takes it all.
+execute unless data storage nonios:config purse_drop_scope run data modify storage nonios:config purse_drop_scope set value "centre"
+execute unless data storage nonios:config centre_killer_share run data modify storage nonios:config centre_killer_share set value 50
 # --- emerald items: coins on pickup (purse/emerald), same as the centre generator's coin outcomes (#ce1 / #ce9 nx.gen) ---
 execute unless score #emerald_item nx.coinval = #emerald_item nx.coinval run scoreboard players set #emerald_item nx.coinval 5
 execute unless score #emerald_block_item nx.coinval = #emerald_block_item nx.coinval run scoreboard players set #emerald_block_item nx.coinval 45

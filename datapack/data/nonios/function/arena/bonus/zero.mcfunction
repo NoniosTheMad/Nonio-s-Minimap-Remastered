@@ -5,5 +5,9 @@ scoreboard players set #interest_white nx.arena 0
 scoreboard players set #interest_black nx.arena 0
 scoreboard players set #regrow_white nx.arena 0
 scoreboard players set #regrow_black nx.arena 0
+scoreboard players set #swift_white nx.arena 0
+scoreboard players set #swift_black nx.arena 0
+scoreboard players set #ward_white nx.arena 0
+scoreboard players set #ward_black nx.arena 0
 scoreboard players set #none_white nx.arena 0
 scoreboard players set #none_black nx.arena 0

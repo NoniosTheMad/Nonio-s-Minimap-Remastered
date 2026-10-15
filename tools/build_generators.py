@@ -10,10 +10,8 @@ Writes into datapack/data/nonios/:
   loot_table/generator/one/<team>_lvl<N>.json        single-block mode (#47): the same 81 outcomes as one loot table
   tags/block/generator/single.json                   the single block (+ data/minecraft/loot_table/blocks/<it>.json emptied)
   function/generator/config.mcfunction               regrow delays, upgrade costs, single-block switch (runs on load)
-  CENTRE generator (shared, pot style, in the arena):
-  loot_table/arena/cgen_lvl<N>.json                  item outcomes
-  function/arena/cgen/roll/lvl<N>.mcfunction         one roll: coins into the pot (emerald outcomes) or loot spawn
-  function/arena/cgen/config.mcfunction              interval, bank scaling, pot caps (runs on load)
+  CENTRE generator (shared emerald fountain in the arena, #130):
+  function/arena/cgen/config.mcfunction              interval, bank scaling, item cap, levels (runs on load)
   structure/generator/<team>_lvl<N>.nbt              (--structures) V2 visuals; white is cropped from 5x5 to its 3x3 core
 """
 import json
@@ -142,40 +140,17 @@ def single(d):
 
 
 def centre(d):
+    """Centre generator (#130): an emerald fountain; only its config is generated (no tables)."""
     c = d["centre"]
-    lt = OUT / "loot_table" / "arena"
     fn = OUT / "function" / "arena" / "cgen"
-    for lvl, outcomes in c["tables"].items():
-        total = sum(o[1] for o in outcomes)
-        assert total == 81, f"centre lvl{lvl}: outcomes sum to {total}, expected 81"
-        entries = []
-        lines = [HEADER, f"# centre lvl{lvl}: as + at the centre generator marker. Coin outcomes fill the pot, the rest drop items.\n",
-                 "execute store result score #r nx.gen run random value 1..81\n"]
-        lo = 1
-        for o in outcomes:
-            if o[0] == "coins":
-                hi = lo + o[1] - 1
-                lines.append(f"# {o[1]}/81 -> {o[2]} emerald(s) worth of coins\n")
-                lines.append(f"execute if score #r nx.gen matches {lo}..{hi} run return run "
-                             f"scoreboard players operation @s nx.gen_pot += #ce{o[2]} nx.gen\n")
-                lo = hi + 1
-            else:
-                entries.append(item_entry(o[0], o[1], o[2] if len(o) > 2 else 1))
-        lines.append(f"loot spawn ~ ~0.4 ~ loot nonios:arena/cgen_lvl{lvl}\n")
-        write(lt / f"cgen_lvl{lvl}.json", json.dumps({"type": "minecraft:chest", "pools": [{"rolls": 1, "entries": entries}]}, indent=1) + "\n")
-        write(fn / "roll" / f"lvl{lvl}.mcfunction", "".join(lines))
-    ems = sorted({o[2] for t in c["tables"].values() for o in t if o[0] == "coins"})
-    cfg = [HEADER, "# Runs on load (arena/load). Centre generator: interval, bank scaling, per-level pot cap + core item.\n"]
-    cfg += [f"scoreboard players set #ce{e} nx.gen {e * c['emerald_coins']}\n" for e in ems]
-    cfg += [f"scoreboard players set #cg_iv nx.gen {c['interval_ticks']}\n",
-            f"scoreboard players set #cg_bpr nx.gen {c['bank_per_roll']}\n",
-            f"scoreboard players set #cg_maxr nx.gen {c['max_rolls']}\n",
-            f"scoreboard players set #cg_icap nx.gen {c['item_cap']}\n",
-            f"scoreboard players set #cg_gold nx.gen {c['golden_speed']}\n"]
+    cfg = [HEADER, "# Runs on load (arena/load). Centre generator (emerald fountain): interval, bank scaling, item cap, levels.\n",
+           f"scoreboard players set #cg_iv nx.gen {c['interval_ticks']}\n",
+           f"scoreboard players set #cg_bpr nx.gen {c['bank_per_roll']}\n",
+           f"scoreboard players set #cg_maxr nx.gen {c['max_rolls']}\n",
+           f"scoreboard players set #cg_icap nx.gen {c['item_cap']}\n"]
     for lvl, v in c["levels"].items():
         cfg += [f"scoreboard players set #cg_bank{lvl} nx.gen {v['bank']}\n",
-                f"scoreboard players set #cg_cap{lvl} nx.gen {v['pot_cap']}\n",
-                f"data modify storage nonios:gen ccore.l{lvl} set value \"{v['core']}\"\n"]
+                f"data modify storage nonios:gen ccore.l{lvl} set value {v['core_scale']}f\n"]
     write(fn / "config.mcfunction", "".join(cfg))
 
 
