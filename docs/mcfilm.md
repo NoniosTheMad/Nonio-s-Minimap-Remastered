@@ -30,6 +30,22 @@ the shot, empty when everything loaded). `still`: `stillN.png` + `sheet.png`.
 Check a shot by reading `sheet.png` (and a full frame from `frames/` for detail), then `shot.json`: `black_tiles` 0 and
 `client_warnings` [] are the healthy values.
 
+## Lock (sharing the cam between agents)
+
+Several agents share one cam client; switching the target mid-shot kills whoever was filming. An advisory lock in
+`.mcdev/film/lock.json` stops that:
+
+```
+python tools/mcfilm.py lock --owner myagent [--ttl 1800]   # claim it before a run of shoot/still calls
+python tools/mcfilm.py shoot --owner myagent ...            # or set env MCFILM_OWNER instead of --owner
+python tools/mcfilm.py unlock --owner myagent [--force]     # release it when done
+python tools/mcfilm.py status                               # also prints lock holder + time left
+```
+
+`shoot`, `still`, `up`, `cmd` and `close` all refuse while another owner holds the lock (holding it yourself extends
+the TTL instead); with no `--owner`/`MCFILM_OWNER` at all they refuse while *anyone* holds it. Free or expired: every
+command behaves exactly as if there were no lock.
+
 ## Camera
 
 - `--orbit "cx cy cz radius [height] [degrees] [start]"`: circle around a point, always looking at it.

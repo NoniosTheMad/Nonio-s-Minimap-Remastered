@@ -7,6 +7,12 @@
   python tools/mcfilm.py up --server shaders      # keep the cam session running between shots
   python tools/mcfilm.py status | close
 
+Several agents can share one cam client; an advisory lock keeps them from stepping on each other's shot:
+  python tools/mcfilm.py lock --owner myagent [--ttl 1800]    # claim it before a run of shoots
+  python tools/mcfilm.py unlock --owner myagent [--force]     # release it when done
+Pass --owner (or set env MCFILM_OWNER) on shoot/still/up/cmd/close; a command refuses while another owner holds the
+lock (and with no owner at all, refuses while anyone holds it). Unlocked, everything behaves exactly as before.
+
 How it works (docs/mcfilm.md):
 - cam server: a copy of .mcdev/servers/<target> (world + datapacks, junctions copied as files) in .mcdev/cam/servers/<target>,
   online-mode=false, own ports (25700+), never registered with mcdev (the daemon ignores it). The target is only read
@@ -61,6 +67,9 @@ STATE_DIR = ROOT / ".mcdev"
 CAM = STATE_DIR / "cam"
 STATE = CAM / "state.json"
 LOG = CAM / "mcfilm.log"
+FILM_DIR = STATE_DIR / "film"
+LOCK = FILM_DIR / "lock.json"
+LOCK_TTL = 1800
 JAVA_SERVER = ROOT / ".tools" / "jre25" / "bin" / "java.exe"
 SERVER_JAR = ROOT / ".tools" / "server-26.3.jar"
 MC_INSTALL = Path(os.environ.get("MCFILM_INSTALL", r"C:\Users\danir\curseforge\minecraft\Install"))
@@ -107,6 +116,43 @@ def touch():
     st = load_state()
     if st:
         save_state(st)
+
+
+# ---------------------------------------------------------------- advisory lock
+def load_lock():
+    try:
+        return json.loads(LOCK.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def save_lock(lk):
+    FILM_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = LOCK.with_suffix(".tmp")
+    tmp.write_text(json.dumps(lk, indent=2))
+    os.replace(tmp, LOCK)
+
+
+def lock_free(lk):
+    return not lk.get("owner") or lk.get("expires", 0) <= time.time()
+
+
+def owner_of(a):
+    return getattr(a, "owner", None) or os.environ.get("MCFILM_OWNER")
+
+
+def check_lock(owner):
+    """Refuse to touch the cam while another owner holds the lock (docs/mcfilm.md). No owner identified: refuse
+    outright if the cam is locked by anyone; free or expired: behave exactly as without a lock."""
+    lk = load_lock()
+    if lock_free(lk):
+        return
+    holder, remaining = lk["owner"], lk["expires"] - time.time()
+    if owner != holder:
+        hint = "; pass --owner or set MCFILM_OWNER to identify yourself" if owner is None else ""
+        die(f"cam locked by {holder} ({int(remaining)}s left){hint}")
+    lk["expires"] = time.time() + lk.get("ttl", LOCK_TTL)
+    save_lock(lk)
 
 
 def offline_uuid(name):
@@ -775,6 +821,7 @@ def out_dir(a, default):
 
 
 def cmd_shoot(a):
+    check_lock(owner_of(a))
     path = path_from_args(a)
     if not path:
         die("need a camera: --path file.json, --orbit, --dolly or --at")
@@ -849,6 +896,7 @@ def cmd_shoot(a):
 
 
 def cmd_still(a):
+    check_lock(owner_of(a))
     shots = [floats(s, (5, 6)) for s in a.shot or []]
     if a.path_still:
         spec = json.loads(Path(a.path_still).read_text())
@@ -890,12 +938,14 @@ def cmd_still(a):
 
 
 def cmd_up(a):
+    check_lock(owner_of(a))
     st, r, hwnd = up(a.server, a.fov, a.render_distance, keep=True)
     r.close()
     log(f"cam session up: {a.server} copy on localhost:{st['port']}; closes after {IDLE_SECS}s without mcfilm commands")
 
 
 def cmd_cmd(a):
+    check_lock(owner_of(a))
     st = load_state()
     if not session_alive(st):
         die("no cam session (mcfilm up --server X)")
@@ -909,12 +959,15 @@ def cmd_status(_a):
     st = load_state()
     if not st:
         print("no cam session")
-        return
-    print(json.dumps({k: st.get(k) for k in ("target", "port", "server_pid", "client_pid", "watchdog_pid", "keep")}, indent=1))
-    print("alive:", session_alive(st), " idle:", int(time.time() - st.get("touched", 0)), "s")
+    else:
+        print(json.dumps({k: st.get(k) for k in ("target", "port", "server_pid", "client_pid", "watchdog_pid", "keep")}, indent=1))
+        print("alive:", session_alive(st), " idle:", int(time.time() - st.get("touched", 0)), "s")
+    lk = load_lock()
+    print("lock: free" if lock_free(lk) else f"lock: held by {lk['owner']} ({int(lk['expires'] - time.time())}s left)")
 
 
-def cmd_close(_a):
+def cmd_close(a):
+    check_lock(owner_of(a))
     close_session(reason="close")
     # leftovers from a crashed run: any java whose command line points into .mcdev\cam
     r = subprocess.run(["powershell", "-NoProfile", "-Command",
@@ -925,6 +978,22 @@ def cmd_close(_a):
         if str(CAM).lower() in cl.lower():
             kill(int(pid), "stray cam java")
     print("cam closed")
+
+
+def cmd_lock(a):
+    lk = load_lock()
+    if not lock_free(lk) and lk["owner"] != a.owner:
+        die(f"cam locked by {lk['owner']} ({int(lk['expires'] - time.time())}s left)")
+    save_lock({"owner": a.owner, "ttl": a.ttl, "expires": time.time() + a.ttl})
+    log(f"cam locked by {a.owner} for {a.ttl}s")
+
+
+def cmd_unlock(a):
+    lk = load_lock()
+    if lk.get("owner") and lk["owner"] != a.owner and not a.force:
+        die(f"cam locked by {lk['owner']}; use --force to override")
+    LOCK.unlink(missing_ok=True)
+    log("cam lock released" + ("" if lk.get("owner") == a.owner else f" (forced, was {lk.get('owner')})"))
 
 
 def main():
@@ -942,6 +1011,7 @@ def main():
         p.add_argument("--hud", action="store_true", help="keep the action bar / titles (blanked by default)")
         p.add_argument("--keep", action="store_true", help="leave the cam session running afterwards (watchdog closes it when idle)")
         p.add_argument("--out", help="output dir (default .mcdev/film/<timestamp>)")
+        p.add_argument("--owner", help="identify yourself to the advisory lock (default: env MCFILM_OWNER)")
 
     p = sub.add_parser("shoot", help="record a video + contact sheet along a camera path")
     common(p)
@@ -964,12 +1034,24 @@ def main():
     p.add_argument("--server", required=True)
     p.add_argument("--fov", type=float, default=70)
     p.add_argument("--render-distance", type=int, default=12)
+    p.add_argument("--owner", help="identify yourself to the advisory lock (default: env MCFILM_OWNER)")
     p.set_defaults(fn=cmd_up)
     p = sub.add_parser("cmd", help="RCON command on the cam server ({cam} = camera)")
     p.add_argument("command", nargs="+")
+    p.add_argument("--owner", help="identify yourself to the advisory lock (default: env MCFILM_OWNER)")
     p.set_defaults(fn=cmd_cmd)
-    sub.add_parser("status").set_defaults(fn=cmd_status)
-    sub.add_parser("close", help="stop the cam client + server (and any stray cam java)").set_defaults(fn=cmd_close)
+    sub.add_parser("status", help="cam session + lock status").set_defaults(fn=cmd_status)
+    p = sub.add_parser("close", help="stop the cam client + server (and any stray cam java)")
+    p.add_argument("--owner", help="identify yourself to the advisory lock (default: env MCFILM_OWNER)")
+    p.set_defaults(fn=cmd_close)
+    p = sub.add_parser("lock", help="take the advisory cam lock so other agents' shots refuse to run")
+    p.add_argument("--owner", required=True, help="your name; reusing it re-takes/extends your own lock")
+    p.add_argument("--ttl", type=int, default=LOCK_TTL, help=f"seconds before the lock expires on its own (default {LOCK_TTL})")
+    p.set_defaults(fn=cmd_lock)
+    p = sub.add_parser("unlock", help="release the advisory cam lock")
+    p.add_argument("--owner", required=True)
+    p.add_argument("--force", action="store_true", help="release even if held by a different owner")
+    p.set_defaults(fn=cmd_unlock)
     p = sub.add_parser("_watchdog")
     p.add_argument("--dir")
     p.add_argument("--http", default="25800")
