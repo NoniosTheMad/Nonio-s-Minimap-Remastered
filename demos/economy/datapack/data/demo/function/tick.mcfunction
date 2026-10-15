@@ -31,5 +31,9 @@ execute as @a[scores={demo.ec=29}] run function demo:im/bank {n:2000}
 execute as @a[scores={demo.ec=30}] run function demo:im/bank {n:10000}
 execute as @a[scores={demo.ec=31}] run function demo:im/pay
 execute as @a[scores={demo.ec=32}] run dialog show @s demo:economy
+execute as @a[scores={demo.ec=33}] run function demo:im/clock {t:48000}
+execute as @a[scores={demo.ec=34}] run function demo:im/clock {t:60000}
+execute as @a[scores={demo.ec=35}] run function demo:im/clock {t:72000}
+execute as @a[scores={demo.ec=36}] run function demo:im/clock {t:108000}
 scoreboard players reset @a[scores={demo.ec=1..}] demo.ec
 scoreboard players enable @a demo.ec

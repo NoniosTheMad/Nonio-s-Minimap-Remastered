@@ -49,11 +49,17 @@ execute unless data storage nonios:config interest_curve run data modify storage
 execute unless data storage nonios:config interest_base run data modify storage nonios:config interest_base set value 2000
 execute unless data storage nonios:config interest_scale run data modify storage nonios:config interest_scale set value 100
 # interest mode (#110): 1 = A flat interest_a_rate per second, at most interest_a_cap coins/s (a curve over the match clock,
-#   r = 1/1000 coin per second); 2 = B interest_curve per interest_period, every banked coin earns (no base);
+#   r = 1/1000 coin per second: 0, 1/s at min 10, 5 at 20, 20 at 30, 35 at 40, 50 at 50, then +1/s a minute); 2 = B interest_curve per interest_period, every banked coin earns (no base);
 #   3 = C interest_curve per interest_period on at most interest_base coins (the #108 scheme)
+# A chosen by the user (#110/#111): worlds from before take A and the longer cap once (interest_av 2)
+execute unless data storage nonios:config {interest_av:2} run data remove storage nonios:config interest_a_cap
+execute unless data storage nonios:config {interest_av:2} run data modify storage nonios:config interest_mode set value 1
+data modify storage nonios:config interest_av set value 2
 execute unless data storage nonios:config interest_mode run data modify storage nonios:config interest_mode set value 1
+# after the last cap point the cap keeps growing by interest_a_grow (1/1000 coin per second) every minute, no ceiling
+execute unless data storage nonios:config interest_a_grow run data modify storage nonios:config interest_a_grow set value 1000
 execute unless data storage nonios:config interest_a_rate run data modify storage nonios:config interest_a_rate set value 1000
-execute unless data storage nonios:config interest_a_cap run data modify storage nonios:config interest_a_cap set value [{t:0,r:0},{t:600,r:1000},{t:1200,r:5000},{t:1800,r:20000}]
+execute unless data storage nonios:config interest_a_cap run data modify storage nonios:config interest_a_cap set value [{t:0,r:0},{t:600,r:1000},{t:1200,r:5000},{t:1800,r:20000},{t:2400,r:35000},{t:3000,r:50000}]
 # bank: usable within bank_range blocks of your own team's vault
 execute unless data storage nonios:config bank_range run data modify storage nonios:config bank_range set value 5
 # kills: kill_reward + bounty (victim streak >= bounty_min_streak: streak * bounty_per_kill, max bounty_cap, 0 = no cap)

@@ -2,6 +2,7 @@ Your role: bank + purse feel: keep or change?
 Check:
 - Walk or jump into your bank with coins: banks once?
 - Mine ores: +0.1 popup and blue decimals readable?
-- Interest modes (Demo: Economy > Interest modes): A (recommended), B or C?
+- Interest A, cap up to 50/s at min 50 then +1/s a minute: fair? (Interest modes)
+- Talisman on your head: 3x the bank interest in 0.1 steps: worth 200?
 - Gold floor reads as the bank zone?
 - Generator: click its top to upgrade; mined block back at once?

@@ -1,6 +1,6 @@
 # as a player: the interest mode picker (#110). Body: match minute, your team bank, each mode's rate there now
 # (coins/s) and a 1-minute projection (x 60, the clock held). Buttons, fixed: modes A B C Refresh / clock 0 10 20 30 min /
-# bank 500 2000 10000, +60 s interest. Clock buttons greyed outside a match, bank buttons without a team.
+# bank 500 2000 10000, +60 s interest / clock 40 50 60 90 min. Clock buttons greyed outside a match, bank buttons without a team.
 function nonios:economy/rate
 scoreboard players set #db nx.eco 0
 execute if entity @s[team=white] run scoreboard players operation #db nx.eco = #white nx.bank
@@ -34,6 +34,7 @@ scoreboard players operation #dv nx.eco *= #db nx.eco
 scoreboard players operation #dv nx.eco /= #1000 nx.eco
 scoreboard players operation #dv nx.eco < #capm nx.eco
 function demo:im/fmt {k:"A"}
+execute if score #imode nx.eco matches 1 run scoreboard players operation #dlv nx.eco = #dv nx.eco
 scoreboard players operation #dv nx.eco = #capm nx.eco
 function demo:im/fmt {k:"K"}
 # B: every coin, curve per period -> b x (ppm / 10) / (period x 100) = 1/1000 coin per s
@@ -43,6 +44,7 @@ scoreboard players operation #dv nx.eco = #db nx.eco
 scoreboard players operation #dv nx.eco *= #dp nx.eco
 scoreboard players operation #dv nx.eco /= #dper nx.eco
 function demo:im/fmt {k:"B"}
+execute if score #imode nx.eco matches 2 run scoreboard players operation #dlv nx.eco = #dv nx.eco
 # C: at most interest_base coins
 execute store result score #dbc nx.eco run data get storage nonios:config interest_base
 scoreboard players operation #dbc nx.eco < #db nx.eco
@@ -50,14 +52,23 @@ scoreboard players operation #dv nx.eco = #dbc nx.eco
 scoreboard players operation #dv nx.eco *= #dp nx.eco
 scoreboard players operation #dv nx.eco /= #dper nx.eco
 function demo:im/fmt {k:"C"}
+execute if score #imode nx.eco matches 3 run scoreboard players operation #dlv nx.eco = #dv nx.eco
+# talisman: talisman_mult x the live mode
+execute store result score #dv nx.eco run data get storage nonios:config talisman_mult
+execute store result storage demo:im a.tm int 1 run scoreboard players get #dv nx.eco
+scoreboard players operation #dv nx.eco *= #dlv nx.eco
+function demo:im/fmt {k:"T"}
 execute store result storage demo:im a.base int 1 run data get storage nonios:config interest_base
 data modify storage demo:im a.unit set from storage nonios:eco unit
 data modify storage demo:im a.r set from storage nonios:eco rtxt
 # buttons
 data modify storage demo:im acts set value []
-function demo:im/btn {n:21,lab:"A",tip:"(recommended) Flat 0.1%/s on the bank, but at most a cap that grows with the match clock: 0 at the start, 1/s at min 10, 5/s at min 20, 20/s at min 30. Easy to read; the cap stops early snowballing."}
-function demo:im/btn {n:22,lab:"B",tip:"Per-minute curve as now: 0% at the start, 0.5% at min 10, 1% at min 20, 2%/min from min 30. Every banked coin earns (no 2000 limit)."}
-function demo:im/btn {n:23,lab:"C",tip:"The #108 version: the same per-minute curve, but only the first 2000 banked coins earn."}
+execute if score #imode nx.eco matches 1 run function demo:im/btn {n:21,lab:"✔ A",tip:"(recommended) Flat 0.1%/s on the bank, but at most a cap that grows with the match clock: 0 at the start, 1/s at min 10, 5/s at 20, 20/s at 30, 35/s at 40, 50/s at 50, then +1/s every minute. The game default."}
+execute unless score #imode nx.eco matches 1 run function demo:im/btn {n:21,lab:"A",tip:"(recommended) Flat 0.1%/s on the bank, but at most a cap that grows with the match clock: 0 at the start, 1/s at min 10, 5/s at 20, 20/s at 30, 35/s at 40, 50/s at 50, then +1/s every minute. The game default."}
+execute if score #imode nx.eco matches 2 run function demo:im/btn {n:22,lab:"✔ B",tip:"Per-minute curve as now: 0% at the start, 0.5% at min 10, 1% at min 20, 2%/min from min 30. Every banked coin earns (no 2000 limit). Reference only."}
+execute unless score #imode nx.eco matches 2 run function demo:im/btn {n:22,lab:"B",tip:"Per-minute curve as now: 0% at the start, 0.5% at min 10, 1% at min 20, 2%/min from min 30. Every banked coin earns (no 2000 limit). Reference only."}
+execute if score #imode nx.eco matches 3 run function demo:im/btn {n:23,lab:"✔ C",tip:"The #108 version: the same per-minute curve, but only the first 2000 banked coins earn. Reference only."}
+execute unless score #imode nx.eco matches 3 run function demo:im/btn {n:23,lab:"C",tip:"The #108 version: the same per-minute curve, but only the first 2000 banked coins earn. Reference only."}
 function demo:im/btn {n:20,lab:"Refresh",tip:"Redraw the numbers (the match clock keeps running)"}
 execute if score #state nx.state matches 1..2 run function demo:im/btn {n:24,lab:"0 min",tip:"Match clock to 0:00"}
 execute if score #state nx.state matches 1..2 run function demo:im/btn {n:25,lab:"10 min",tip:"Match clock to 10:00"}
@@ -75,5 +86,13 @@ execute unless entity @s[team=!white,team=!black] run function demo:im/btn {n:29
 execute unless entity @s[team=!white,team=!black] run function demo:im/btn {n:30,lab:"Bank 10000",tip:"Your team bank = 10000"}
 execute if score #state nx.state matches 1..2 run function demo:im/btn {n:31,lab:"+60 s",tip:"Pay one minute of interest now (live mode), then redraw"}
 execute unless score #state nx.state matches 1..2 run function demo:im/off {lab:"+60 s",tip:"Start a match first"}
+execute if score #state nx.state matches 1..2 run function demo:im/btn {n:33,lab:"40 min",tip:"Match clock to 40:00"}
+execute if score #state nx.state matches 1..2 run function demo:im/btn {n:34,lab:"50 min",tip:"Match clock to 50:00"}
+execute if score #state nx.state matches 1..2 run function demo:im/btn {n:35,lab:"60 min",tip:"Match clock to 60:00"}
+execute if score #state nx.state matches 1..2 run function demo:im/btn {n:36,lab:"90 min",tip:"Match clock to 90:00"}
+execute unless score #state nx.state matches 1..2 run function demo:im/off {lab:"40 min",tip:"Start a match first"}
+execute unless score #state nx.state matches 1..2 run function demo:im/off {lab:"50 min",tip:"Start a match first"}
+execute unless score #state nx.state matches 1..2 run function demo:im/off {lab:"60 min",tip:"Start a match first"}
+execute unless score #state nx.state matches 1..2 run function demo:im/off {lab:"90 min",tip:"Start a match first"}
 data modify storage demo:im a.acts set from storage demo:im acts
 function demo:im/show with storage demo:im a

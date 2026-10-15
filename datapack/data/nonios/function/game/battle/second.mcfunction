@@ -5,5 +5,4 @@ function nonios:game/clock
 execute if score #ss nx.tmp matches 10.. run bossbar set nonios:phase name [{"text":"⚔ Battle  ","color":"red"},{"score":{"name":"#mm","objective":"nx.tmp"},"color":"white"},{"text":":","color":"white"},{"score":{"name":"#ss","objective":"nx.tmp"},"color":"white"}]
 execute if score #ss nx.tmp matches ..9 run bossbar set nonios:phase name [{"text":"⚔ Battle  ","color":"red"},{"score":{"name":"#mm","objective":"nx.tmp"},"color":"white"},{"text":":0","color":"white"},{"score":{"name":"#ss","objective":"nx.tmp"},"color":"white"}]
 bossbar set nonios:phase players @a
-function nonios:talisman/second
 function nonios:game/win_check

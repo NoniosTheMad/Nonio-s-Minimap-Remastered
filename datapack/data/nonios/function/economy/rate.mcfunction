@@ -54,6 +54,9 @@ scoreboard players operation #idiv nx.eco = #1000000 nx.eco
 execute if score #imode nx.eco matches 2 if score #ppm nx.eco matches 100.. run scoreboard players set #idiv nx.eco 10000
 execute if score #imode nx.eco matches 2 if score #ppm nx.eco matches 100.. run scoreboard players operation #ppm nx.eco /= #100 nx.eco
 execute if score #imode nx.eco matches 2 if score #idiv nx.eco matches 10000 run scoreboard players operation #ithr nx.eco /= #100 nx.eco
+# talisman (#111): 0.1 coin of interest
+scoreboard players operation #tth nx.eco = #ithr nx.eco
+scoreboard players operation #tth nx.eco /= #10 nx.eco
 # base: bank coins that earn (A: cap / rate; B: all; C: interest_base); also bounded so acc + base x ppm never overflows
 scoreboard players operation #d nx.eco = #ppm nx.eco
 execute if score #d nx.eco matches ..0 run scoreboard players set #d nx.eco 1

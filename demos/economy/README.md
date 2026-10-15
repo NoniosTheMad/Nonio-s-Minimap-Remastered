@@ -71,3 +71,12 @@ on the bank, at most `interest_a_cap` coins/s (curve, 1/1000 coin: 0 -> 1 at min
 scheme (curve on <= `interest_base`). `bank/curve/build` builds both curves; `bank/curve/eval_cap` swaps the cap curve in.
 Demo picker `demo:im/open` (trigger 20-32): modes A/B/C (live, marked), match clock 0/10/20/30 min, team bank 500/2000/10000,
 +60 s; body = each mode's coins/s now and x60 for one minute.
+
+## #111 + mode A chosen
+A is the default (`interest_av` 2 migrates older worlds to A and the new cap). Cap points 0 / 1 / 5 / 20 / 35 / 50 coins/s at
+min 0 / 10 / 20 / 30 / 40 / 50, then `interest_a_grow` (+1/s) per minute with no ceiling (`bank/curve/eval_cap`; the last
+tangent is set to that slope so the curve stays smooth). B and C stay selectable in the demo picker only (reference).
+Talisman: `bank/interest/team` hands each tick's interest (#i) to `talisman/accrue`, which adds it `talisman_mult` (3) times to
+`#tacc_<team> nx.talis` and pays every head-wearing holder of that team 0.1 coin per `#tth` (= #ithr / 10) into `nx.pfrac`
+(`talisman/pay`; blue decimals + gain popup). The flat +1 / 3 s payout (`talisman/second`, `talisman_period/coins`) is gone.
+Item: binding + vanishing curse. Picker body: "Talisman x3 = N/s" for the live mode. Clock row 2: 40 / 50 / 60 / 90 min.
