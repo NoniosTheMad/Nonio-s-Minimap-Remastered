@@ -1,4 +1,21 @@
-# one interest second for both team banks (economy/tick once a second in prep + battle; also the demo's "Pay interest now")
-function nonios:economy/rate
-function nonios:bank/interest/team {team:"white"}
-function nonios:bank/interest/team {team:"black"}
+# one second of interest at once (20 interest ticks): the demo's "Interest: +60 s" button
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick
+function nonios:bank/interest/tick

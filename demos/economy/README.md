@@ -39,3 +39,13 @@ Bank v4 (feat/bank-v4, feedback #47; replaces the bank dialog sliders and the 60
   (interest_end - interest_start) * min(match s, interest_ramp) / interest_ramp (100 -> 1000 over 1800 s), cap interest_cap_s (20) coins/s.
   Fractions carried in `#acc_<team> nx.eco` (1/10000 coin); a capped second drops its remainder. No sound. Sidebar rows Bank / Interest / Income.
 - Demo: "Interest: +60 s" pays 60 seconds at once; Status shows the carried fractions.
+
+Bank v3 (feat/bank-v3, feedback #94; replaces the bank v4 pad and once-a-second payout above):
+- Deposit = presence: `map/gen/bank` lays a 5x5 floor (raw gold rim, gold blocks inside) around the vault, no plates.
+  `bank/zone/tick` (every tick) tags players inside a box over it (marker nx.bank_zone, `dx=4,dy=3,dz=4` from the rim corner,
+  floor up to 4 blocks) with `nx.bk.in`; entering fires `bank/zone/enter` once (`nx.bk.on` until you leave), so walking,
+  jumping or flying through deposits and withdrawing while inside never re-deposits. Cues unchanged (`bank/zone/deposit`);
+  ambient wax_on glint over each floor once a second.
+- Interest = smooth: `bank/interest/tick` every tick in prep/battle; per team #i = min(bank,1e6) x rate (1/10000 coin per s),
+  capped at icap x 10000; `#acc_<team>` += #i, pays 1 coin per 200000 (so +1 every 20/N ticks; 20/s cap = +1 every tick).
+  Same rate maths as v4. `bank/interest/pay` = 20 ticks (the demo's +60 s). Sidebar Bank row redraws on change every tick (`economy/hud/bank`).

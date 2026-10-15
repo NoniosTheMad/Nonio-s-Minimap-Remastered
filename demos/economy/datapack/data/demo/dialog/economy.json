@@ -116,13 +116,13 @@
         "command": "trigger demo.ec set 7"
       },
       "tooltip": {
-        "text": "Next to the pad: step on a gold plate to bank, right-click the vault to withdraw"
+        "text": "Next to the gold floor: walk in to bank, right-click the vault to withdraw"
       }
     },
     {
       "label": "Go to the enemy bank",
       "tooltip": {
-        "text": "Its pad and vault refuse you"
+        "text": "Its zone and vault refuse you"
       },
       "width": 150,
       "action": {

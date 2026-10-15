@@ -1,9 +1,12 @@
-# with <team>.bank {team,x,y,z,facing}: 3x3 gold pad with a vault in the middle and 8 gold pressure plates around it.
-# Stepping onto a plate deposits the whole purse (bank/pad, own team only). Right-clicking the vault
+# with <team>.bank {team,x,y,z,facing}: 5x5 gold floor (raw gold rim, gold blocks inside) with a vault in the middle.
+# The floor marks the bank zone: entering it (walk, jump, fly) deposits the whole purse (bank/zone, own team only, no blocks
+# involved). Right-clicking the vault
 # (interaction nx.bank_npc -> advancement nonios:bank/click) opens the withdraw dialog.
 # Marker nx.bank_zone + nx.<team> = where bank/near measures config bank_range from (own team only).
+$execute positioned $(x) $(y) $(z) run fill ~-2 ~ ~-2 ~2 ~ ~2 minecraft:raw_gold_block
 $execute positioned $(x) $(y) $(z) run fill ~-1 ~ ~-1 ~1 ~ ~1 minecraft:gold_block
-$execute positioned $(x) $(y) $(z) run fill ~-1 ~1 ~-1 ~1 ~1 ~1 minecraft:light_weighted_pressure_plate
+# open air over the zone (also removes the bank v4 pressure plates from older worlds)
+$execute positioned $(x) $(y) $(z) run fill ~-2 ~1 ~-2 ~2 ~3 ~2 minecraft:air
 # solid but invisible core under the vault display (the slightly larger interaction box still catches the click)
 $execute positioned $(x) $(y) $(z) run setblock ~ ~1 ~ minecraft:barrier
 $execute positioned $(x) $(y) $(z) align xyz positioned ~0.5 ~1 ~0.5 run summon minecraft:marker ~ ~ ~ {Tags:["nx.bank_zone","nx.$(team)"]}

@@ -3,7 +3,7 @@
 scoreboard objectives add nx.eco dummy
 scoreboard objectives add nx.bank dummy
 # bank triggers (permission 0, no op prompt): nx.bankt 1 open the withdraw dialog / 3 withdraw all / 4 withdraw half,
-# nx.bankw = withdraw N (preset buttons). Deposits need no trigger: stepping onto your own bank pad (bank/pad/*).
+# nx.bankw = withdraw N (preset buttons). Deposits need no trigger: entering your own bank zone (bank/zone/*).
 scoreboard objectives add nx.bankt trigger
 scoreboard objectives add nx.bankw trigger
 # the deposit slider is gone (bank v4, #47)
@@ -24,10 +24,10 @@ scoreboard players set #-1 nx.eco -1
 scoreboard players add #white nx.bank 0
 scoreboard players add #black nx.bank 0
 # --- config (storage nonios:config), defaults only when missing so admin changes survive /reload ---
-# interest (bank v4, feedback #47, like V2): every second (prep + battle) each team bank earns rate of itself,
-# at most interest_cap coins per second. rate (basis points, 100 = 1%) slides linearly with the match clock:
+# interest (bank v4, feedback #47, like V2): each second (prep + battle) each team bank earns rate of itself,
+# at most interest_cap_s coins per second, paid +1 at a time every tick (bank v3, #94: bank/interest/tick). rate (basis points, 100 = 1%) slides linearly with the match clock:
 #   rate = interest_start + (interest_end - interest_start) * min(match seconds, interest_ramp) / interest_ramp
-# Defaults 1% -> 10% over 30 min, cap 20/s. Fractions of a coin carry over per team (#acc_<team>, 1/10000 coin).
+# Defaults 1% -> 10% over 30 min, cap 20/s. Fractions of a coin carry over per team (#acc_<team>, 1/200000 coin).
 data remove storage nonios:config interest_rate
 data remove storage nonios:config interest_grow
 data remove storage nonios:config interest_rate_max
@@ -59,6 +59,7 @@ function nonios:economy/hud/lines {team:"black"}
 schedule clear nonios:bank/interest/loop
 scoreboard players set #10000 nx.eco 10000
 scoreboard players set #1000000 nx.eco 1000000
+scoreboard players set #200000 nx.eco 200000
 scoreboard players set #2 nx.eco 2
 # withdraw dialog (bank/open): Half and All greyed in the same places when the bank is empty; no action = inactive
 data modify storage nonios:bank off set value [{label:{text:"Half",color:"dark_gray"},tooltip:{text:"The bank is empty"},width:150},{label:{text:"All",color:"dark_gray"},tooltip:{text:"The bank is empty"},width:150}]

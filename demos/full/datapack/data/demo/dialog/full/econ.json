@@ -59,7 +59,7 @@
   {
    "label": "TP: my bank",
    "tooltip": {
-    "text": "Next to the pad: step on a gold plate to bank your purse, right-click the vault to withdraw"
+    "text": "Next to the gold floor: walk in to bank your purse, right-click the vault to withdraw"
    },
    "action": {
     "type": "minecraft:run_command",

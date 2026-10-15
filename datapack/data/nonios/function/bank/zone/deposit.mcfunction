@@ -1,4 +1,4 @@
-# {team, Team, color, enemy}: as/at the depositor on their own pad: purse -> team bank, then the cues
+# {team, Team, color, enemy}: as/at the depositor entering their own bank zone: purse -> team bank, then the cues
 # (depositor: subtitle + sounds + particles; team: chat line + chime; enemy team: actionbar + bell, like a goal scored)
 scoreboard players add @s nx.coins 0
 execute if score @s nx.coins matches ..0 run return 0

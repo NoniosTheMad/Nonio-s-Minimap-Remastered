@@ -1,5 +1,5 @@
 # {team, Team, color}: as the player at their own vault. Builds the withdraw dialog in storage nonios:bank ui.d and shows it.
-# Bank v4 (#47): deposits happen on the pad, so the vault only pays out. Fixed layout (Dialog UI rules): body = purse,
+# Bank v4 (#47): deposits happen in the bank zone, so the vault only pays out. Fixed layout (Dialog UI rules): body = purse,
 # bank, interest now; eight buttons, always in the same places: 10 | 50 / 100 | 200 / 500 | 1000 / Half | All.
 # A button the bank can't cover is greyed (dark_gray, no action, tooltip). Clicks -> /trigger nx.bankw set N or
 # nx.bankt set 3 (all) / 4 (half); the dialog redraws with the new balances, so repeated clicks are quick.
