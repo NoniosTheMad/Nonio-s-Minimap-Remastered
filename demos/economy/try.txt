@@ -1,6 +1,6 @@
-Your role: walk-in bank + smooth interest: keep or change?
+Your role: bank + purse feel: keep or change?
 Check:
-- Go to my bank with coins, walk or jump in: banks once?
-- Withdraw at the vault while inside: no re-deposit?
-- Sidebar Bank ticks +1 at a time: smooth enough?
+- Walk or jump into your bank with coins: banks once?
+- Mine ores: +0.1 popup and blue decimals readable?
+- Interest 0% -> 2%/min at min 30, on 2000 coins: fair?
 - Gold floor reads as the bank zone?

@@ -49,3 +49,14 @@ Bank v3 (feat/bank-v3, feedback #94; replaces the bank v4 pad and once-a-second 
 - Interest = smooth: `bank/interest/tick` every tick in prep/battle; per team #i = min(bank,1e6) x rate (1/10000 coin per s),
   capped at icap x 10000; `#acc_<team>` += #i, pays 1 coin per 200000 (so +1 every 20/N ticks; 20/s cap = +1 every tick).
   Same rate maths as v4. `bank/interest/pay` = 20 ticks (the demo's +60 s). Sidebar Bank row redraws on change every tick (`economy/hud/bank`).
+
+Purse decimals (#107): the actionbar coin line shows `nx.pfrac` (hundredths) in light blue after the whole coins (`purse/show`,
+pieces built in storage `nonios:purse hud` by `purse/hud/*`). `purse/gain` (every tick) compares coins x 100 + pfrac with the last
+tick (`nx.ptot`); a rise shows "+N.NN" fading over 30 ticks (`nx.pgain`, `nx.ptime`). The bank only ever moves whole coins
+(deposit takes `nx.coins`; the fraction stays in the purse).
+
+Interest #108 (data-driven, storage nonios:config, `economy/load`): `interest_period` (60 = per minute), `interest_curve`
+points {t: match s, r: ppm per period} joined by a monotone cubic (`bank/curve/build` tangents at load, `bank/curve/eval`),
+`interest_base` (2000: only that much of the bank earns), `interest_scale` %. Defaults 0% -> 0.5% (10 min) -> 1% (20) -> 2% (30),
+max 40 coins/min. Paid +1 at a time: per tick acc += min(bank, base) x ppm, a coin per period-ticks x 1e6. Text `nonios:eco rtxt`.
+Admin page: base -/+500, curve x -/+25%, per second / per minute.

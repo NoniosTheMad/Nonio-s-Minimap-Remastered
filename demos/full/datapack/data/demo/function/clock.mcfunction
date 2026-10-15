@@ -5,4 +5,4 @@ function nonios:purse/scale
 # the Barrier clock (#48 decay) too, if the battle runs
 execute if score #on nx.nxs matches 1 run scoreboard players add #bsec nx.nxs 600
 function nonios:economy/rate
-tellraw @s [{"text":"[demo] Match minute ","color":"yellow"},{"score":{"name":"#emin","objective":"nx.eco"},"color":"white"},{"text":": interest ","color":"yellow"},{"score":{"name":"#rw","objective":"nx.eco"},"color":"aqua"},{"text":".","color":"aqua"},{"score":{"name":"#rt","objective":"nx.eco"},"color":"aqua"},{"text":"%/s, max ","color":"yellow"},{"score":{"name":"#icap","objective":"nx.eco"},"color":"gold"},{"text":"/s","color":"yellow"}]
+tellraw @s [{"text":"[demo] Match minute ","color":"yellow"},{"score":{"name":"#emin","objective":"nx.eco"},"color":"white"},{"text":": interest ","color":"yellow"},{"nbt":"rtxt","storage":"nonios:eco","color":"aqua"}]

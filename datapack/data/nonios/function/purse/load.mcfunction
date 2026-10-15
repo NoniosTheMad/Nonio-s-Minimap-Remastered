@@ -39,6 +39,10 @@ execute unless score #ab_every nx.purse = #ab_every nx.purse run scoreboard play
 # the remainder below 1 coin is kept per player in nx.pfrac and paid once it adds up. Unlisted blocks (stone,
 # deepslate, cobblestone...) earn nothing and cost nothing to place. Fortune: +#fortune_pct % per level.
 scoreboard objectives add nx.pfrac dummy
+# purse gain popup (purse/gain): last total in hundredths, gain on show (hundredths), popup ticks left
+scoreboard objectives add nx.ptot dummy
+scoreboard objectives add nx.pgain dummy
+scoreboard objectives add nx.ptime dummy
 function nonios:purse/gen/yields
 # --- emerald items: coins on pickup (purse/emerald), same as the centre generator's coin outcomes (#ce1 / #ce9 nx.gen) ---
 execute unless score #emerald_item nx.coinval = #emerald_item nx.coinval run scoreboard players set #emerald_item nx.coinval 5

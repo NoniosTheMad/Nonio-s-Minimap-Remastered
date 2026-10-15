@@ -14,8 +14,8 @@ scoreboard players operation #h nx.eco /= #2 nx.eco
 execute store result storage nonios:bank ui.a.h int 1 run scoreboard players get #h nx.eco
 $execute store result storage nonios:bank ui.a.l int 1 run scoreboard players get #last_$(team) nx.eco
 function nonios:economy/rate
-execute store result storage nonios:bank ui.a.rw int 1 run scoreboard players get #rw nx.eco
-execute store result storage nonios:bank ui.a.rt int 1 run scoreboard players get #rt nx.eco
+data modify storage nonios:bank ui.a.r set from storage nonios:eco rtxt
+data modify storage nonios:bank ui.a.u set from storage nonios:eco unit
 data modify storage nonios:bank ui.d set value {type:"minecraft:multi_action",title:"",body:[],actions:[],columns:2,pause:false,after_action:"wait_for_response",exit_action:{label:"Close"}}
 function nonios:bank/ui/head with storage nonios:bank ui.a
 function nonios:bank/ui/preset {n:10}

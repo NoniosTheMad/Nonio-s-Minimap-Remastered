@@ -24,20 +24,30 @@ scoreboard players set #-1 nx.eco -1
 scoreboard players add #white nx.bank 0
 scoreboard players add #black nx.bank 0
 # --- config (storage nonios:config), defaults only when missing so admin changes survive /reload ---
-# interest (bank v4, feedback #47, like V2): each second (prep + battle) each team bank earns rate of itself,
-# at most interest_cap_s coins per second, paid +1 at a time every tick (bank v3, #94: bank/interest/tick). rate (basis points, 100 = 1%) slides linearly with the match clock:
-#   rate = interest_start + (interest_end - interest_start) * min(match seconds, interest_ramp) / interest_ramp
-# Defaults 1% -> 10% over 30 min, cap 20/s. Fractions of a coin carry over per team (#acc_<team>, 1/200000 coin).
+# interest (#108; paid +1 at a time every tick, bank/interest/tick). All terms here, in storage nonios:config:
+#   interest_period  seconds per rate period (60 = the rate is per minute; 1 = per second), 1..100
+#   interest_curve   rate over the match clock: points {t: match seconds, r: parts per million per period (10000 = 1%)},
+#                    joined by a smooth monotone cubic (bank/curve), flat before the first / after the last point
+#   interest_base    only this many banked coins earn (2000 x 2% = 40 per period at most)
+#   interest_scale   percent applied to the whole curve (admin)
+# Defaults: 0% -> 0.5% at min 10 -> 1% at 20 -> 2% at 30, per minute, on at most 2000 coins.
+# interest_v 2 = this scheme; older worlds drop their v4 keys (interest_start/end/ramp/cap_s) and get the defaults.
+execute unless data storage nonios:config {interest_v:2} run data remove storage nonios:config interest_period
+execute unless data storage nonios:config {interest_v:2} run data remove storage nonios:config interest_curve
 data remove storage nonios:config interest_rate
 data remove storage nonios:config interest_grow
 data remove storage nonios:config interest_rate_max
-data remove storage nonios:config interest_period
 data remove storage nonios:config interest_cap_grow
-execute unless data storage nonios:config interest_start run data modify storage nonios:config interest_start set value 100
-execute unless data storage nonios:config interest_end run data modify storage nonios:config interest_end set value 1000
-execute unless data storage nonios:config interest_ramp run data modify storage nonios:config interest_ramp set value 1800
-execute unless data storage nonios:config interest_cap_s run data modify storage nonios:config interest_cap_s set value 20
+data remove storage nonios:config interest_start
+data remove storage nonios:config interest_end
+data remove storage nonios:config interest_ramp
+data remove storage nonios:config interest_cap_s
 data remove storage nonios:config interest_cap
+data modify storage nonios:config interest_v set value 2
+execute unless data storage nonios:config interest_period run data modify storage nonios:config interest_period set value 60
+execute unless data storage nonios:config interest_curve run data modify storage nonios:config interest_curve set value [{t:0,r:0},{t:600,r:5000},{t:1200,r:10000},{t:1800,r:20000}]
+execute unless data storage nonios:config interest_base run data modify storage nonios:config interest_base set value 2000
+execute unless data storage nonios:config interest_scale run data modify storage nonios:config interest_scale set value 100
 # bank: usable within bank_range blocks of your own team's vault
 execute unless data storage nonios:config bank_range run data modify storage nonios:config bank_range set value 5
 # kills: kill_reward + bounty (victim streak >= bounty_min_streak: streak * bounty_per_kill, max bounty_cap, 0 = no cap)
@@ -59,7 +69,11 @@ function nonios:economy/hud/lines {team:"black"}
 schedule clear nonios:bank/interest/loop
 scoreboard players set #10000 nx.eco 10000
 scoreboard players set #1000000 nx.eco 1000000
-scoreboard players set #200000 nx.eco 200000
+scoreboard players set #3 nx.eco 3
+scoreboard players set #2000 nx.eco 2000
+# interest curve (needs the constants above): tangents once per load; rate recomputed on the next tick
+function nonios:bank/curve/build
+scoreboard players set #rsec nx.eco -1
 scoreboard players set #2 nx.eco 2
 # withdraw dialog (bank/open): Half and All greyed in the same places when the bank is empty; no action = inactive
 data modify storage nonios:bank off set value [{label:{text:"Half",color:"dark_gray"},tooltip:{text:"The bank is empty"},width:150},{label:{text:"All",color:"dark_gray"},tooltip:{text:"The bank is empty"},width:150}]

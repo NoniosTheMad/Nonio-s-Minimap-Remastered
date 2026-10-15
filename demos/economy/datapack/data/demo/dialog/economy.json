@@ -100,7 +100,7 @@
         "color": "aqua"
       },
       "tooltip": {
-        "text": "Pays one minute of interest at once (60 payouts)"
+        "text": "Pays one minute of interest at once"
       },
       "width": 150,
       "action": {
