@@ -1,0 +1,39 @@
+{
+ "description": {
+  "text": "Bloodlust",
+  "color": "red"
+ },
+ "supported_items": "minecraft:stone_axe",
+ "weight": 1,
+ "max_level": 1,
+ "anvil_cost": 1,
+ "min_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "max_cost": {
+  "base": 1,
+  "per_level_above_first": 0
+ },
+ "slots": [
+  "mainhand"
+ ],
+ "effects": {
+  "minecraft:post_attack": [
+   {
+    "enchanted": "attacker",
+    "affected": "attacker",
+    "effect": {
+     "type": "minecraft:run_function",
+     "function": "nonios:class/berserker/lifesteal"
+    },
+    "requirements": {
+     "type": "minecraft:damage_source_properties",
+     "predicate": {
+      "is_direct": true
+     }
+    }
+   }
+  ]
+ }
+}

@@ -16,7 +16,7 @@ Status key: **done** = playable and reviewed by the user. **built** = playable, 
 | Miner | 80 | leather, pickaxe, night vision | night vision + mining grit, Block Pulverizer flask (haste III + glowing 8 s, 45 s cd) | built (main) |
 | Tank | 100 | iron + shield | iron + locked shield, +2 hearts, 40% knockback resistance, Ironskin flask | built (main) |
 | Ninja | 100 | armour stripped, Chunin Sandals | sandals only: fast, step-up, frost walker, light fall; Genjutsu flask (invisible + fast) | built (main) |
-| Berserker | 120 | strength, speed, regen, armour stripped | BattleAxe: huge hits, fast, no knockback, regen, armour 0 while held | built (main) |
+| Berserker | 120 | strength, speed, regen, armour stripped | #84: light axe (3 dmg, attack speed 8), axe out = Resistance IV + armour 0 + speed + no knockback; Strength I/II/III at <=75/50/25 % HP; hit = +2 hearts lifesteal (once per 1.5 s); no natural/food regeneration (food held at 17 by hidden Hunger, Saturation effects stripped) | built |
 | **Champion** | 150 | none | grows with player kills while undefeated (see below) | **new**, built |
 | Reaper | 200 | pumpkin, scythe, permanent invisibility + speed II, 3 s resistance V per kill | see below (#70/#71 rework) | built |
 | Monster | 1800 | Monster Transformation (300) / Skull (1800): devour on kill, hunger | +10 hearts, bigger, faster, claws; every kill devoured (strength, speed, heal) | built (main) |

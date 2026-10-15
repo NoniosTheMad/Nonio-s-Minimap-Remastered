@@ -1,5 +1,6 @@
-Your role: judge whether Reaper, Cracy Frog and Champion are scary but escapable, and annoying but fair.
+Your role: judge whether Reaper, Cracy Frog, Champion and Berserker are scary but escapable, and annoying but fair.
 Check: Reaper flight (Space up, Shift down, hover) feels free but cannot climb past 10 blocks over the ground; a kill hides the pumpkin and scythe too.
 Check: Frog tongue (right-click, Shift = RIBBIT) is easy to see coming, and being yanked hurts without being lethal.
 Check: Champion's growth per dummy kill (hearts, damage, glow from 3) feels earned rather than snowbally.
+Check: Berserker (axe out) feels tanky but beatable: fast weak swings, life steal, harder hits as it bleeds, and food never heals it.
 Controls: G > Demo: Classes has every class, dummies (they count as player kills), Reset cooldowns, Simulate death.

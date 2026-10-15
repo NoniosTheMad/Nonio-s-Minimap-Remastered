@@ -761,14 +761,17 @@
         "sprite": "minecraft:item/stone_axe"
       },
       "lost_msg": "The fury burned out.",
-      "blurb": "A battle axe that hits like a truck and makes you fast, unshakeable and regenerating. While it is out your armour counts for nothing.",
+      "blurb": "A light axe that swings very fast. While it is out: Resistance IV, no armour, unshakeable, every hit steals life, and the lower your health the harder you hit. Food never heals you.",
       "vision": [],
       "hooks": [
+        "tick",
         "second",
         "on_strip"
       ],
       "clear_effects": [
-        "minecraft:regeneration"
+        "minecraft:resistance",
+        "minecraft:strength",
+        "minecraft:hunger"
       ],
       "items": {
         "axe": {
@@ -788,14 +791,24 @@
               "text": ""
             },
             {
-              "text": "In hand: armour 0, fast, no knockback, regenerating",
+              "text": "In hand: Resistance IV, armour 0, no knockback, very fast swings",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Hit: steal life. Hurt: hit harder (75/50/25% health)",
+              "color": "dark_green",
+              "italic": false
+            },
+            {
+              "text": "Food never heals a Berserker",
               "color": "dark_green",
               "italic": false
             }
           ],
           "components": {
             "minecraft:enchantments": {
-              "minecraft:sharpness": 2
+              "nonios:class/berserk_lust": 1
             },
             "minecraft:weapon": {
               "item_damage_per_attack": 0
@@ -804,14 +817,14 @@
               {
                 "type": "minecraft:attack_damage",
                 "id": "minecraft:base_attack_damage",
-                "amount": 10,
+                "amount": 2,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
               {
                 "type": "minecraft:attack_speed",
                 "id": "minecraft:base_attack_speed",
-                "amount": -3.1,
+                "amount": 4.0,
                 "operation": "add_value",
                 "slot": "mainhand"
               },
@@ -847,7 +860,47 @@
           }
         }
       },
-      "enchantments": {}
+      "enchantments": {
+        "berserk_lust": {
+          "description": {
+            "text": "Bloodlust",
+            "color": "red"
+          },
+          "supported_items": "minecraft:stone_axe",
+          "weight": 1,
+          "max_level": 1,
+          "anvil_cost": 1,
+          "min_cost": {
+            "base": 1,
+            "per_level_above_first": 0
+          },
+          "max_cost": {
+            "base": 1,
+            "per_level_above_first": 0
+          },
+          "slots": [
+            "mainhand"
+          ],
+          "effects": {
+            "minecraft:post_attack": [
+              {
+                "enchanted": "attacker",
+                "affected": "attacker",
+                "effect": {
+                  "type": "minecraft:run_function",
+                  "function": "nonios:class/berserker/lifesteal"
+                },
+                "requirements": {
+                  "type": "minecraft:damage_source_properties",
+                  "predicate": {
+                    "is_direct": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     },
     "champion": {
       "num": 11,
