@@ -1792,8 +1792,9 @@ def cmd_up(a):
     if sp:
         s["spawn"] = sp
     s["review"] = reg.get(name, {}).get("review", not s["persistent"])
-    if reg.get(name, {}).get("archive"):  # note + id survive revive/re-archive
-        s["archive"] = reg[name]["archive"]
+    for k in ("archive", "approved"):  # archive note + id, approval survive revive/re-archive
+        if reg.get(name, {}).get(k):
+            s[k] = reg[name][k]
     t = start(name, s)
     print(f"{name} up on {HOST}:{port} ({t:.0f}s)  branch={branch}" + (f" demo={s['demo']}" if s['demo'] else ""))
     if name not in reg and not s["persistent"]:  # brand-new demo/branch server (not a restart)
@@ -2025,10 +2026,12 @@ def retire(name, kind, note="", player=None, wait=20):
     ctx = (f"  | kind {kind}: branch {s['branch']} @ {commit}, worktree {s['src']}\n"
            + ("  | WARNING: uncommitted changes in the worktree (not in that commit)\n" if dirty else ""))
     fid = write_feedback(name, s, player or USER, title, note or "(no note)", ctx=ctx)
+    reg = load_reg()  # the latest decision wins: shelving an approved server withdraws the approval
     if kind == "approved":
-        reg = load_reg()
         reg[name]["approved"] = dict(date=time.strftime("%Y-%m-%d %H:%M"), commit=commit, note=note, fid=fid)
-        save_reg(reg)
+    else:
+        reg[name].pop("approved", None)
+    save_reg(reg)
     word = "approved" if kind == "approved" else "shelved"
     dest = None
     if s.get("status") == "up":  # never stop a server with players on it: send them away first

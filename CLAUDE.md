@@ -114,7 +114,7 @@ tools/mcdev.py     dev-server manager (mcdev.cmd wrapper)
     uncommitted worktree changes), registry `approved: {date, commit, note, fid}`, then archived with `archive.kind = "approved"`.
     **Claude: merge that branch@commit into main** at the next checkpoint, then `mcdev feedback --resolve N`.
   - **Shelve** = review closed, NOT adopted (the user's feedback on it is considered handled; follow-up demos go to NEW servers):
-    entry `■ CLOSED <name> <branch>@<short> (not adopted)`, archived with `kind = "shelved"`. Don't merge; don't reuse the server.
+    entry `■ CLOSED <name> <branch>@<short> (not adopted)`, archived with `kind = "shelved"` (clears `approved`). Don't merge; don't reuse the server.
   - Players on it are transferred first (hub, else any other up server), and it is only stopped once empty; if they can't be moved
     the entry is still written but the server stays up. Greyed with a tooltip: both on hub/main/test, Approve on branch `main`.
   - CLI parity: `mcdev approve <name> [--note ..]`, `mcdev archive <name> [--note ..]` (= shelve; re-archiving an archived one only
