@@ -183,3 +183,16 @@ Final stats: 8/14 floors, stability PASS. The six FAILs:
 - containers and BE props.
 
 Lights, joinery, containers and BE props are furnishing-scope floors; this brief forbids furnishing.
+
+## P11: in-game check (mcfilm stills, noon + midnight)
+Stills: `.mcdev/film/vharzul_cams_noon`, `vharzul_cams_midnight`, `vharzul_falls`, `vharzul_heart2`.
+Weakest three in game:
+1. The caged heart flooded the sanctum and the helix foot with flowing lava: the 0.5-thick cage ring leaves orthogonal
+   gaps at the four diagonal corners. Fix: `seal_heart` turns every heart lava cell with an air side (or air below) into
+   iron bars. Leak check (scratch `leaks.py`): heart leaks 393 -> 0. Re-placed (pristine) and re-protected; the hall axis
+   now ends on the caged column.
+2. The four lava falls and the Breach fall are source columns with open sides: static as placed (no block updates, the
+   build is protected), but a block update next to one would make it spread. Left as is; a vanilla-stable version would be
+   a single source at the top with falling lava below.
+3. The bailey still reads as a canyon against the Fang at eye level, and the forge hall is dim at noon (lava light only).
+   Not changed in this pass.

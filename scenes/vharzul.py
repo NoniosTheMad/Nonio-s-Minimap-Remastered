@@ -1862,6 +1862,28 @@ def throne_crown(s):
 
 
 # ================================================================== build
+def seal_heart(s):
+    """The caged heart's lava leaked into the sanctum and the helix in game: the thin cage ring leaves orthogonal gaps at the
+    four diagonal corners. Any heart lava cell with an air side (or air below) becomes iron bars, so lava never touches air
+    except upward."""
+    r, _ = polar(s.shape, C)
+    zone = (r < 6.0)[:, None, :] & (YY >= DECK - 8) & (YY <= 132)
+    for _ in range(3):
+        lava = s.match("lava") & zone
+        air = s.match("air")
+        bad = np.zeros_like(lava)
+        for ax, sh in ((0, 1), (0, -1), (2, 1), (2, -1), (1, 1)):
+            nb = np.roll(air, sh, axis=ax)       # nb[c] = air at c - sh along ax
+            sl = [slice(None)] * 3
+            sl[ax] = 0 if sh == 1 else -1
+            nb[tuple(sl)] = False
+            bad |= lava & nb
+        if not bad.any():
+            break
+        s.fill(bad, "iron_bars")
+    return int(bad.sum())
+
+
 def build():
     s = Scene((W, H, D), "vharzul", seed=SEED)
     h, r, th = terrain(s)
@@ -1936,6 +1958,8 @@ def build():
         bone_grain(s)
         night_fixtures(s)
         light_interiors(s)
+    if PASS >= 11:
+        seal_heart(s)
     cameras(s)
     s.meta.pop("_bridge_prof", None)
     s.meta.pop("_edge", None)
